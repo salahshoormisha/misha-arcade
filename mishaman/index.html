@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>MISHA-MAN 💋</title>
+<meta property="og:title" content="MISHA-MAN — the maze spells her name">
+<meta property="og:description" content="Eat every pellet, light up M·I·S·H·A, outrun DEADLINE, INBOX, MEETINGS & BUDGET.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
+<style>
+  :root {
+    --pink: #ff4fa3; --bg: #070312; --panel: #140b2e;
+    --chrome: linear-gradient(180deg,#fff,#ffd1ec 35%,#ff4fa3 50%,#8f2bd8 65%,#fff);
+  }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1200px 700px at 50% -10%, #241147 0%, var(--bg) 60%);
+    color: #ffe3f3; font-family: "SF Mono", Menlo, Monaco, monospace;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100%; padding: 10px; overflow-x: hidden;
+  }
+  a { color: #b18cff; text-decoration: none; }
+  header { width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 8px; }
+  header .back { font-size: 13px; opacity: .8; }
+  header .title {
+    font-weight: 800; font-size: clamp(20px, 4.6vw, 30px); letter-spacing: 3px;
+    background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 12px rgba(255,79,163,.6));
+  }
+  #mute { background: none; border: 1px solid #4a3a7d; color: #ffe3f3; border-radius: 8px; font-size: 16px; padding: 4px 8px; cursor: pointer; }
+  .hud {
+    width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; padding: 4px 6px 8px; gap: 10px; flex-wrap: wrap;
+  }
+  .hud b { color: #fff; font-size: 16px; }
+  .hud .lbl { color: #8f7bd8; font-size: 10px; letter-spacing: 2px; display: block; }
+  #lives { display: flex; gap: 5px; }
+  .life {
+    width: 14px; height: 14px; border-radius: 50%; display: inline-block;
+    background: conic-gradient(from 25deg, transparent 0 65deg, var(--pink) 65deg 360deg);
+    filter: drop-shadow(0 0 4px var(--pink));
+  }
+  #stage { position: relative; width: 100%; max-width: 900px; }
+  canvas#game {
+    width: 100%; height: auto; display: block; border-radius: 12px;
+    border: 1px solid #33245e; box-shadow: 0 0 40px rgba(120,60,220,.25), inset 0 0 60px rgba(0,0,0,.5);
+    background: #0b0620; touch-action: none;
+  }
+  #overlay {
+    position: absolute; inset: 0; display: none; text-align: center;
+    flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    background: rgba(7,3,18,.82); border-radius: 12px; padding: 14px; backdrop-filter: blur(3px);
+  }
+  #overlay.show { display: flex; }
+  .logo {
+    font-size: clamp(34px, 8vw, 62px); font-weight: 900; letter-spacing: 4px;
+    background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(255,79,163,.75));
+  }
+  .big { font-size: clamp(26px, 6vw, 44px); font-weight: 900; letter-spacing: 4px; color: #ffd84f; text-shadow: 0 0 16px currentColor; }
+  .ready-flash { animation: pulse 0.5s infinite alternate; color: #ffd84f; }
+  @keyframes pulse { from { opacity: .6 } to { opacity: 1 } }
+  .sub { font-size: 13px; color: #d9c6ff; }
+  .dim { opacity: .6; font-size: 11px; }
+  .tiny { font-size: 9px; opacity: .7; }
+  .rollcall-title { margin-top: 6px; font-size: 11px; letter-spacing: 3px; color: #8f7bd8; }
+  .rollcall { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 640px; }
+  .ghostcard { width: 128px; padding: 8px 4px; background: rgba(255,255,255,.04); border: 1px solid #33245e; border-radius: 10px; }
+  .gsprite svg { animation: bob 1.2s ease-in-out infinite alternate; }
+  @keyframes bob { from { transform: translateY(-2px) } to { transform: translateY(3px) } }
+  .gname { font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-top: 2px; }
+  .gtag { font-size: 9px; opacity: .7; margin-top: 3px; line-height: 1.35; }
+  .btn {
+    margin-top: 6px; cursor: pointer; font-family: inherit; font-weight: 800; letter-spacing: 2px;
+    font-size: 15px; color: #14032a; background: linear-gradient(180deg, #ffd1ec, var(--pink));
+    border: none; border-radius: 999px; padding: 11px 26px;
+    box-shadow: 0 0 18px rgba(255,79,163,.55);
+  }
+  .btn.alt { background: linear-gradient(180deg, #c9fff1, #33e6c8); box-shadow: 0 0 18px rgba(51,230,200,.45); font-size: 12px; }
+  .btn:active { transform: scale(.96); }
+  #paused {
+    position: absolute; inset: 0; display: none; place-items: center;
+    background: rgba(7,3,18,.7); border-radius: 12px; font-size: 30px; font-weight: 900; letter-spacing: 6px; color: #ffd84f;
+  }
+  .meter { display: flex; gap: 8px; justify-content: center; padding: 10px 0 4px; }
+  .meter span {
+    font-size: 22px; font-weight: 900; color: #3a2a66; letter-spacing: 2px; transition: all .3s;
+  }
+  .meter span.lit { color: var(--lc); text-shadow: 0 0 14px var(--lc); transform: scale(1.15); }
+  footer { font-size: 10px; opacity: .55; padding: 8px 0 4px; text-align: center; line-height: 1.6; }
+  #rotate-hint { display: none; font-size: 11px; color: #ffd84f; padding: 6px 0 0; }
+  @media (max-width: 560px) and (orientation: portrait) { #rotate-hint { display: block; } }
+</style>
+</head>
+<body>
+  <header>
+    <a class="back" href="../">← arcade</a>
+    <div class="title">MISHA-MAN</div>
+    <button id="mute" title="mute (M)">🔊</button>
+  </header>
+  <div class="hud">
+    <div><span class="lbl">SCORE</span><b id="score">0</b></div>
+    <div><span class="lbl">HI-SCORE</span><b id="hiscore">0</b></div>
+    <div><span class="lbl">LEVEL</span><b id="level">1</b></div>
+    <div><span class="lbl">LIVES</span><div id="lives"></div></div>
+  </div>
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <div id="overlay"></div>
+    <div id="paused">PAUSED</div>
+  </div>
+  <div class="meter">
+    <span id="meter-M">M</span><span id="meter-I">I</span><span id="meter-S">S</span><span id="meter-H">H</span><span id="meter-A">A</span>
+  </div>
+  <div id="rotate-hint">📱 rotate your phone for the full maze, gorgeous</div>
+  <footer>
+    light up every letter of your name · 💋 = ghosts get scared · the office ghosts have feelings too<br>
+    arrows / WASD / swipe · P pause · M mute · D on title = duo date mode
+  </footer>
+  <script src="maze.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

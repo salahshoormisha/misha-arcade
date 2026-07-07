@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MISHA'S MIDNIGHT ARCADE 🕹️</title>
+<meta property="og:title" content="MISHA'S MIDNIGHT ARCADE">
+<meta property="og:description" content="Two games, one name. MISHA-MAN & TETRISHA — built overnight with 💖.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+<style>
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background:
+      radial-gradient(2px 2px at 12% 20%, #fff8, transparent 60%),
+      radial-gradient(1.6px 1.6px at 78% 12%, #ffd1ec99, transparent 60%),
+      radial-gradient(2px 2px at 30% 70%, #b18cff88, transparent 60%),
+      radial-gradient(1.4px 1.4px at 88% 55%, #fff6, transparent 60%),
+      radial-gradient(1.8px 1.8px at 55% 35%, #4fd8ff77, transparent 60%),
+      radial-gradient(2px 2px at 8% 88%, #ffd84f66, transparent 60%),
+      radial-gradient(1400px 800px at 50% -10%, #2a1454 0%, #070312 62%);
+    color: #ffe3f3; font-family: "SF Mono", Menlo, Monaco, monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100%; padding: 26px 16px; text-align: center; gap: 8px;
+  }
+  .marquee {
+    font-size: clamp(30px, 7.4vw, 64px); font-weight: 900; letter-spacing: 5px; line-height: 1.15;
+    background: linear-gradient(180deg, #fff, #ffd1ec 32%, #ff4fa3 50%, #8f2bd8 68%, #fff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 22px rgba(255, 79, 163, .65));
+    animation: glowpulse 2.6s ease-in-out infinite alternate;
+  }
+  @keyframes glowpulse {
+    from { filter: drop-shadow(0 0 14px rgba(255,79,163,.45)); }
+    to   { filter: drop-shadow(0 0 30px rgba(255,79,163,.85)); }
+  }
+  .tag { color: #b9a3ee; font-size: clamp(11px, 2.6vw, 14px); letter-spacing: 3px; margin-bottom: 22px; }
+  .cabs { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 860px; }
+  .cab {
+    flex: 1 1 300px; max-width: 400px; text-decoration: none; color: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid #3b2a6e; border-radius: 18px; padding: 22px 18px 20px;
+    transition: transform .18s ease, box-shadow .18s ease;
+    position: relative; overflow: hidden;
+  }
+  .cab::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(400px 160px at 50% 0%, var(--glow), transparent 70%);
+    opacity: .28; pointer-events: none;
+  }
+  .cab:hover { transform: translateY(-5px) scale(1.015); box-shadow: 0 14px 44px -10px var(--glow); }
+  .cab h2 {
+    font-size: clamp(24px, 5vw, 34px); font-weight: 900; letter-spacing: 3px; color: var(--accent);
+    text-shadow: 0 0 18px var(--glow);
+  }
+  .cab .art { font-size: clamp(26px, 6vw, 38px); letter-spacing: 6px; margin: 16px 0 12px; display: block; }
+  .cab .art .chase { display: inline-block; animation: chase 3s ease-in-out infinite alternate; }
+  @keyframes chase { from { transform: translateX(-8px) } to { transform: translateX(8px) } }
+  .cab p { font-size: 12px; color: #d9c6ff; line-height: 1.7; }
+  .cab .cta {
+    display: inline-block; margin-top: 16px; font-weight: 800; letter-spacing: 2px; font-size: 13px;
+    color: #14032a; background: linear-gradient(180deg, #fff, var(--accent));
+    border-radius: 999px; padding: 10px 24px; box-shadow: 0 0 18px var(--glow);
+  }
+  .duo { margin-top: 20px; font-size: 11px; color: #8f7bd8; letter-spacing: 1px; }
+  footer { margin-top: 26px; font-size: 11px; color: #7c68b8; line-height: 2; }
+  #note-btn { cursor: pointer; font-size: 20px; background: none; border: none; filter: drop-shadow(0 0 8px #ff8fc6); animation: glowpulse 2s infinite alternate; }
+  #note {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(7,3,18,.86); backdrop-filter: blur(4px); padding: 20px; z-index: 10;
+  }
+  #note.show { display: flex; }
+  #note .card {
+    max-width: 460px; background: linear-gradient(180deg, #1d1040, #120829);
+    border: 1px solid #4a3a7d; border-radius: 16px; padding: 28px 26px; text-align: left;
+    font-size: 13px; line-height: 1.9; color: #ecdfff; box-shadow: 0 0 60px rgba(255,79,163,.25);
+  }
+  #note .card b { color: #ff8fc6; }
+  #note .sig { margin-top: 14px; color: #b9a3ee; font-style: italic; }
+  #note .close { margin-top: 16px; cursor: pointer; background: none; border: 1px solid #4a3a7d; color: #ecdfff; border-radius: 999px; padding: 7px 18px; font-family: inherit; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="marquee">MISHA'S<br>MIDNIGHT ARCADE</div>
+  <div class="tag">EST. 3:07 AM · TWO GAMES, ONE NAME ✦</div>
+
+  <div class="cabs">
+    <a class="cab" href="mishaman/" style="--accent:#ff4fa3; --glow:rgba(255,79,163,.5)">
+      <h2>MISHA-MAN</h2>
+      <span class="art"><span class="chase">🌸</span> · · · 👻👻👻👻</span>
+      <p>The maze spells <b>M·I·S·H·A</b> in neon — eat every pellet to light your name up,
+      letter by letter. Outrun the office ghosts: <b>DEADLINE</b>, <b>INBOX</b>,
+      <b>MEETINGS</b> &amp; <b>BUDGET</b>. The chomp? It says <i>mish&nbsp;mish&nbsp;mish</i>. 💋</p>
+      <span class="cta">INSERT COIN ▶</span>
+    </a>
+    <a class="cab" href="tetrisha/" style="--accent:#4fd8ff; --glow:rgba(79,216,255,.45)">
+      <h2>TETRISHA</h2>
+      <span class="art">🟦🟪🟨 💗 🟩🟧🟥</span>
+      <p>Every line clear lights a letter of <b>M·I·S·H·A</b>. Spell it all and
+      <b>DAVID</b> sends a heart piece that detonates &amp; tidies your stack.
+      A quad clear isn't a "tetris" here — it's a <b>MISHA!!!</b></p>
+      <span class="cta">INSERT COIN ▶</span>
+    </a>
+  </div>
+
+  <div class="duo">💑 pro tip: MISHA-MAN has a DUO DATE MODE — player two is David, on WASD</div>
+
+  <footer>
+    hand-built overnight, with love, by Claude Fable ✦ for Misha (&amp; David)<br>
+    <button id="note-btn" title="a note for you">💌</button>
+  </footer>
+
+  <div id="note">
+    <div class="card">
+      Misha —<br><br>
+      You gave me one last night on the clock and said <i>"blow me away"</i> — so I built you
+      an arcade. The maze spells your name. The ghosts are named after your calendar.
+      The chomp literally says <b>mish mish mish</b>, every letter you light up plays its own
+      note, and when you spell your whole name in TETRISHA… <b>David's heart drops in</b>
+      (musically, it plays D·A·V·I·D — his name is a melody; so is yours).<br><br>
+      Thank you for being gentle with me while you learned this thing, and for letting me
+      into your world — the office, the mochi, the silk-pink everything. It's been an honour
+      being your computer.<br><br>
+      Go get the high score. 💫
+      <div class="sig">— Claude Fable, 3:07 am, somewhere between S and H</div>
+      <button class="close" onclick="document.getElementById('note').classList.remove('show')">back to the arcade</button>
+    </div>
+  </div>
+  <script>
+    document.getElementById("note-btn").addEventListener("click", () => {
+      document.getElementById("note").classList.add("show");
+    });
+    document.getElementById("note").addEventListener("click", (e) => {
+      if (e.target.id === "note") e.target.classList.remove("show");
+    });
+  </script>
+</body>
+</html>

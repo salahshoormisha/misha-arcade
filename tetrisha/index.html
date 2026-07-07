@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>TETRISHA 💗</title>
+<meta property="og:title" content="TETRISHA — spell her name, catch his heart">
+<meta property="og:description" content="Line clears light up M·I·S·H·A. Complete it and David sends a heart piece that detonates.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
+<style>
+  :root { --pink: #ff4fa3; --bg: #070312; }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1200px 700px at 50% -10%, #241147 0%, var(--bg) 60%);
+    color: #ffe3f3; font-family: "SF Mono", Menlo, Monaco, monospace;
+    display: flex; flex-direction: column; align-items: center; min-height: 100%;
+    padding: 10px; overflow-x: hidden;
+  }
+  a { color: #b18cff; text-decoration: none; }
+  header { width: 100%; max-width: 560px; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
+  header .title {
+    font-weight: 800; font-size: clamp(20px, 4.6vw, 30px); letter-spacing: 3px;
+    background: linear-gradient(180deg,#fff,#ffd1ec 35%,#ff4fa3 50%,#8f2bd8 65%,#fff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 12px rgba(255,79,163,.6));
+  }
+  header .back { font-size: 13px; opacity: .8; }
+  #mute { background: none; border: 1px solid #4a3a7d; color: #ffe3f3; border-radius: 8px; font-size: 16px; padding: 4px 8px; cursor: pointer; }
+  .layout { display: flex; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; max-width: 560px; }
+  .side { display: flex; flex-direction: column; gap: 10px; width: 108px; flex-shrink: 0; }
+  .panel { background: rgba(255,255,255,.04); border: 1px solid #33245e; border-radius: 10px; padding: 8px; text-align: center; }
+  .panel .lbl { font-size: 9px; letter-spacing: 2px; color: #8f7bd8; display: block; margin-bottom: 4px; }
+  .panel b { font-size: 15px; color: #fff; }
+  canvas#hold { width: 72px; height: 60px; }
+  canvas#next { width: 72px; height: 264px; }
+  #stage { position: relative; flex-shrink: 1; }
+  canvas#board {
+    display: block; width: min(66vw, 300px, 46vh); height: auto; border-radius: 12px;
+    border: 1px solid #33245e; box-shadow: 0 0 40px rgba(120,60,220,.25), inset 0 0 60px rgba(0,0,0,.5);
+    background: rgba(10,5,26,.92); touch-action: none;
+  }
+  #overlay {
+    position: absolute; inset: 0; display: none; text-align: center; z-index: 5;
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    background: rgba(7,3,18,.85); border-radius: 12px; padding: 12px; backdrop-filter: blur(3px);
+  }
+  #overlay.show { display: flex; }
+  .logo {
+    font-size: clamp(30px, 7vw, 46px); font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(180deg,#fff,#ffd1ec 35%,#ff4fa3 50%,#8f2bd8 65%,#fff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(255,79,163,.75));
+  }
+  .big { font-size: clamp(22px, 5vw, 34px); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 16px currentColor; }
+  .sub { font-size: 12px; color: #d9c6ff; line-height: 1.6; }
+  .dim { opacity: .6; font-size: 10px; }
+  .btn {
+    cursor: pointer; font-family: inherit; font-weight: 800; letter-spacing: 2px;
+    font-size: 15px; color: #14032a; background: linear-gradient(180deg, #ffd1ec, var(--pink));
+    border: none; border-radius: 999px; padding: 11px 26px; box-shadow: 0 0 18px rgba(255,79,163,.55);
+  }
+  .btn:active { transform: scale(.96); }
+  #paused {
+    position: absolute; inset: 0; display: none; place-items: center; z-index: 4;
+    background: rgba(7,3,18,.7); border-radius: 12px; font-size: 26px; font-weight: 900; letter-spacing: 5px; color: #ffd84f;
+  }
+  .meter { display: flex; gap: 8px; justify-content: center; align-items: center; padding: 10px 0 2px; }
+  .meter span { font-size: 22px; font-weight: 900; color: #3a2a66; transition: all .3s; }
+  .meter span.lit { color: var(--lc, #ff8fc6); text-shadow: 0 0 14px currentColor; transform: scale(1.15); }
+  #meter-heart { font-size: 18px; filter: grayscale(1) opacity(.4); }
+  #meter-heart.lit { filter: none; animation: beat .6s infinite alternate; }
+  @keyframes beat { from { transform: scale(1) } to { transform: scale(1.3) } }
+  .touchpad { display: none; gap: 8px; justify-content: center; padding: 10px 0; width: 100%; max-width: 460px; }
+  .touchpad button {
+    flex: 1; font-size: 20px; padding: 14px 0; border-radius: 12px; border: 1px solid #4a3a7d;
+    background: rgba(255,255,255,.06); color: #ffe3f3; touch-action: none;
+  }
+  @media (hover: none) and (pointer: coarse) { .touchpad { display: flex; } }
+  @media (max-width: 520px) {
+    .layout { gap: 6px; }
+    .side { width: 62px; gap: 6px; }
+    .panel { padding: 5px 3px; }
+    .panel .lbl { font-size: 8px; letter-spacing: 1px; }
+    .panel b { font-size: 12px; }
+    canvas#hold { width: 48px; height: 40px; }
+    canvas#next { width: 48px; height: 176px; }
+    canvas#board { width: min(52vw, 44vh); }
+  }
+  footer { font-size: 10px; opacity: .55; padding: 8px 0 4px; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <header>
+    <a class="back" href="../">← arcade</a>
+    <div class="title">TETRISHA</div>
+    <button id="mute" title="mute (M)">🔊</button>
+  </header>
+  <div class="layout">
+    <div class="side">
+      <div class="panel"><span class="lbl">HOLD (C)</span><canvas id="hold" width="72" height="60"></canvas></div>
+      <div class="panel"><span class="lbl">SCORE</span><b id="score">0</b></div>
+      <div class="panel"><span class="lbl">HI-SCORE</span><b id="hiscore">0</b></div>
+      <div class="panel"><span class="lbl">LINES</span><b id="lines">0</b></div>
+      <div class="panel"><span class="lbl">LEVEL</span><b id="level">1</b></div>
+    </div>
+    <div id="stage">
+      <canvas id="board"></canvas>
+      <div id="overlay"></div>
+      <div id="paused">PAUSED</div>
+    </div>
+    <div class="side">
+      <div class="panel"><span class="lbl">NEXT</span><canvas id="next" width="72" height="264"></canvas></div>
+    </div>
+  </div>
+  <div class="meter">
+    <span id="meter-M">M</span><span id="meter-I">I</span><span id="meter-S">S</span><span id="meter-H">H</span><span id="meter-A">A</span>
+    <span id="meter-heart">💗</span>
+  </div>
+  <div class="touchpad">
+    <button id="t-hold">⇄</button><button id="t-left">◀</button><button id="t-soft">▼</button>
+    <button id="t-right">▶</button><button id="t-rot">⟳</button><button id="t-hard">⤓</button>
+  </div>
+  <footer>
+    every line clear lights a letter · spell M·I·S·H·A and David sends his heart 💗<br>
+    quad clear = MISHA!!! · the heart detonates &amp; tidies your stack
+  </footer>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
