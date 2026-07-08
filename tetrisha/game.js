@@ -9,12 +9,18 @@
   };
 
   // ---------- constants ----------
-  const COLS = 10, ROWS = 22, HIDDEN = 2, CELL = 26;
+  const COLS = 10, ROWS = 22, HIDDEN = 2, CELL = 30;
+  const LWb = COLS * CELL, LHb = (ROWS - HIDDEN) * CELL;   // logical board size
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
   const cvs = document.getElementById("board");
-  cvs.width = COLS * CELL; cvs.height = (ROWS - HIDDEN) * CELL;
+  cvs.width = LWb * DPR; cvs.height = LHb * DPR;           // retina-sharp
+  cvs.style.aspectRatio = LWb + " / " + LHb;
   const ctx = cvs.getContext("2d");
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   const holdCvs = document.getElementById("hold"), holdCtx = holdCvs.getContext("2d");
   const nextCvs = document.getElementById("next"), nextCtx = nextCvs.getContext("2d");
+  holdCvs.width = 72 * DPR; holdCvs.height = 60 * DPR; holdCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  nextCvs.width = 72 * DPR; nextCvs.height = 264 * DPR; nextCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
   const LETTERS = ["M", "I", "S", "H", "A"];
   const LETTER_COLORS = { M: "#ff4fd8", I: "#b18cff", S: "#4fd8ff", H: "#ffd84f", A: "#7dffa8" };
 
@@ -173,18 +179,27 @@
     const l = game.level;
     return Math.max(0.03, Math.pow(0.8 - (l - 1) * 0.007, l - 1));
   }
+  function shake(mag, dur) { game.shakeMag = mag; game.shakeT = dur; game.shakeDur = dur; }
   function hardDrop() {
     const p = game.piece;
     if (!p || game.state !== "play") return;
     let d = 0;
     while (!collides(p, 0, d + 1, p.rot)) d++;
     p.y += d; game.score += d * 2;
+    if (d > 1) { // slam: impact shake + landing dust under each cell
+      shake(2.5, 0.12);
+      for (const [x, y] of cellsOf(p)) if (y >= HIDDEN)
+        for (let i = 0; i < 2; i++)
+          game.particles.push({ x: (x + 0.2 + Math.random() * 0.6) * CELL, y: (y + 1 - HIDDEN) * CELL,
+            vx: (Math.random() - 0.5) * 60, vy: -30 - Math.random() * 50, ttl: 0.3, color: "#cbb8ff", r: 1.2 + Math.random() });
+    }
     sfx("hardDrop"); lockPiece();
   }
 
   function lockPiece() {
     const p = game.piece;
     for (const [x, y] of cellsOf(p)) if (y >= 0) game.board[y][x] = p.isHeart ? "♥" : p.type;
+    game.lockFx = { cells: cellsOf(p).filter(([, y]) => y >= HIDDEN), ttl: 0.13 };
     if (p.isHeart) { detonateHeart(p); return; }
     sfx("lock");
     game.piece = null;
@@ -206,6 +221,7 @@
     }
     game.score += cleared * 100 + 1000;
     game.burstAt = { x: cx, y: cy, t: 0 };
+    shake(8, 0.4);
     game.state = "heartburst"; game.stateT = 0;
     flair("DAVID 💗 MISHA", "#ff4fa3");
     for (let i = 0; i < 60; i++) particle((cx + 0.5) * CELL, (cy + 0.5 - HIDDEN) * CELL, ["#ff4fa3", "#ff8fc6", "#ffd1ec", "#fff"][i % 4]);
@@ -233,7 +249,7 @@
         game.heartQueued = true;
         setTimeout(() => { flair("💌 INCOMING FROM DAVID", "#ff8fc6"); sfx("heartIncoming"); }, 500);
       }
-      if (n === 4) { flair("M I S H A !!!", "#ff4fd8"); sfx("lineClear", 4); }
+      if (n === 4) { flair("M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4); }
       else { flair(["nice ✨", "cute!! 💅", "slayyy 🔥"][n - 1], ["#b18cff", "#4fd8ff", "#ffd84f"][n - 1]); sfx("lineClear", n); }
       for (const y of full) for (let c = 0; c < COLS; c++)
         particle((c + 0.5) * CELL, (y + 0.5 - HIDDEN) * CELL, n === 4 ? "#ff4fd8" : "#fff", 0.5);
@@ -258,7 +274,7 @@
   function gameOver() {
     game.state = "gameover"; game.piece = null;
     sfx("musicStop"); sfx("gameOver");
-    if (game.score > game.hi) { game.hi = game.score; localStorage.setItem(HI_KEY, String(game.hi)); }
+    if (game.score > game.hi) { game.hi = game.score; try { localStorage.setItem(HI_KEY, String(game.hi)); } catch (e) {} }
     overlay(`<div class="big" style="color:#ff5e7a">TOP OUT 💔</div>
       <div class="sub">score ${game.score.toLocaleString()} · lines ${game.lines} · best ${game.hi.toLocaleString()}</div>
       <div class="sub dim">David says: you'll get 'em next time.</div>
@@ -276,6 +292,8 @@
   function sim(dt) {
     game.stateT += dt;
     if (wiggleT > 0) wiggleT -= dt;
+    if (game.shakeT > 0) game.shakeT -= dt;
+    if (game.lockFx && (game.lockFx.ttl -= dt) <= 0) game.lockFx = null;
     game.particles = game.particles.filter((q) => (q.ttl -= dt) > 0);
     for (const q of game.particles) { q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 220 * dt; }
     if (game.flair && (game.flair.ttl -= dt) <= 0) game.flair = null;
@@ -335,13 +353,8 @@
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (k === "m") { const m = sfx("toggleMute"); const b = document.getElementById("mute"); if (b) b.textContent = m ? "🔇" : "🔊"; return; }
     if (game.state === "title" || game.state === "gameover") { if (e.key === "Enter" || e.key === " ") start(); return; }
-    if (k === "p" || e.key === "Escape") {
-      game.paused = !game.paused;
-      document.getElementById("paused").style.display = game.paused ? "grid" : "none";
-      if (game.paused) sfx("musicStop"); else sfx("musicStart", game.level);
-      return;
-    }
-    if (game.paused) return;
+    if (game.paused) { resumeGame(); return; } // any key resumes
+    if (k === "p" || e.key === "Escape") { pauseGame(); return; }
     if (e.repeat) return;
     switch (k) {
       case "ArrowLeft": keys.left = true; break;
@@ -382,10 +395,22 @@
     sfx("unlock"); const m = sfx("toggleMute");
     document.getElementById("mute").textContent = m ? "🔇" : "🔊";
   });
+  function pauseGame() {
+    if (game.state !== "play" || game.paused) return;
+    game.paused = true; document.getElementById("paused").style.display = "grid"; sfx("musicStop");
+  }
+  function resumeGame() {
+    if (!game.paused) return;
+    game.paused = false; document.getElementById("paused").style.display = "none";
+    if (game.state === "play") sfx("musicStart", game.level);
+  }
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && game.state === "play" && !game.paused) {
-      game.paused = true; document.getElementById("paused").style.display = "grid"; sfx("musicStop");
-    }
+    if (document.hidden) { keys.left = keys.right = keys.soft = false; pauseGame(); }
+  });
+  document.getElementById("paused").addEventListener("click", () => { sfx("unlock"); resumeGame(); });
+  document.getElementById("overlay").addEventListener("click", (e) => {
+    if (e.target.closest(".btn")) return; // buttons keep their own actions
+    if (game.state === "title" || game.state === "gameover") { sfx("unlock"); start(); }
   });
 
   // ---------- render ----------
@@ -420,11 +445,16 @@
     return `rgb(${r},${g2},${b})`;
   }
   function render() {
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.clearRect(0, 0, LWb, LHb);
+    ctx.save();
+    if (game.shakeT > 0) {
+      const m = (game.shakeMag || 3) * (game.shakeT / (game.shakeDur || 1));
+      ctx.translate((Math.random() * 2 - 1) * m, (Math.random() * 2 - 1) * m);
+    }
     // faint grid
     ctx.strokeStyle = "rgba(140,110,255,.07)"; ctx.lineWidth = 1;
-    for (let x = 1; x < COLS; x++) { ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, cvs.height); ctx.stroke(); }
-    for (let y = 1; y < ROWS - HIDDEN; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(cvs.width, y * CELL); ctx.stroke(); }
+    for (let x = 1; x < COLS; x++) { ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, LHb); ctx.stroke(); }
+    for (let y = 1; y < ROWS - HIDDEN; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(LWb, y * CELL); ctx.stroke(); }
     // locked cells
     for (let y = HIDDEN; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
       const v = game.board[y][x];
@@ -457,45 +487,55 @@
       ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill();
     }
     ctx.globalAlpha = 1;
+    // lock flash
+    if (game.lockFx) {
+      ctx.globalAlpha = Math.min(0.85, game.lockFx.ttl * 6);
+      ctx.fillStyle = "#fff";
+      for (const [x, y] of game.lockFx.cells) roundRect(ctx, x * CELL + 1.5, (y - HIDDEN) * CELL + 1.5, CELL - 3, CELL - 3, 5), ctx.fill();
+      ctx.globalAlpha = 1;
+    }
     // flair text
     if (game.flair) {
       ctx.textAlign = "center";
       let size = 26;
       ctx.font = `900 ${size}px Menlo, monospace`;
       const w = ctx.measureText(game.flair.text).width;
-      if (w > cvs.width * 0.92) { size = Math.max(11, Math.floor(size * cvs.width * 0.92 / w)); ctx.font = `900 ${size}px Menlo, monospace`; }
+      if (w > LWb * 0.92) { size = Math.max(11, Math.floor(size * LWb * 0.92 / w)); ctx.font = `900 ${size}px Menlo, monospace`; }
       ctx.globalAlpha = Math.min(1, game.flair.ttl);
       ctx.fillStyle = game.flair.color; ctx.shadowColor = game.flair.color; ctx.shadowBlur = 18;
-      ctx.fillText(game.flair.text, cvs.width / 2, cvs.height * 0.32 - (1.6 - game.flair.ttl) * 20);
+      ctx.fillText(game.flair.text, LWb / 2, LHb * 0.32 - (1.6 - game.flair.ttl) * 20);
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
     }
+    ctx.restore();
   }
   function renderMini(g, c, type) {
-    if (!type) { g.clearRect(0, 0, c.width, c.height); return; }
-    g.clearRect(0, 0, c.width, c.height);
+    const lw = c.width / DPR, lh = c.height / DPR;
+    g.clearRect(0, 0, lw, lh);
+    if (!type) return;
     const cs = rotatedCells(type, 0);
     const xs = cs.map((p) => p[0]), ys = cs.map((p) => p[1]);
     const w = Math.max(...xs) - Math.min(...xs) + 1, h = Math.max(...ys) - Math.min(...ys) + 1;
     const s = 16;
-    const ox = (c.width - w * s) / 2 - Math.min(...xs) * s, oy = (c.height - h * s) / 2 - Math.min(...ys) * s;
+    const ox = (lw - w * s) / 2 - Math.min(...xs) * s, oy = (lh - h * s) / 2 - Math.min(...ys) * s;
     for (const [x, y] of cs) drawCell(g, ox + x * s, oy + y * s, SHAPES[type].c, s, false, type === "♥");
   }
   function renderHold() { renderMini(holdCtx, holdCvs, game.hold); }
   function renderNext() {
-    nextCtx.clearRect(0, 0, nextCvs.width, nextCvs.height);
+    const lw = nextCvs.width / DPR, lh = nextCvs.height / DPR;
+    nextCtx.clearRect(0, 0, lw, lh);
     const items = (game.heartQueued ? ["♥"] : []).concat(game.queue).slice(0, 5);
     items.forEach((t, i) => {
       const cs = rotatedCells(t, 0);
       const xs = cs.map((p) => p[0]), ys = cs.map((p) => p[1]);
       const w = Math.max(...xs) - Math.min(...xs) + 1;
-      const s = 14, ox = (nextCvs.width - w * s) / 2 - Math.min(...xs) * s, oy = i * 52 + 10 - Math.min(...ys) * s;
+      const s = 14, ox = (lw - w * s) / 2 - Math.min(...xs) * s, oy = i * 52 + 10 - Math.min(...ys) * s;
       for (const [x, y] of cs) drawCell(nextCtx, ox + x * s, oy + y * s, SHAPES[t].c, s, false, t === "♥");
     });
   }
 
   // ---------- HUD ----------
   function updateHud() {
-    if (game.score > game.hi) { game.hi = game.score; localStorage.setItem(HI_KEY, String(game.hi)); }
+    if (game.score > game.hi) { game.hi = game.score; try { localStorage.setItem(HI_KEY, String(game.hi)); } catch (e) {} }
     document.getElementById("score").textContent = game.score.toLocaleString();
     document.getElementById("hiscore").textContent = game.hi.toLocaleString();
     document.getElementById("lines").textContent = game.lines;
@@ -520,7 +560,7 @@
   overlay(`<div class="logo">TETRISHA</div>
     <div class="sub">clear lines to spell <b style="color:#ff4fd8">M·I·S·H·A</b> —<br>complete it and <b style="color:#ff8fc6">DAVID</b> sends a heart 💗 that detonates</div>
     <button class="btn" onclick="__TT.start()">▶ PLAY</button>
-    <div class="sub dim">←→ move · ↑/X · Z rotate · ↓ soft · space hard drop · C hold · P pause · M mute</div>`);
+    <div class="sub dim">click anywhere or press ENTER to start<br>←→ move · ↑/X · Z rotate · ↓ soft · space hard drop · C hold · P pause · M mute</div>`);
   updateHud(); updateMeter();
   let last = performance.now(), acc = 0;
   const STEP = 1 / 120;

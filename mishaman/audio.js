@@ -27,7 +27,7 @@
   try { muted = localStorage.getItem("mm_mute") === "1"; } catch (e) {}
   var sir = null, fri = null;          // managed loops (never stack)
   var mishBuf = [null, null];          // [hi, lo] pre-rendered "MISH" chomps
-  var mishTried = false, wakaHi = false;
+  var mishTried = false, wakaHi = false, lastWaka = 0;
   var BEAT = 60 / 150;                 // tempoBpm 150
   var LETTER_NOTES = ["F4", "B4", "E5", "A5", "A6"];              // M I S H A
   var MISHA = [["F4", 0.5], ["A4", 0.5], ["B4", 0.5], ["D5", 0.5],
@@ -53,7 +53,7 @@
         master.gain.value = muted ? 0 : 0.5;
         master.connect(ctx.destination);
         wakaOut = ctx.createGain();              // persistent chomp bus
-        wakaOut.gain.value = 0.18;               // peak gain 0.18 under master
+        wakaOut.gain.value = 0.34;               // loud & proud — she must hear MISH
         wakaOut.connect(master);
       }
       if (ctx.state === "suspended") ctx.resume();
@@ -122,42 +122,42 @@
     return new Promise(function (resolve, reject) {
       var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
       if (!OAC || !ctx) { reject(0); return; }
-      var sr = ctx.sampleRate, oc = new OAC(1, Math.ceil(sr * 0.125), sr);
-      // m — closed-lips hum: triangle @ f0, lowpass 400, gain 0→0.25 linear
+      var sr = ctx.sampleRate, oc = new OAC(1, Math.ceil(sr * 0.21), sr);
+      // m — closed-lips hum: triangle @ f0, lowpass 450 — a real "M" onset
       var mo = oc.createOscillator(); mo.type = "triangle"; mo.frequency.value = f0;
-      var mf = oc.createBiquadFilter(); mf.type = "lowpass"; mf.frequency.value = 400;
+      var mf = oc.createBiquadFilter(); mf.type = "lowpass"; mf.frequency.value = 450;
       var mg = oc.createGain();
       mg.gain.setValueAtTime(0, 0);
-      mg.gain.linearRampToValueAtTime(0.25, 0.025);
-      mg.gain.linearRampToValueAtTime(0, 0.03);           // 5 ms xfade out
+      mg.gain.linearRampToValueAtTime(0.5, 0.03);
+      mg.gain.linearRampToValueAtTime(0, 0.04);           // xfade into the vowel
       link(mo, mf, mg, oc.destination);
-      mo.start(0); mo.stop(0.032);
-      // ee — saw glides f0→f0*1.06 through two PARALLEL fixed formants, summed
+      mo.start(0); mo.stop(0.042);
+      // ee — long bright vowel: saw f0→f0*1.05 through THREE parallel formants
       var eo = oc.createOscillator(); eo.type = "sawtooth";
-      eo.frequency.setValueAtTime(f0, 0.02);
-      eo.frequency.linearRampToValueAtTime(f0 * 1.06, 0.07);
+      eo.frequency.setValueAtTime(f0, 0.028);
+      eo.frequency.linearRampToValueAtTime(f0 * 1.05, 0.108);
       var eg = oc.createGain();
-      eg.gain.setValueAtTime(0, 0.02);
-      eg.gain.linearRampToValueAtTime(0.6, 0.025);        // 5 ms xfade in
-      eg.gain.setValueAtTime(0.6, 0.065);
-      eg.gain.linearRampToValueAtTime(0, 0.07);           // 5 ms xfade out
-      [[300, 8, 1], [2300, 12, 0.55]].forEach(function (F) {
+      eg.gain.setValueAtTime(0, 0.028);
+      eg.gain.linearRampToValueAtTime(0.9, 0.036);
+      eg.gain.setValueAtTime(0.9, 0.102);
+      eg.gain.linearRampToValueAtTime(0, 0.112);
+      [[320, 7, 1.2], [2400, 9, 1.0], [3100, 11, 0.45]].forEach(function (F) {
         var bp = oc.createBiquadFilter(); bp.type = "bandpass";
         bp.frequency.value = F[0]; bp.Q.value = F[1];
         var fg = oc.createGain(); fg.gain.value = F[2];
         link(eo, bp, fg, eg);
       });
       eg.connect(oc.destination);
-      eo.start(0.02); eo.stop(0.072);
-      // sh — bandpassed noise 2–5 kHz: instant attack, exponential decay
-      var ns = oc.createBufferSource(); ns.buffer = noiseBuf(oc, 0.055);
+      eo.start(0.028); eo.stop(0.115);
+      // sh — the signature: wide bandpassed noise, big attack, long tail
+      var ns = oc.createBufferSource(); ns.buffer = noiseBuf(oc, 0.105);
       var nf = oc.createBiquadFilter(); nf.type = "bandpass";
-      nf.frequency.value = shHz; nf.Q.value = 0.9;
+      nf.frequency.value = shHz; nf.Q.value = 0.8;
       var ng = oc.createGain();
-      ng.gain.setValueAtTime(0.5, 0.065);
-      ng.gain.exponentialRampToValueAtTime(0.0001, 0.115);
+      ng.gain.setValueAtTime(0.85, 0.1);
+      ng.gain.exponentialRampToValueAtTime(0.0001, 0.205);
       link(ns, nf, ng, oc.destination);
-      ns.start(0.065); ns.stop(0.12);
+      ns.start(0.1); ns.stop(0.208);
       var done = function (buf) { // normalize → playback peak == wakaOut 0.18
         var d = buf.getChannelData(0), p = 0, i;
         for (i = 0; i < d.length; i++) p = Math.max(p, Math.abs(d[i]));
@@ -195,9 +195,9 @@
       if (!ensure()) return;
       if (mishTried) return;
       mishTried = true;
-      try { // hi/lo alternate like the classic waka; lo = hi * 0.75 (−5 semis)
-        renderMish(150, 3200).then(function (b) { mishBuf[0] = b; }, function () {});
-        renderMish(112, 2800).then(function (b) { mishBuf[1] = b; }, function () {});
+      try { // hi/lo alternate like the classic waka; femme register reads as voice
+        renderMish(205, 3400).then(function (b) { mishBuf[0] = b; }, function () {});
+        renderMish(160, 3000).then(function (b) { mishBuf[1] = b; }, function () {});
       } catch (e) {} // fallback blips cover us if offline rendering fails
     },
 
@@ -209,18 +209,32 @@
     },
     isMuted: function () { return muted; },
 
-    // the MISH chomp — buffer playback only; alternates hi/lo every pellet
+    // the MISH chomp — buffer playback only; alternates hi/lo, throttled so
+    // fast eating stays a crisp "mish mish mish" instead of a smear
     waka: function () {
       var c = ensure(); if (!c) return;
+      if (c.currentTime - lastWaka < 0.1) return;
+      lastWaka = c.currentTime;
       wakaHi = !wakaHi;
       var b = mishBuf[wakaHi ? 0 : 1];
       if (b) {
         var s = c.createBufferSource(); s.buffer = b;
         s.connect(wakaOut);
-        s.start(); s.stop(c.currentTime + 0.14);
+        s.start(); s.stop(c.currentTime + 0.24);
         return;
       } // graceful fallback: plain alternating square blips
       tone({ type: "square", f0: wakaHi ? 380 : 300, dur: 0.06, peak: 0.12, pluck: true });
+    },
+
+    // one loud, clear "MISH!" — fired the moment a game starts
+    mish: function () {
+      var c = ensure(); if (!c) return;
+      var b = mishBuf[0];
+      if (!b) { API.waka(); return; }
+      var s = c.createBufferSource(), g = c.createGain();
+      s.buffer = b; g.gain.value = 0.6;
+      link(s, g, master);
+      s.start(); s.stop(c.currentTime + 0.24);
     },
 
     ready: function () { motif(MISHA, { peak: 0.13 }); }, // MISHA jingle, 1.8 s

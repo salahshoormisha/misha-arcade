@@ -11,9 +11,13 @@
 
   // ---------- grid ----------
   const T = 22, W = MAZE_ROWS[0].length, H = MAZE_ROWS.length;
+  const LW = W * T, LH = H * T;                       // logical canvas size
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
   const cvs = document.getElementById("game");
-  cvs.width = W * T; cvs.height = H * T;
+  cvs.width = LW * DPR; cvs.height = LH * DPR;        // retina-sharp bitmap
+  cvs.style.aspectRatio = LW + " / " + LH;
   const ctx = cvs.getContext("2d");
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   const LETTERS = ["M", "I", "S", "H", "A"];
 
   const grid = [];
@@ -87,7 +91,7 @@
     const col = id === 0 ? 19 : 20;
     return {
       kind: "pac", id, x: cx(col), y: cy(22), dir: { x: id === 0 ? -1 : 1, y: 0 },
-      nextDir: null, moving: true, speed: 8.2 + (game.level - 1) * 0.12,
+      nextDir: null, moving: true, speed: Math.min(11, 9.6 + (game.level - 1) * 0.15),
       anim: 0, dead: false, color: id === 0 ? "#ff4fa3" : "#33e6c8",
     };
   }
@@ -110,14 +114,22 @@
       fright: false, lastTile: null,
     };
   }
+  function elroy() { // Deadline heats up as the maze empties (Cruise Elroy)
+    const left = pellets.size + powers.size;
+    if (left < totalPellets * 0.15) return 2;
+    if (left < totalPellets * 0.35) return 1;
+    return 0;
+  }
   function ghostSpeed(g) {
     const inTunnel = Math.floor(g.y / T) === MAZE_META.tunnelRow &&
       (g.x < 6 * T || g.x > (W - 6) * T);
-    if (g.mode === "eyes" || g.mode === "entering") return 14;
-    if (g.mode === "inhouse" || g.mode === "leaving") return 4;
-    if (g.fright) return 5.2;
-    if (inTunnel) return 4.4;
-    return Math.min(9.2, 7.6 + (game.level - 1) * 0.2);
+    if (g.mode === "eyes" || g.mode === "entering") return 16;
+    if (g.mode === "inhouse" || g.mode === "leaving") return 5;
+    if (g.fright) return 6.0;
+    if (inTunnel) return 5.6;
+    let v = Math.min(10.6, 8.9 + (game.level - 1) * 0.25);
+    if (g.idx === 0) { const e = elroy(); if (e === 2) v *= 1.16; else if (e === 1) v *= 1.08; }
+    return v;
   }
 
   // ---------- movement core ----------
@@ -185,7 +197,7 @@
   function ghostTarget(g) {
     if (g.mode === "eyes") return { r: MAZE_META.door.row - 1, c: 19 };
     const scatterNow = currentMode() === "scatter";
-    if (scatterNow && !g.fright) return { r: g.scatter[0], c: g.scatter[1] };
+    if (scatterNow && !g.fright && !(g.idx === 0 && elroy() > 0)) return { r: g.scatter[0], c: g.scatter[1] };
     const p0 = game.players.find((p) => !p.dead) || game.players[0];
     const pr = Math.floor(p0.y / T), pc = Math.floor(p0.x / T);
     switch (g.idx) {
@@ -207,8 +219,8 @@
 
   // ---------- modes ----------
   function modeSchedule() {
-    const s = Math.max(3, 7 - (game.level - 1));
-    return [s, 20, s, 20, Math.max(3, s - 2), 20, Math.max(3, s - 2), Infinity];
+    const s = Math.max(2.5, 5 - (game.level - 1) * 0.5);
+    return [s, 20, s, 20, Math.max(2, s - 2), 20, Math.max(2, s - 2), Infinity];
   }
   function currentMode() { return game.modeIdx % 2 === 0 ? "scatter" : "chase"; }
   function tickModes(dt) {
@@ -246,7 +258,7 @@
     game.duo = duo; game.level = 1; game.score = 0; game.lives = 3;
     game.extraLifeGiven = false; game.fruitSeen = 0; game.fruit = null;
     resetPellets(); resetRound(); redrawStatic();
-    setState("ready"); sfx("ready"); updateHud();
+    setState("ready"); sfx("mish"); setTimeout(() => sfx("ready"), 300); updateHud();
   }
   function nextLevel() {
     game.level++; game.fruitSeen = 0; game.fruit = null;
@@ -294,7 +306,7 @@
       <div class="rollcall">${rc}</div>
       <button class="btn" onclick="__MM.start(false)">▶ PLAY</button>
       <button class="btn alt" onclick="__MM.start(true)">💑 DUO DATE MODE <span class="tiny">(P2: David on WASD)</span></button>
-      <div class="sub dim">arrows / WASD / swipe · P pause · M mute</div>`;
+      <div class="sub dim">click anywhere or press ENTER to start<br>arrows / WASD / swipe · P pause · M mute</div>`;
   }
   function ghostSVG(color) {
     return `<svg viewBox="0 0 28 28" width="44" height="44"><path d="M2 26 V13 a12 12 0 0 1 24 0 V26 l-4-3-4 3-4-3-4 3-4-3z" fill="${color}"/>
@@ -303,8 +315,11 @@
   }
 
   // ---------- sim ----------
+  function shake(mag, dur) { game.shakeMag = mag; game.shakeT = dur; game.shakeDur = dur; }
   function sim(dt) {
     game.stateT += dt;
+    if (game.flash > 0) game.flash -= dt;
+    if (game.shakeT > 0) game.shakeT -= dt;
     if (game.state === "ready") { if (game.stateT > 2.1) { setState("play"); } return; }
     if (game.state === "dying") {
       if (game.stateT > 1.6) {
@@ -329,6 +344,14 @@
       }
       advance(p, dt, false, false);
       p.anim += dt * (p.moving ? 10 : 0);
+      if (game.frightT > 0 && p.moving && Math.random() < 0.35) { // glam trail
+        game.particles.push({
+          x: p.x - p.dir.x * 10 + (Math.random() - 0.5) * 6,
+          y: p.y - p.dir.y * 10 + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 20, vy: -20 - Math.random() * 30,
+          ttl: 0.4, color: Math.random() < 0.5 ? "#ffd1ec" : "#fff", r: 1 + Math.random() * 1.5,
+        });
+      }
       eatAt(p);
     }
     // ghosts
@@ -370,6 +393,7 @@
             game.chain++; addScore(pts);
             popup(g.x, g.y, pts, "#9ff");
             g.mode = "eyes"; g.fright = false; game.freezeT = 0.35;
+            shake(3, 0.15);
             burst(g.x, g.y, "#9ff", 14); sfx("eatGhost", game.chain);
           } else if (!window.__MM.god) { die(p); return; }
         }
@@ -381,6 +405,7 @@
       if (game.fruitSeen < marks.length && eatenCount >= marks[game.fruitSeen]) {
         game.fruit = { x: 20 * T, y: cy(15), ttl: 10, icon: FRUITS[(game.level - 1) % FRUITS.length] };
         game.fruitSeen++;
+        burst(20 * T, cy(15), "#ffd84f", 10);
       }
     } else {
       game.fruit.ttl -= dt;
@@ -410,7 +435,8 @@
       pellets.delete(key); eatenCount++; addScore(10); sfx("waka"); stripeEat(c);
     } else if (powers.has(key)) {
       powers.delete(key); eatenCount++; addScore(50); stripeEat(c); startFright();
-      burst(p.x, p.y, "#ff4fa3", 10);
+      game.freezeT = Math.max(game.freezeT, 0.16); game.flash = 0.3; // hit-stop!
+      burst(p.x, p.y, "#ff4fa3", 20);
     } else return;
     if (pellets.size + powers.size === 0) {
       sfx("stopLoops"); sfx("levelClear"); setState("levelclear");
@@ -434,13 +460,14 @@
     game.score += n;
     if (!game.extraLifeGiven && game.score >= 10000) {
       game.extraLifeGiven = true; game.lives++; sfx("extraLife");
-      popup(cvs.width / 2, cy(15), "EXTRA LIFE 💖", "#ff4fa3");
+      popup(LW / 2, cy(15), "EXTRA LIFE 💖", "#ff4fa3");
     }
-    if (game.score > game.hi) { game.hi = game.score; localStorage.setItem(HI_KEY, String(game.hi)); }
+    if (game.score > game.hi) { game.hi = game.score; try { localStorage.setItem(HI_KEY, String(game.hi)); } catch (e) {} }
     updateHud();
   }
   function die(p) {
     sfx("stopLoops"); sfx("death");
+    shake(7, 0.5); burst(p.x, p.y, "#ff4fa3", 26);
     setState("dying"); p.dying = true;
   }
   function gameOver() {
@@ -456,12 +483,13 @@
 
   // ---------- render ----------
   const staticCvs = document.createElement("canvas");
-  staticCvs.width = cvs.width; staticCvs.height = cvs.height;
+  staticCvs.width = LW * DPR; staticCvs.height = LH * DPR;
   const sctx = staticCvs.getContext("2d");
+  sctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   function redrawStatic() { drawWalls(sctx, null); }
   function drawWalls(g, colorFn) {
-    g.clearRect(0, 0, cvs.width, cvs.height);
-    g.fillStyle = "#0b0620"; g.fillRect(0, 0, cvs.width, cvs.height);
+    g.clearRect(0, 0, LW, LH);
+    g.fillStyle = "#0b0620"; g.fillRect(0, 0, LW, LH);
     g.lineWidth = 2.6; g.lineCap = "round";
     for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) {
       const cell = grid[r][c];
@@ -497,11 +525,16 @@
 
   let flashHue = 0;
   function render() {
+    ctx.save();
+    if (game.shakeT > 0) {
+      const m = game.shakeMag * (game.shakeT / (game.shakeDur || 1));
+      ctx.translate((Math.random() * 2 - 1) * m, (Math.random() * 2 - 1) * m);
+    }
     if (game.state === "levelclear") {
       flashHue += 12;
       drawWalls(ctx, (cell) => cell.letter ? `hsl(${(flashHue + "MISHA".indexOf(cell.letter) * 40) % 360} 100% 70%)` : null);
     } else {
-      ctx.drawImage(staticCvs, 0, 0);
+      ctx.drawImage(staticCvs, 0, 0, LW, LH);
     }
     // pellets
     ctx.fillStyle = "#ffd9ec";
@@ -521,7 +554,7 @@
     if (game.fruit) {
       ctx.font = "20px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.globalAlpha = game.fruit.ttl < 2 ? (Math.sin(performance.now() / 90) > 0 ? 1 : 0.35) : 1;
-      ctx.fillText(game.fruit.icon, game.fruit.x, game.fruit.y);
+      ctx.fillText(game.fruit.icon, game.fruit.x, game.fruit.y + Math.sin(performance.now() / 280) * 3);
       ctx.globalAlpha = 1;
     }
     // players
@@ -541,6 +574,12 @@
       ctx.fillText(q.text, q.x, q.y - (1.4 - q.ttl) * 26);
     }
     ctx.globalAlpha = 1;
+    if (game.flash > 0) { // power-pellet white pop
+      ctx.globalAlpha = Math.min(0.5, game.flash * 1.6);
+      ctx.fillStyle = "#fff"; ctx.fillRect(-10, -10, LW + 20, LH + 20);
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
   }
   function drawPac(p) {
     const dying = game.state === "dying" && p.dying;
@@ -640,7 +679,8 @@
       if (k === "d") startGame(true);
       return;
     }
-    if (k === "p" || e.key === "Escape") { game.paused = !game.paused; document.getElementById("paused").style.display = game.paused ? "grid" : "none"; return; }
+    if (game.paused) { resumeGame(); return; } // any key resumes
+    if (k === "p" || e.key === "Escape") { pauseGame(); return; }
     const m = KEYMAP[k];
     if (m) {
       const [pi, dir] = m;
@@ -678,8 +718,18 @@
     sfx("unlock"); const m = sfx("toggleMute");
     document.getElementById("mute").textContent = m ? "🔇" : "🔊";
   });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && game.state === "play") { game.paused = true; document.getElementById("paused").style.display = "grid"; sfx("stopLoops"); }
+  function pauseGame() {
+    if (game.state !== "play" || game.paused) return;
+    game.paused = true; document.getElementById("paused").style.display = "grid"; sfx("stopLoops");
+  }
+  function resumeGame() {
+    game.paused = false; document.getElementById("paused").style.display = "none";
+  }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) pauseGame(); });
+  document.getElementById("paused").addEventListener("click", () => { sfx("unlock"); resumeGame(); });
+  document.getElementById("overlay").addEventListener("click", (e) => {
+    if (e.target.closest(".btn")) return; // buttons keep their own actions
+    if (game.state === "title" || game.state === "gameover") { sfx("unlock"); startGame(false); }
   });
 
   // ---------- main loop ----------
