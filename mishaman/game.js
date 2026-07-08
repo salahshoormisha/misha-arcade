@@ -97,9 +97,9 @@
   }
   const GHOST_DEFS = [
     { name: "DEADLINE", color: "#ff3355", scatter: [1, 38], release: -1 },
-    { name: "INBOX",    color: "#29d9ff", scatter: [1, 1],  release: 1.2 },
-    { name: "MEETINGS", color: "#ffb347", scatter: [24, 38], release: 4.5 },
-    { name: "BUDGET",   color: "#c77dff", scatter: [24, 1], release: 8 },
+    { name: "INBOX",    color: "#29d9ff", scatter: [1, 1],  release: 2.5 },
+    { name: "MEETINGS", color: "#ffb347", scatter: [24, 38], release: 7 },
+    { name: "BUDGET",   color: "#c77dff", scatter: [24, 1], release: 12 },
   ];
   function makeGhost(i) {
     const d = GHOST_DEFS[i];
@@ -116,8 +116,8 @@
   }
   function elroy() { // Deadline heats up as the maze empties (Cruise Elroy)
     const left = pellets.size + powers.size;
-    if (left < totalPellets * 0.15) return 2;
-    if (left < totalPellets * 0.35) return 1;
+    if (left < totalPellets * 0.12) return 2;
+    if (left < totalPellets * 0.30) return 1;
     return 0;
   }
   function ghostSpeed(g) {
@@ -127,7 +127,7 @@
     if (g.mode === "inhouse" || g.mode === "leaving") return 5;
     if (g.fright) return 6.0;
     if (inTunnel) return 5.6;
-    let v = Math.min(10.6, 8.9 + (game.level - 1) * 0.25);
+    let v = Math.min(10.6, 8.0 + (game.level - 1) * 0.3); // gentle L1, real ramp
     if (g.idx === 0) { const e = elroy(); if (e === 2) v *= 1.16; else if (e === 1) v *= 1.08; }
     return v;
   }
@@ -219,7 +219,7 @@
 
   // ---------- modes ----------
   function modeSchedule() {
-    const s = Math.max(2.5, 5 - (game.level - 1) * 0.5);
+    const s = Math.max(2.5, 7 - (game.level - 1));
     return [s, 20, s, 20, Math.max(2, s - 2), 20, Math.max(2, s - 2), Infinity];
   }
   function currentMode() { return game.modeIdx % 2 === 0 ? "scatter" : "chase"; }
@@ -243,7 +243,7 @@
     }
   }
   function startFright() {
-    game.frightT = Math.max(2, 7 - (game.level - 1) * 0.7); game.chain = 0;
+    game.frightT = Math.max(2.5, 8 - (game.level - 1) * 0.8); game.chain = 0;
     for (const g of game.ghosts) if (g.mode === "field") g.fright = true;
     reverseAllGhosts(); sfx("fright");
   }
@@ -255,6 +255,7 @@
 
   // ---------- flow ----------
   function startGame(duo) {
+    game.demo = false; game.hintT = 4;
     game.duo = duo; game.level = 1; game.score = 0; game.lives = 3;
     game.extraLifeGiven = false; game.fruitSeen = 0; game.fruit = null;
     resetPellets(); resetRound(); redrawStatic();
@@ -270,7 +271,7 @@
     game.ghosts = [0, 1, 2, 3].map(makeGhost);
     let t = 0;
     for (const g of game.ghosts) g.releaseAt = GHOST_DEFS[g.idx].release < 0 ? -1 :
-      Math.max(0.5, GHOST_DEFS[g.idx].release - (game.level - 1) * 0.4);
+      Math.max(0.5, GHOST_DEFS[g.idx].release - (game.level - 1) * 0.8);
     game.frightT = 0; game.chain = 0; game.modeIdx = 0; game.modeT = 0;
     game.freezeT = 0; game.roundClock = 0; game.fruit = null;
     endFright();
@@ -279,7 +280,7 @@
     game.state = s; game.stateT = 0;
     const ov = document.getElementById("overlay");
     ov.className = "show";
-    if (s === "title") ov.innerHTML = titleHTML();
+    if (s === "title") { ov.innerHTML = titleHTML(); setupDemo(); }
     else if (s === "ready") ov.innerHTML = `<div class="big ready-flash">READY!</div>`;
     else if (s === "levelclear") ov.innerHTML =
       `<div class="big" style="color:#7dffa8">M·I·S·H·A ✨</div><div class="sub">level ${game.level} cleared, gorgeous</div>`;
@@ -316,10 +317,51 @@
 
   // ---------- sim ----------
   function shake(mag, dur) { game.shakeMag = mag; game.shakeT = dur; game.shakeDur = dur; }
+
+  // ---------- attract mode: a demo Misha-pac wanders the maze on the title ----------
+  function setupDemo() {
+    game.demo = true;
+    resetPellets();
+    game.players = [makePlayer(0)];
+    game.ghosts = [0, 1, 2, 3].map(makeGhost);
+    for (const g of game.ghosts) {
+      g.mode = "field";
+      g.x = cx(g.scatter[1]); g.y = cy(g.scatter[0]);
+      g.dir = { x: g.scatter[1] > 20 ? -1 : 1, y: 0 };
+    }
+    game.modeIdx = 1; // permanent chase keeps the title screen lively
+  }
+  function demoSteer(p) {
+    const r = Math.floor(p.y / T), c = Math.floor(p.x / T);
+    const atC = Math.abs(p.x - cx(c)) < 2 && Math.abs(p.y - cy(r)) < 2;
+    if (!p.moving || (atC && Math.random() < 0.22)) {
+      const opts = DIRS.filter((d) => walkPac(r + d.y, c + d.x) &&
+        !(d.x === -p.dir.x && d.y === -p.dir.y));
+      p.nextDir = opts.length ? opts[(Math.random() * opts.length) | 0] : { x: -p.dir.x, y: -p.dir.y };
+      if (!p.moving) { const n = p.nextDir; if (walkPac(r + n.y, c + n.x)) { p.dir = n; p.nextDir = null; p.moving = true; } }
+    }
+  }
+  function demoTick(dt) {
+    if (!game.demo) return;
+    for (const p of game.players) {
+      demoSteer(p);
+      advance(p, dt, false, false);
+      p.anim += dt * 10;
+      const r = Math.floor(p.y / T), c = Math.floor(p.x / T);
+      if (Math.abs(p.x - cx(c)) < T * 0.45 && Math.abs(p.y - cy(r)) < T * 0.45) {
+        pellets.delete(r * W + c); powers.delete(r * W + c); // silent snacking
+      }
+    }
+    for (const g of game.ghosts) advance(g, dt, true, false);
+    if (pellets.size + powers.size < totalPellets * 0.55) resetPellets();
+    game.particles = game.particles.filter((q) => (q.ttl -= dt) > 0);
+    for (const q of game.particles) { q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 60 * dt; }
+  }
   function sim(dt) {
     game.stateT += dt;
     if (game.flash > 0) game.flash -= dt;
     if (game.shakeT > 0) game.shakeT -= dt;
+    if (game.state === "title") { demoTick(dt); return; }
     if (game.state === "ready") { if (game.stateT > 2.1) { setState("play"); } return; }
     if (game.state === "dying") {
       if (game.stateT > 1.6) {
@@ -333,6 +375,10 @@
     if (game.freezeT > 0) { game.freezeT -= dt; return; }
 
     game.roundClock = (game.roundClock || 0) + dt;
+    if (game.hintT > 0) {
+      game.hintT -= dt;
+      if (game.hintT <= 0) popup(LW / 2, cy(15), "eat a 💋 to turn the tables", "#ff8fc6", 2.4);
+    }
     tickModes(dt);
 
     // players
@@ -433,6 +479,7 @@
     const key = r * W + c;
     if (pellets.has(key)) {
       pellets.delete(key); eatenCount++; addScore(10); sfx("waka"); stripeEat(c);
+      game.particles.push({ x: cx(c), y: cy(r), vx: (Math.random() - 0.5) * 30, vy: -22, ttl: 0.18, color: "#fff", r: 1.1 });
     } else if (powers.has(key)) {
       powers.delete(key); eatenCount++; addScore(50); stripeEat(c); startFright();
       game.freezeT = Math.max(game.freezeT, 0.16); game.flash = 0.3; // hit-stop!
@@ -473,7 +520,7 @@
   function gameOver() {
     setState("gameover"); updateHud();
   }
-  function popup(x, y, text, color) { game.popups.push({ x, y, text: String(text), color, ttl: 1.4 }); }
+  function popup(x, y, text, color, ttl) { game.popups.push({ x, y, text: String(text), color, ttl: ttl || 1.4 }); }
   function burst(x, y, color, n) {
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, v = 40 + Math.random() * 90;
@@ -562,6 +609,15 @@
     // ghosts
     if (game.state !== "dying" || game.stateT < 0.1)
       for (const g of game.ghosts) drawGhost(g);
+    // round-start name tags
+    if (game.state === "ready" || (game.state === "play" && (game.roundClock || 0) < 2)) {
+      ctx.font = "bold 10px Menlo, monospace"; ctx.textAlign = "center";
+      for (const p of game.players) {
+        if (p.dead || (p.id === 1 && !game.duo)) continue;
+        ctx.fillStyle = p.id === 0 ? "#ff8fc6" : "#7ff2dd";
+        ctx.fillText(p.id === 0 ? "MISHA" : "DAVID", p.x, p.y - T * 1.15);
+      }
+    }
     // particles & popups
     for (const q of game.particles) {
       ctx.globalAlpha = Math.min(1, q.ttl * 2); ctx.fillStyle = q.color;
@@ -638,6 +694,13 @@
       ctx.fillStyle = "#1b1464";
       ctx.beginPath(); ctx.arc(-r * 0.35 + ex, -r * 0.2 + ey, r * 0.15, 0, 7);
       ctx.arc(r * 0.35 + ex, -r * 0.2 + ey, r * 0.15, 0, 7); ctx.fill();
+      if (g.idx === 0 && g.mode === "field" && elroy() > 0) { // Deadline gets ANGRY
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.8; ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.62, -r * 0.6); ctx.lineTo(-r * 0.14, -r * 0.42);
+        ctx.moveTo(r * 0.62, -r * 0.6); ctx.lineTo(r * 0.14, -r * 0.42);
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
@@ -736,11 +799,13 @@
   let last = performance.now(), acc = 0;
   const STEP = 1 / 120;
   function frame(now) {
-    let dt = (now - last) / 1000; last = now;
-    if (dt > 0.05) dt = 0.05;
-    acc += dt;
-    while (acc >= STEP) { sim(STEP); acc -= STEP; }
-    render();
+    try {
+      let dt = (now - last) / 1000; last = now;
+      if (dt > 0.05) dt = 0.05;
+      acc += dt;
+      while (acc >= STEP) { sim(STEP); acc -= STEP; }
+      render();
+    } catch (err) { console.error(err); } // one bad frame must never kill the game
     requestAnimationFrame(frame);
   }
 

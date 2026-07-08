@@ -43,7 +43,7 @@
   #overlay {
     position: absolute; inset: 0; display: none; text-align: center; z-index: 5;
     flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-    background: rgba(7,3,18,.85); border-radius: 12px; padding: 12px; backdrop-filter: blur(3px);
+    background: rgba(7,3,18,.68); border-radius: 12px; padding: 12px; backdrop-filter: blur(2px);
   }
   #overlay.show { display: flex; }
   .logo {
@@ -139,7 +139,7 @@
       t.textContent = "⚠️ " + (e.message || "script error") + " — tell Claude!";
     });
   </script>
-  <script src="audio.js?v=2"></script>
-  <script src="game.js?v=2"></script>
+  <script src="audio.js?v=3"></script>
+  <script src="game.js?v=3"></script>
 </body>
 </html>

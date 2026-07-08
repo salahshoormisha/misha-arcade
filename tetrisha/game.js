@@ -180,6 +180,29 @@
     return Math.max(0.03, Math.pow(0.8 - (l - 1) * 0.007, l - 1));
   }
   function shake(mag, dur) { game.shakeMag = mag; game.shakeT = dur; game.shakeDur = dur; }
+
+  // attract mode: pieces drift down and stack behind the title screen
+  function demoDrop() {
+    if (!game.board.length) game.board = emptyBoard();
+    if (!game.piece) {
+      if (!game.bag.length) refillBag();
+      game.piece = { type: nextType(), rot: 0, x: 3, y: 0, isHeart: false };
+      renderNext();
+    }
+    const p = game.piece;
+    const r = (Math.random() * 4) | 0;
+    if (!collides(p, 0, 0, r)) p.rot = r;
+    const dx = ((Math.random() * 9) | 0) - 4, step = Math.sign(dx) || 1;
+    for (let i = 0; i < Math.abs(dx); i++) { if (collides(p, step, 0, p.rot)) break; p.x += step; }
+    let d = 0; while (!collides(p, 0, d + 1, p.rot)) d++;
+    p.y += d;
+    for (const [x, y] of cellsOf(p)) if (y >= 0) game.board[y][x] = p.type;
+    game.lockFx = { cells: cellsOf(p).filter(([, y]) => y >= HIDDEN), ttl: 0.12 };
+    game.piece = null;
+    for (let y = ROWS - 1; y >= 0; y--)
+      if (game.board[y].every((v) => v)) { game.board.splice(y, 1); game.board.unshift(Array(COLS).fill(null)); y++; }
+    if (game.board.slice(0, 6).some((row) => row.some(Boolean))) game.board = emptyBoard();
+  }
   function hardDrop() {
     const p = game.piece;
     if (!p || game.state !== "play") return;
@@ -249,8 +272,12 @@
         game.heartQueued = true;
         setTimeout(() => { flair("💌 INCOMING FROM DAVID", "#ff8fc6"); sfx("heartIncoming"); }, 500);
       }
-      if (n === 4) { flair("M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4); }
-      else { flair(["nice ✨", "cute!! 💅", "slayyy 🔥"][n - 1], ["#b18cff", "#4fd8ff", "#ffd84f"][n - 1]); sfx("lineClear", n); }
+      if (n === 4) { flair(b2bBonus ? "M I S H A !!! B2B!!" : "M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4); }
+      else {
+        let txt = ["nice ✨", "cute!! 💅", "slayyy 🔥"][n - 1];
+        if (game.combo >= 1) txt += " · combo ×" + (game.combo + 1);
+        flair(txt, ["#b18cff", "#4fd8ff", "#ffd84f"][n - 1]); sfx("lineClear", n);
+      }
       for (const y of full) for (let c = 0; c < COLS; c++)
         particle((c + 0.5) * CELL, (y + 0.5 - HIDDEN) * CELL, n === 4 ? "#ff4fd8" : "#fff", 0.5);
       updateMeter();
@@ -298,6 +325,11 @@
     for (const q of game.particles) { q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 220 * dt; }
     if (game.flair && (game.flair.ttl -= dt) <= 0) game.flair = null;
 
+    if (game.state === "title") {
+      game.demoT = (game.demoT || 0) + dt;
+      if (game.demoT > 0.7) { game.demoT = 0; demoDrop(); }
+      return;
+    }
     if (game.state === "clearing") {
       game.clearT += dt;
       if (game.clearT > 0.38) finishClearing();
@@ -457,11 +489,22 @@
     for (let y = 1; y < ROWS - HIDDEN; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(LWb, y * CELL); ctx.stroke(); }
     // locked cells
     for (let y = HIDDEN; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
-      const v = game.board[y][x];
+      const v = game.board[y] ? game.board[y][x] : null;
       if (!v) continue;
       const flash = game.state === "clearing" && game.clearingRows.includes(y);
       drawCell(ctx, x * CELL, (y - HIDDEN) * CELL, flash ? "#ffffff" : SHAPES[v].c, CELL, false, v === "♥");
       if (flash) { ctx.globalAlpha = 0.5 + 0.5 * Math.sin(game.clearT * 40); ctx.fillStyle = "#fff"; ctx.fillRect(x * CELL, (y - HIDDEN) * CELL, CELL, CELL); ctx.globalAlpha = 1; }
+    }
+    // danger pulse when the stack climbs into the top rows
+    if (game.state === "play") {
+      let top = ROWS;
+      for (let y = 0; y < ROWS; y++) if (game.board[y] && game.board[y].some(Boolean)) { top = y; break; }
+      if (top <= HIDDEN + 5) {
+        const a = 0.1 + 0.08 * Math.sin(performance.now() / 140);
+        const gr = ctx.createLinearGradient(0, 0, 0, CELL * 6);
+        gr.addColorStop(0, `rgba(255,60,90,${a})`); gr.addColorStop(1, "rgba(255,60,90,0)");
+        ctx.fillStyle = gr; ctx.fillRect(0, 0, LWb, CELL * 6);
+      }
     }
     // ghost + active piece
     if (game.piece && game.state === "play") {
@@ -519,7 +562,10 @@
     const ox = (lw - w * s) / 2 - Math.min(...xs) * s, oy = (lh - h * s) / 2 - Math.min(...ys) * s;
     for (const [x, y] of cs) drawCell(g, ox + x * s, oy + y * s, SHAPES[type].c, s, false, type === "♥");
   }
-  function renderHold() { renderMini(holdCtx, holdCvs, game.hold); }
+  function renderHold() {
+    holdCvs.style.opacity = game.holdUsed ? "0.35" : "1";
+    renderMini(holdCtx, holdCvs, game.hold);
+  }
   function renderNext() {
     const lw = nextCvs.width / DPR, lh = nextCvs.height / DPR;
     nextCtx.clearRect(0, 0, lw, lh);
@@ -557,6 +603,7 @@
   }
 
   // ---------- boot ----------
+  game.board = emptyBoard(); // never let render see a missing row
   overlay(`<div class="logo">TETRISHA</div>
     <div class="sub">clear lines to spell <b style="color:#ff4fd8">M·I·S·H·A</b> —<br>complete it and <b style="color:#ff8fc6">DAVID</b> sends a heart 💗 that detonates</div>
     <button class="btn" onclick="__TT.start()">▶ PLAY</button>
@@ -565,11 +612,13 @@
   let last = performance.now(), acc = 0;
   const STEP = 1 / 120;
   function frame(now) {
-    let dt = (now - last) / 1000; last = now;
-    if (dt > 0.05) dt = 0.05;
-    acc += dt;
-    while (acc >= STEP) { sim(STEP); acc -= STEP; }
-    render();
+    try {
+      let dt = (now - last) / 1000; last = now;
+      if (dt > 0.05) dt = 0.05;
+      acc += dt;
+      while (acc >= STEP) { sim(STEP); acc -= STEP; }
+      render();
+    } catch (err) { console.error(err); } // one bad frame must never kill the game
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
