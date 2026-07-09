@@ -14,9 +14,11 @@
 //                  here the death tail sighs F→E (Am b6→5), quietly quoting
 //                  letters M and S.
 // KEY WORLD: everything A minor; MISHA fanfares end Picardy (A major).
-// THE TWIST: waka() is a tiny formant-synthesized voice — m(25ms) → ee(45ms)
-// → sh(50ms) — so every pellet literally says "MISH", alternating hi/lo
-// pitch variants exactly like the classic waka. Both variants are pre-rendered
+// THE TWIST: waka() is a formant-synthesized VOICE that alternates two
+// syllables — "MI" then "SHA" — so eating pellets literally chants
+// "MI-SHA-MI-SHA", and mish() says a clear little "MISHA!" on game start.
+// Real vowel formants (ɪ: F1 430/F2 2000 · ah: F1 760/F2 1150), dual detuned
+// saws with 5.5 Hz vibrato, big ʃ noise burst. Both syllables are pre-rendered
 // into AudioBuffers via OfflineAudioContext inside unlock(); waka() then only
 // fires AudioBufferSourceNodes (survives 8–10 calls/sec with zero graph churn).
 // ===========================================================================
@@ -118,46 +120,66 @@
   // m(25ms nasal hum) → ee(45ms formant vowel) → sh(50ms fricative) = 120 ms,
   // ~5 ms crossfades so it reads as one vocal gesture. Formant frequencies
   // stay FIXED across hi/lo (only f0 transposes) — that keeps it a "voice".
-  function renderMish(f0, shHz) {
+  function renderSyl(kind, f0) {
     return new Promise(function (resolve, reject) {
       var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
       if (!OAC || !ctx) { reject(0); return; }
-      var sr = ctx.sampleRate, oc = new OAC(1, Math.ceil(sr * 0.21), sr);
-      // m — closed-lips hum: triangle @ f0, lowpass 450 — a real "M" onset
-      var mo = oc.createOscillator(); mo.type = "triangle"; mo.frequency.value = f0;
-      var mf = oc.createBiquadFilter(); mf.type = "lowpass"; mf.frequency.value = 450;
-      var mg = oc.createGain();
-      mg.gain.setValueAtTime(0, 0);
-      mg.gain.linearRampToValueAtTime(0.5, 0.03);
-      mg.gain.linearRampToValueAtTime(0, 0.04);           // xfade into the vowel
-      link(mo, mf, mg, oc.destination);
-      mo.start(0); mo.stop(0.042);
-      // ee — long bright vowel: saw f0→f0*1.05 through THREE parallel formants
-      var eo = oc.createOscillator(); eo.type = "sawtooth";
-      eo.frequency.setValueAtTime(f0, 0.028);
-      eo.frequency.linearRampToValueAtTime(f0 * 1.05, 0.108);
-      var eg = oc.createGain();
-      eg.gain.setValueAtTime(0, 0.028);
-      eg.gain.linearRampToValueAtTime(0.9, 0.036);
-      eg.gain.setValueAtTime(0.9, 0.102);
-      eg.gain.linearRampToValueAtTime(0, 0.112);
-      [[320, 7, 1.2], [2400, 9, 1.0], [3100, 11, 0.45]].forEach(function (F) {
-        var bp = oc.createBiquadFilter(); bp.type = "bandpass";
-        bp.frequency.value = F[0]; bp.Q.value = F[1];
-        var fg = oc.createGain(); fg.gain.value = F[2];
-        link(eo, bp, fg, eg);
-      });
-      eg.connect(oc.destination);
-      eo.start(0.028); eo.stop(0.115);
-      // sh — the signature: wide bandpassed noise, big attack, long tail
-      var ns = oc.createBufferSource(); ns.buffer = noiseBuf(oc, 0.105);
-      var nf = oc.createBiquadFilter(); nf.type = "bandpass";
-      nf.frequency.value = shHz; nf.Q.value = 0.8;
-      var ng = oc.createGain();
-      ng.gain.setValueAtTime(0.85, 0.1);
-      ng.gain.exponentialRampToValueAtTime(0.0001, 0.205);
-      link(ns, nf, ng, oc.destination);
-      ns.start(0.1); ns.stop(0.208);
+      var sr = ctx.sampleRate, oc = new OAC(1, Math.ceil(sr * 0.24), sr);
+      // dual detuned saws + vibrato through parallel formant bands = a voice
+      function vowel(t0, t1, F, fStart, fEnd, peak) {
+        var vg = oc.createGain();
+        vg.gain.setValueAtTime(0, t0);
+        vg.gain.linearRampToValueAtTime(peak, t0 + 0.012);
+        vg.gain.setValueAtTime(peak, t1 - 0.02);
+        vg.gain.linearRampToValueAtTime(0, t1);
+        [1, 1.007].forEach(function (det) {
+          var o = oc.createOscillator(); o.type = "sawtooth";
+          o.frequency.setValueAtTime(fStart * det, t0);
+          o.frequency.linearRampToValueAtTime(fEnd * det, t1);
+          var lfo = oc.createOscillator(), lg = oc.createGain();
+          lfo.type = "sine"; lfo.frequency.value = 5.5; lg.gain.value = fStart * 0.02;
+          lfo.connect(lg); lg.connect(o.frequency);
+          F.forEach(function (f) {
+            var bp = oc.createBiquadFilter(); bp.type = "bandpass";
+            bp.frequency.value = f[0]; bp.Q.value = f[1];
+            var fg = oc.createGain(); fg.gain.value = f[2];
+            o.connect(bp); bp.connect(fg); fg.connect(vg);
+          });
+          o.start(t0); o.stop(t1 + 0.005);
+          lfo.start(t0); lfo.stop(t1 + 0.005);
+        });
+        vg.connect(oc.destination);
+      }
+      if (kind === "mi") {
+        // "MI" — nasal m murmur into the ɪ of "mish" (F1 430, F2 2000)
+        var mo = oc.createOscillator(); mo.type = "triangle"; mo.frequency.value = f0;
+        var mf = oc.createBiquadFilter(); mf.type = "lowpass"; mf.frequency.value = 400;
+        var mg = oc.createGain();
+        mg.gain.setValueAtTime(0, 0);
+        mg.gain.linearRampToValueAtTime(0.35, 0.03);
+        mg.gain.linearRampToValueAtTime(0, 0.05);
+        link(mo, mf, mg, oc.destination);
+        mo.start(0); mo.stop(0.052);
+        vowel(0.04, 0.2, [[430, 8, 1.3], [2000, 9, 1.0], [2900, 11, 0.4]], f0, f0 * 0.97, 0.9);
+      } else {
+        // "SHA" — big bright ʃ burst into an open "ah", word-final fall
+        var ns = oc.createBufferSource(); ns.buffer = noiseBuf(oc, 0.1);
+        var nf = oc.createBiquadFilter(); nf.type = "bandpass";
+        nf.frequency.value = 3100; nf.Q.value = 0.7;
+        var ng = oc.createGain();
+        ng.gain.setValueAtTime(0.9, 0);
+        ng.gain.exponentialRampToValueAtTime(0.05, 0.09);
+        link(ns, nf, ng, oc.destination);
+        ns.start(0); ns.stop(0.1);
+        var n2 = oc.createBufferSource(); n2.buffer = noiseBuf(oc, 0.08);
+        var f2 = oc.createBiquadFilter(); f2.type = "highpass"; f2.frequency.value = 4500;
+        var g2 = oc.createGain();
+        g2.gain.setValueAtTime(0.35, 0);
+        g2.gain.exponentialRampToValueAtTime(0.02, 0.08);
+        link(n2, f2, g2, oc.destination);
+        n2.start(0); n2.stop(0.085);
+        vowel(0.075, 0.225, [[760, 7, 1.3], [1150, 8, 0.9], [2600, 12, 0.3]], f0 * 0.92, f0 * 0.8, 0.85);
+      }
       var done = function (buf) { // normalize → playback peak == wakaOut 0.18
         var d = buf.getChannelData(0), p = 0, i;
         for (i = 0; i < d.length; i++) p = Math.max(p, Math.abs(d[i]));
@@ -195,9 +217,9 @@
       if (!ensure()) return;
       if (mishTried) return;
       mishTried = true;
-      try { // hi/lo alternate like the classic waka; femme register reads as voice
-        renderMish(205, 3400).then(function (b) { mishBuf[0] = b; }, function () {});
-        renderMish(160, 3000).then(function (b) { mishBuf[1] = b; }, function () {});
+      try { // syllable pair — the waka alternates MI / SHA: eating chants her name
+        renderSyl("mi", 215).then(function (b) { mishBuf[0] = b; }, function () {});
+        renderSyl("sha", 205).then(function (b) { mishBuf[1] = b; }, function () {});
       } catch (e) {} // fallback blips cover us if offline rendering fails
     },
 
@@ -226,15 +248,19 @@
       tone({ type: "square", f0: wakaHi ? 380 : 300, dur: 0.06, peak: 0.12, pluck: true });
     },
 
-    // one loud, clear "MISH!" — fired the moment a game starts
+    // one loud, clear "MI-SHA!" — fired the moment a game starts
     mish: function () {
       var c = ensure(); if (!c) return;
-      var b = mishBuf[0];
-      if (!b) { API.waka(); return; }
-      var s = c.createBufferSource(), g = c.createGain();
-      s.buffer = b; g.gain.value = 0.6;
-      link(s, g, master);
-      s.start(); s.stop(c.currentTime + 0.24);
+      if (!mishBuf[0] || !mishBuf[1]) { // buffers still rendering on 1st gesture
+        setTimeout(function () { if (mishBuf[0] && mishBuf[1]) API.mish(); }, 280);
+        return;
+      }
+      [[mishBuf[0], 0], [mishBuf[1], 0.19]].forEach(function (bt) {
+        var s = c.createBufferSource(), g = c.createGain();
+        s.buffer = bt[0]; g.gain.value = 0.65;
+        link(s, g, master);
+        s.start(c.currentTime + bt[1]); s.stop(c.currentTime + bt[1] + 0.26);
+      });
     },
 
     ready: function () { motif(MISHA, { peak: 0.13 }); }, // MISHA jingle, 1.8 s
