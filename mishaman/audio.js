@@ -28,7 +28,8 @@
   var muted = false;
   try { muted = localStorage.getItem("mm_mute") === "1"; } catch (e) {}
   var sir = null, fri = null;          // managed loops (never stack)
-  var mishBuf = [null, null];          // [hi, lo] pre-rendered "MISH" chomps
+  var mishBuf = [null, null];          // [MI, SHA] synth syllables (fallback)
+  var voiceBuf = null;                 // the real thing: spoken "Misha!" sample
   var mishTried = false, wakaHi = false, lastWaka = 0;
   var BEAT = 60 / 150;                 // tempoBpm 150
   var LETTER_NOTES = ["F4", "B4", "E5", "A5", "A6"];              // M I S H A
@@ -217,10 +218,16 @@
       if (!ensure()) return;
       if (mishTried) return;
       mishTried = true;
-      try { // syllable pair — the waka alternates MI / SHA: eating chants her name
+      try { // the real thing: a genuinely spoken "Misha!" (11 KB AAC)
+        fetch("voice-misha.m4a?v=1")
+          .then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+          .then(function (ab) { return ctx.decodeAudioData(ab); })
+          .then(function (b) { voiceBuf = b; }, function () {});
+      } catch (e) {}
+      try { // synth syllable pair as fallback — waka alternates MI / SHA
         renderSyl("mi", 215).then(function (b) { mishBuf[0] = b; }, function () {});
         renderSyl("sha", 205).then(function (b) { mishBuf[1] = b; }, function () {});
-      } catch (e) {} // fallback blips cover us if offline rendering fails
+      } catch (e) {} // and plain blips cover us if everything else fails
     },
 
     toggleMute: function () {
@@ -231,13 +238,20 @@
     },
     isMuted: function () { return muted; },
 
-    // the MISH chomp — buffer playback only; alternates hi/lo, throttled so
-    // fast eating stays a crisp "mish mish mish" instead of a smear
+    // the chomp — a real spoken "Misha!" chattering hi/lo like the waka;
+    // falls back to synth MI/SHA syllables, then plain blips
     waka: function () {
       var c = ensure(); if (!c) return;
-      if (c.currentTime - lastWaka < 0.1) return;
+      if (c.currentTime - lastWaka < (voiceBuf ? 0.19 : 0.1)) return;
       lastWaka = c.currentTime;
       wakaHi = !wakaHi;
+      if (voiceBuf) {
+        var vs = c.createBufferSource(); vs.buffer = voiceBuf;
+        vs.playbackRate.value = wakaHi ? 1.85 : 1.55;
+        vs.connect(wakaOut);
+        vs.start(0, 0.03, 0.62); // skip padding, speech only
+        return;
+      }
       var b = mishBuf[wakaHi ? 0 : 1];
       if (b) {
         var s = c.createBufferSource(); s.buffer = b;
@@ -248,11 +262,18 @@
       tone({ type: "square", f0: wakaHi ? 380 : 300, dur: 0.06, peak: 0.12, pluck: true });
     },
 
-    // one loud, clear "MI-SHA!" — fired the moment a game starts
+    // one loud, clear "Misha!" — fired the moment a game starts
     mish: function () {
       var c = ensure(); if (!c) return;
-      if (!mishBuf[0] || !mishBuf[1]) { // buffers still rendering on 1st gesture
-        setTimeout(function () { if (mishBuf[0] && mishBuf[1]) API.mish(); }, 280);
+      if (voiceBuf) {
+        var s0 = c.createBufferSource(), g0 = c.createGain();
+        s0.buffer = voiceBuf; s0.playbackRate.value = 1.0; g0.gain.value = 0.9;
+        link(s0, g0, master);
+        s0.start(0, 0.03, 0.64);
+        return;
+      }
+      if (!mishBuf[0] || !mishBuf[1]) { // still loading on the 1st gesture
+        setTimeout(function () { if (voiceBuf || (mishBuf[0] && mishBuf[1])) API.mish(); }, 320);
         return;
       }
       [[mishBuf[0], 0], [mishBuf[1], 0.19]].forEach(function (bt) {
