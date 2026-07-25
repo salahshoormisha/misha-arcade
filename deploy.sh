@@ -43,13 +43,22 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>" || exit 1
 fi
 
 # ---- get on top of whatever the other sessions pushed ----
-git fetch -q origin main
-if ! git rebase -q origin/main; then
-  git rebase --abort 2>/dev/null
-  echo "rebase conflict — resolve by hand, then re-run" >&2
-  exit 1
-fi
-git push -q origin main || { echo "push failed" >&2; exit 1; }
+# Retried: another session can land a commit between our fetch and our push,
+# which rejects the push. Re-fetch, re-rebase, try again.
+pushed=0
+for try in 1 2 3 4 5; do
+  git fetch -q origin main
+  if ! git rebase -q origin/main; then
+    git rebase --abort 2>/dev/null
+    echo "rebase conflict with origin/main — another session touched the same lines." >&2
+    echo "Resolve by hand, then re-run. Nothing was pushed." >&2
+    exit 1
+  fi
+  if git push -q origin main 2>/dev/null; then pushed=1; break; fi
+  say "push raced with another session (try $try) — rebasing again"
+  sleep $((try * 2))
+done
+[ "$pushed" = 1 ] || { echo "could not push after 5 tries" >&2; exit 1; }
 SHA=$(git rev-parse --short HEAD)
 say "pushed $SHA"
 
