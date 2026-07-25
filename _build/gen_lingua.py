@@ -1261,7 +1261,7 @@ LANGS = [
             'Right to left, with every vowel written and a tone mark on nearly all of them; the '
             'letters hang from a line above and curl underneath. It belongs to no older family.',
             'It writes the Manding languages of the West African savanna interior — the heartland '
-            'of the medieval Mali Empire, upstream on the Niger.',
+            'of a medieval West African empire, high up the river Niger.',
             'Solomana Kanté devised it in 1949 to answer a claim that African languages could not '
             'be written; the name means "I say" in every Manding variety.',
         ],
@@ -1298,6 +1298,149 @@ LANGS = [
             'famous for a chariot festival that gave English the word "juggernaut".',
             'It is the only eastern Indo-Aryan language that is not heavily Persianised, and one '
             'of a handful given official "classical language" status.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- widely-taught Latin
+    dict(
+        key='spa', lang='Spanish', script='Latin (Spanish)', family='Indo-European > Romance',
+        udhr='spa', countries=['ES', 'MX', 'AR', 'CO', 'PE', 'CL', 'VE', 'CU', 'GT', 'EC'],
+        speakers=500000000, prefer='ñáíó¿¡',
+        avoid=['españ', 'castellano'],
+        hints=[
+            'Latin with exactly one extra letter, ñ, and inverted punctuation opening a question '
+            'or an exclamation: ¿ and ¡. Accents only ever go one way, á é í ó ú.',
+            'A Romance language carried across an ocean by one Iberian kingdom; it is now the '
+            'majority language of about twenty countries on another continent.',
+            'Look for the words "de", "que", "los" and "derecho"; the -ción ending answers to '
+            'English -tion, and every noun is either el or la.',
+        ],
+    ),
+    dict(
+        key='fra', lang='French', script='Latin (French)', family='Indo-European > Romance',
+        udhr='fra', countries=['FR', 'BE', 'CH', 'CA', 'CD', 'CI', 'SN', 'ML', 'HT', 'CM'],
+        speakers=310000000, prefer='çèêëœù',
+        avoid=['françai', 'france'],
+        hints=[
+            'Latin with a cedilla ç, circumflexes on â ê î ô û, a grave è and the ligature œ. '
+            'Words end in silent consonants — -ent, -ez, -aux — that are written but not said.',
+            'A Romance language of a western European republic, spread by empire until it became '
+            'the most widespread language of west and central Africa.',
+            'Two words for "you", a partitive "du / de la", and "qui", "est", "leur" everywhere. '
+            'Its academy has been arguing about spelling since 1635.',
+        ],
+    ),
+    dict(
+        key='deu', lang='German', script='Latin (German)', family='Indo-European > Germanic',
+        udhr='deu_1996', countries=['DE', 'AT', 'CH', 'LI', 'LU', 'BE'],
+        speakers=135000000, prefer='äöüß',
+        avoid=['deutsch'],
+        hints=[
+            'Latin with three umlauts (ä ö ü) and the sharp s, ß — a letter no other language '
+            'uses — plus nouns capitalised in the Middle Of Sentences.',
+            'A Germanic language official in a large central European federation, in an alpine '
+            'republic, in a multilingual confederation and in two tiny neighbours.',
+            'Compound nouns run for twenty letters, verbs get flung to the end of the clause, '
+            'and there are three genders and four cases to keep straight.',
+        ],
+    ),
+    dict(
+        key='ita', lang='Italian', script='Latin (Italian)', family='Indo-European > Romance',
+        udhr='ita', countries=['IT', 'CH', 'SM', 'VA'],
+        speakers=67000000, prefer='àèéìòù',
+        avoid=['italia', 'italian'],
+        hints=[
+            'Latin with only grave and acute accents on final vowels (à, è, ù) and no k, w, x or '
+            'y in native words. Almost every word ends in a vowel.',
+            'A Romance language of a long Mediterranean peninsula plus an alpine canton to its '
+            'north, two tiny enclaves, and a wide emigrant diaspora.',
+            'Double consonants change meaning (nono vs nonno), articles come in six flavours '
+            '(il, lo, la, i, gli, le), and "gli" is a sound no neighbour has.',
+        ],
+    ),
+    dict(
+        key='por', lang='Portuguese', script='Latin (Portuguese)', family='Indo-European > Romance',
+        udhr='por_BR', countries=['BR', 'PT', 'AO', 'MZ', 'CV', 'GW', 'ST', 'TL'],
+        speakers=265000000, prefer='ãõçâê',
+        avoid=['portug', 'brasil'],
+        hints=[
+            'Latin with nasal tildes on ã and õ — a combination no other European language '
+            'writes — plus ç and circumflexes. Words end -ão, -ões, -ção.',
+            'A Romance language taken from a small Atlantic kingdom to a vast South American '
+            'country, to southern Africa and to an island nation off the west African coast.',
+            'It has a personal infinitive no other Romance language kept, and "não", "são", '
+            '"então" litter every page.',
+        ],
+    ),
+    dict(
+        key='nld', lang='Dutch', script='Latin (Dutch)', family='Indo-European > Germanic',
+        udhr='nld', countries=['NL', 'BE', 'SR'],
+        speakers=25000000, prefer='ijeeaaoeuu',
+        avoid=['nederland', 'holland', 'vlaam'],
+        hints=[
+            'Latin, almost accent-free, but stuffed with doubled vowels — aa, ee, oo, uu — and '
+            'the digraph ij treated as a single letter, plus -sch and -ijk endings.',
+            'A Germanic language of a low-lying North Sea delta and the northern half of the '
+            'kingdom next door, plus one South American republic.',
+            'The definite articles are de and het, "zijn" means both "to be" and "his", and '
+            'the g is a sound most foreigners cannot make.',
+        ],
+    ),
+    dict(
+        key='dan', lang='Danish', script='Latin (Danish)', family='Indo-European > Germanic',
+        udhr='dan', countries=['DK'],
+        speakers=6000000, prefer='æøå',
+        avoid=['danmark', 'dansk'],
+        hints=[
+            'Latin with three extra vowels at the end of the alphabet: æ, ø and å. Its two '
+            'Scandinavian neighbours use ä and ö instead of æ and ø.',
+            'The language of a small, flat kingdom of peninsulas and islands guarding the '
+            'entrance to the Baltic, plus two vast North Atlantic self-governing territories.',
+            'The definite article is glued to the end of the noun (huset = the house), and the '
+            'numbers above forty are counted in twenties: halvtreds is two-and-a-half twenties.',
+        ],
+    ),
+    dict(
+        key='hrv', lang='Croatian', script='Latin (Croatian)', family='Indo-European > Slavic',
+        udhr='hrv', countries=['HR', 'BA'],
+        speakers=6800000, prefer='čćžšđ',
+        avoid=['hrvat'],
+        hints=[
+            'Latin with the háček trio č š ž plus two letters for the same soft sounds a '
+            'neighbouring Cyrillic alphabet writes as ћ and ђ: ć and đ.',
+            'A South Slavic language of a long Adriatic coastline and its hinterland, and one of '
+            'three official languages of the country immediately inland.',
+            'Its alphabet is a one-to-one transliteration of a Cyrillic one — the same language '
+            'continuum, two scripts, and a lot of 20th-century politics.',
+        ],
+    ),
+    dict(
+        key='slk', lang='Slovak', script='Latin (Slovak)', family='Indo-European > Slavic',
+        udhr='slk', countries=['SK'],
+        speakers=5200000, prefer='ôľĺŕä',
+        avoid=['sloven'],
+        hints=[
+            'Latin with háčeks like its western neighbour, but also a circumflex ô and two '
+            'syllabic consonants that take length marks: ĺ and ŕ — vowel-free words like "vlk".',
+            'A West Slavic language of a small, mountainous, landlocked country that separated '
+            'peacefully from its partner state on the first day of 1993.',
+            'It has no ř and no ů — the two letters that mark out the language it split from — '
+            'but it does have the rule that long syllables cannot follow one another.',
+        ],
+    ),
+    dict(
+        key='kal', lang='Greenlandic (Kalaallisut)', script='Latin (Greenlandic)',
+        family='Eskimo-Aleut > Inuit',
+        udhr='kal', countries=['GL'],
+        speakers=57000, prefer='qllffnng',
+        avoid=['kalaallit', 'nunaat', 'danmark'],
+        hints=[
+            'Latin, but the words are enormous and full of q, double consonants and -rp-, -ss-, '
+            '-tt-: one word regularly does the work of a whole English sentence.',
+            'An Inuit language, the sole official language of the world\'s largest island — a '
+            'self-governing territory of a small European kingdom.',
+            'It is polysynthetic: suffixes stack until a single word means "he says he will not '
+            'be able to go". Its Arctic cousins to the west use syllabics instead of Latin.',
         ],
     ),
 ]
@@ -1347,7 +1490,9 @@ def udhr_scripts():
 
 def wiki_summary(wiki, title):
     """Cached Wikipedia REST summary -> the plain-text `extract`."""
-    slug = re.sub(r'[^A-Za-z0-9]+', '_', '%s_%s' % (wiki, title))[:60]
+    # the title is usually non-Latin, so key the cache on a hash of it, not on
+    # a slug -- otherwise every article in the same wiki collapses to one filename.
+    slug = '%s_%s' % (wiki, hashlib.sha1(title.encode('utf-8')).hexdigest()[:12])
     p = os.path.join(WIKI_DIR, '%s.json' % slug)
     cached(p, WIKI_SUMMARY % (wiki, urllib.parse.quote(title, safe='')), 100)
     d = json.load(open(p, encoding='utf-8'))

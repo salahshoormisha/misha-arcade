@@ -330,8 +330,18 @@ dunno gonna gotta wanna gimme momma mamma mommy daddy piggy kiddo aunty fella
 bloke howdy snuck takin doesn weren needn hadn wasn couldn shouldn ain aint
 spank thong booty butch moron idiot filth curse loser tramp swine phony freak
 whack bleep sarge honks thuds mafia agony wrath stink drown haunt medic sniff
-psych bawdy hooch hokey dorky gooey icky yucky dweeb nerdy chump chubby
-dummy dopey slimy gross grody scuzzy skank creep creepy weirdo bimbo klutz
+psych bawdy hooch hokey dorky gooey icky yucky dweeb
+dummy dopey grody scuzzy skank weirdo bimbo klutz
+adobe excel vista canon login remix ascii toner urine vomit didnt june
+china morse blogs babe anti nuke
+whoo whew ahem gosh ouch whoa blah nope darn poop scum dope dumb brat lust
+jerk kung dong ling quid nova jake char null hist para hulk coma sire ding
+"""
+
+# Ordinary English words that the CROSSWORD blocklist (xw_words.BLOCK) removes
+# for grid reasons but that make perfectly good answers.  Put back by hand.
+RECLAIM_ANS = """
+delta aspen blood usher dodge crack flash metro micro rugby dial memo sick teen
 """
 
 # Curated allowlist: everyday words the 1934 dictionary predates and the
@@ -383,9 +393,13 @@ PERSIAN_REGLOSS = {
 
 EXTRA_VALID_SET = set(tok(EXTRA_VALID))
 EXTRA_JUNK_SET = set(tok(EXTRA_JUNK))
-ANS_JUNK_SET = set(tok(ANS_JUNK))
 JUNK |= EXTRA_JUNK_SET
-CURATED |= MODERN | EXTRA_VALID_SET | set(XW.ALLOW) | set(
+# The answer/hint screen reuses the crossword blocklist -- it is a good hand-made
+# catalogue of lowercased place names and brands (KODAK, TONGA, TWAIN, CHEVY,
+# DOVER, MONTE are all real web2 headwords, and all read as proper nouns) --
+# minus the ordinary words reclaimed above.
+ANS_JUNK_SET = (set(tok(ANS_JUNK)) | JUNK_CROSS_ONLY) - set(tok(RECLAIM_ANS))
+CURATED |= MODERN | EXTRA_VALID_SET | set(XW.ALLOW) | set(tok(RECLAIM_ANS)) | set(
     p[0].lower() for p in list(WA.PERSIAN) + PERSIAN_ADD)
 
 UNIVERSE = ALPHA | WEB2 | CURATED | set(tok(WA.ANS5)) | set(tok(WA.ANS4)) \

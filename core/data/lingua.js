@@ -22,9 +22,9 @@ window.AD_LINGUA = {
   "WIKI": "Wikipedia REST summaries (CC BY-SA 4.0)"
  },
  "counts": {
-  "samples": 82,
-  "scripts": 75,
-  "families": 44
+  "samples": 93,
+  "scripts": 86,
+  "families": 45
  },
  "samples": [
   {
@@ -1595,6 +1595,27 @@ window.AD_LINGUA = {
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_iii.xml, Article 2"
   },
   {
+   "key": "nqo",
+   "lang": "N'Ko (Manding)",
+   "script": "N'Ko",
+   "sc": "Nkoo",
+   "family": "Mande > Manding",
+   "text": "ߞߐ߲߬ߛߏ ߦߋ߫ ߓߏ߬ߙߌ߬ߝߋ߲߫ ߞߐ߲߬ߡߊ ߟߋ߬ ߘߌ߫߸ ߣߌߘߐ ߦߋ߫ ߡߍ߲ ߠߊ߫ ߡߐ߰ ߘߊ߲ߘߐ߫ ߣߴߊ߬ߟߎ߫ ߘߏ߬ߣߌ߲ ߠߎ߬ ߡߊߘߏ߬ߣߌ߲߬ ߞߊ߲ߡߊ߬ ߜߙߋ ߡߊ߬.",
+   "gloss": "Opening of the Wikipedia article \"Car / automobile\" in this language (Wikidata Q1420). A statement of the passage's subject, not a word-for-word translation.",
+   "countries": [
+    "GN",
+    "ML",
+    "CI"
+   ],
+   "speakers": 40000000,
+   "hints": [
+    "Right to left, with every vowel written and a tone mark on nearly all of them; the letters hang from a line above and curl underneath. It belongs to no older family.",
+    "It writes the Manding languages of the West African savanna interior — the heartland of a medieval West African empire, high up the river Niger.",
+    "Solomana Kanté devised it in 1949 to answer a claim that African languages could not be written; the name means \"I say\" in every Manding variety."
+   ],
+   "src": "Wikipedia (CC BY-SA 4.0) :: nqo.wikipedia.org REST summary of \"ߞߐ߲߬ߛߏ\" (Wikidata Q1420), opening lines"
+  },
+  {
    "key": "snd",
    "lang": "Sindhi",
    "script": "Arabic (Sindhi)",
@@ -1632,6 +1653,232 @@ window.AD_LINGUA = {
     "It is the only eastern Indo-Aryan language that is not heavily Persianised, and one of a handful given official \"classical language\" status."
    ],
    "src": "Wikipedia (CC BY-SA 4.0) :: or.wikipedia.org REST summary of \"ଜଳ\" (Wikidata Q283), opening lines"
+  },
+  {
+   "key": "spa",
+   "lang": "Spanish",
+   "script": "Latin (Spanish)",
+   "sc": "Latn",
+   "family": "Indo-European > Romance",
+   "text": "La maternidad y la infancia tienen derecho a cuidados y asistencia especiales. Todos los niños, nacidos de matrimonio o fuera de matrimonio, tienen derecho a igual protección social.",
+   "gloss": "Motherhood and childhood are entitled to special care and assistance. All children, whether born in or out of wedlock, shall enjoy the same social protection.",
+   "countries": [
+    "ES",
+    "MX",
+    "AR",
+    "CO",
+    "PE",
+    "CL",
+    "VE",
+    "CU",
+    "GT",
+    "EC"
+   ],
+   "speakers": 500000000,
+   "hints": [
+    "Latin with exactly one extra letter, ñ, and inverted punctuation opening a question or an exclamation: ¿ and ¡. Accents only ever go one way, á é í ó ú.",
+    "A Romance language carried across an ocean by one Iberian kingdom; it is now the majority language of about twenty countries on another continent.",
+    "Look for the words \"de\", \"que\", \"los\" and \"derecho\"; the -ción ending answers to English -tion, and every noun is either el or la."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_spa.xml, Article 25 (para 2)"
+  },
+  {
+   "key": "fra",
+   "lang": "French",
+   "script": "Latin (French)",
+   "sc": "Latn",
+   "family": "Indo-European > Romance",
+   "text": "Nul ne peut être arbitrairement privé de sa nationalité, ni du droit de changer de nationalité.",
+   "gloss": "No one shall be arbitrarily deprived of his nationality nor denied the right to change his nationality.",
+   "countries": [
+    "FR",
+    "BE",
+    "CH",
+    "CA",
+    "CD",
+    "CI",
+    "SN",
+    "ML",
+    "HT",
+    "CM"
+   ],
+   "speakers": 310000000,
+   "hints": [
+    "Latin with a cedilla ç, circumflexes on â ê î ô û, a grave è and the ligature œ. Words end in silent consonants — -ent, -ez, -aux — that are written but not said.",
+    "A Romance language of a western European republic, spread by empire until it became the most widespread language of west and central Africa.",
+    "Two words for \"you\", a partitive \"du / de la\", and \"qui\", \"est\", \"leur\" everywhere. Its academy has been arguing about spelling since 1635."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_fra.xml, Article 15 (para 2)"
+  },
+  {
+   "key": "deu",
+   "lang": "German",
+   "script": "Latin (German)",
+   "sc": "Latn",
+   "family": "Indo-European > Germanic",
+   "text": "Jeder hat das Recht, jedes Land, einschließlich seines eigenen, zu verlassen und in sein Land zurückzukehren.",
+   "gloss": "Everyone has the right to leave any country, including his own, and to return to his country.",
+   "countries": [
+    "DE",
+    "AT",
+    "CH",
+    "LI",
+    "LU",
+    "BE"
+   ],
+   "speakers": 135000000,
+   "hints": [
+    "Latin with three umlauts (ä ö ü) and the sharp s, ß — a letter no other language uses — plus nouns capitalised in the Middle Of Sentences.",
+    "A Germanic language official in a large central European federation, in an alpine republic, in a multilingual confederation and in two tiny neighbours.",
+    "Compound nouns run for twenty letters, verbs get flung to the end of the clause, and there are three genders and four cases to keep straight."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_deu_1996.xml, Article 13 (para 2)"
+  },
+  {
+   "key": "ita",
+   "lang": "Italian",
+   "script": "Latin (Italian)",
+   "sc": "Latn",
+   "family": "Indo-European > Romance",
+   "text": "Ogni individuo ha diritto, in ogni luogo, al riconoscimento della sua personalità giuridica.",
+   "gloss": "Everyone has the right to recognition everywhere as a person before the law.",
+   "countries": [
+    "IT",
+    "CH",
+    "SM",
+    "VA"
+   ],
+   "speakers": 67000000,
+   "hints": [
+    "Latin with only grave and acute accents on final vowels (à, è, ù) and no k, w, x or y in native words. Almost every word ends in a vowel.",
+    "A Romance language of a long Mediterranean peninsula plus an alpine canton to its north, two tiny enclaves, and a wide emigrant diaspora.",
+    "Double consonants change meaning (nono vs nonno), articles come in six flavours (il, lo, la, i, gli, le), and \"gli\" is a sound no neighbour has."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_ita.xml, Article 6"
+  },
+  {
+   "key": "por",
+   "lang": "Portuguese",
+   "script": "Latin (Portuguese)",
+   "sc": "Latn",
+   "family": "Indo-European > Romance",
+   "text": "A maternidade e a infância têm direito a cuidados e assistência especiais. Todas as crianças, nascidas dentro ou fora do matrimônio gozarão da mesma proteção social.",
+   "gloss": "Motherhood and childhood are entitled to special care and assistance. All children, whether born in or out of wedlock, shall enjoy the same social protection.",
+   "countries": [
+    "BR",
+    "PT",
+    "AO",
+    "MZ",
+    "CV",
+    "GW",
+    "ST",
+    "TL"
+   ],
+   "speakers": 265000000,
+   "hints": [
+    "Latin with nasal tildes on ã and õ — a combination no other European language writes — plus ç and circumflexes. Words end -ão, -ões, -ção.",
+    "A Romance language taken from a small Atlantic kingdom to a vast South American country, to southern Africa and to an island nation off the west African coast.",
+    "It has a personal infinitive no other Romance language kept, and \"não\", \"são\", \"então\" litter every page."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_por_BR.xml, Article 25 (para 2)"
+  },
+  {
+   "key": "nld",
+   "lang": "Dutch",
+   "script": "Latin (Dutch)",
+   "sc": "Latn",
+   "family": "Indo-European > Germanic",
+   "text": "Niemand zal onderworpen worden aan willekeurige arrestatie, detentie of verbanning.",
+   "gloss": "No one shall be subjected to arbitrary arrest, detention or exile.",
+   "countries": [
+    "NL",
+    "BE",
+    "SR"
+   ],
+   "speakers": 25000000,
+   "hints": [
+    "Latin, almost accent-free, but stuffed with doubled vowels — aa, ee, oo, uu — and the digraph ij treated as a single letter, plus -sch and -ijk endings.",
+    "A Germanic language of a low-lying North Sea delta and the northern half of the kingdom next door, plus one South American republic.",
+    "The definite articles are de and het, \"zijn\" means both \"to be\" and \"his\", and the g is a sound most foreigners cannot make."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_nld.xml, Article 9"
+  },
+  {
+   "key": "dan",
+   "lang": "Danish",
+   "script": "Latin (Danish)",
+   "sc": "Latn",
+   "family": "Indo-European > Germanic",
+   "text": "Ingen må være genstand for vilkårlig indblanding i private forhold, familie, hjem eller korrespondance, ej heller for angreb på ære og omdømme. Enhver har ret til lovens beskyttelse mod sådan indblanding eller angreb.",
+   "gloss": "No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.",
+   "countries": [
+    "DK"
+   ],
+   "speakers": 6000000,
+   "hints": [
+    "Latin with three extra vowels at the end of the alphabet: æ, ø and å. Its two Scandinavian neighbours use ä and ö instead of æ and ø.",
+    "The language of a small, flat kingdom of peninsulas and islands guarding the entrance to the Baltic, plus two vast North Atlantic self-governing territories.",
+    "The definite article is glued to the end of the noun (huset = the house), and the numbers above forty are counted in twenties: halvtreds is two-and-a-half twenties."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_dan.xml, Article 12"
+  },
+  {
+   "key": "hrv",
+   "lang": "Croatian",
+   "script": "Latin (Croatian)",
+   "sc": "Latn",
+   "family": "Indo-European > Slavic",
+   "text": "Svatko ima pravo na zaštitu moralnih i materijalnih interesa koji proistječu od ma kojeg znanstvenog, književnog ili umjetničkog djela kojemu je autor.",
+   "gloss": "Everyone has the right to the protection of the moral and material interests resulting from any scientific, literary or artistic production of which he is the author.",
+   "countries": [
+    "HR",
+    "BA"
+   ],
+   "speakers": 6800000,
+   "hints": [
+    "Latin with the háček trio č š ž plus two letters for the same soft sounds a neighbouring Cyrillic alphabet writes as ћ and ђ: ć and đ.",
+    "A South Slavic language of a long Adriatic coastline and its hinterland, and one of three official languages of the country immediately inland.",
+    "Its alphabet is a one-to-one transliteration of a Cyrillic one — the same language continuum, two scripts, and a lot of 20th-century politics."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_hrv.xml, Article 27 (para 2)"
+  },
+  {
+   "key": "slk",
+   "lang": "Slovak",
+   "script": "Latin (Slovak)",
+   "sc": "Latn",
+   "family": "Indo-European > Slavic",
+   "text": "Toto právo nemožno uplatňovať v prípade stíhania na ozaj odôvodneného nepolitickými zločinmi alebo činmi, ktoré sú v rozpore s cieľami a zásadami Spojených národov.",
+   "gloss": "This right may not be invoked in the case of prosecutions genuinely arising from non‐political crimes or from acts contrary to the purposes and principles of the United Nations.",
+   "countries": [
+    "SK"
+   ],
+   "speakers": 5200000,
+   "hints": [
+    "Latin with háčeks like its western neighbour, but also a circumflex ô and two syllabic consonants that take length marks: ĺ and ŕ — vowel-free words like \"vlk\".",
+    "A West Slavic language of a small, mountainous, landlocked country that separated peacefully from its partner state on the first day of 1993.",
+    "It has no ř and no ů — the two letters that mark out the language it split from — but it does have the rule that long syllables cannot follow one another."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_slk.xml, Article 14 (para 2)"
+  },
+  {
+   "key": "kal",
+   "lang": "Greenlandic (Kalaallisut)",
+   "script": "Latin (Greenlandic)",
+   "sc": "Latn",
+   "family": "Eskimo-Aleut > Inuit",
+   "text": "Kikkukkuunniit tamatmik pisinnaatitaapput eqqissisimasumik pissusilimmik killilersugaanngitsumik katersoqatigiittarnissanut aammalu peqatigiiffinnik pilersitsisarnissanut.",
+   "gloss": "Everyone has the right to freedom of peaceful assembly and association.",
+   "countries": [
+    "GL"
+   ],
+   "speakers": 57000,
+   "hints": [
+    "Latin, but the words are enormous and full of q, double consonants and -rp-, -ss-, -tt-: one word regularly does the work of a whole English sentence.",
+    "An Inuit language, the sole official language of the world's largest island — a self-governing territory of a small European kingdom.",
+    "It is polysynthetic: suffixes stack until a single word means \"he says he will not be able to go\". Its Arctic cousins to the west use syllabics instead of Latin."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_kal.xml, Article 20"
   }
  ]
 };
