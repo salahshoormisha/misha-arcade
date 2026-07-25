@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OUTLINE · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=3">
+<style>
+  #shape { width: min(300px, 76vw); height: min(300px, 76vw); display: block; margin: 10px auto 0; }
+  .guesses { max-width: 400px; margin: 12px auto 0; }
+  .gr { display: flex; align-items: center; gap: 8px; padding: 7px 11px; margin-bottom: 5px;
+        border: 1px solid var(--line); border-radius: 10px; background: #ffffff07; font-size: 13px; }
+  .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
+  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; }
+  .gr .km { color: var(--ink3); font-size: 11.5px; }
+  .gr .ar { font-size: 15px; }
+  .gr .pc { width: 42px; text-align: right; font-weight: 800; }
+  .gr.win { border-color: var(--ok); background: rgba(61,224,138,.1); }
+  .tries { display: flex; gap: 5px; justify-content: center; margin-top: 8px; }
+  .tries i { width: 26px; height: 5px; border-radius: 9px; background: #ffffff18; }
+  .tries i.used { background: var(--bad); }
+  .tries i.won { background: var(--ok); }
+  .hintbox { font-size: 12px; color: var(--gold); text-align: center; margin-top: 8px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=3"></script>
+<script src="../../core/arcade.js?v=3"></script>
+<script src="../../core/ui.js?v=3"></script>
+<script src="../../core/audio.js?v=3"></script>
+<script src="../../core/worldmap.js?v=3"></script>
+<script src="../../core/data/countries.js?v=3"></script>
+<script src="../../core/data/world.js?v=3"></script>
+<script src="../../core/picker.js?v=3"></script>
+<script src="game.js?v=3"></script>
+</body>
+</html>

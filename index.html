@@ -84,6 +84,32 @@
     font-weight: 900; font-size: 11px; letter-spacing: 2px; padding: 8px 18px;
     border-radius: 999px; box-shadow: 0 0 24px rgba(255,79,163,.7); display: none;
   }
+  /* ── the daily wing ── */
+  .wing {
+    display: block; text-decoration: none; color: inherit; width: 100%; max-width: 1320px;
+    margin: 22px auto 0; padding: 20px 22px; border-radius: 18px; text-align: left;
+    border: 1px solid #4a3a7d;
+    background: linear-gradient(135deg, rgba(255,79,163,.13), rgba(79,216,255,.09) 60%, rgba(255,255,255,.02));
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .wing:hover { transform: translateY(-4px); border-color: #ff8fc6; box-shadow: 0 16px 46px -12px rgba(255,79,163,.45); }
+  .wing-h {
+    font-size: clamp(17px, 3.6vw, 24px); font-weight: 900; letter-spacing: 3px; color: #fff;
+    text-shadow: 0 0 18px rgba(255,79,163,.6); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .wing-h span {
+    font-size: 9px; letter-spacing: 2px; background: linear-gradient(180deg,#fff,#ff4fa3);
+    color: #14032a; border-radius: 999px; padding: 3px 9px; font-weight: 900;
+  }
+  .wing p { font-size: 12px; color: #d9c6ff; line-height: 1.8; margin-top: 9px; }
+  .wing p b { color: #fff; }
+  .wing-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .wing-pill {
+    font-size: 11px; letter-spacing: 1.4px; border: 1px solid #4a3a7d; background: #ffffff0d;
+    border-radius: 999px; padding: 7px 14px; color: #ffe3f3;
+  }
+  .wing-stat { margin-top: 12px; font-size: 10.5px; letter-spacing: 1.5px; color: #9d88d8; }
+  .wing-stat b { color: #fff; }
   footer { margin-top: 26px; font-size: 11px; color: #7c68b8; line-height: 2; }
   #note-btn { cursor: pointer; font-size: 20px; background: none; border: none; filter: drop-shadow(0 0 8px #ff8fc6); animation: glowpulse 2s infinite alternate; }
   #note {
@@ -142,6 +168,23 @@
   </div>
 
   <div class="rank" id="rank"></div>
+
+  <!-- ── THE DAILY WING ────────────────────────────────────────────────── -->
+  <a class="wing" href="daily/">
+    <div class="wing-h">🗓️ THE DAILY WING <span>NEW</span></div>
+    <p>Your whole daily line-up, rebuilt — <b>WORDISHA</b>, <b>THIRDLE</b>, the <b>MINI</b> &amp;
+    <b>MIDI</b>, <b>QUARTETS</b>, <b>BOXED IN</b>, <b>TRADLE</b>, <b>PICK 5</b>,
+    <b>CONNECTRADE</b>, <b>FLAGLE</b>, <b>GEOGRID</b>, <b>GLOBLE</b>, <b>OUTLINE</b>,
+    <b>TIMEGUESSR</b>, <b>FOODGUESSR</b> and more. Same puzzle for both of you every day,
+    worked out from the date — <i>no server, no accounts</i>.</p>
+    <div class="wing-links">
+      <span class="wing-pill">🗓️ TODAY'S RUN</span>
+      <span class="wing-pill">⚔️ MISHA v DAVID</span>
+      <span class="wing-pill">🛂 THE PASSPORT</span>
+    </div>
+    <div class="wing-stat" id="wing-stat"></div>
+  </a>
+
   <div class="duo">💑 pro tip: MISHA-MAN has a DUO DATE MODE — player two is David, on WASD</div>
   <div class="hint">psst — try typing your name on this page ✨</div>
   <canvas id="confetti"></canvas>
@@ -195,6 +238,27 @@
     for (const [n, r] of RANKS) if (total >= n) rank = r;
     document.getElementById("rank").textContent =
       total ? "RANK · " + rank + " · " + total.toLocaleString() + " pts" : "";
+
+    // ── the daily wing's line on the hub ──────────────────────────────────
+    // Reads the daily wing's own localStorage (same origin) so the front page
+    // can show today's card and run streak without loading its engine.
+    (function () {
+      try {
+        var days = JSON.parse(ls("ag_run") || '{"days":[]}').days || [];
+        var epoch = new Date(2026, 6, 25); epoch.setHours(12, 0, 0, 0);
+        var now = new Date(); now.setHours(12, 0, 0, 0);
+        var today = Math.round((now - epoch) / 86400000);
+        var set = {}; days.forEach(function (d) { set[d] = 1; });
+        var cur = 0, probe = set[today] ? today : (set[today - 1] ? today - 1 : null);
+        if (probe !== null) while (set[probe]) { cur++; probe--; }
+        var stamps = Object.keys(JSON.parse(ls("ag_passport") || "{}")).length;
+        var bits = [];
+        if (cur) bits.push("🔥 <b>" + cur + "</b>-day run");
+        if (stamps) bits.push("🛂 <b>" + stamps + "</b>/195 stamped");
+        if (!bits.length) bits.push("you haven't played today's yet →");
+        document.getElementById("wing-stat").innerHTML = bits.join(" · ");
+      } catch (e) {}
+    })();
 
     // ── GLAM MODE ─────────────────────────────────────────────────────────
     // Type MISHA anywhere on this page. Cosmetic only — it never touches your
