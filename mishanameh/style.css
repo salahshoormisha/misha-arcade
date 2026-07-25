@@ -641,3 +641,147 @@ body.flash::after{ content:''; position:fixed; inset:0; z-index:60; pointer-even
   *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important;
     transition-duration:.01ms !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   v2 — drawn art, company on the road, and teaching in place
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── plates & reliefs ── */
+canvas.plate{ display:block; margin:0 auto; border-radius:50%;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.55)); }
+canvas.plate.relief{ border-radius:4px; }
+.foe .fart{ font-size:0 !important; line-height:0; height:auto; }
+.foe .fart.gone{ font-size:34px !important; line-height:1; opacity:.35; }
+.foe.boss canvas.plate{ filter:drop-shadow(0 0 18px rgba(224,169,46,.42)) drop-shadow(0 8px 16px rgba(0,0,0,.6)); }
+.hero canvas.plate{ margin-bottom:6px; }
+.lore-modal.boss canvas.plate{ margin:0 auto 10px; }
+
+/* ── in-the-margin lore cards ── */
+.marg{ position:fixed; right:16px; bottom:16px; z-index:70; width:min(370px, calc(100vw - 32px));
+  display:flex; gap:11px; padding:12px 14px; border-radius:12px;
+  background:linear-gradient(150deg, #17142a, #100d1f); border:1px solid rgba(224,169,46,.4);
+  box-shadow:0 14px 40px rgba(0,0,0,.6); transform:translateY(18px); opacity:0;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.2,.9,.3,1); }
+.marg.in{ opacity:1; transform:none; }
+.marg canvas{ flex:0 0 auto; }
+.marglab{ font-size:9px; letter-spacing:.22em; color:var(--gold); opacity:.75; margin-bottom:3px; }
+.margtx b{ display:block; color:#fff3d4; font-size:13px; margin-bottom:4px; }
+.margtx p{ margin:0; font-size:12px; line-height:1.5; color:#cfc6ae; }
+.margx{ position:absolute; top:5px; right:8px; background:none; border:0; color:#8b8398;
+  font-size:17px; cursor:pointer; line-height:1; }
+.margx:hover{ color:var(--gold); }
+
+/* ── incoming damage readout ── */
+.incoming{ display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:4px 11px; border-radius:9px; line-height:1.15; min-width:74px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.3); }
+.incoming span{ font-size:8px; letter-spacing:.16em; opacity:.65; }
+.incoming b{ font-size:19px; }
+.incoming i{ font-size:9px; font-style:normal; opacity:.8; }
+.incoming.hurt{ border-color:rgba(201,65,43,.6); color:#ffb9a4; background:rgba(120,26,16,.28); }
+.incoming.safe{ border-color:rgba(46,156,156,.6); color:#9fe6e0; background:rgba(16,70,68,.28); }
+
+/* ── the company ── */
+.allyrail{ display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
+.ally{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 9px;
+  border-radius:11px; background:rgba(0,0,0,.34); border:1px solid rgba(224,169,46,.24); min-width:120px; }
+.ally.ended{ opacity:.62; }
+.ally.down{ border-color:rgba(201,65,43,.7); background:rgba(90,18,12,.35); }
+.allyname{ font-size:11px; color:#fff3d4; letter-spacing:.05em; }
+.allyhp{ position:relative; width:100%; height:12px; border-radius:6px; overflow:hidden;
+  background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.1); }
+.allyhpf{ height:100%; background:linear-gradient(90deg,#7d1f18,#c9412b); }
+.allyhp span{ position:absolute; inset:0; text-align:center; font-size:9px; line-height:12px; color:#fff; }
+.allymeta{ display:flex; gap:7px; font-size:10px; opacity:.9; }
+.allymeta .far{ color:var(--gold); }
+.allystate{ font-size:9px; letter-spacing:.1em; opacity:.6; text-transform:uppercase; }
+.ally.down .allystate{ color:#ff9d86; opacity:1; }
+.btn.tiny{ font-size:9.5px; padding:4px 8px; letter-spacing:.05em; margin:2px 0 0; }
+
+/* ── quick chat ── */
+.chatbar{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; padding:5px 8px 2px; }
+.chatbar .ph{ font:inherit; font-size:10px; padding:4px 9px; border-radius:99px; cursor:pointer;
+  background:rgba(255,255,255,.06); color:#d9cfb6; border:1px solid rgba(255,255,255,.12); }
+.chatbar .ph:hover{ background:rgba(224,169,46,.18); border-color:rgba(224,169,46,.5); color:#fff3d4; }
+.bubble{ position:fixed; left:50%; bottom:24%; transform:translate(-50%,14px); z-index:80;
+  background:linear-gradient(160deg,#1d1836,#12101f); border:1px solid rgba(224,169,46,.5);
+  padding:8px 14px; border-radius:12px; font-size:13px; color:#fff3d4; opacity:0;
+  box-shadow:0 10px 30px rgba(0,0,0,.55); transition:.28s; pointer-events:none; }
+.bubble.in{ opacity:1; transform:translate(-50%,0); }
+.bubble b{ display:block; font-size:9px; letter-spacing:.16em; color:var(--gold); opacity:.85; }
+.bubble i{ opacity:.6; font-size:11px; }
+
+/* ── network pip ── */
+.netpip{ position:fixed; top:6px; right:8px; z-index:60; display:flex; align-items:center; gap:6px;
+  font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:#a8a0b8;
+  background:rgba(0,0,0,.45); padding:4px 9px; border-radius:99px; border:1px solid rgba(255,255,255,.1); }
+.netpip i{ width:7px; height:7px; border-radius:50%; background:#6b6b7a; }
+.netpip.live i{ background:#4fd08a; box-shadow:0 0 8px #4fd08a; }
+.netpip.connecting i, .netpip.reconnecting i{ background:#e0a92e; animation:blip 1s infinite; }
+.netpip.offline i{ background:#c9412b; }
+.netpip span{ color:var(--gold); letter-spacing:.2em; }
+@keyframes blip{ 50%{ opacity:.25; } }
+
+/* ── lobby ── */
+.roomcode{ font-size:46px; letter-spacing:.24em; text-align:center; color:var(--gold);
+  font-weight:700; margin:8px 0 4px; text-shadow:0 0 26px rgba(224,169,46,.5); }
+.nameinput,.codeinput{ display:block; margin:8px auto; padding:9px 13px; width:min(240px,80%);
+  background:rgba(0,0,0,.4); border:1px solid rgba(224,169,46,.35); border-radius:9px;
+  color:#fff3d4; font:inherit; font-size:14px; text-align:center; }
+.codeinput{ font-size:26px; letter-spacing:.24em; text-transform:uppercase; }
+.nameinput:focus,.codeinput:focus{ outline:none; border-color:var(--gold); }
+.heropick{ display:flex; gap:9px; justify-content:center; flex-wrap:wrap; margin:6px 0 2px; }
+.hp1{ cursor:pointer; padding:5px; border-radius:10px; border:2px solid transparent; text-align:center;
+  transition:.16s; }
+.hp1 span{ display:block; font-size:9.5px; letter-spacing:.08em; margin-top:3px; color:#b9b0c6; }
+.hp1:hover{ background:rgba(255,255,255,.05); }
+.hp1.on{ border-color:var(--gold); background:rgba(224,169,46,.13); }
+.hp1.on span{ color:#fff3d4; }
+.peers{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:6px 0 10px; }
+.peer{ display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; color:#d9cfb6; }
+.peer.waiting{ opacity:.45; font-style:italic; padding:14px 10px; }
+.lobbybox{ text-align:center; }
+
+/* ── guest view ── */
+.guestnote{ text-align:center; font-size:12px; color:#b9b0c6; opacity:.85; margin:8px auto; max-width:520px; }
+.node.locked{ opacity:.5; pointer-events:none; filter:grayscale(.5); }
+
+@media (max-width:600px){
+  .marg{ left:10px; right:10px; bottom:10px; width:auto; }
+  .roomcode{ font-size:38px; }
+  .allyrail{ gap:6px; }
+  .ally{ min-width:104px; padding:5px 7px; }
+}
+
+/* ── floating phrase dock (kept out of the combat flow) ── */
+.chatdock{ position:fixed; left:10px; bottom:10px; z-index:65; display:flex; align-items:flex-end; gap:8px; }
+.chattog{ width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer;
+  background:linear-gradient(160deg,#1d1836,#12101f); border:1px solid rgba(224,169,46,.45);
+  box-shadow:0 6px 18px rgba(0,0,0,.5); }
+.chattog:hover{ border-color:var(--gold); }
+.chatpop{ display:none; flex-direction:column; gap:4px; padding:8px; border-radius:12px;
+  background:rgba(10,8,20,.94); border:1px solid rgba(224,169,46,.35); max-height:56vh; overflow:auto; }
+.chatdock.open .chatpop{ display:flex; }
+.chatpop .ph{ font:inherit; font-size:11px; padding:6px 11px; border-radius:99px; cursor:pointer;
+  white-space:nowrap; text-align:left;
+  background:rgba(255,255,255,.06); color:#d9cfb6; border:1px solid rgba(255,255,255,.12); }
+.chatpop .ph:hover{ background:rgba(224,169,46,.18); border-color:rgba(224,169,46,.5); color:#fff3d4; }
+
+/* ── run bar with the hero's relief ── */
+.rb-hero{ display:flex; align-items:center; gap:7px; }
+canvas.rb-plate{ border-radius:3px; flex:0 0 auto; filter:drop-shadow(0 2px 5px rgba(0,0,0,.6)); }
+.rb-nm{ font-weight:600; letter-spacing:.06em; }
+.rb-seat{ font-style:normal; font-size:9px; letter-spacing:.1em; opacity:.6; text-transform:uppercase; }
+
+/* ── road picker ── */
+.roadpick .choices{ align-items:stretch; }
+.node.road{ max-width:340px; }
+.node.road canvas.plate{ margin-bottom:6px; }
+.roadbosses{ font-size:9.5px; letter-spacing:.05em; opacity:.5; margin-top:7px; line-height:1.5; }
+
+/* ── mini-game host ── */
+.mghost{ position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center;
+  background:rgba(3,4,10,.93); backdrop-filter:blur(3px); }
+.mghost canvas{ border-radius:12px; border:1px solid rgba(224,169,46,.4);
+  box-shadow:0 24px 70px rgba(0,0,0,.75); touch-action:none; cursor:grab; }
+.mghost canvas:active{ cursor:grabbing; }

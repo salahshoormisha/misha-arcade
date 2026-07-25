@@ -53,7 +53,72 @@ function newRun(heroId, khan){
   return R;
 }
 
+/* riders: [{hero, name}] — one road, two or more decks */
+function newCoopRun(riders, khan){
+  newRun(riders[0].hero, khan);
+  R.party = riders.map((rd,i)=>{
+    const H = HEROES[rd.hero];
+    const q = { hero:rd.hero, name:rd.name || H.name,
+      hp:H.hp, maxHp:H.hp, deck:STARTERS[rd.hero].map(id=>inst(id)),
+      talismans:[], featherUsed:false };
+    if(khan>=3){ q.maxHp-=6; q.hp-=6; }
+    if(khan>=5){ q.maxHp-=6; q.hp-=6; }
+    return q;
+  });
+  // load seat 0 into the live fields, so R and party[0] are the same thing
+  R.active = 0;
+  const q0 = R.party[0];
+  R.hero=q0.hero; R.deck=q0.deck; R.talismans=q0.talismans;
+  R.hp=q0.hp; R.maxHp=q0.maxHp; R.featherUsed=false;
+  // each rider gets their own hero's starting talisman
+  for(let i=0;i<R.party.length;i++) withSeat(i, ()=>grantTalismanById(STARTING_TALISMAN[R.hero]));
+  activate(0); stashActive();
+  R.gold = Math.round(R.gold * (1 + 0.45*(R.party.length-1)));
+  return R;
+}
+
 function trialDef(i){ return i<7 ? TRIALS[i] : SECRET_TRIAL; }
+
+/* ═══════════  THE PARTY  ═══════════
+   Solo play never touches any of this: R.hero / R.deck / R.hp are the run, the
+   way they always were. Co-op adds R.party — a list of {hero, deck, talismans,
+   hp, maxHp} — and activate(i) swaps one of them into those same fields. Every
+   line of combat code below therefore works unchanged for one rider or four;
+   it simply operates on whoever is currently swapped in. Same trick for the
+   combat piles via G.seats. */
+function partyLen(){ return R && R.party ? R.party.length : 1; }
+function isCoop(){ return partyLen() > 1; }
+
+function stashActive(){
+  if(!R || !R.party) return;
+  const q = R.party[R.active];
+  q.hero=R.hero; q.deck=R.deck; q.talismans=R.talismans;
+  q.hp=R.hp; q.maxHp=R.maxHp; q.featherUsed=R.featherUsed;
+  if(G && G.seats && G.seats[R.active]){
+    const s = G.seats[R.active];
+    s.p=G.p; s.draw=G.draw; s.hand=G.hand; s.discard=G.discard; s.exhaust=G.exhaust;
+  }
+}
+function activate(i){
+  if(!R || !R.party || i==null || i===R.active) return;
+  stashActive();
+  R.active = i;
+  const q = R.party[i];
+  R.hero=q.hero; R.deck=q.deck; R.talismans=q.talismans;
+  R.hp=q.hp; R.maxHp=q.maxHp; R.featherUsed=q.featherUsed;
+  if(G && G.seats && G.seats[i]){
+    const s = G.seats[i];
+    G.p=s.p; G.draw=s.draw; G.hand=s.hand; G.discard=s.discard; G.exhaust=s.exhaust;
+  }
+}
+/* run fn with seat i swapped in, then put things back where they were */
+function withSeat(i, fn){
+  const was = R ? R.active : 0;
+  activate(i); const out = fn();
+  activate(was); return out;
+}
+const seatOf = (i)=> (G && G.seats) ? G.seats[i] : null;
+function livingSeats(){ return G.seats ? G.seats.filter(s=>!s.down) : [{}]; }
 
 /* Each hero rides out with one thing of their own. */
 const STARTING_TALISMAN = { rostam:'bridle', gord:'whetstone_t', zal:'nightfeather' };
@@ -104,9 +169,11 @@ const RunAPI = {
 };
 
 function grantTalismanById(id){
+  const t = TALISMANS[id];
+  if(!t) return grantTalisman('uncommon');          // never crash on a bad id
   if(R.talismans.includes(id)) return grantTalisman('uncommon');
   R.talismans.push(id);
-  const t = TALISMANS[id]; if(t.pickup) t.pickup(R);
+  if(t.pickup) t.pickup(R);
   return t.name;
 }
 function grantTalisman(rarity){
@@ -164,20 +231,41 @@ function makeFoe(id, khanScale){
 
 function khanScale(){ const k = R?R.khan:1; return 0.92 + (k-1)*0.095; }
 
+/* Two riders means twice the cards and twice the energy, so the thing in the
+   road has to be correspondingly larger or it dies before it acts. */
+function coopScale(){ const n=partyLen(); return n<=1 ? 1 : 1 + 0.52*(n-1); }
+
 function startCombat(kind, foeIds){
-  const H = HEROES[R.hero];
+  const n = partyLen();
+  const scale = khanScale() * coopScale();
   G = {
-    kind, turn:0, over:false, won:false, playedThisTurn:0, reforged:0, pending:null,
-    p:{ hp:R.hp, maxHp:R.maxHp, block:0, energy:0, baseEnergy:H.energy, farr:0, buffs:{}, firstTurnEnergy:0 },
-    foes: foeIds.map(id=>makeFoe(id, khanScale())),
-    draw:[], hand:[], discard:[], exhaust:[],
-    invoked:0, anims:[], msg:[],
+    kind, turn:0, round:0, over:false, won:false, playedThisTurn:0, reforged:0, pending:null,
+    foes: foeIds.map(id=>makeFoe(id, scale)),
+    invoked:0, anims:[], msg:[], seats:[],
   };
   G.foes.forEach(f=>f._G=G);
-  G.draw = shuffleIn(R.deck.map(c=>inst(c.id, c.up)));
+
+  for(let i=0;i<n;i++){
+    const q = n>1 ? R.party[i] : R;
+    const H = HEROES[q.hero];
+    G.seats.push({
+      i, hero:q.hero, name:q.name || HEROES[q.hero].name,
+      p:{ hp:q.hp, maxHp:q.maxHp, block:0, energy:0, baseEnergy:H.energy, farr:0, buffs:{}, firstTurnEnergy:0 },
+      draw:[], hand:[], discard:[], exhaust:[],
+      ended:false, down:false, raised:false, gave:false,
+    });
+  }
+  if(n>1) R.active = 0;
+  const s0 = G.seats[0];
+  G.p=s0.p; G.draw=s0.draw; G.hand=s0.hand; G.discard=s0.discard; G.exhaust=s0.exhaust;
   bindCombatAPI();
-  talHook('combatStart', G.api);
-  playerTurnStart(true);
+
+  for(let i=0;i<n;i++) withSeat(i, ()=>{
+    G.draw = shuffleIn(R.deck.map(c=>inst(c.id, c.up)));
+    talHook('combatStart', G.api);
+  });
+
+  turnStartAll(true);
   return G;
 }
 
@@ -278,7 +366,48 @@ function checkDeath(){
     G.anims.push({t:'feather'});
     return false;
   }
+  // in company, falling is not the end — it is a job for the other one
+  if(partyLen()>1 && G.seats){
+    const s = G.seats[R.active];
+    if(!s.down){
+      s.down = true; s.ended = true; G.p.hp = 0; G.p.block = 0;
+      G.msg.push((s.name||'Your ally') + ' is down.');
+      G.anims.push({t:'down', seat:R.active});
+    }
+    if(G.seats.every(x=>x.down)){ G.over = true; G.won = false; return true; }
+    return false;
+  }
   G.over = true; G.won = false; return true;
+}
+
+/* One rider hauls the other back onto their feet. Once each, per fight. */
+function raiseAlly(byIx, targetIx){
+  if(!G.seats || G.over) return false;
+  const by = G.seats[byIx], tg = G.seats[targetIx];
+  if(!by || !tg || by.down || !tg.down || by.raised) return false;
+  let ok = false;
+  withSeat(byIx, ()=>{ if(G.p.energy >= 1){ G.p.energy -= 1; ok = true; } });
+  if(!ok){ G.msg.push('You need 1 Energy to reach them.'); return false; }
+  by.raised = true;
+  tg.down = false; tg.ended = true;
+  tg.p.hp = Math.max(1, Math.round(tg.p.maxHp*0.30));
+  tg.p.block = 0;
+  G.msg.push((tg.name||'They') + ' is back up.');
+  G.anims.push({t:'raise', seat:targetIx});
+  return true;
+}
+
+/* Persian hospitality, as a game mechanic: hand a card across. */
+function passCard(fromIx, uid, toIx){
+  if(!G.seats || G.over) return false;
+  const from = G.seats[fromIx], to = G.seats[toIx];
+  if(!from || !to || from.gave || to.down) return false;
+  const i = from.hand.findIndex(c=>c.uid===uid);
+  if(i<0 || to.hand.length>=10) return false;
+  to.hand.push(from.hand.splice(i,1)[0]);
+  from.gave = true;
+  G.anims.push({t:'pass', from:fromIx, to:toIx});
+  return true;
 }
 
 /* ── playing cards ── */
@@ -326,6 +455,12 @@ function invoke(){
   if(G.p.buffs.nest){ G.api.heal(G.p.buffs.nest); G.api.draw(2); }
   if(G.p.buffs.moon) G.api.energy(G.p.buffs.moon);
   talHook('invoke', G.api);
+  // the glory is not a private possession — when it lands, everyone feels it
+  if(partyLen()>1){
+    const me = R.active;
+    for(let i=0;i<partyLen();i++) if(i!==me && !G.seats[i].down) withSeat(i, ()=>G.api.farr(2));
+    G.msg.push('The Farr spills over — allies +2.');
+  }
   checkWin();
   return true;
 }
@@ -335,9 +470,22 @@ function checkWin(){
   return G.over;
 }
 
-/* ── turn flow ── */
+/* ── turn flow ──
+   In company everyone's turn runs at once: all seats refresh, all seats act in
+   whatever order they like, and the enemies only move once every seat has said
+   it is finished. Nobody sits watching somebody else think. */
+function turnStartAll(first){
+  G.turn++; G.round++;
+  for(let i=0;i<partyLen();i++){
+    const s = G.seats[i];
+    if(s.down){ s.ended = true; continue; }
+    s.ended = false; s.raised = false; s.gave = false;
+    withSeat(i, ()=>playerTurnStart(first));
+    if(G.over) return;
+  }
+}
+
 function playerTurnStart(first){
-  G.turn++;
   // block carry
   if(G.p.buffs.barricade){ /* keep */ }
   else if(G.p.buffs.halfguard) G.p.block = Math.floor(G.p.block/2);
@@ -363,28 +511,45 @@ function playerTurnStart(first){
   if(G.p.hp<=0) checkDeath();
 }
 
-function endTurn(){
+function endTurnSeat(ix){
   if(G.over || G.pending) return;
-  // statuses in hand that punish
-  G.hand.forEach(c=>{ const d=def(c); if(d.endTurn) d.endTurn(G.api); });
-  if(G.p.buffs.ember>0) G.api.loseHp(G.p.buffs.ember);
-  if(G.p.buffs.companion){ const alive=G.foes.filter(f=>f.hp>0); if(alive.length) G.api.dmg(pick(alive), G.p.buffs.companion, {raw:true, noWhet:true}); }
-  if(G.p.buffs.nightfall && G.hand.length===0){ G.api.draw(G.p.buffs.nightfall); G.api.farr(1); }
+  const seat = G.seats[ix];
+  if(!seat || seat.ended || seat.down) return;
+
+  withSeat(ix, ()=>{
+    // statuses in hand that punish
+    G.hand.forEach(c=>{ const d=def(c); if(d.endTurn) d.endTurn(G.api); });
+    if(G.p.buffs.ember>0) G.api.loseHp(G.p.buffs.ember);
+    if(G.p.buffs.companion){ const alive=G.foes.filter(f=>f.hp>0); if(alive.length) G.api.dmg(pick(alive), G.p.buffs.companion, {raw:true, noWhet:true}); }
+    if(G.p.buffs.nightfall && G.hand.length===0){ G.api.draw(G.p.buffs.nightfall); G.api.farr(1); }
+    if(G.over) return;
+
+    // discard hand (keep retained)
+    const keep = [];
+    G.hand.forEach(c=>{ const d=def(c); if(d.retain) keep.push(c); else G.discard.push(c); });
+    G.hand = keep;
+
+    ['weak','frail','vuln'].forEach(k=>{ if(G.p.buffs[k]>0){ G.p.buffs[k]--; if(!G.p.buffs[k]) delete G.p.buffs[k]; } });
+    G.p.buffs.whetN = G.p.buffs.whetN||0;
+  });
+  seat.ended = true;
   if(checkWin() || G.over) return;
+  if(G.seats.every(s=>s.ended || s.down)) enemyTurn();
+}
 
-  // discard hand (keep retained)
-  const keep = [];
-  G.hand.forEach(c=>{ const d=def(c); if(d.retain) keep.push(c); else G.discard.push(c); });
-  G.hand = keep;
+/* the name the rest of the game already calls */
+function endTurn(){ endTurnSeat(R && R.party ? R.active : 0); }
 
-  ['weak','frail','vuln'].forEach(k=>{ if(G.p.buffs[k]>0){ G.p.buffs[k]--; if(!G.p.buffs[k]) delete G.p.buffs[k]; } });
-  G.p.buffs.whetN = G.p.buffs.whetN||0;
-
-  enemyTurn();
+/* who the thing in front of you decides to hit */
+function pickTargetSeat(){
+  const up = G.seats.map((s,i)=>i).filter(i=>!G.seats[i].down);
+  if(!up.length) return R.active||0;
+  return up[Math.floor(rnd()*up.length)];
 }
 
 function enemyTurn(){
   for(const f of G.foes){
+    if(partyLen()>1 && f.hp>0) activate(pickTargetSeat());
     if(f.hp<=0) continue;
     f.block = 0;
     if(f.buffs.venom>0){ f.hp -= f.buffs.venom; f.buffs.venom--; if(!f.buffs.venom) delete f.buffs.venom;
@@ -410,7 +575,7 @@ function enemyTurn(){
   }
   if(checkWin() || G.over) return;
   G.foes.forEach(f=>{ if(f.hp>0) setIntent(f); });
-  playerTurnStart(false);
+  turnStartAll(false);
 }
 
 function foeHit(f, base){
@@ -453,6 +618,18 @@ function nextIntentOf(f){
 
 /* ═══════════  END OF COMBAT  ═══════════ */
 function finishCombat(){
+  if(partyLen()>1){
+    const was = R.active;
+    for(let i=0;i<partyLen();i++){
+      activate(i);
+      // anyone who went down gets up at a quarter, bruised but breathing
+      R.hp = G.seats[i].down ? Math.max(1, Math.round(R.maxHp*0.25)) : Math.max(0, G.p.hp);
+      talHook('combatEnd', R, G.api);
+      stashActive();
+    }
+    activate(was); stashActive();
+    return;
+  }
   R.hp = Math.max(0, G.p.hp);
   talHook('combatEnd', R, G.api);
 }
@@ -460,14 +637,17 @@ function finishCombat(){
 /* ═══════════  MID-RUN SAVE  ═══════════ */
 function saveRun(inCombat){
   if(!R){ SAVE.run=null; persist(); return; }
-  const snap = { R: JSON.parse(JSON.stringify({...R, log:[]})), combat:null };
+  stashActive();
+  const snap = { R: JSON.parse(JSON.stringify({...R, log:R.log||[]})), combat:null };
   if(inCombat && G && !G.over){
     snap.combat = {
-      kind:G.kind, turn:G.turn, playedThisTurn:G.playedThisTurn, reforged:G.reforged, invoked:G.invoked,
-      p:JSON.parse(JSON.stringify(G.p)),
+      kind:G.kind, turn:G.turn, round:G.round, playedThisTurn:G.playedThisTurn,
+      reforged:G.reforged, invoked:G.invoked, active:R.active||0,
       foes:G.foes.map(f=>({id:f.id,name:f.name,art:f.art,hp:f.hp,maxHp:f.maxHp,block:f.block,
         buffs:{...f.buffs},turn:f.turn,intentIdx:f.intentIdx,esc:f.esc,phase:f.phase,flip:f.flip,tier:f.tier,fa:f.fa})),
-      draw:G.draw, hand:G.hand, discard:G.discard, exhaust:G.exhaust,
+      seats: G.seats.map(s=>({ i:s.i, hero:s.hero, name:s.name, ended:s.ended, down:s.down,
+        raised:s.raised, gave:s.gave, p:JSON.parse(JSON.stringify(s.p)),
+        draw:s.draw, hand:s.hand, discard:s.discard, exhaust:s.exhaust })),
     };
   }
   SAVE.run = snap; persist();
@@ -477,13 +657,24 @@ function restoreRun(){
   const s = SAVE.run; if(!s) return false;
   R = s.R; R.log = R.log||[];
   RNG = mulberry32((Date.now()^0x9e3779b9)>>>0);
-  UID = 1; [R.deck].forEach(a=>a.forEach(c=>{ c.uid=UID++; }));
+  // Keep the uids that came in and move the counter past them. They are how a
+  // guest names a card to the host ("play 4127"), so renumbering here would
+  // silently break every remote card play — and did, once.
+  UID = 1;
+  const bump = (arr)=>{ if(!arr) return; arr.forEach(c=>{ if(!c) return;
+    if(!c.uid) c.uid = UID++; else if(c.uid >= UID) UID = c.uid+1; }); };
+  (R.party ? R.party.map(q=>q.deck) : [R.deck]).forEach(bump);
+  if(s.combat && s.combat.seats)
+    s.combat.seats.forEach(st=>{ bump(st.draw); bump(st.hand); bump(st.discard); bump(st.exhaust); });
   if(s.combat){
     const c = s.combat;
-    G = { kind:c.kind, turn:c.turn, over:false, won:false, playedThisTurn:c.playedThisTurn,
-      reforged:c.reforged, pending:null, invoked:c.invoked, p:c.p,
-      foes:c.foes, draw:c.draw, hand:c.hand, discard:c.discard, exhaust:c.exhaust, anims:[], msg:[] };
+    G = { kind:c.kind, turn:c.turn, round:c.round||0, over:false, won:false,
+      playedThisTurn:c.playedThisTurn, reforged:c.reforged, pending:null, invoked:c.invoked,
+      foes:c.foes, seats:c.seats, anims:[], msg:[] };
     G.foes.forEach(f=>f._G=G);
+    if(R.party) R.active = c.active||0;
+    const s0 = G.seats[R.party ? (c.active||0) : 0];
+    G.p=s0.p; G.draw=s0.draw; G.hand=s0.hand; G.discard=s0.discard; G.exhaust=s0.exhaust;
     bindCombatAPI();
     return 'combat';
   }

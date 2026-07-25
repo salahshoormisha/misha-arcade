@@ -1,3 +1,4 @@
+function ALLHEROES(){ return Object.keys(HEROES).filter(h=>STARTERS[h]); }
 /* MISHANAMEH — headless fuzz harness. Dev only; not loaded by index.html.
    Load in the console:  var s=document.createElement('script');s.src='_fuzz.js';document.head.appendChild(s)
    Then:  __fuzz(400)  /  __fuzzRun(60) */
@@ -5,7 +6,7 @@
 window.__fuzz = function(iters){
   const errs = [], stats = {turns:0, wins:0, losses:0, stalls:0, invokes:0};
   const allFoes = Object.keys(FOES);
-  const heroes = ['rostam','gord','zal'];
+  const heroes = Object.keys(HEROES).filter(h=>STARTERS[h]);
   const allCards = Object.values(CARDS).filter(c=>c.type!=='status'&&c.type!=='curse'&&!c.unlisted);
   const tids = Object.keys(TALISMANS);
   for(let it=0; it<iters; it++){
@@ -63,7 +64,7 @@ window.__fuzzRun = function(runs){
   const errs=[]; const stats={completed:0, died:0, secret:0, nodes:0};
   for(let r=0;r<runs;r++){
     try{
-      const hero = ['rostam','gord','zal'][r%3];
+      const hero = ALLHEROES()[r%ALLHEROES().length];
       newRun(hero, 1+(r%3));
       let guard=0;
       while(R.trial<7 && guard++<300){
@@ -136,7 +137,7 @@ window.__audit = function(){
     if(typeof c.t!=='function') p.push(`CARD ${c.id} no t()`);
     else { try{ if(!c.t(false)||!c.t(true)) p.push(`CARD ${c.id} empty text`); }catch(e){ p.push(`CARD ${c.id} t() threw: ${e}`); } }
     if(!c.unplayable && typeof c.fx!=='function') p.push(`CARD ${c.id} no fx()`);
-    if(c.hero!=='status' && !['rostam','gord','zal','any'].includes(c.hero)) p.push(`CARD ${c.id} bad hero`);
+    if(c.hero!=='status' && c.hero!=='any' && !HEROES[c.hero]) p.push(`CARD ${c.id} bad hero`);
   });
   Object.values(FOES).forEach(f=>{
     if(!f.moves||!f.moves.length) p.push(`FOE ${f.id} no moves`);
@@ -157,7 +158,7 @@ window.__audit = function(){
   TRIALS.concat([SECRET_TRIAL]).forEach(t=>{ if(!FOES[t.boss]) p.push(`TRIAL ${t.n} boss ${t.boss} missing`); });
   Object.values(ENCOUNTERS).forEach(v=>{ if(Array.isArray(v)) v.forEach(g=>g.forEach(id=>{ if(!FOES[id]) p.push(`ENC unknown foe ${id}`); }));
     else Object.values(v).forEach(g=>g.forEach(id=>{ if(!FOES[id]) p.push(`ENC unknown elite ${id}`); })); });
-  ['rostam','gord','zal'].forEach(h=>{ STARTERS[h].forEach(id=>{ if(!CARDS[id]) p.push(`STARTER ${h} unknown card ${id}`); });
+  ALLHEROES().forEach(h=>{ STARTERS[h].forEach(id=>{ if(!CARDS[id]) p.push(`STARTER ${h} unknown card ${id}`); });
     ['common','uncommon','rare'].forEach(r=>{ if(!poolFor(h).filter(c=>c.rarity===r).length) p.push(`POOL ${h} has no ${r}`); }); });
   return {problems:p.length, list:p};
 };
@@ -208,7 +209,7 @@ window.__balance = function(runs, khan, heroOnly){
   const res={wins:0, dead:{}, deaths:0, avgDeck:0, avgTrial:0, ft:[], errs:[], perHero:{}};
   for(let r=0;r<runs;r++){
    try{
-    const hero = heroOnly || ['rostam','gord','zal'][r%3];
+    const hero = heroOnly || ALLHEROES()[r%ALLHEROES().length];
     newRun(hero, khan||1);
     res.perHero[hero]=res.perHero[hero]||{n:0,w:0};
     res.perHero[hero].n++;

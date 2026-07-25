@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>plates</title>
+<style>
+body{background:#0b1030;color:#e8dfc8;font:13px/1.4 ui-monospace,monospace;margin:0;padding:14px}
+.grid{display:flex;flex-wrap:wrap;gap:10px}
+.it{width:200px;text-align:center}
+.it b{display:block;font-size:11px;color:#e0a92e;margin-top:2px}
+h3{color:#e0a92e;width:100%;margin:16px 0 4px;font-size:13px;letter-spacing:.1em}
+</style></head><body>
+<div class="grid" id="g"></div>
+<script src="bestiary.js"></script>
+<script>
+const g=document.getElementById('g');
+function sec(t){ const h=document.createElement('h3'); h.textContent=t; g.appendChild(h); }
+function add(id,kind){
+  const d=document.createElement('div'); d.className='it';
+  d.appendChild(PLATE.node(id,190,kind||'foe'));
+  d.appendChild(Object.assign(document.createElement('b'),{textContent:id}));
+  g.appendChild(d);
+}
+sec('HEROES — relief');
+['rostam','gord','zal'].forEach(i=>add(i,'hero'));
+sec('BESTIARY — plates');
+Object.keys(PLATE.CREATURES).forEach(i=>add(i));
+</script></body></html>
