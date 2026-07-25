@@ -39,3 +39,30 @@ No build step, no dependencies, no image or audio files — the whole thing is g
   path fuzzer, and a heuristic bot used to tune the difficulty curve.
 
 Everything else: pure HTML/canvas/WebAudio.
+
+## Deploying (read this — several sessions share this repo)
+
+```bash
+./deploy.sh "your commit message" tetrisha/ index.html    # commit those paths + deploy
+./deploy.sh                                               # redeploy what's committed
+```
+
+**Never run `git add -A` here.** More than one Claude session works in this repo at
+the same time, and `add -A` will sweep up whatever another session is halfway through
+writing. `deploy.sh` refuses to commit without explicit paths for exactly that reason,
+and rebases on `origin/main` before pushing so concurrent pushes merge cleanly.
+
+If a deploy ever seems to hang: GitHub Pages can leave a deployment stuck *"in
+progress"*, which silently blocks every later one and reports only a useless
+"Page build failed". `deploy.sh` detects that and clears it, but by hand it's:
+
+```bash
+gh api -X POST repos/salahshoormisha/misha-arcade/pages/deployments/<FULL_COMMIT_SHA>/cancel
+```
+
+(the *full* commit SHA is the deployment id — the numeric one from the deployments
+API returns 404). The workflow uses `cancel-in-progress: false` so simultaneous
+pushes queue instead of killing each other mid-deploy, which is what caused the jam.
+
+Bump the `?v=N` on the `<script>` tags in a game's `index.html` whenever you change
+its `game.js` or `audio.js`, or browsers will keep serving the old file.
