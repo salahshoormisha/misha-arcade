@@ -184,7 +184,12 @@ for w in list(HARD):
         HARD.add(w + 'es')
 
 SOFT = _expand(WA.BLOCK_SOFT)
-JUNK = _expand(WA.JUNK) | _expand('\n'.join(XW.BLOCK))
+# JUNK: lowercased proper nouns, foreign words, abbreviations -- not words.
+# XW.BLOCK is the CROSSWORD-specific blocklist (crosswordese, abbreviations,
+# and grid-unfriendly vocabulary); it also contains ordinary words like BLOOD,
+# DELTA and CRACK, so it is applied to the crossword lists ONLY.
+JUNK = _expand(WA.JUNK)
+JUNK_CROSS_ONLY = _expand('\n'.join(XW.BLOCK))
 RESCUE = _expand(WA.RESCUE) | set(XW.EXEMPT)
 
 NAMES = set()

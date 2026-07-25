@@ -181,45 +181,46 @@ for d in (MDB.get("dishes") or {}).values():
         MDB_BY_NAME.setdefault(d["name"].strip().lower(), d)
 
 WIKI = load(WIKI_CACHE, {})
-DROPPED = []          # (dish, url, reason)
+DROPPED = []          # (iso, dish, url, reason) -- permanent, image not shipped
+TRANSIENT = []        # (wiki title, status) -- rate limit / network; retry next run
 NET_CALLS = [0]
 
 
 def wiki_image(title, offline=False):
-    """Resolve an en.wikipedia article title -> a verified upload.wikimedia.org URL."""
-    key = title
-    if key in WIKI and not offline:
-        rec = WIKI[key]
-    elif key in WIKI:
-        rec = WIKI[key]
-    else:
-        if offline:
-            return None
+    """Resolve an en.wikipedia article title -> a verified upload.wikimedia.org URL.
+    Only PERMANENT outcomes are cached; a rate limit or a network blip is retried
+    on the next run rather than being frozen in as a missing image."""
+    rec = WIKI.get(title)
+    if rec is None and not offline:
         NET_CALLS[0] += 1
-        j = http_json("https://en.wikipedia.org/api/rest_v1/page/summary/"
-                      + urllib.parse.quote(title.replace(" ", "_"), safe=""))
-        rec = None
+        time.sleep(0.4)                       # be polite to the Wikimedia API
+        j, st = http_json("https://en.wikipedia.org/api/rest_v1/page/summary/"
+                          + urllib.parse.quote(title.replace(" ", "_"), safe=""))
         if j:
             thumb = (j.get("thumbnail") or {}).get("source")
             orig = j.get("originalimage") or {}
             if thumb and not BAD_FILE_HINT.search(thumb):
                 w = min(IMG_W, int(orig.get("width") or IMG_W))
                 url = re.sub(r"/\d+px-", "/%dpx-" % w, thumb)
-                st = http_status(url)
-                if st != 200:                      # fall back to the 320px thumb
-                    st2 = http_status(thumb)
-                    if st2 == 200:
-                        url, st = thumb, 200
-                if st == 200:
+                ist = http_status(url)
+                if ist != 200:                # fall back to the API's own thumb width
+                    if http_status(thumb) == 200:
+                        url, ist = thumb, 200
+                if ist == 200:
                     rec = {"url": url, "title": j.get("title"),
                            "page": (j.get("content_urls") or {}).get("desktop", {}).get("page")}
                 else:
-                    rec = {"url": None, "status": st}
+                    rec = {"url": None, "status": "image %s" % ist}
             else:
-                rec = {"url": None, "status": "no-usable-thumb"}
-        else:
+                rec = {"url": None,
+                       "status": "no-usable-thumb" if not thumb else "thumb-looks-nonfood",
+                       "thumb": thumb}
+        elif st in (400, 404):
             rec = {"url": None, "status": "no-article"}
-        WIKI[key] = rec
+        else:
+            TRANSIENT.append((title, st))     # do NOT cache -- retry next run
+            return None
+        WIKI[title] = rec
         if NET_CALLS[0] % 10 == 0:
             save(WIKI_CACHE, WIKI)
     if rec and rec.get("url"):
@@ -381,6 +382,11 @@ def build(offline=False):
         print("   - %s %s <- %s (%s)" % row)
     if len(DROPPED) > 40:
         print("   ... and %d more" % (len(DROPPED) - 40))
+    if TRANSIENT:
+        print("TRANSIENT image failures (not cached, re-run to retry): %d"
+              % len(TRANSIENT))
+        for t in TRANSIENT[:15]:
+            print("   ? %s (http %s)" % t)
     print("PROBLEMS: %d" % len(problems))
     for p in problems:
         print("   ! " + p)

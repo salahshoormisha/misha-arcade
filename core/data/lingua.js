@@ -149,7 +149,7 @@ window.AD_LINGUA = {
    "hints": [
     "Cyrillic with the hard sign ъ and the back vowel ы — the pair that no southern Slavic Cyrillic keeps — plus э for a bare \"e\".",
     "The largest Slavic language, spread from the Baltic to the Pacific by a single state and still the lingua franca of most of the ex-Soviet republics.",
-    "Endings in -ый / -ого / -ться and the word «человек» for \"person\": this is the East Slavic standard, not its Ukrainian or Belarusian cousins."
+    "Endings in -ый / -ого / -ться and the word «человек» for \"person\". If you can see both ы and ъ but no і and no ї, you have the biggest of the three East Slavic tongues."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_rus.xml, Article 8"
   },

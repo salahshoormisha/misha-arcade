@@ -179,8 +179,8 @@ LANGS = [
             'Slavic Cyrillic keeps — plus э for a bare "e".',
             'The largest Slavic language, spread from the Baltic to the Pacific by a single state '
             'and still the lingua franca of most of the ex-Soviet republics.',
-            'Endings in -ый / -ого / -ться and the word «человек» for "person": this is the '
-            'East Slavic standard, not its Ukrainian or Belarusian cousins.',
+            'Endings in -ый / -ого / -ться and the word «человек» for "person". If you can see '
+            'both ы and ъ but no і and no ї, you have the biggest of the three East Slavic tongues.',
         ],
     ),
     dict(
@@ -569,7 +569,7 @@ LANGS = [
         key='ron', lang='Romanian', script='Latin (Romanian)', family='Indo-European > Romance',
         udhr='ron_1993', countries=['RO', 'MD'],
         speakers=25000000, prefer='ășțîâ',
-        avoid=['român', 'roman', 'moldov'],
+        avoid=['român', 'romîn', 'moldov'],
         hints=[
             'Latin with a comma-below ș and ț (not a cedilla), plus ă, î and â — three separate '
             'ways of writing central vowels.',

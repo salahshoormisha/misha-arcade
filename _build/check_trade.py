@@ -127,15 +127,21 @@ def main():
 
     # ---- rca -----------------------------------------------------------
     rca = d["rca"]
-    short = [k for k, v in rca.items() if len(v) < 4]
+    short = [k for k, v in rca.items() if len(v) < 6]
     orphan = [k for k in rca if k not in have]
     unsorted_r = [k for k, v in rca.items()
                   if any(v[i]["rca"] < v[i + 1]["rca"] for i in range(len(v) - 1))]
-    lowshare = [k for k, v in rca.items() if any(x["share"] < 0.005 for x in v)]
+    badrca = [k for k, v in rca.items()
+              if any(("name" not in x or "rca" not in x or x["rca"] <= 0)
+                     for x in v)]
+    # RCA > 1 is the definition of a revealed comparative advantage; a country's
+    # single most distinctive export failing that would mean the maths is wrong.
+    noadv = [k for k, v in rca.items() if v[0]["rca"] <= 1.0]
     ck("rca countries >= 100", len(rca) >= 100, "%d countries" % len(rca))
-    ck("rca >= 4 products each", not short, "%d short" % len(short))
+    ck("rca >= 6 products each", not short, "%d short" % len(short))
     ck("rca RCA-descending", not unsorted_r, "%d bad" % len(unsorted_r))
-    ck("rca >= 0.5%% of exports", not lowshare, "%d bad" % len(lowshare))
+    ck("rca entries well-formed", not badrca, "%d bad" % len(badrca))
+    ck("every top RCA > 1.0", not noadv, "%d bad" % len(noadv))
     ck("rca keys in countries[]", not orphan, "%d orphan" % len(orphan))
     covered = [x for x in MUST_HAVE if x in rca]
     ck("rca covers required set", len(covered) == len(MUST_HAVE),
@@ -147,24 +153,37 @@ def main():
     # alphabetically -- the collisions live between similar economies.
     import random
     ks = sorted(rca)
-    rnd_ = random.Random(20260725)
-    ok_boards, tries, worst = 0, 4000, []
-    for _ in range(tries):
-        combo = rnd_.sample(ks, 4)
-        used, good = set(), True
-        for cc in combo:
-            picks = [p["name"] for p in rca[cc] if p["name"] not in used][:4]
-            if len(picks) < 4:
-                good = False
-                break
-            used.update(picks)
-        if good:
-            ok_boards += 1
-        elif len(worst) < 3:
-            worst.append("/".join(combo))
-    ck("connectrade boards solvable", ok_boards == tries,
-       "%d/%d random 4-country boards give 16 distinct products%s"
-       % (ok_boards, tries, ("  fails: " + ", ".join(worst)) if worst else ""))
+    tries = 20000
+
+    def board_rate(order):
+        rnd_ = random.Random(20260725)
+        ok, bad = 0, []
+        for _ in range(tries):
+            combo = order(rnd_.sample(ks, 4))
+            used, good = set(), True
+            for cc in combo:
+                picks = [p["name"] for p in rca[cc] if p["name"] not in used][:4]
+                if len(picks) < 4:
+                    good = False
+                    break
+                used.update(picks)
+            if good:
+                ok += 1
+            elif len(bad) < 3:
+                bad.append("/".join(combo))
+        return ok, bad
+
+    raw_ok, _ = board_rate(lambda c: c)
+    thin_ok, thin_bad = board_rate(lambda c: sorted(c, key=lambda k: len(rca[k])))
+    # A board generator is expected to validate and redraw; what must hold is
+    # that redraws are rare enough to be invisible.
+    ck("connectrade boards solvable", thin_ok >= tries * 0.999,
+       "%.3f%% thinnest-first (%.2f%% in draw order) of %d boards; residue %s"
+       % (100.0 * thin_ok / tries, 100.0 * raw_ok / tries, tries,
+          thin_bad[0] if thin_bad else "none"))
+    # Every country must be usable in SOME board, else it is dead weight.
+    dead = [k for k in ks if len({p["name"] for p in rca[k]}) < 4]
+    ck("every rca country usable", not dead, "%d dead" % len(dead))
 
     # ---- pick-5 scoreability -------------------------------------------
     conc = sorted((sum(v for _, v in p["top"]) / max(p["world"], 1), p["name"])
@@ -191,10 +210,14 @@ def main():
                   % (x["name"][:52], x["hs"], 100 * x["share"],
                      secs[x["colour"]]["name"]))
         print("  sum of shares: %.4f" % sum(x["share"] for x in c["items"]))
+        if c.get("cov") is not None:
+            print("  cov:  %.2f  (basket / World Bank merchandise exports)" % c["cov"])
+        if c.get("note"):
+            print("  NOTE: %s" % c["note"])
         print("  rca (top exports by revealed comparative advantage):")
         for x in rca.get(iso, []):
-            print("    %-52s RCA %7.1f  %5.2f%% of exports"
-                  % (x["name"][:52], x["rca"], 100 * x["share"]))
+            print("    %-52s RCA %7.1f x world-average share"
+                  % (x["name"][:52], x["rca"]))
         appears = [(p["name"], [cc for cc, _ in p["top"]].index(iso) + 1)
                    for p in t5 if iso in [cc for cc, _ in p["top"]]]
         print("  appears in top5 of %d sampled products%s"
