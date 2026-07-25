@@ -120,7 +120,7 @@ def normalize_poly(arcs, poly):
         if len(pts) < 4:
             continue
         a = abs(shoelace(pts))
-        if a <= 0.0:
+        if a < 1e-9:          # e.g. Antarctica's 257-point seam along lat -90
             continue
         out.append((a, r, pts))
     if not out:
@@ -338,12 +338,14 @@ def simplify_arc(pts, eps):
     # farthest point from the shared endpoint -> split into two open halves
     ax, ay = pts[0]
     far = max(range(1, n - 1), key=lambda k: (pts[k][0] - ax) ** 2 + (pts[k][1] - ay) ** 2)
-    a = dp_indices(pts[:far + 1], eps)
-    b = dp_indices(pts[far:], eps)
-    idx = a + [far + i for i in b[1:]]
-    if len(idx) < 4:                       # keep a loop drawable
-        step = max(1, (n - 1) // 3)
-        idx = sorted(set([0] + list(range(step, n - 1, step)) + [n - 1]))
+    # a loop needs >=3 distinct points to stay drawable; tighten eps rather than
+    # forcing evenly spaced points, which would blow the error bound.
+    for e in (eps, eps / 4.0, eps / 16.0, eps / 64.0, 0.0):
+        a = dp_indices(pts[:far + 1], e)
+        b = dp_indices(pts[far:], e)
+        idx = a + [far + i for i in b[1:]]
+        if len(idx) >= 4:
+            break
     return idx
 
 
@@ -654,7 +656,9 @@ def main():
         if nb[2] - nb[0] > 180.0:
             sh = [(p[0] + 360.0 if p[0] < 0 else p[0], p[1]) for p in allpts]
             sb = bbox_of(sh)
-            if sb[2] - sb[0] < nb[2] - nb[0]:
+            # only if the country really does fit in one half-world window
+            # (Antarctica spans every longitude either way -- leave it alone)
+            if sb[2] - sb[0] < nb[2] - nb[0] and sb[2] - sb[0] <= 180.0:
                 nb = sb
                 frame = 1.0
         bb = nb

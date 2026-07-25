@@ -235,7 +235,8 @@ class Filler(object):
         slot = slots[best]
         L = slot[3]
         cands = [self.words[L][i] for i in self._iter(best_m)]
-        cands.sort(key=lambda w: self.rank[w] + rng.random() * noise)
+        # multiplicative jitter: strongly prefers common words but still explores
+        cands.sort(key=lambda w: self.rank[w] * (0.5 + noise * rng.random()))
         for w in cands:
             saved = []
             bad = False
@@ -301,29 +302,31 @@ def score(grid, blocks, rankmap):
     pen = 0.0
     for w in words:
         if w.endswith('s') and len(w) > 3:
-            pen += 220          # plurals / verb -s : fine but flat
+            pen += 250          # plurals / verb -s : legal but flat
         if w.endswith(UGLY_SUFFIX):
-            pen += 320          # inflected forms are duller fill
-    # a little bonus for vowel-light, chunky words (they clue better)
+            pen += 400          # inflected forms are duller fill
+        if rankmap[w] > 9000:
+            pen += 900          # anything this rare needs a very good reason
     return -(0.55 * worst + 0.45 * mean + pen), mean, worst
 
 
-def generate(rankcap=6000, per_pattern=90, verbose=True):
-    f = Filler(rankcap=rankcap)
+def generate(per_pattern=40, node_limit=120000, verbose=True):
+    f = Filler(caps={3: 99999, 4: 99999, 5: 99999})
     if verbose:
-        print('filler word counts (rank<=%d): %s' % (rankcap, f.sizes()))
+        print('filler word counts: %s' % f.sizes())
     cands = []
     seen_fills = set()
     for pi, blocks in enumerate(PATTERNS):
         assert pattern_ok(blocks), blocks
         got = 0
-        for s in range(per_pattern * 4):
+        for s in range(per_pattern * 3):
             if got >= per_pattern:
                 break
-            g = f.fill(blocks, seed=pi * 100003 + s, noise=2000.0 + (s % 7) * 900)
+            g = f.fill(blocks, seed=pi * 100003 + s,
+                       noise=1.0 + (s % 5) * 0.55, node_limit=node_limit)
             if not g:
                 continue
-            key = (pi, tuple(g))
+            key = tuple(g)
             if key in seen_fills:
                 continue
             seen_fills.add(key)
@@ -333,6 +336,7 @@ def generate(rankcap=6000, per_pattern=90, verbose=True):
             got += 1
         if verbose:
             print('  pattern %2d %-42s fills=%d' % (pi, str(blocks), got))
+            sys.stdout.flush()
     return f, cands
 
 

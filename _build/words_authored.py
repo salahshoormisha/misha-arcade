@@ -265,3 +265,209 @@ PERSIAN = [
     ("SEERSUCKER",u"shīr o shakar, 'milk and sugar' — smooth and puckered"),
     ("CARAVANSERAI",u"kārwān-sarāy, travellers' courtyard inn"),
 ]
+
+# ---------------------------------------------------------------------------
+# ANS5 — hand-written candidate pool of COMMON five-letter words, by theme.
+# gen_words.py intersects this with valid5 and REPORTS every rejection, so a
+# word I mis-remembered can never reach the game.  No plurals in -s, no -ed
+# past tenses (a few -ed adjectives excepted), nothing obscure or archaic.
+# ---------------------------------------------------------------------------
+ANS5 = """
+house table chair couch stool shelf clock watch phone light frame glass plate
+spoon knife mixer stove towel razor broom trash waste crate chest hinge screw
+drill paint brush novel diary album print stamp purse chain clasp floor porch
+patio fence attic vault stair ledge quilt sheet cover linen radio timer alarm
+cable match torch flame smoke steam vapor scent aroma latch lever bench shade
+drape decor brick mower
+
+shirt dress skirt jeans scarf glove cloak shawl parka badge satin suede denim
+khaki apron beret visor braid ruffle
+
+bread toast bagel donut candy sugar honey syrup jelly juice water cider cocoa
+mocha latte cream salad broth stock pasta pizza sauce salsa spice basil thyme
+cumin onion olive lemon melon peach grape apple berry mango guava wheat flour
+yeast dough crust crumb slice snack lunch feast treat sweet fudge maple wafer
+icing salty tasty spicy stale fresh grill roast steak bacon gravy pesto curry
+sushi drink straw flask juicy yummy crisp munch chili saute whisk knead dairy
+lemon syrup nacho
+
+cloud storm sleet frost snowy sunny windy foggy misty muddy dusty rocky sandy
+grass trunk bloom petal thorn grain field marsh swamp creek river brook ocean
+beach shore coast cliff ridge slope mount plain delta oasis surge spray gorge
+stone earth globe world space starry lunar solar comet orbit north south flood
+drift chill balmy leafy shady stony mossy cedar birch aspen daisy tulip lilac
+poppy pansy lotus shrub blaze marsh dunes
+
+eagle hyena zebra tiger otter sheep goose moose snake mouse horse camel koala
+panda rhino hippo llama whale shark squid skunk sloth bison finch robin raven
+crane stork quail heron viper gecko hound puppy snail lemur beast bunny prawn
+trout perch guppy dingo shrew macaw tapir steed cobra chick chimp geese
+
+heart brain blood skull spine chest nerve pulse teeth tooth mouth cheek elbow
+wrist thumb ankle thigh waist curly beard scalp voice smile frown laugh cough
+fever wound cramp sweat tired weary sleep dream snore tonic nurse organ liver
+torso hairy
+
+adult child youth uncle niece bride groom widow guest crowd group squad staff
+clerk actor baker chief judge pilot rider coach scout guard guide clown angel
+saint witch demon giant fairy human being queen royal noble rebel thief bully
+pupil tutor lover buyer owner enemy rival mayor mason miner tribe woman women
+cadet usher nanny
+
+begin bring build carry catch check climb close count cross dance drive enjoy
+enter fight float focus force glide grasp greet grind guess hurry knock learn
+leave march marry merge offer order plant point press prove raise reach relax
+reply rinse serve shake shape share shine shout shove slide smell speak spend
+spill split stand stare start steal stick sting stomp store study swear sweep
+swing taste teach think throw touch trade train trust twist visit weave whirl
+write yield burst carve cause chase cheer chirp choke claim clean clear click
+cling crush cycle drain dress erase fetch flush guard hatch heave hoist hover
+lease lodge mount mourn nudge paste pause phase pitch place plead pluck pound
+power probe rally reign route scale scare scold scoop scrub shift shred shrug
+slice smash sneak solve sound spark speed spoil stack stall steer storm strap
+stray strip surge swirl tempt thank thumb track trail trick tweak twirl unite
+untie upset value weigh wield wreck crawl chant clamp equip exist favor react
+repay reset swarm swipe widen worry adopt allow apply argue avoid blend boast
+brake break carve chase climb craft cross dodge drift dwell elect endow? enact?
+erupt exalt? expel? fling flock forge frame greet grill hoard? judge
+
+acute alert alike alive alone angry aware awful basic blank blind blond bored
+brave brief brisk broad brown cheap civil crazy cruel daily dense dirty dizzy
+eager early elder empty equal exact extra faint false fancy fatal final first
+fizzy flaky frank fuzzy grand grave great green happy harsh heavy humid ideal
+inner itchy jolly jumpy known large least legal level local lofty loose loyal
+lucky major messy metal minor mixed moist moral naive nasty naval needy noble
+noisy outer petty plump polar proud puffy pushy quick quiet rapid ready rigid
+risky rough round royal rowdy rural rusty scary shaky sharp sheer shiny short
+silky silly sleek slick slimy small smart smoky sober soggy solid sorry spare
+steep stiff still stout super swift tacky tangy thick third tight timid total
+tough toxic upper urban usual vague valid vital vivid vocal wacky weird white
+whole witty worse worst worth wrong young lousy lively giddy grumpy? snappy?
+
+about above after again among anger angle apart arena argue arise armor array
+arrow aside asset atlas audio audit avoid award badge basis batch began below
+blame blast bless block board bonus boost booth bound brand break breed bride
+bunch cabin cargo carol cease chalk champ chaos charm chart cheat chess choir
+chord chore chunk civic clash class cloth color comic comma coral court crack
+craft crash crime crown curve debut decay delay depot depth devil diner ditch
+dodge donor doubt dozen draft drama dread dwarf eight elite email entry error
+essay event every exile fable faith fault fiber fifth fifty flash fleet flesh
+flock fluid flute forge forty forum fraud front fruit funny genre ghost glare
+glory grace grade grant graph greed grief groan grove growl guilt habit haste
+haven havoc hedge hello hobby honor hotel humor image index irony issue ivory
+jewel joint joker label labor laser layer leash liner liter lobby logic lower
+lyric magic maker manor maybe medal media mercy merit meter metro micro might
+minus model money month motel motor movie music niche night ninth noise nylon
+occur opera other ought ounce panel panic paper party peace pearl pedal penny
+photo piano piece pinch pixel place plain plane plaza price pride prime prize
+prone proof punch quest query queue quirk quota quote radar ranch range ratio
+realm refer relay rhyme right robot rodeo rugby ruler rumor scene scope score
+scrap seize sense seven shaft shame shell shock shoot sight siren skate skill
+slate sonic sport spell spike spine stage stain stake state steel story stuff
+stunt style suite sword tempo tenth theme there these thing those three title
+today token topic tower trace trait trend trial troop truck truly truth turbo
+twice union under until usage venue verse video villa vinyl viral virus voter
+vowel wagon wheel where which while whose width would yacht
+
+poker bingo mural never often since ferry black beige amber azure sixth sixty
+salsa sauna scoop sedan diner jumbo motto medal
+"""
+
+# ---------------------------------------------------------------------------
+# ANS4 — same treatment for four letters.
+# ---------------------------------------------------------------------------
+ANS4 = """
+able acid aged also area army away baby back bake ball band bank barn base bath
+bead beam bean bear beat beef beer bell belt bend best bike bill bird bite blue
+boat body boil bold bolt bond bone book boot born boss both bowl brew brow bulb
+bulk bull bump bunk burn bush busy cafe cage cake calf call calm came camp cane
+cape card care cart case cash cast cave cell cent chef chew chin chip chop cite
+city clam clap claw clay clip club clue coal coat code coin cold colt comb come
+cone cook cool cope copy cord core cork corn cost cove crab crew crop crow cube
+cuff cure curl cute dare dark dart dash data date dawn deaf deal dean dear debt
+deck deed deep deer demo dent desk dial dice diet dime dine dirt dish dive dock
+doll dome done door dose dove down drag draw drew drip drop drum duck dune dusk
+dust duty each earn ease east easy echo edge edit envy epic even ever exam exit
+face fact fade fail fair fake fall fame fang farm fast fate fawn fear feat feed
+feel fell felt fern feud fill film find fine fire firm fish fist five flag flap
+flat flaw flea fled flew flex flip flop flow foam foil fold folk fond food fool
+foot fork form fort foul four free frog from fuel full fume fund fury fuse gain
+gale game gang gate gave gaze gear gene gift gill girl give glad glow glue goal
+goat gold golf gone good gown grab gray grew grid grin grip grow gulf gull gush
+hail hair half hall halt hand hang hard harm harp hate haul have hawk haze head
+heal heap hear heat heel heir held helm help hemp herb herd hero hide high hike
+hill hint hire hive hold hole holy home hood hoof hook hoop hope horn hose host
+hour huge hunt hurl hurt hush husk hymn icon idea idle inch inky iris iron item
+jade jail jazz jeep jest joke jolt jump junk jury just keen keep kelp kept kick
+kind king kiss kite knee knew knit knob knot know lace lack lady laid lake lamb
+lame lamp land lane lard lark last late lava lawn lazy lead leaf leak lean leap
+left lend lens less lick life lift like limb lime limp line link lion list live
+load loaf loan lock loft logo lone long look loom loop lord lose loss lost loud
+love luck lump lung lure lush mail main make male mall malt mare mark mash mask
+mass mast mate math meal mean meat meet melt memo mend menu mesh mess mice mild
+mile milk mill mind mine mint miss mist mode mold mole monk mood moon moss most
+moth move much mule muse must mute nail name navy near neat neck need nest news
+next nice nine node none noon nose note noun oath obey okay once only onto open
+oral oval oven over pace pack page paid pail pain pair pale palm pane park part
+pass past path pave pawn peak pear peat peck peel peer pest pick pier pile pill
+pine pink pint pipe pity plan play plea plot plow plug plum plus poem poet poke
+pole poll pond pony pool poor pork port pose post pour pray prep prey prom prop
+pull pump pure push quit quiz race rack raft rage raid rail rain rake ramp rang
+rank rare rash rate rave read real reap rear reed reef reel rely rent rest rice
+rich ride rift ring rink riot ripe rise risk road roam roar robe rock rode role
+roll roof room root rope rose rosy ruby rude ruin rule rung rush rust sack safe
+sage said sail sale salt same sand sane sang sank save scan scar seal seam seat
+seed seek seem seen self sell send sent shed ship shoe shop shot show shut sick
+side sigh sign silk silo sing sink site size skin skip slab slam slap sled slid
+slim slip slot slow slug slum smog snap snow soak soap soar sock soda sofa soft
+soil sold sole solo some song soon sore sort soul soup sour span spin spit spot
+spun spur stab stag star stay stem step stew stir stop stub stun such suit sung
+sunk sure surf swan swap sway swim tail take tale talk tall tame tank tape task
+team tear tech teen tell tend tent term test text than that thaw them then they
+thin this thud tick tide tidy tile till tilt time tiny tire toad toll tone took
+tool torn toss tour town trap tray tree trek trim trio trip true tube tuck tuna
+tune turf turn twig twin type ugly undo unit upon urge used user vain vale vase
+vast veal veil vein vent verb very vest veto vibe vice view vine visa void vote
+wade wage wait wake walk wall wand want ward ware warm warn warp wash wasp wave
+wavy waxy weak wear weed week weep well went wept were west what when whim whip
+whom wide wife wild will wind wine wing wink wipe wire wise wish wisp with wolf
+wood wool word wore work worm worn wrap wren yard yarn yawn year yell yoga yolk
+your zero zest zinc zone zoom
+"""
+
+# ---------------------------------------------------------------------------
+# CROSS3 — the three-letter crossword list, hand-picked one word at a time from
+# the dictionary-attested candidates.  Three-letter fill is where junk hurts
+# most, so nothing gets in here automatically.
+# ---------------------------------------------------------------------------
+CROSS3 = """
+ace act add ado aft age ago aid ail aim air ale all alt amp and ant any ape apt
+arc are ark arm art ash ask asp ate awe axe aye bad bag ban bar bat bay bed bee
+beg bet bib bid big bin bit biz boa bob bog boo bop bot bow box boy bra bud bug
+bum bun bus but buy bye cab cad cam can cap car cat caw cob cod cog con coo cop
+cot cow coy cry cub cud cue cup cur cut dab dad dam day den dew did die dig dim
+din dip doe dog don dot dry dub dud due dug duo dye ear eat ebb eel egg ego elf
+elk elm emu end era err eve ewe eye fad fan far fat fax fed fee few fib fig fin
+fir fit fix flu fly foe fog for fox fry fun fur gag gal gap gas gel gem get gif
+gig gin gnu goo got gum gut guy gym had hag ham has hat hay hen her hew hex hey
+hid him hip his hit hoe hog hop hot how hub hue hug huh hum hut ice icy ill imp
+ink inn ion ire irk its ivy jab jam jar jaw jay jet jig job jog jot joy jug jut
+keg key kid kin kit lab lad lag lap law lax lay led leg lei let lid lie lip lit
+lob log lot low mad mag man map mar mat maw may men met mew mid mix mob mom mop
+mow mud mug mum nab nag nap nay net new nib nil nip nit nod nor not now nun nut
+oaf oak oar oat odd ode off oft oil old one opt orb ore our out owe owl own pad
+pal pan par pat paw pay pea peg pen pep per pet pew pie pig pin pit ply pod pop
+pot pox pro pry pub pug pun pup put rag raj ram ran rap rat raw ray red ref rev
+rib rid rig rim rip rob rod roe rot row rub rue rug rum run rut rye sac sad sag
+sap sat saw say sea sec see set sew she shy sin sip sir sis sit six ski sky sly
+sob sod son sow soy spa spy sty sub sue sum sun sup tab tad tag tan tap tar tax
+tea tee ten the thy tic tie tin tip toe ton too top tot tow toy try tub tug tux
+two urn use van vat vet vex via vie vow wad wag wan was wax way web wed wee wet
+who why wig win wit woe wok won woo wow wry yak yam yap yaw yea yen yes yet yew
+yip you zap zip zoo
+"""
+
+# Ten friendly, welcoming words to lead the daily sequence before the
+# frequency-ordered remainder of answers5.
+OPENERS5 = "smile candy peach music beach happy tulip sunny arcade lemon"
+OPENERS4 = "cake star moon gift rose game blue cozy song wave"

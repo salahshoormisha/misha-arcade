@@ -8,32 +8,34 @@ Output  : core/data/flags/XX.svg    (minified, viewBox-normalised, id-namespaced
 
 Deterministic + re-runnable: no network access, pure function of flags-raw/.
 
-WHAT THE MINIFIER DOES (never anything that can change rendering):
-  * strips XML declaration / DOCTYPE / comments / <metadata> / <title> / <desc>
-  * strips version=, xml:space= and font-* (only when the file has no <text>/<tspan>)
+MINIFIER — only transformations that cannot change rendering:
+  * strips XML declaration / DOCTYPE / comments / <metadata> / <title> / <desc>,
+    version=, xml:space= and font-* (font-* only when the file has no text element)
   * collapses inter-tag and intra-attribute whitespace
-  * rounds numbers inside d="" and points="" to a precision scaled to the viewBox
-    (absolute error <= viewBox width / 20000, i.e. far below one device pixel)
-  * compacts path separators using only unambiguous rules
-  * lowercases hex colours and shortens #aabbcc -> #abc when the pairs repeat
-  * namespaces every id / url(#id) / href="#id" with the ISO2 code, and scopes any
-    <style> rules under the root's own id, so several flags can be inlined into one
-    DOM without id or class collisions
+  * rounds numbers inside d="" and points="" to the LOWEST precision that keeps every
+    re-computed path endpoint within DRIFT_TOL of its original position (relative path
+    commands accumulate rounding error, so the drift is measured, not assumed)
+  * compacts path separators with unambiguous rules only
+  * lowercases hex colours, shortens #aabbcc -> #abc when the pairs repeat
+  * namespaces every id / url(#id) / href="#id" with the ISO2 code and scopes <style>
+    rules under the root's own id, so many flags can be inlined into one DOM safely
   * guarantees a viewBox and removes root width/height so the flag scales freely
+  Every output is re-parsed as XML and checked against the input for element count,
+  paint-colour multiset and reference integrity.
 
-COLOURS are measured, not guessed: the minified SVG is parsed, transforms are
-composed, then a 64x48 grid is sampled through the painter-order stack of
-axis-aligned rectangles and discs to get visible area per colour; emblem paths add
-bbox-derived weight and strokes add perimeter*width. Each hex is snapped to the
-nearest of red/white/blue/green/yellow/black/orange/maroon/cyan/purple.
+COLOURS are measured, not guessed. The minified SVG is parsed, transforms composed,
+each path split into subpaths; axis-aligned rectangles and circles form a painter-order
+stack that is sampled on a 96x64 grid for visible area, other shapes contribute their
+shoelace area and strokes their polyline length x width. Each paint is snapped to the
+nearest of red/white/blue/green/yellow/black/orange/maroon/cyan/purple; near-equal
+weights are ordered hoist-to-fly / top-to-bottom.
 
-FEATURES are a curated table (flag vocabulary is knowledge, not geometry), but every
-stripe claim -- horizontal-tricolour / vertical-tricolour / bicolour -- is
-cross-checked against the sampled band structure and mismatches are reported.
+FEATURES are a curated table (flag vocabulary is knowledge, not geometry). Every stripe
+claim is cross-checked against the sampled band structure; disagreements are either in
+the REVIEWED list below (with the reason) or reported as errors.
 Vocabulary: horizontal-tricolour vertical-tricolour tricolour bicolour cross saltire
 canton crescent star stars sun emblem coat-of-arms animal plant text triangle chevron
-diagonal bordered unique-shape.  ("tricolour" is emitted alongside the specific
-horizontal-/vertical- tag so consumers can match either.)
+diagonal bordered unique-shape.
 """
 import json, math, os, re, sys
 import xml.etree.ElementTree as ET
@@ -44,9 +46,10 @@ RAW = os.path.join(BUILD, "flags-raw")
 OUT_DIR = os.path.join(ROOT, "core", "data", "flags")
 OUT_JS = os.path.join(ROOT, "core", "data", "flags.js")
 HARD_BYTES = 40 * 1024
+DRIFT_TOL = 0.0004          # max path-endpoint drift, as a fraction of the flag's long side
+GRID_X, GRID_Y = 96, 64     # colour sampling grid
 
 # ─────────────────────────────────────────────────────────────── feature table ──
-# shorthand -> contract vocabulary
 SH = {
     "ht": "horizontal-tricolour", "vt": "vertical-tricolour", "bi": "bicolour",
     "cr": "cross", "sa": "saltire", "ca": "canton", "cre": "crescent",
@@ -55,8 +58,9 @@ SH = {
     "tri": "triangle", "chv": "chevron", "dia": "diagonal", "bd": "bordered",
     "uq": "unique-shape",
 }
-# One line per country. Deliberately incomplete where a feature is arguable:
-# accuracy beats completeness (these strings drive hints and quiz filters).
+# ht/vt mean "the field is three parallel bands of three different colours" — extra
+# charges (star, emblem, hoist band or triangle) do not disqualify, extra STRIPES do,
+# so fimbriated five-stripe flags (GM, KE, SS, UZ) are deliberately not tricolours.
 FEAT = {
     "AD": "vt coa",            "AE": "ht",                "AF": "vt coa pl tx",
     "AG": "sun tri",           "AI": "ca coa an",         "AL": "an em",
@@ -86,7 +90,7 @@ FEAT = {
     "GA": "ht",                "GB": "cr sa",             "GD": "bd sts tri pl",
     "GE": "cr",                "GF": "dia st",            "GG": "cr",
     "GH": "ht st",             "GI": "bi coa",            "GL": "bi em",
-    "GM": "ht",                "GN": "vt",                "GP": "pl sun em",
+    "GM": "",                  "GN": "vt",                "GP": "pl sun em",
     "GQ": "ht tri coa pl sts", "GR": "cr ca",             "GS": "ca coa an",
     "GT": "coa an pl",         "GU": "bd em tx pl",       "GW": "st",
     "GY": "tri",               "HK": "pl em",             "HM": "ca sts",
@@ -96,14 +100,14 @@ FEAT = {
     "IO": "ca pl em",          "IQ": "ht tx",             "IR": "ht em tx",
     "IS": "cr",                "IT": "vt",                "JE": "sa coa",
     "JM": "sa",                "JO": "ht tri st",         "JP": "sun",
-    "KE": "ht em",             "KG": "sun em",            "KH": "em",
+    "KE": "em",                "KG": "sun em",            "KH": "em",
     "KI": "an sun",            "KM": "tri cre sts",       "KN": "dia sts",
     "KP": "st",                "KR": "em",                "KW": "ht",
     "KY": "ca coa an",         "KZ": "sun an em",         "LA": "em",
     "LB": "pl em",             "LC": "tri",               "LI": "bi em",
-    "LK": "an pl bd em",       "LR": "ca st",             "LS": "em",
+    "LK": "an pl bd em",       "LR": "ca st",             "LS": "ht em",
     "LT": "ht",                "LU": "ht",                "LV": "",
-    "LY": "cre st",            "MA": "st em",             "MC": "bi",
+    "LY": "ht cre st",         "MA": "st em",             "MC": "bi",
     "MD": "vt coa an",         "ME": "bd coa an",         "MF": "vt",
     "MG": "",                  "MH": "dia st",            "MK": "sun",
     "ML": "vt",                "MM": "ht st",             "MN": "em",
@@ -121,13 +125,13 @@ FEAT = {
     "PN": "ca coa",            "PR": "tri st",            "PS": "ht tri",
     "PT": "bi coa em",         "PW": "em",                "PY": "ht coa",
     "QA": "bi tri",            "RE": "tri sun",           "RO": "vt",
-    "RS": "ht coa an",         "RU": "ht",                "RW": "sun",
+    "RS": "ht coa an",         "RU": "ht",                "RW": "ht sun",
     "SA": "tx em",             "SB": "dia sts",           "SC": "dia",
     "SD": "ht tri",            "SE": "cr",                "SG": "bi cre sts",
     "SH": "ca coa an",         "SI": "ht coa",            "SJ": "cr",
     "SK": "ht coa cr",         "SL": "ht",                "SM": "bi coa",
     "SN": "vt st",             "SO": "st",                "SR": "st",
-    "SS": "ht tri st",         "ST": "tri sts",           "SV": "coa",
+    "SS": "tri st",            "ST": "tri sts",           "SV": "coa",
     "SX": "tri coa",           "SY": "ht sts",            "SZ": "em",
     "TC": "ca coa pl an",      "TD": "vt",                "TF": "ca tx",
     "TG": "ca st",             "TH": "",                  "TJ": "ht sts em",
@@ -136,16 +140,33 @@ FEAT = {
     "TT": "dia",               "TV": "ca sts",            "TW": "ca sun",
     "TZ": "dia",               "UA": "bi",                "UG": "an em",
     "UM": "ca sts",            "US": "ca sts",            "UY": "ca sun",
-    "UZ": "ht cre sts",        "VA": "bi coa em",         "VC": "vt em",
+    "UZ": "cre sts",           "VA": "bi coa em",         "VC": "vt em",
     "VE": "ht sts",            "VG": "ca coa",            "VI": "an em tx",
     "VN": "st",                "VU": "tri em pl",         "WF": "ca em",
     "WS": "ca sts",            "XK": "em sts",            "YE": "ht",
     "YT": "coa",               "ZA": "tri",               "ZM": "an",
     "ZW": "tri st an",
 }
+# Stripe claims the band sampler cannot confirm, each checked by eye against the
+# rendered flag. Keeping them is a judgement call, so it is recorded here.
+REVIEWED = {
+    "BH": "two colours divided by a five-point zigzag, not a straight line",
+    "QA": "two colours divided by a nine-point zigzag, not a straight line",
+    "GL": "half/half but the counterchanged disc covers the sampling column",
+    "HT": "blue/red halves with a central white panel the sampler reads as a band",
+    "CO": "three bands of three colours, top band is half the height",
+    "EC": "three bands of three colours, top band is half the height",
+    "VE": "three bands of three colours, unequal, plus an arc of stars",
+    "VC": "three vertical bands of three colours, centre band double width",
+    "CZ": "white/red halves with a blue triangle over the hoist half",
+    "SG": "red/white halves, crescent and stars sit in the sampled column",
+    "LS": "three bands of three colours, centre band double height",
+    "TJ": "three bands of three colours, centre band wider",
+    "MW": "three equal bands, rising sun sits in the sampled column",
+    "AG": "not a stripe claim — sun and triangles only",
+}
 
 # ──────────────────────────────────────────────────────────────────── palette ──
-# reference points per canonical name; nearest wins (weighted RGB distance)
 PALETTE = [
     ("red",    [(255, 0, 0), (206, 17, 38), (218, 41, 28), (200, 16, 46),
                 (213, 0, 50), (239, 25, 35), (220, 0, 0), (237, 65, 53),
@@ -176,15 +197,14 @@ CSS_NAMED = {
     "lime": (0, 255, 0), "fuchsia": (255, 0, 255), "magenta": (255, 0, 255),
     "crimson": (220, 20, 60), "darkgreen": (0, 100, 0), "darkred": (139, 0, 0),
     "darkblue": (0, 0, 139), "firebrick": (178, 34, 34), "indigo": (75, 0, 130),
-    "orangered": (255, 69, 0), "saddlebrown": (139, 69, 19),
-    "sienna": (160, 82, 45), "tan": (210, 180, 140), "wheat": (245, 222, 179),
-    "ivory": (255, 255, 240), "snow": (255, 250, 250), "azure": (240, 255, 255),
-    "beige": (245, 245, 220), "khaki": (240, 230, 140), "brown": (165, 42, 42),
+    "orangered": (255, 69, 0), "saddlebrown": (139, 69, 19), "sienna": (160, 82, 45),
+    "tan": (210, 180, 140), "wheat": (245, 222, 179), "ivory": (255, 255, 240),
+    "snow": (255, 250, 250), "azure": (240, 255, 255), "beige": (245, 245, 220),
+    "khaki": (240, 230, 140), "brown": (165, 42, 42),
 }
 
 
 def parse_colour(v):
-    """'#abc' / '#aabbcc' / css name / rgb() -> (r,g,b) or None."""
     if v is None:
         return None
     v = v.strip().lower()
@@ -192,13 +212,9 @@ def parse_colour(v):
         return None
     if v.startswith("#"):
         h = v[1:]
-        if len(h) == 3:
-            return tuple(int(c * 2, 16) for c in h)
-        if len(h) == 4:
+        if len(h) in (3, 4):
             return tuple(int(c * 2, 16) for c in h[:3])
-        if len(h) == 6:
-            return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
-        if len(h) == 8:
+        if len(h) in (6, 8):
             return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
         return None
     m = re.match(r'rgba?\(([^)]*)\)', v)
@@ -230,7 +246,7 @@ NARGS = {"M": 2, "L": 2, "T": 2, "H": 1, "V": 1, "C": 6, "S": 4, "Q": 4, "A": 7,
 
 
 def parse_path(d):
-    """-> (list of endpoint (x,y), only_straight_axis_cmds)"""
+    """-> list of subpaths; each is (points, only_straight_axis_commands)."""
     toks = []
     for m in TOKEN.finditer(d or ""):
         if m.group(1):
@@ -240,15 +256,19 @@ def parse_path(d):
                 toks.append(float(m.group(2)))
             except ValueError:
                 pass
-    pts, cx, cy, sx, sy = [], 0.0, 0.0, 0.0, 0.0
+    subs = []
+    pts, simple = [], True
+    cx = cy = sx = sy = 0.0
     cmd = None
-    simple = True
     i, n = 0, len(toks)
     while i < n:
         t = toks[i]
         if isinstance(t, str):
             cmd = t
             i += 1
+            if cmd.upper() == "M" and pts:
+                subs.append((pts, simple))
+                pts, simple = [], True
             if cmd.upper() not in ("M", "L", "H", "V", "Z"):
                 simple = False
             if cmd in ("Z", "z"):
@@ -282,29 +302,49 @@ def parse_path(d):
             sx, sy = cx, cy
             cmd = "L" if cmd == "M" else "l"
         pts.append((cx, cy))
-    return pts, simple
+    if pts:
+        subs.append((pts, simple))
+    return subs
 
 
 def is_rect(pts, simple):
+    """True only for a single closed axis-aligned rectangle."""
     if not simple or not (4 <= len(pts) <= 6):
         return False
-    xs = sorted({round(p[0], 4) for p in pts})
-    ys = sorted({round(p[1], 4) for p in pts})
-    if len(xs) != 2 or len(ys) != 2:
+    q = [(round(p[0], 4), round(p[1], 4)) for p in pts]
+    while len(q) > 4 and q[-1] == q[0]:
+        q.pop()
+    if len(q) != 4:
         return False
-    corners = {(x, y) for x in xs for y in ys}
-    got = {(round(p[0], 4), round(p[1], 4)) for p in pts}
-    return corners == got
+    if len({p[0] for p in q}) != 2 or len({p[1] for p in q}) != 2:
+        return False
+    for a, b in zip(q, q[1:] + q[:1]):
+        if not (abs(a[0] - b[0]) < 1e-9 or abs(a[1] - b[1]) < 1e-9):
+            return False   # a diagonal edge: not a rectangle
+        if a == b:
+            return False
+    return True
+
+
+def shoelace(pts):
+    a = 0.0
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):
+        a += x1 * y2 - x2 * y1
+    return abs(a) / 2.0
+
+
+def polylen(pts):
+    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
 
 
 # ───────────────────────────────────────────────────────────────── transforms ──
+IDENT = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+
+
 def mat_mul(a, b):
     return (a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1],
             a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3],
             a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5])
-
-
-IDENT = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
 
 def parse_transform(s):
@@ -319,8 +359,7 @@ def parse_transform(s):
             t = (1, 0, 0, 1, a[0] if a else 0, a[1] if len(a) > 1 else 0)
         elif name == "scale":
             sxx = a[0] if a else 1
-            syy = a[1] if len(a) > 1 else sxx
-            t = (sxx, 0, 0, syy, 0, 0)
+            t = (sxx, 0, 0, a[1] if len(a) > 1 else sxx, 0, 0)
         elif name == "rotate":
             ang = math.radians(a[0] if a else 0)
             c, s2 = math.cos(ang), math.sin(ang)
@@ -340,11 +379,15 @@ def apply(m, p):
 
 
 # ─────────────────────────────────────────────────────────────────── minifier ──
+CMDCHARS = "MmZzLlHhVvCcSsQqTtAa"
+NUMRE = re.compile(r'[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?')
+
+
 def num_fmt(v, dec):
-    s = ("%.*f" % (dec, v))
+    s = "%.*f" % (dec, v)
     if "." in s:
         s = s.rstrip("0").rstrip(".")
-    if s in ("-0", ""):
+    if s in ("-0", "", "+"):
         s = "0"
     if s.startswith("0."):
         s = s[1:]
@@ -353,28 +396,19 @@ def num_fmt(v, dec):
     return s
 
 
-CMDCHARS = "MmZzLlHhVvCcSsQqTtAa"
-
-
 def compact_pathdata(d, dec):
-    d = re.sub(r'([-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?)',
-               lambda m: num_fmt(float(m.group(1)), dec) if _isnum(m.group(1)) else m.group(1), d)
-    d = re.sub(r'[\s,]+', ' ', d).strip()
-    d = re.sub(r'\s*([' + CMDCHARS + r'])\s*', r'\1', d)          # no space around commands
-    d = re.sub(r'(\d|\.)\s+-', r'\1-', d)                          # 10 -5 -> 10-5
-    return d
+    out = NUMRE.sub(lambda m: num_fmt(float(m.group(0)), dec), d)
+    out = re.sub(r'[\s,]+', ' ', out).strip()
+    out = re.sub(r'\s*([' + CMDCHARS + r'])\s*', r'\1', out)
+    out = re.sub(r'(\d|\.)\s+-', r'\1-', out)
+    return out
 
 
-def _isnum(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
+def endpoints(d):
+    return [p for pts, _ in parse_path(d) for p in pts]
 
 
 def split_root(svg):
-    """-> (attrs dict in order, rest_of_document)"""
     i, n, q = 1, len(svg), None
     while i < n:
         c = svg[i]
@@ -386,20 +420,38 @@ def split_root(svg):
         elif c == ">":
             break
         i += 1
-    head = svg[:i]
-    rest = svg[i + 1:]
+    head, rest = svg[:i], svg[i + 1:]
     attrs = []
-    for m in re.finditer(r'([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*"([^"]*)"|([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*\'([^\']*)\'',
-                         head[4:]):
-        if m.group(1):
-            attrs.append((m.group(1), m.group(2)))
-        else:
-            attrs.append((m.group(3), m.group(4)))
+    for m in re.finditer(r'([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*"([^"]*)"'
+                         r'|([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*\'([^\']*)\'', head[4:]):
+        attrs.append((m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4)))
     return attrs, rest
+
+
+def hexfix(m):
+    h = m.group(1).lower()
+    if len(h) == 6 and h[0] == h[1] and h[2] == h[3] and h[4] == h[5]:
+        h = h[0] + h[2] + h[4]
+    return "#" + h
+
+
+HEXRE = re.compile(r'#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b')
+PAINTRE = re.compile(r'(?:fill|stroke|stop-color)\s*[=:]\s*["\']?\s*([^"\';>}]+)')
+
+
+def paint_multiset(s):
+    out = {}
+    for v in PAINTRE.findall(s):
+        v = v.strip().lower()
+        c = parse_colour(v)
+        if c:
+            out[c] = out.get(c, 0) + 1
+    return out
 
 
 def minify(code, s):
     warn = []
+    orig = s
     s = re.sub(r'<\?xml[^>]*\?>', '', s)
     s = re.sub(r'<!DOCTYPE.*?>', '', s, flags=re.S | re.I)
     s = re.sub(r'<!--.*?-->', '', s, flags=re.S)
@@ -408,7 +460,6 @@ def minify(code, s):
         s = re.sub(r'<%s\b.*?</%s\s*>' % (tag, tag), '', s, flags=re.S | re.I)
     has_text = bool(re.search(r'<(text|tspan|textPath|flowRoot)\b', s))
 
-    # protect <style> bodies
     styles = []
 
     def grab(m):
@@ -422,136 +473,142 @@ def minify(code, s):
     s = re.sub(r'\s+(/?>)', r'\1', s)
     s = re.sub(r'\s(?:version|xml:space|xmlns:svg|xmlns:dc|xmlns:cc|xmlns:rdf)="[^"]*"', '', s)
     if not has_text:
-        s = re.sub(r'\s(?:font-family|font-weight|font-size|font-style|letter-spacing|word-spacing|text-anchor)="[^"]*"', '', s)
+        s = re.sub(r'\s(?:font-family|font-weight|font-size|font-style|letter-spacing'
+                   r'|word-spacing|text-anchor)="[^"]*"', '', s)
 
     attrs, rest = split_root(s)
     amap = {k: v for k, v in attrs}
 
-    # ── viewBox / sizing ──
-    vb = amap.get("viewBox")
+    vb, nums = amap.get("viewBox"), None
     if vb:
-        nums = [float(x) for x in re.findall(r'[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?', vb)]
+        nums = [float(x) for x in NUMRE.findall(vb)]
         if len(nums) != 4 or nums[2] <= 0 or nums[3] <= 0:
             warn.append("bad viewBox %r" % vb)
             vb = None
     if not vb:
         def dim(k):
-            v = amap.get(k, "")
-            m = re.match(r'\s*([-+]?[\d.]+)\s*(px)?\s*$', v)
+            m = re.match(r'\s*([-+]?[\d.]+)\s*(px)?\s*$', amap.get(k, ""))
             return float(m.group(1)) if m else None
         w, h = dim("width"), dim("height")
-        if w and h and w > 0 and h > 0:
-            nums = [0.0, 0.0, w, h]
-            vb = "0 0 %s %s" % (num_fmt(w, 3), num_fmt(h, 3))
-        else:
-            return None, None, ["no viewBox and no usable width/height"]
+        if not (w and h and w > 0 and h > 0):
+            return None, None, ["no viewBox and no usable width/height"], {}
+        nums = [0.0, 0.0, w, h]
+        vb = "0 0 %s %s" % (num_fmt(w, 3), num_fmt(h, 3))
     vbw, vbh = nums[2], nums[3]
 
-    # ── numeric precision, scaled to the viewBox ──
-    dec = int(math.ceil(math.log10(20000.0 / max(vbw, vbh)))) if max(vbw, vbh) > 0 else 3
-    dec = max(1, min(4, dec))
+    # ── choose the coarsest numeric precision whose measured drift is invisible ──
+    fields = re.findall(r'\s(?:d|points)="([^"]*)"', rest)
+    tol = DRIFT_TOL * max(vbw, vbh)
+    base = [(f, endpoints(f)) for f in fields]
+    dec, drift = 4, 0.0
+    for cand in range(0, 5):
+        worst, ok = 0.0, True
+        for f, eps in base:
+            got = endpoints(compact_pathdata(f, cand))
+            if len(got) != len(eps):
+                ok = False
+                break
+            for a, b in zip(eps, got):
+                dd = math.hypot(a[0] - b[0], a[1] - b[1])
+                if dd > worst:
+                    worst = dd
+            if worst > tol:
+                ok = False
+                break
+        if ok:
+            dec, drift = cand, worst
+            break
+    rest = re.sub(r'\s(d|points)="([^"]*)"',
+                  lambda m: ' %s="%s"' % (m.group(1), compact_pathdata(m.group(2), dec)), rest)
 
-    def redo_attr(m):
-        name, val = m.group(1), m.group(2)
-        return ' %s="%s"' % (name, compact_pathdata(val, dec))
-    rest = re.sub(r'\s(d|points)="([^"]*)"', redo_attr, rest)
+    rest = HEXRE.sub(hexfix, rest)
+    styles = [HEXRE.sub(hexfix, st) for st in styles]
 
-    # ── hex colour shortening (safe, value-preserving) ──
-    def hexfix(m):
-        h = m.group(1).lower()
-        if len(h) == 6 and h[0] == h[1] and h[2] == h[3] and h[4] == h[5]:
-            h = h[0] + h[2] + h[4]
-        return "#" + h
-    rest = re.sub(r'#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b', hexfix, rest)
-    styles = [re.sub(r'#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b', hexfix, st) for st in styles]
-
-    # ── namespace ids so many flags can be inlined side by side ──
+    # ── namespace ids, scope css ──
     pfx = code.lower() + "-"
     ids = set(re.findall(r'\sid="([^"]+)"', rest))
     refs_before = len(re.findall(r'url\(\s*#([^)\s]+)\s*\)', rest)) + \
         len(re.findall(r'(?:xlink:)?href="#([^"]+)"', rest))
     if ids:
-        def rid(m):
-            return ' id="%s%s"' % (pfx, m.group(1))
-        rest = re.sub(r'\sid="([^"]+)"', rid, rest)
-
-        def rurl(m):
-            t = m.group(1)
-            return "url(#%s%s)" % (pfx, t) if t in ids else m.group(0)
-        rest = re.sub(r'url\(\s*#([^)\s]+)\s*\)', rurl, rest)
-
-        def rhref(m):
-            t = m.group(2)
-            return '%shref="#%s%s"' % (m.group(1) or "", pfx, t) if t in ids else m.group(0)
-        rest = re.sub(r'(xlink:)?href="#([^"]+)"', rhref, rest)
+        rest = re.sub(r'\sid="([^"]+)"', lambda m: ' id="%s%s"' % (pfx, m.group(1)), rest)
+        rest = re.sub(r'url\(\s*#([^)\s]+)\s*\)',
+                      lambda m: "url(#%s%s)" % (pfx, m.group(1)) if m.group(1) in ids else m.group(0), rest)
+        rest = re.sub(r'(xlink:)?href="#([^"]+)"',
+                      lambda m: '%shref="#%s%s"' % (m.group(1) or "", pfx, m.group(2))
+                      if m.group(2) in ids else m.group(0), rest)
         styles = [re.sub(r'url\(\s*#([^)\s]+)\s*\)',
                          lambda m: "url(#%s%s)" % (pfx, m.group(1)) if m.group(1) in ids else m.group(0), st)
                   for st in styles]
-
-    # ── scope <style> rules under the root id so classes cannot leak ──
     rootid = "fl-" + code.lower()
     if styles:
         scoped = []
         for st in styles:
-            st = re.sub(r'\s*([\r\n])\s*', ' ', st).strip()
+            st = re.sub(r'\s+', ' ', st).strip()
             st = re.sub(r'([^{}]+)\{', lambda m: ",".join(
-                ("#%s %s" % (rootid, sel.strip())) for sel in m.group(1).split(",") if sel.strip()) + "{", st)
+                "#%s %s" % (rootid, sel.strip()) for sel in m.group(1).split(",") if sel.strip()) + "{", st)
             scoped.append(st)
         styles = scoped
 
-    out_attrs = []
-    seen = set()
-    for k, v in attrs:
-        if k in ("width", "height", "viewBox", "id"):
-            continue
-        if k in seen:
-            continue
-        seen.add(k)
-        out_attrs.append((k, v))
     head = '<svg xmlns="http://www.w3.org/2000/svg"'
     if "xlink:" in rest:
         head += ' xmlns:xlink="http://www.w3.org/1999/xlink"'
     if styles:
         head += ' id="%s"' % rootid
-    for k, v in out_attrs:
-        if k in ("xmlns", "xmlns:xlink"):
+    seen = set()
+    for k, v in attrs:
+        if k in ("width", "height", "viewBox", "id", "xmlns", "xmlns:xlink") or k in seen:
             continue
+        seen.add(k)
         head += ' %s="%s"' % (k, v)
-    head += ' viewBox="%s">' % re.sub(r'\s+', ' ', vb.strip())
-    doc = head + rest
-
-    # restore styles
-    def put(m):
-        return styles[int(m.group(1))]
-    doc = re.sub(r'\x00(\d+)\x00', put, doc)
+    doc = head + ' viewBox="%s">' % re.sub(r'\s+', ' ', vb.strip()) + rest
+    doc = re.sub(r'\x00(\d+)\x00', lambda m: styles[int(m.group(1))], doc)
     doc = doc.replace("<style></style>", "")
 
-    # ── validation ──
+    # ── validation against the input ──
     try:
         troot = ET.fromstring(doc)
     except Exception as e:
-        return None, None, ["minified output does not parse: %s" % e]
+        return None, None, ["minified output does not parse: %s" % e], {}
     ids_after = set(re.findall(r'\sid="([^"]+)"', doc))
     refs = set(re.findall(r'url\(\s*#([^)\s]+)\s*\)', doc)) | \
         set(re.findall(r'(?:xlink:)?href="#([^"]+)"', doc))
     dangling = sorted(r for r in refs if r not in ids_after)
     if dangling:
         warn.append("dangling id refs: %s" % ",".join(dangling[:5]))
-    refs_after = len(re.findall(r'url\(\s*#([^)\s]+)\s*\)', doc)) + \
-        len(re.findall(r'(?:xlink:)?href="#([^"]+)"', doc))
-    if refs_after != refs_before:
-        warn.append("reference count changed %d->%d" % (refs_before, refs_after))
+    if len(re.findall(r'url\(\s*#([^)\s]+)\s*\)', doc)) + \
+            len(re.findall(r'(?:xlink:)?href="#([^"]+)"', doc)) != refs_before:
+        warn.append("reference count changed")
     if troot.get("width") or troot.get("height"):
         warn.append("root still has width/height")
     if not troot.get("viewBox"):
         warn.append("root lost viewBox")
-    return doc, (vbw, vbh, nums[0], nums[1]), warn
+    try:
+        oroot = ET.fromstring(orig)
+        oc, nc = {}, {}
+        for el in oroot.iter():
+            t = el.tag.split("}")[-1]
+            if t not in ("metadata", "title", "desc"):
+                oc[t] = oc.get(t, 0) + 1
+        for el in troot.iter():
+            t = el.tag.split("}")[-1]
+            nc[t] = nc.get(t, 0) + 1
+        if oc != nc:
+            warn.append("element census changed: %s -> %s" % (oc, nc))
+    except Exception as e:
+        warn.append("original will not parse: %s" % e)
+    a, b = paint_multiset(orig), paint_multiset(doc)
+    if a != b:
+        diff = {k: (a.get(k), b.get(k)) for k in set(a) | set(b) if a.get(k) != b.get(k)}
+        warn.append("paint multiset changed: %s" % diff)
+    return doc, (vbw, vbh, nums[0], nums[1]), warn, {"dec": dec, "drift": drift, "tol": tol}
 
 
 # ───────────────────────────────────────────────── colour + band measurement ──
 SHAPES = ("path", "rect", "circle", "ellipse", "polygon", "polyline", "line")
 SKIP = ("defs", "clippath", "mask", "symbol", "marker", "pattern",
         "lineargradient", "radialgradient", "filter", "style", "metadata")
+PROPS = ("fill", "stroke", "stroke-width", "opacity", "fill-opacity",
+         "stroke-opacity", "color")
 
 
 def ln(tag):
@@ -563,21 +620,15 @@ def css_rules(root):
     for el in root.iter():
         if ln(el.tag) != "style":
             continue
-        txt = "".join(el.itertext())
-        for m in re.finditer(r'([^{}]+)\{([^}]*)\}', txt):
+        for m in re.finditer(r'([^{}]+)\{([^}]*)\}', "".join(el.itertext())):
             decls = {}
             for dm in re.finditer(r'([-a-zA-Z]+)\s*:\s*([^;]+)', m.group(2)):
                 decls[dm.group(1).strip()] = dm.group(2).strip()
             for sel in m.group(1).split(","):
-                sel = sel.strip()
-                cm = re.search(r'\.([A-Za-z0-9_-]+)\s*$', sel)
+                cm = re.search(r'\.([A-Za-z0-9_-]+)\s*$', sel.strip())
                 if cm:
                     rules.setdefault(cm.group(1), {}).update(decls)
     return rules
-
-
-PROPS = ("fill", "stroke", "stroke-width", "opacity", "fill-opacity",
-         "stroke-opacity", "color")
 
 
 def resolve_props(el, inherited, rules):
@@ -604,50 +655,79 @@ def fnum(v, dflt=0.0):
 
 
 def measure(doc, vbw, vbh, vbx, vby):
-    """-> (weights {name: weight}, coverage sampler items, raw hex weights)"""
     root = ET.fromstring(doc)
     rules = css_rules(root)
-    byid = {}
-    for el in root.iter():
-        i = el.get("id")
-        if i:
-            byid[i] = el
-    items = []      # painter order: ('rect',x0,y0,x1,y1,rgb) / ('disc',cx,cy,r,rgb)
-    emblem = []     # (rgb, weight)
+    byid = {el.get("id"): el for el in root.iter() if el.get("id")}
+    items, blobs = [], []          # painter stack / non-flat paint contributions
     flag_area = vbw * vbh
 
-    def shape_geom(el, m):
+    def parts_of(el, m):
+        """-> list of (bbox, kind, area, length); kind in 'rect'|'disc'|'blob'"""
         name = ln(el.tag)
-        pts, simple, rectish, area = [], False, False, 0.0
+        raw = []
         if name == "path":
-            pts, simple = parse_path(el.get("d"))
-            rectish = is_rect(pts, simple)
+            for pts, simple in parse_path(el.get("d")):
+                raw.append((pts, is_rect(pts, simple), None))
         elif name == "rect":
             x, y = fnum(el.get("x", 0)), fnum(el.get("y", 0))
             w, h = fnum(el.get("width", 0)), fnum(el.get("height", 0))
-            pts = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)]
-            rectish = not (el.get("rx") or el.get("ry"))
+            raw.append(([(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
+                        not (el.get("rx") or el.get("ry")), None))
         elif name in ("circle", "ellipse"):
             cx, cy = fnum(el.get("cx", 0)), fnum(el.get("cy", 0))
-            if name == "circle":
-                rx = ry = fnum(el.get("r", 0))
-            else:
+            rx = ry = fnum(el.get("r", 0))
+            if name == "ellipse":
                 rx, ry = fnum(el.get("rx", 0)), fnum(el.get("ry", 0))
-            pts = [(cx - rx, cy - ry), (cx + rx, cy - ry), (cx + rx, cy + ry), (cx - rx, cy + ry)]
+            raw.append(([(cx - rx, cy - ry), (cx + rx, cy - ry), (cx + rx, cy + ry), (cx - rx, cy + ry)],
+                        False, "ell"))
         elif name in ("polygon", "polyline"):
-            nn = [float(x) for x in re.findall(r'[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?', el.get("points", ""))]
-            pts = list(zip(nn[0::2], nn[1::2]))
+            nn = [float(x) for x in NUMRE.findall(el.get("points", ""))]
+            raw.append((list(zip(nn[0::2], nn[1::2])), False, None))
         elif name == "line":
-            pts = [(fnum(el.get("x1", 0)), fnum(el.get("y1", 0))),
-                   (fnum(el.get("x2", 0)), fnum(el.get("y2", 0)))]
-        if not pts:
-            return None
-        tp = [apply(m, p) for p in pts]
-        x0 = min(q[0] for q in tp); x1 = max(q[0] for q in tp)
-        y0 = min(q[1] for q in tp); y1 = max(q[1] for q in tp)
+            raw.append(([(fnum(el.get("x1", 0)), fnum(el.get("y1", 0))),
+                         (fnum(el.get("x2", 0)), fnum(el.get("y2", 0)))], False, None))
         axis = abs(m[1]) < 1e-6 and abs(m[2]) < 1e-6
-        disc = name == "circle" and abs(abs(m[0]) - abs(m[3])) < 1e-6 and axis
-        return (x0, y0, x1, y1, rectish and axis, disc, tp)
+        out = []
+        for pts, rectish, special in raw:
+            if not pts:
+                continue
+            tp = [apply(m, p) for p in pts]
+            x0 = min(q[0] for q in tp); x1 = max(q[0] for q in tp)
+            y0 = min(q[1] for q in tp); y1 = max(q[1] for q in tp)
+            bb = (x0, y0, x1, y1)
+            if special == "ell" and axis:
+                kind = "disc" if abs((x1 - x0) - (y1 - y0)) < 1e-6 else "blob"
+                area = math.pi * (x1 - x0) * (y1 - y0) / 4.0
+            elif rectish and axis:
+                kind, area = "rect", (x1 - x0) * (y1 - y0)
+            else:
+                kind = "blob"
+                area = min(shoelace(tp) * 1.12, (x1 - x0) * (y1 - y0))
+            out.append((bb, kind, area, polylen(tp)))
+        return out
+
+    def emit(el, props, m):
+        op = fnum(props.get("opacity", 1), 1.0)
+        fo = fnum(props.get("fill-opacity", 1), 1.0) * op
+        so = fnum(props.get("stroke-opacity", 1), 1.0) * op
+        fill = props.get("fill")
+        rgb = (0, 0, 0) if fill is None else parse_colour(fill)
+        if fill is not None and fill.strip().lower() == "currentcolor":
+            rgb = parse_colour(props.get("color"))
+        srgb = parse_colour(props.get("stroke"))
+        if not rgb and not srgb:
+            return
+        sw = fnum(props.get("stroke-width", 1), 1.0) * math.sqrt(abs(m[0] * m[3] - m[1] * m[2]) or 1.0)
+        for (x0, y0, x1, y1), kind, area, length in parts_of(el, m):
+            if rgb and fo >= 0.35:
+                if kind == "rect" and x1 > x0 and y1 > y0:
+                    items.append(("rect", x0, y0, x1, y1, rgb))
+                elif kind == "disc":
+                    items.append(("disc", (x0 + x1) / 2.0, (y0 + y1) / 2.0, (x1 - x0) / 2.0, rgb))
+                elif area > 0:
+                    blobs.append((rgb, min(area, flag_area), (x0 + x1) / 2.0, (y0 + y1) / 2.0))
+            if srgb and so >= 0.35 and length > 0:
+                blobs.append((srgb, min(length * sw, 0.9 * flag_area), (x0 + x1) / 2.0, (y0 + y1) / 2.0))
 
     def walk(el, inh, m, depth):
         if depth > 40:
@@ -658,93 +738,84 @@ def measure(doc, vbw, vbh, vbx, vby):
                 continue
             props = resolve_props(ch, inh, rules)
             mm = mat_mul(m, parse_transform(ch.get("transform")))
-            if nm == "g" or nm == "a" or nm == "svg":
+            if nm in ("g", "a", "svg"):
                 walk(ch, props, mm, depth + 1)
-                continue
-            if nm == "use":
+            elif nm == "use":
                 href = ch.get("{http://www.w3.org/1999/xlink}href") or ch.get("href") or ""
                 tgt = byid.get(href[1:]) if href.startswith("#") else None
                 if tgt is None:
                     continue
                 mm2 = mat_mul(mm, (1, 0, 0, 1, fnum(ch.get("x", 0)), fnum(ch.get("y", 0))))
+                mm2 = mat_mul(mm2, parse_transform(tgt.get("transform")))
                 if ln(tgt.tag).lower() in ("g", "svg", "symbol"):
-                    walk(tgt, props, mat_mul(mm2, parse_transform(tgt.get("transform"))), depth + 1)
+                    walk(tgt, props, mm2, depth + 1)
                 else:
-                    emit(tgt, resolve_props(tgt, props, rules),
-                         mat_mul(mm2, parse_transform(tgt.get("transform"))))
-                continue
-            if nm in SHAPES:
+                    emit(tgt, resolve_props(tgt, props, rules), mm2)
+            elif nm in SHAPES:
                 emit(ch, props, mm)
             else:
                 walk(ch, props, mm, depth + 1)
 
-    def emit(el, props, m):
-        g = shape_geom(el, m)
-        if not g:
-            return
-        x0, y0, x1, y1, axisrect, disc, tp = g
-        op = fnum(props.get("opacity", 1), 1.0)
-        fo = fnum(props.get("fill-opacity", 1), 1.0) * op
-        so = fnum(props.get("stroke-opacity", 1), 1.0) * op
-        fill = props.get("fill")
-        rgb = parse_colour(fill) if fill is not None else (0, 0, 0)
-        if fill is not None and fill.strip().lower() == "currentcolor":
-            rgb = parse_colour(props.get("color"))
-        bw, bh = max(0.0, x1 - x0), max(0.0, y1 - y0)
-        if rgb and fo >= 0.35:
-            if axisrect and bw > 0 and bh > 0:
-                items.append(("rect", x0, y0, x1, y1, rgb))
-            elif disc:
-                items.append(("disc", (x0 + x1) / 2.0, (y0 + y1) / 2.0, (x1 - x0) / 2.0, rgb))
-            else:
-                emblem.append((rgb, 0.35 * bw * bh))
-        srgb = parse_colour(props.get("stroke"))
-        if srgb and so >= 0.35:
-            sw = fnum(props.get("stroke-width", 1), 1.0) * math.sqrt(abs(m[0] * m[3] - m[1] * m[2]) or 1.0)
-            per = 2 * (bw + bh) if (bw or bh) else 0.0
-            emblem.append((srgb, min(per * sw, 0.9 * flag_area)))
-
     walk(root, {}, parse_transform(root.get("transform")), 0)
 
-    # sampled visible coverage of the flat (rect/disc) stack
-    NX, NY = 64, 48
-    counts = {}
+    counts, first = {}, {}
     grid = []
-    for j in range(NY):
-        y = vby + vbh * (j + 0.5) / NY
+    for j in range(GRID_Y):
+        y = vby + vbh * (j + 0.5) / GRID_Y
         row = []
-        for i in range(NX):
-            x = vbx + vbw * (i + 0.5) / NX
+        for i in range(GRID_X):
+            x = vbx + vbw * (i + 0.5) / GRID_X
             top = None
             for it in items:
                 if it[0] == "rect":
                     if it[1] <= x <= it[3] and it[2] <= y <= it[4]:
                         top = it[5]
-                else:
-                    if (x - it[1]) ** 2 + (y - it[2]) ** 2 <= it[3] ** 2:
-                        top = it[4]
+                elif (x - it[1]) ** 2 + (y - it[2]) ** 2 <= it[3] ** 2:
+                    top = it[4]
             row.append(top)
             if top:
                 counts[top] = counts.get(top, 0) + 1
+                if top not in first:
+                    first[top] = j * GRID_X + i
         grid.append(row)
-    weights = {}
-    cell = flag_area / float(NX * NY)
-    for rgb, c in counts.items():
-        weights[rgb] = weights.get(rgb, 0.0) + c * cell
-    for rgb, w in emblem:
+    cell = flag_area / float(GRID_X * GRID_Y)
+    weights = {rgb: c * cell for rgb, c in counts.items()}
+    for rgb, w, cx, cy in blobs:
         weights[rgb] = weights.get(rgb, 0.0) + w
-    return weights, grid, flag_area
+        pos = int(min(GRID_Y - 1, max(0, (cy - vby) / vbh * GRID_Y))) * GRID_X + \
+            int(min(GRID_X - 1, max(0, (cx - vbx) / vbw * GRID_X)))
+        first[rgb] = min(first.get(rgb, 10 ** 9), pos)
+    return weights, first, grid, flag_area
+
+
+def rank_colours(weights, first, area):
+    """names ordered by weight, near-equal weights ordered hoist->fly / top->bottom."""
+    named, pos = {}, {}
+    for rgb, w in weights.items():
+        n = colour_name(rgb)
+        named[n] = named.get(n, 0.0) + w
+        pos[n] = min(pos.get(n, 10 ** 9), first.get(rgb, 10 ** 9))
+    ordered = sorted(named.items(), key=lambda kv: -kv[1])
+    out, group = [], []
+    for name, w in ordered:
+        if group and group[0][1] <= w * 1.28:
+            group.append((name, w))
+        else:
+            out.extend(sorted(group, key=lambda t: pos[t[0]]))
+            group = [(name, w)]
+    out.extend(sorted(group, key=lambda t: pos[t[0]]))
+    keep = [n for n, w in out if w >= 0.02 * area][:5]
+    if len(keep) < 2:
+        keep = [n for n, _ in out[:2]]
+    return keep
 
 
 def bands(grid, axis):
-    """axis 'h': runs down a column. 'v': runs across a row. Sampled twice, must agree."""
-    NY = len(grid); NX = len(grid[0])
+    NY, NX = len(grid), len(grid[0])
     if axis == "h":
-        lines = [[grid[j][int(NX * 0.08)] for j in range(NY)],
-                 [grid[j][int(NX * 0.92)] for j in range(NY)]]
+        lines = [[grid[j][int(NX * f)] for j in range(NY)] for f in (0.45, 0.9)]
     else:
-        lines = [[grid[int(NY * 0.08)][i] for i in range(NX)],
-                 [grid[int(NY * 0.92)][i] for i in range(NX)]]
+        lines = [[grid[int(NY * f)][i] for i in range(NX)] for f in (0.45, 0.9)]
     runs = []
     for line in lines:
         r = []
@@ -754,21 +825,17 @@ def bands(grid, axis):
             else:
                 r.append([v, 1])
         runs.append([(v, n / float(len(line))) for v, n in r])
-    if runs[0] != runs[1]:
-        return None
-    return runs[0]
+    return runs[0] if runs[0] == runs[1] else None
 
 
 def structure(grid):
-    """-> set of {'ht','vt','bi'} that the geometry actually supports."""
     out = set()
-    h, v = bands(grid, "h"), bands(grid, "v")
-    for key, b in (("ht", h), ("vt", v)):
+    for key, b in (("ht", bands(grid, "h")), ("vt", bands(grid, "v"))):
         if not b or any(c is None for c, _ in b):
             continue
-        if len(b) == 3 and len({c for c, _ in b}) == 3 and all(0.2 <= f <= 0.46 for _, f in b):
+        if len(b) == 3 and len({c for c, _ in b}) == 3 and all(f >= 0.15 for _, f in b):
             out.add(key)
-        if len(b) == 2 and len({c for c, _ in b}) == 2 and all(0.3 <= f <= 0.7 for _, f in b):
+        if len(b) == 2 and len({c for c, _ in b}) == 2 and all(f >= 0.25 for _, f in b):
             out.add("bi")
     return out
 
@@ -777,30 +844,25 @@ def structure(grid):
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     codes = sorted(f[:-4] for f in os.listdir(RAW) if f.endswith(".svg"))
-    index, problems, mismatch, total = {}, [], [], 0
-    spot = {}
+    index, problems, mismatch, noted, total, rawtotal = {}, [], [], [], 0, 0
+    decs, drifts = {}, []
     for code in codes:
         raw = open(os.path.join(RAW, code + ".svg"), "r", encoding="utf-8").read()
-        doc, vbinfo, warn = minify(code, raw)
+        doc, vbinfo, warn, info = minify(code, raw)
         if doc is None:
             problems.append((code, "; ".join(warn)))
             continue
         vbw, vbh, vbx, vby = vbinfo
+        decs[code] = info["dec"]
+        if info["tol"]:
+            drifts.append(info["drift"] / info["tol"])
         try:
-            weights, grid, area = measure(doc, vbw, vbh, vbx, vby)
+            weights, first, grid, area = measure(doc, vbw, vbh, vbx, vby)
         except Exception as e:
             problems.append((code, "measure failed: %s" % e))
-            weights, grid, area = {}, [[None]], vbw * vbh
-        # colour names, ordered by measured prominence
-        named = {}
-        for rgb, w in weights.items():
-            n = colour_name(rgb)
-            named[n] = named.get(n, 0.0) + w
-        order = sorted(named.items(), key=lambda kv: -kv[1])
-        colours = [n for n, w in order if w >= 0.02 * area][:5]
-        if len(colours) < 2:
-            colours = [n for n, _ in order[:2]]
-        # features
+            weights, first, grid, area = {}, {}, [[None]], vbw * vbh
+        colours = rank_colours(weights, first, area)
+
         tags = []
         for sh in (FEAT.get(code, "") or "").split():
             if sh not in SH:
@@ -813,70 +875,65 @@ def main():
         for t in tags:
             if t not in seen:
                 seen.add(t); feats.append(t)
-        # cross-check stripe claims against geometry
-        st = structure(grid)
-        claimed = {t for t in ("horizontal-tricolour", "vertical-tricolour", "bicolour") if t in feats}
-        cmap = {"horizontal-tricolour": "ht", "vertical-tricolour": "vt", "bicolour": "bi"}
-        for c in claimed:
-            if cmap[c] not in st:
-                mismatch.append("%s claims %s, geometry says %s" % (code, c, sorted(st) or "none"))
-        for k, name in (("ht", "horizontal-tricolour"), ("vt", "vertical-tricolour")):
-            if k in st and name not in feats and "bicolour" not in feats:
-                mismatch.append("%s geometry shows %s, table omits it" % (code, name))
 
-        path = os.path.join(OUT_DIR, code + ".svg")
-        with open(path, "w", encoding="utf-8") as f:
+        st = structure(grid)
+        cmap = {"horizontal-tricolour": "ht", "vertical-tricolour": "vt", "bicolour": "bi"}
+        for c, k in cmap.items():
+            if c in feats and k not in st:
+                (noted if code in REVIEWED else mismatch).append(
+                    "%s claims %s, sampler sees %s%s" % (code, c, sorted(st) or "no clean bands",
+                                                         " — " + REVIEWED[code] if code in REVIEWED else ""))
+            if k in st and c not in feats and not (k == "bi" and {"ht", "vt"} & {cmap[f] for f in feats if f in cmap}):
+                (noted if code in REVIEWED else mismatch).append(
+                    "%s sampler sees %s, table omits it" % (code, c))
+
+        with open(os.path.join(OUT_DIR, code + ".svg"), "w", encoding="utf-8") as f:
             f.write(doc)
         nbytes = len(doc.encode("utf-8"))
         total += nbytes
-        ar = round(vbw / vbh, 4)
-        index[code] = {"file": code + ".svg", "ar": ar, "bytes": nbytes,
+        rawtotal += len(raw.encode("utf-8"))
+        index[code] = {"file": code + ".svg", "ar": round(vbw / vbh, 4), "bytes": nbytes,
                        "hard": 1 if nbytes > HARD_BYTES else 0,
                        "colours": colours, "features": feats}
         if warn:
             problems.append((code, "; ".join(warn)))
-        spot[code] = (len(raw), nbytes, ar)
 
-    # ── write flags.js ──
-    lines = []
-    for code in sorted(index):
-        lines.append('  "%s": %s' % (code, json.dumps(index[code], sort_keys=False, separators=(",", ":"))))
-    payload = "{\n" + ",\n".join(lines) + "\n}"
+    lines = ['  "%s": %s' % (c, json.dumps(index[c], separators=(",", ":"))) for c in sorted(index)]
     js = (
         "// core/data/flags.js — flag index for MIDNIGHT ARCADE.\n"
         "// Source: flagcdn.com SVG flags (public domain), one file per ISO 3166-1 alpha-2\n"
-        "// code taken from _build/countries-full.json (mledoze/countries).\n"
+        "// code listed in _build/countries-full.json (mledoze/countries).\n"
         "// Generated by _build/fetch_flags.py + _build/gen_flags.py — do not hand-edit.\n"
-        "// Per country: file (inside core/data/flags/), ar = viewBox aspect ratio (w/h),\n"
-        "// bytes = minified SVG size, hard = 1 when the file is >40 KB (busy seal/emblem\n"
-        "// whose detail is lost when scaled small), colours = dominant colour names\n"
+        "// Per country: file (lives in core/data/flags/), ar = viewBox aspect ratio (w/h),\n"
+        "// bytes = minified SVG size, hard = 1 when the file is over 40 KB (a busy seal or\n"
+        "// emblem whose detail is lost at small sizes), colours = dominant colour names\n"
         "// measured from the SVG paint stack, most prominent first, features = curated\n"
         "// design tags. Feature vocabulary: horizontal-tricolour, vertical-tricolour,\n"
         "// tricolour, bicolour, cross, saltire, canton, crescent, star, stars, sun,\n"
         "// emblem, coat-of-arms, animal, plant, text, triangle, chevron, diagonal,\n"
-        "// bordered, unique-shape. Tags are deliberately incomplete where a reading is\n"
-        "// arguable — an absent tag never means \"definitely not\".\n"
-        "// Each SVG has its ids namespaced and its <style> rules scoped to the root id,\n"
-        "// so several flags can be inlined into one document safely.\n"
-        "window.AD_FLAGS = " + payload + ";\n"
+        "// bordered, unique-shape. Tags are deliberately incomplete where the reading is\n"
+        "// arguable — a missing tag never means \"definitely not\".\n"
+        "// Each SVG has its ids namespaced (XX-) and its <style> rules scoped to the root\n"
+        "// id (#fl-xx), so several flags can be inlined into one document safely.\n"
+        "window.AD_FLAGS = {\n" + ",\n".join(lines) + "\n};\n"
     )
     with open(OUT_JS, "w", encoding="utf-8") as f:
         f.write(js)
 
-    # ── self check ──
-    print("=" * 74)
-    print("flags written : %d" % len(index))
+    # ───────────────────────────────────────────────────────────── self check ──
+    print("=" * 78)
+    print("flags written : %d / %d codes" % (len(index), len(codes)))
     print("flags.js      : %d bytes" % len(js.encode("utf-8")))
-    print("svg total     : %.1f KB (avg %.1f KB)" % (total / 1024.0, total / 1024.0 / max(1, len(index))))
+    print("svg total     : %.1f KB (raw %.1f KB -> %.1f%%), avg %.1f KB"
+          % (total / 1024.0, rawtotal / 1024.0, 100.0 * total / rawtotal, total / 1024.0 / max(1, len(index))))
     big = sorted(index.items(), key=lambda kv: -kv[1]["bytes"])[:10]
-    print("10 largest    : " + ", ".join("%s %.1fKB" % (c, d["bytes"] / 1024.0) for c, d in big))
-    print("hard=1 (>40KB): %d -> %s" % (sum(1 for d in index.values() if d["hard"]),
-                                        ",".join(sorted(c for c, d in index.items() if d["hard"]))))
-    over300 = [c for c, d in index.items() if d["bytes"] > 300 * 1024]
-    print("over 300KB    : %s" % (over300 or "none"))
-    shrink = [(spot[c][1] / float(spot[c][0])) for c in spot if spot[c][0]]
-    print("minify ratio  : mean %.1f%% of raw" % (100.0 * sum(shrink) / len(shrink)))
-    # xml parse + non-empty check on the written files
+    print("10 largest    : " + ", ".join("%s %.0fKB" % (c, d["bytes"] / 1024.0) for c, d in big))
+    hard = sorted(c for c, d in index.items() if d["hard"])
+    print("hard=1 (>40KB): %d -> %s" % (len(hard), ",".join(hard)))
+    print("over 300KB    : %s" % ([c for c, d in index.items() if d["bytes"] > 300 * 1024] or "none"))
+    print("precision     : dec histogram %s, worst drift %.1f%% of tolerance"
+          % (sorted({d: list(decs.values()).count(d) for d in set(decs.values())}.items()),
+             100.0 * max(drifts or [0])))
     bad = []
     for c in sorted(index):
         p = os.path.join(OUT_DIR, c + ".svg")
@@ -884,35 +941,46 @@ def main():
             if os.path.getsize(p) < 40:
                 bad.append(c + ":tiny")
             r = ET.parse(p).getroot()
-            if not r.tag.endswith("svg") or not r.get("viewBox"):
+            if not r.tag.endswith("svg") or not r.get("viewBox") or r.get("width") or r.get("height"):
                 bad.append(c + ":root")
         except Exception as e:
             bad.append("%s:%s" % (c, e))
     print("xml re-parse  : %d/%d ok%s" % (len(index) - len(bad), len(index),
                                           "" if not bad else "  BAD: " + ",".join(bad)))
-    dirbytes = sum(os.path.getsize(os.path.join(OUT_DIR, f)) for f in os.listdir(OUT_DIR))
-    print("flags/ dir    : %d files, %.1f KB" % (len(os.listdir(OUT_DIR)), dirbytes / 1024.0))
+    files = os.listdir(OUT_DIR)
+    print("flags/ dir    : %d files, %.1f KB"
+          % (len(files), sum(os.path.getsize(os.path.join(OUT_DIR, f)) for f in files) / 1024.0))
     print("no features   : %s" % ",".join(sorted(c for c, d in index.items() if not d["features"])))
+    print("colour counts : %s" % sorted(
+        {n: sum(1 for d in index.values() if n in d["colours"]) for d in index.values()
+         for n in d["colours"]}.items(), key=lambda kv: -kv[1]))
+    print("feature counts: %s" % sorted(
+        {n: sum(1 for d in index.values() if n in d["features"]) for d in index.values()
+         for n in d["features"]}.items(), key=lambda kv: -kv[1]))
     print("spot checks   :")
-    for c in ("IR", "GB", "US", "NP", "CH", "VA", "FR", "JP", "BR", "MX", "ZA", "TJ"):
+    for c in ("IR", "GB", "US", "NP", "CH", "VA", "FR", "JP", "BR", "MX", "ZA", "TJ", "GM", "KE"):
         if c in index:
             d = index[c]
-            print("   %-3s ar=%-7s %-6s colours=%-42s features=%s"
+            print("   %-3s ar=%-7s %7s  %-38s %s"
                   % (c, d["ar"], "%.1fKB" % (d["bytes"] / 1024.0),
                      ",".join(d["colours"]), ",".join(d["features"])))
+    if noted:
+        print("stripe cross-check, reviewed exceptions (%d):" % len(noted))
+        for m in noted:
+            print("   . " + m)
     if mismatch:
-        print("stripe cross-check mismatches (%d):" % len(mismatch))
+        print("stripe cross-check, UNRESOLVED (%d):" % len(mismatch))
         for m in mismatch:
             print("   ! " + m)
     else:
-        print("stripe cross-check: all claims agree with geometry")
+        print("stripe cross-check: no unresolved disagreements")
     if problems:
         print("problems (%d):" % len(problems))
         for c, w in problems:
             print("   ? %s: %s" % (c, w))
     else:
         print("problems: none")
-    print("=" * 74)
+    print("=" * 78)
     return 0
 
 
