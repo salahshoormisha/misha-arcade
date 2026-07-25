@@ -283,7 +283,7 @@ doEndTurn = function(){
   if(G.over || G.pending) return;
   if(CO.isGuest()){ CO.act('end'); toast('Waiting for the others…'); return; }
   UI.targeting=null; sfx('turn');
-  endTurnSeat(R.active); paint(); saveRun(true); CO.push();
+  endTurn(); paint(); saveRun(true); CO.push();   // endTurn() has the solo fallback; never call endTurnSeat(R.active) raw
   if(G.over) setTimeout(combatOver, 620);
 };
 

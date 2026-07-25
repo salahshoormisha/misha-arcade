@@ -306,3 +306,42 @@ window.__uiplay = async function(maxNodes){
   }
   return {errs, log, screen:UI.screen, trial:R?R.trial:'-', hp:R?R.hp:'-', deck:R?R.deck.length:'-'};
 };
+
+/* ═══════════ THE BUTTON TEST ═══════════
+   MISHANAMEH v2 shipped with a dead END TURN button in solo: the ui2 override
+   called endTurnSeat(R.active) and R.active was undefined outside co-op, so
+   every solo fight froze the moment you ran out of Energy. 300 fuzzed combats
+   passed, because the fuzzer called endTurnSeat(0) itself and never touched a
+   button. Anything a player's finger can reach has to be tested through the
+   thing their finger reaches. */
+window.__buttons = function(){
+  const errs = [];
+  const ok = (cond, msg)=>{ if(!cond) errs.push(msg); };
+
+  for(const hero of ALLHEROES()){
+    newRun(hero, 1);
+    startCombat('normal', ['jackal']);
+    ok(R.active === 0, hero+': R.active is '+R.active+', must be 0 in solo');
+    ok(G.seats.length === 1, hero+': solo combat has '+G.seats.length+' seats');
+
+    // the real end-of-turn path, exactly as the button and the E key call it
+    const t0 = G.turn;
+    doEndTurn();
+    ok(G.turn > t0, hero+': doEndTurn() did not advance the turn (dead button)');
+    ok(G.seats[0].ended === false, hero+': seat still flagged ended after the round rolled over');
+  }
+
+  // and again with a party, so the co-op path cannot regress either
+  newCoopRun([{hero:'rostam',name:'A'},{hero:'gord',name:'B'}], 1);
+  startCombat('normal', ['jackal']);
+  const t1 = G.turn;
+  doEndTurn();                                   // seat 0 only
+  ok(G.turn === t1, 'co-op: one seat ending rolled the whole round over');
+  ok(G.seats[0].ended === true, 'co-op: seat 0 did not register as ended');
+  activate(1); doEndTurn();
+  ok(G.turn > t1, 'co-op: round did not roll over once every seat had ended');
+
+  console.log(errs.length ? '✗ '+errs.length+' button problems' : '✓ buttons live');
+  errs.forEach(e=>console.warn('  '+e));
+  return errs;
+};

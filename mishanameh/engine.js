@@ -39,7 +39,8 @@ function newRun(heroId, khan){
   RNG = mulberry32((Date.now()^(Math.random()*1e9))>>>0);
   const H = HEROES[heroId];
   R = {
-    hero:heroId, khan:khan||1,
+    hero:heroId, khan:khan||1, active:0,   // seat index — 0 in solo, so every seat-aware
+                                           // call site is safe whether or not R.party exists
     hp:H.hp, maxHp:H.hp, gold:120,
     deck: STARTERS[heroId].map(id=>inst(id)),
     talismans:[], trial:0, step:0, map:[], cleared:0,
@@ -513,6 +514,7 @@ function playerTurnStart(first){
 
 function endTurnSeat(ix){
   if(G.over || G.pending) return;
+  if(ix == null) ix = (R && R.active) || 0;   // never index G.seats with undefined
   const seat = G.seats[ix];
   if(!seat || seat.ended || seat.down) return;
 
