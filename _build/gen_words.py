@@ -229,8 +229,19 @@ ATTEST_SUB = 30000                               # ...or it is spoken often enou
 
 
 def is_name(w):
-    """Proper-noun screen -- only bites words that are NOT web2 headwords."""
-    return w not in WEB2 and (w in NAMES or w in PROPER)
+    """Proper-noun screen.  Never bites a web2 headword or a curated word (MARK,
+    BILL, FRANK, BROWN and RUGBY are words), and does bite the plural of a
+    proper noun (AFRICANS, GERMANS), which the frequency route would otherwise
+    wave through."""
+    if w in WEB2 or w in CURATED:
+        return False
+    if w in NAMES or w in PROPER:
+        return True
+    if w.endswith('s') and (w[:-1] in NAMES or w[:-1] in PROPER):
+        return True
+    if w.endswith('es') and (w[:-2] in NAMES or w[:-2] in PROPER):
+        return True
+    return False
 
 
 def attested(w):
@@ -547,8 +558,11 @@ COMMON5 = [w for w in sorted(ANSWERS5, key=sortkey) if freq(w) > 0][:300]
 #    The list is FREQUENCY-ORDERED, commonest first: the game validates against
 #    the whole list but can take a prefix when it wants an elegant two-word
 #    solution to show the player.
+#    The floors fall with length (long words are rarer but are what the game is
+#    played with) and then rise again at 11-12: a word that long has to cover
+#    almost the whole board, so it is nearly unplayable and not worth the bytes.
 BOXED_FLOOR = {3: 3.0e6, 4: 3.0e6, 5: 2.5e6, 6: 2.0e6, 7: 1.6e6,
-               8: 1.2e6, 9: 9.0e5, 10: 7.0e5, 11: 6.0e5, 12: 5.0e5}
+               8: 1.2e6, 9: 9.0e5, 10: 1.3e6, 11: 2.2e6, 12: 2.2e6}
 
 
 def has_double(w):

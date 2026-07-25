@@ -720,4 +720,549 @@ DISHES = [
           "there to cut a very heavy pot of pork and beans.",
           wiki="Feijoada"),
     ]),
+
+    # ══ FRANCE ════════════════════════════════════════════════════════════
+    ("FR", [
+        d("Cassoulet",
+          "A slow-baked casserole of white beans with preserved duck leg, pork and "
+          "garlic sausage, its browned crust broken back down into the pot as it cooks.",
+          "Toulouse, Castelnaudary and Carcassonne each claim the original recipe; the "
+          "crust is supposed to be pushed under seven times.",
+          wiki="Cassoulet"),
+        d("Bouillabaisse",
+          "A fishermen's stew of several kinds of bony rockfish poached in a saffron and "
+          "fennel broth, served with a rust-coloured garlic mayonnaise on toast.",
+          "Marseille's harbour dish, built from the ugly rockfish nobody would buy; a "
+          "1980s charter set out which species may legitimately go in.",
+          wiki="Bouillabaisse"),
+        d("Coq au vin",
+          "An old bird jointed and braised in red wine with salt pork, button mushrooms "
+          "and small onions, the sauce finished with blood or liver.",
+          "Burgundy's way with a bird too tough to roast; the long soak in wine is what "
+          "makes it tender.",
+          wiki="Coq au vin"),
+        d("Ratatouille",
+          "Aubergine, courgette, sweet pepper, tomato and onion cooked separately in "
+          "olive oil with thyme and bay, then brought together and stewed down.",
+          "A Nicoise summer dish; cooking each vegetable apart is what stops it "
+          "collapsing into a single mush.",
+          wiki="Ratatouille"),
+        d("Tarte Tatin",
+          "An upside-down tart in which apples caramelise in butter and sugar under a "
+          "pastry lid, then are turned out fruit-side up.",
+          "Named for two sisters running a hotel near Orleans, who supposedly rescued a "
+          "tart they had started to make the wrong way round.",
+          wiki="Tarte Tatin"),
+    ]),
+
+    # ══ SPAIN ═════════════════════════════════════════════════════════════
+    ("ES", [
+        d("Fabada",
+          "A heavy stew of large flat white beans with blood sausage, smoked paprika "
+          "sausage and cured pork shoulder, simmered until the broth turns orange.",
+          "Asturias in a pot: the beans are a specific local variety, and the three "
+          "cured meats are known collectively as the compango.",
+          wiki="Fabada asturiana"),
+        d("Salmorejo",
+          "A thick, cold, orange cream of raw tomato and bread emulsified with olive oil "
+          "and garlic, topped with chopped boiled egg and cured ham.",
+          "Cordoba's answer to the thinner cold soups of the same region -- more bread, "
+          "more oil, thick enough to eat with a spoon.",
+          wiki="Salmorejo"),
+        d("Pulpo a la gallega",
+          "Octopus boiled in a copper pot, snipped into coins over sliced potato and "
+          "finished with coarse salt, sweet paprika and a flood of olive oil.",
+          "Galicia's fair-day dish, cooked in copper by travelling pulpeiras and served "
+          "on a wooden plate with a toothpick.",
+          wiki="Polbo á feira", wikias="Polbo á feira"),
+        d("Tortilla de patatas",
+          "A thick set omelette of egg with potato and onion poached soft in olive oil, "
+          "flipped in the pan and cut into wedges, eaten warm or cold.",
+          "The one dish in every bar in the country; whether onion belongs in it is a "
+          "genuinely divisive national argument.",
+          wiki="Spanish omelette", wikias="Spanish omelette"),
+        d("Gazpacho",
+          "A cold raw soup of blended tomato, cucumber, pepper, garlic, bread, vinegar "
+          "and olive oil, often drunk from a glass.",
+          "Andalusian field food that predates tomatoes -- it was bread, oil, vinegar "
+          "and garlic long before the New World arrived.",
+          wiki="Gazpacho"),
+        d("Paella valenciana",
+          "Short-grain rice cooked flat and uncovered in a wide shallow pan with "
+          "saffron, rabbit, chicken and flat green beans until a toasted crust forms "
+          "underneath.",
+          "A field lunch from the rice paddies around the Albufera lagoon; the crust "
+          "stuck to the pan, the socarrat, is the prize.",
+          wiki="Paella"),
+    ]),
+
+    # ══ PORTUGAL ══════════════════════════════════════════════════════════
+    ("PT", [
+        d("Bacalhau à Brás",
+          "Salt cod soaked back to life and shredded, tossed with matchstick fried "
+          "potatoes and softened onion, then bound with beaten egg and scattered with "
+          "black olives.",
+          "One of a claimed several hundred ways with salt cod, the fish this country "
+          "has been drying and trading since the age of the cod banks.",
+          wiki="Bacalhau à Brás"),
+        d("Francesinha",
+          "A sandwich stacked with steak, sausage and ham, blanketed in melted cheese "
+          "and flooded with a hot beer-and-tomato sauce, with a fried egg and chips.",
+          "Invented in Porto in the 1950s by a returning emigrant trying to rebuild the "
+          "croque-monsieur he had eaten in France.",
+          wiki="Francesinha"),
+        d("Caldo verde",
+          "A soup of pureed potato and onion carrying paper-thin shreds of dark green "
+          "cabbage and a slice of smoked sausage, finished with olive oil.",
+          "From the Minho in the north and served at every festival and wedding; the "
+          "cabbage is sliced so finely it is almost thread.",
+          wiki="Caldo verde"),
+        d("Pastel de nata",
+          "A small cup of shatteringly flaky laminated pastry filled with cinnamon-"
+          "scented egg custard and blistered black on top in a ferociously hot oven.",
+          "Made by monks at the Jeronimos monastery in Belem before 1834, using the egg "
+          "yolks left over from starching habits with the whites.",
+          wiki="Pastel de nata"),
+    ]),
+
+    # ══ GERMANY ═══════════════════════════════════════════════════════════
+    ("DE", [
+        d("Königsberger Klopse",
+          "Poached veal meatballs in a pale sauce sharpened with capers and lemon, "
+          "served with boiled potatoes and beetroot.",
+          "Named for a city that is now Kaliningrad; the East refused the name for "
+          "decades and sold them as 'meatballs in caper sauce'.",
+          wiki="Königsberger Klopse"),
+        d("Maultaschen",
+          "Large pasta pockets stuffed with minced meat, spinach, breadcrumbs and "
+          "onion, either floated in clear broth or sliced and fried.",
+          "A Swabian speciality nicknamed 'God's little cheaters' -- monks are said to "
+          "have hidden meat inside the pasta during Lent.",
+          wiki="Maultasche"),
+        d("Sauerbraten",
+          "Beef marinated for days in vinegar and spices, then braised and served in a "
+          "sweet-sour gravy thickened with crushed spice biscuits and raisins.",
+          "The Rhineland version uses gingerbread in the sauce; the long acid soak was "
+          "originally a way of preserving the meat.",
+          wiki="Sauerbraten"),
+        d("Spätzle",
+          "Soft, irregular egg noodles scraped from a wet dough straight into boiling "
+          "water, then tossed in butter and often layered with grated cheese and fried "
+          "onion.",
+          "The staple starch of Swabia, protected as a regional speciality, and "
+          "traditionally scraped off a wooden board with a knife.",
+          wiki="Spätzle"),
+        d("Currywurst",
+          "A fried pork sausage cut into coins and buried under a spiced tomato sauce "
+          "dusted with curry powder, eaten from a paper tray with a tiny fork.",
+          "Invented in Berlin in 1949 by Herta Heuwer, who got the curry powder and "
+          "ketchup from British soldiers.",
+          wiki="Currywurst"),
+    ]),
+
+    # ══ AUSTRIA ═══════════════════════════════════════════════════════════
+    ("AT", [
+        d("Tafelspitz",
+          "Beef rump simmered slowly in broth with root vegetables and served in its "
+          "own soup, with an apple-horseradish sauce and a chive cream alongside.",
+          "The emperor Franz Joseph is said to have eaten it almost daily; the cut, the "
+          "broth and the two sauces are all fixed by tradition.",
+          wiki="Tafelspitz"),
+        d("Kaiserschmarrn",
+          "A thick sweet pancake torn into ragged pieces in the pan as it cooks, "
+          "caramelised with sugar and butter and served with plum compote.",
+          "A mountain-hut lunch as much as a dessert; the name means 'the emperor's "
+          "mess'.",
+          wiki="Kaiserschmarrn"),
+        d("Sachertorte",
+          "A dense, dryish chocolate sponge split and spread with apricot jam under a "
+          "hard glossy dark chocolate glaze, served with unsweetened whipped cream.",
+          "Created for Prince Metternich's kitchen in 1832; a hotel and a bakery fought "
+          "a seven-year court case over who could call theirs the original.",
+          wiki="Sachertorte"),
+        d("Wiener Schnitzel",
+          "A veal escalope beaten paper-thin, floured, egged and crumbed, then fried "
+          "in so much fat that the coating puffs away from the meat, served with lemon.",
+          "Legally the name applies only to veal; the pork version has to be sold under "
+          "a different name.",
+          wiki="Wiener schnitzel"),
+    ]),
+
+    # ══ SWITZERLAND ═══════════════════════════════════════════════════════
+    ("CH", [
+        d("Älplermagronen",
+          "Macaroni and diced potato boiled in the same pot, layered with melted "
+          "mountain cheese and fried onion, and eaten with stewed apple on the side.",
+          "Herders' food from the high summer pastures, using the four things a "
+          "mountain hut kept: pasta, potato, cheese and cream.",
+          wiki="Älplermagronen"),
+        d("Raclette",
+          "A half-wheel of cheese heated at the cut face and scraped molten onto boiled "
+          "potatoes, eaten with pickled onions and gherkins.",
+          "A Valais herders' supper; the name comes from the verb for scraping the "
+          "melted face off the wheel.",
+          wiki="Raclette"),
+        d("Rösti",
+          "Coarsely grated potato pressed into a pan and fried in butter until it sets "
+          "into one solid golden cake, crisp on both sides.",
+          "Originally a farmers' breakfast in Bern; the linguistic border between the "
+          "German- and French-speaking halves is nicknamed the rosti ditch.",
+          wiki="Rösti"),
+        d("Fondue",
+          "Two cheeses melted with white wine, garlic and a little starch in a communal "
+          "pot kept warm over a flame, for dipping cubes of stale bread on long forks.",
+          "Promoted hard by a cheese cartel in the 1930s and by the army, which is a "
+          "large part of why it became a national symbol.",
+          wiki="Fondue"),
+    ]),
+
+    # ══ BELGIUM ═══════════════════════════════════════════════════════════
+    ("BE", [
+        d("Waterzooi",
+          "A pale stew of chicken or freshwater fish with julienned root vegetables in "
+          "a broth enriched at the end with cream and egg yolk.",
+          "Ghent's dish; the fish version came first, and moved to chicken as the "
+          "river's fish stocks collapsed.",
+          wiki="Waterzooi"),
+        d("Carbonnade flamande",
+          "Beef braised slowly in dark ale with onions, a spoon of brown sugar and a "
+          "slice of mustard-spread bread stirred in at the end to thicken it.",
+          "The beer does what wine does further south, and the mustardy bread is the "
+          "traditional thickener instead of flour.",
+          wiki="Carbonade flamande"),
+        d("Gaufre de Liège",
+          "A dense, chewy yeasted waffle studded with pearl sugar that melts and "
+          "caramelises against the hot iron, eaten warm in the hand.",
+          "Heavier and sweeter than the light rectangular waffle from Brussels, and "
+          "sold from vans and street stands rather than plated.",
+          wiki="Liège waffle"),
+        d("Moules-frites",
+          "Mussels steamed open in a covered pot with celery, onion and white wine or "
+          "beer, tipped out with a cone of twice-fried potatoes.",
+          "Effectively the national dish; the chips are fried twice, in beef fat, which "
+          "is the whole argument for where they were invented.",
+          wiki="Moules-frites"),
+    ]),
+
+    # ══ NETHERLANDS ═══════════════════════════════════════════════════════
+    ("NL", [
+        d("Haring",
+          "Raw young herring cured briefly in light brine, served with chopped raw "
+          "onion and pickles and eaten from a stall by holding it up by the tail.",
+          "The first barrel of the new season's catch is auctioned for charity; the "
+          "enzymes in the fish's own pancreas do the curing.",
+          wiki="Soused herring", wikias="Soused herring"),
+        d("Stamppot",
+          "Potatoes mashed together with kale, endive or sauerkraut and served with a "
+          "smoked sausage laid on top and a well of gravy in the middle.",
+          "Winter food, and the reason a specific curly kale variety is grown here; it "
+          "is supposed to be picked after the first frost.",
+          wiki="Stamppot"),
+        d("Bitterballen",
+          "Crumbed, deep-fried spheres of a chilled beef ragout that turn molten inside, "
+          "eaten with mustard alongside a beer.",
+          "The standard bar snack, served in a basket with a small bowl of mustard; "
+          "biting one straight from the fryer is a rite of passage.",
+          wiki="Bitterballen"),
+        d("Stroopwafel",
+          "Two wafer-thin waffle discs sliced apart and glued back together with a "
+          "caramel syrup, meant to be warmed over the mouth of a hot drink.",
+          "Invented in Gouda around 1800 from bakery offcuts and syrup; the market "
+          "version is cut from a hot iron and filled while still soft.",
+          wiki="Stroopwafel"),
+    ]),
+
+    # ══ DENMARK ═══════════════════════════════════════════════════════════
+    ("DK", [
+        d("Stegt flæsk med persillesovs",
+          "Thick slices of pork belly fried until the fat crisps, served with boiled "
+          "potatoes and a white sauce heavy with chopped parsley.",
+          "Voted the national dish in a public poll in 2014, beating a long list of "
+          "more elegant candidates.",
+          wiki="Stegt flæsk"),
+        d("Rødgrød med fløde",
+          "A pudding of red summer berries cooked with sugar and thickened with starch "
+          "into a wobble, served cold under a pour of cream.",
+          "Its name is the classic pronunciation test for foreigners -- a string of "
+          "soft d's that almost nobody gets right.",
+          wiki="Rødgrød"),
+        d("Frikadeller",
+          "Flat pan-fried patties of minced pork and veal bound with egg, flour, milk "
+          "and grated onion, served with potatoes and pickled red cabbage.",
+          "Weeknight food, shaped with a spoon rather than by hand, and eaten cold on "
+          "rye bread the next day.",
+          wiki="Frikadeller"),
+        d("Smørrebrød",
+          "A single slice of dense sour rye bread buttered and built up with cured "
+          "fish or cold meat and an elaborate garnish, eaten with a knife and fork.",
+          "An open sandwich with rules: there is a correct order to eat them in, and "
+          "herring comes first.",
+          wiki="Smørrebrød"),
+    ]),
+
+    # ══ SWEDEN ════════════════════════════════════════════════════════════
+    ("SE", [
+        d("Surströmming",
+          "Baltic herring fermented in the tin until the can bulges, opened outdoors "
+          "and eaten in thin flatbread with almond potato and onion.",
+          "Fermented since at least the 16th century as a way of preserving fish with "
+          "very little salt, which was expensive and taxed.",
+          wiki="Surströmming"),
+        d("Toast Skagen",
+          "Chopped prawns folded through mayonnaise, dill and a little mustard, piled "
+          "on fried bread and topped with roe.",
+          "Invented by restaurateur Tore Wretman in the 1950s and named after a Danish "
+          "fishing port, which has never stopped anyone claiming it.",
+          wiki="Toast Skagen"),
+        d("Gravlax",
+          "Salmon buried for a couple of days in salt, sugar and dill, then sliced thin "
+          "and served with a sweet mustard-and-dill sauce.",
+          "The name means 'buried salmon' -- it really was buried in the sand above the "
+          "tideline to ferment before curing replaced that.",
+          wiki="Gravlax"),
+        d("Köttbullar",
+          "Small meatballs of minced pork and beef bound with milk-soaked breadcrumb "
+          "and grated onion, fried and served with cream gravy, potatoes and a tart "
+          "red berry jam.",
+          "King Charles XII is credited with bringing the idea back from Constantinople "
+          "in the 18th century; the lingonberry is non-negotiable.",
+          wiki="Köttbullar", wikias="Swedish meatball"),
+    ]),
+
+    # ══ NORWAY ════════════════════════════════════════════════════════════
+    ("NO", [
+        d("Lutefisk",
+          "Dried whitefish soaked in lye until it swells into a translucent jelly, then "
+          "rinsed for days, baked and served with bacon, peas and potato.",
+          "A Christmas dish of the Lutheran west coast; the lye has to be washed out "
+          "completely or the fish is inedible.",
+          wiki="Lutefisk"),
+        d("Lefse",
+          "A soft, very thin potato flatbread cooked on a dry griddle and rolled up "
+          "with butter, sugar and cinnamon.",
+          "Rolled with a grooved pin and turned with a flat stick; every valley has its "
+          "own thickness and sweetening.",
+          wiki="Lefse"),
+        d("Fårikål",
+          "Mutton on the bone layered with whole wedges of cabbage and black "
+          "peppercorns and simmered for hours with almost nothing else.",
+          "Has its own national day on the last Thursday in September, and four "
+          "ingredients that a 1970s campaign tried and failed to change.",
+          wiki="Fårikål"),
+        d("Brunost",
+          "A caramel-brown cheese made by boiling whey down until the milk sugars "
+          "caramelise, sliced paper-thin with a plane onto bread or waffles.",
+          "Not really a cheese at all but concentrated whey; a lorry-load of it once "
+          "burned for four days inside a tunnel.",
+          wiki="Brunost"),
+    ]),
+
+    # ══ FINLAND ═══════════════════════════════════════════════════════════
+    ("FI", [
+        d("Kalakukko",
+          "Small freshwater fish and fatty pork sealed inside a rye loaf and baked for "
+          "hours until the bones soften and the crust turns waterproof.",
+          "A Savonian dish from around Kuopio with protected status; the sealed rye "
+          "crust was the lunchbox before lunchboxes.",
+          wiki="Kalakukko"),
+        d("Leipäjuusto",
+          "A squeaky fresh curd cheese pressed into a flat disc and grilled until it is "
+          "brown-spotted, served warm with cloudberry jam.",
+          "Northern 'bread cheese', once made with the first milk after a cow calved; "
+          "it squeaks against the teeth.",
+          wiki="Leipäjuusto"),
+        d("Karjalanpiirakka",
+          "An open oval pastry with a thin rye crust crimped around a filling of rice "
+          "porridge, eaten spread with a mash of butter and chopped boiled egg.",
+          "From Karelia, carried west by evacuees after the war; the butter-and-egg "
+          "spread on top is munavoi.",
+          wiki="Karelian pasty"),
+        d("Salmiakki",
+          "A hard black sweet flavoured with ammonium chloride, tasting salty and "
+          "sharply bitter rather than sugary.",
+          "A national addiction that flavours everything from ice cream to vodka, and "
+          "that almost no visitor enjoys on the first try.",
+          wiki="Salty liquorice", wikias="Salty liquorice"),
+    ]),
+
+    # ══ ICELAND ═══════════════════════════════════════════════════════════
+    ("IS", [
+        d("Hákarl",
+          "Shark buried and pressed for weeks and then hung to dry for months until the "
+          "ammonia in its flesh mellows, cut into cubes and eaten with a shot of "
+          "caraway spirit.",
+          "The shark is poisonous fresh -- it has no kidneys and excretes through its "
+          "skin -- so fermenting it was the only way to eat it.",
+          wiki="Hákarl"),
+        d("Plokkfiskur",
+          "Boiled white fish flaked into mashed potato with onion and a white sauce, "
+          "browned in the oven and eaten with dark rye bread and butter.",
+          "Leftovers food that became a canteen staple; the rye bread it is eaten with "
+          "is steam-baked in the ground near hot springs.",
+          wiki="Plokkfiskur"),
+        d("Skyr",
+          "A very thick, almost fat-free strained fresh cheese set with rennet and "
+          "eaten like a yoghurt with milk and berries.",
+          "Made here since settlement over a thousand years ago; technically a cheese, "
+          "which is why it survived a dairy-free Viking sea voyage.",
+          wiki="Skyr"),
+        d("Pylsur",
+          "A hot dog of lamb, pork and beef in a small bun with both raw and crisp "
+          "fried onion, ketchup, a sweet brown mustard and a creamy remoulade.",
+          "The lamb is the giveaway; one stand in the capital has been selling them "
+          "since 1937 and is the closest thing to a national restaurant.",
+          wiki="Icelandic hot dog"),
+    ]),
+
+    # ══ IRELAND ═══════════════════════════════════════════════════════════
+    ("IE", [
+        d("Coddle",
+          "Sausages and rashers of bacon layered with sliced potato and onion and "
+          "simmered slowly in stock until everything is pale and soft.",
+          "A Dublin dish built to use up whatever was left before the Friday fast; "
+          "browning the meat first is considered cheating.",
+          wiki="Coddle"),
+        d("Boxty",
+          "A potato pancake made with both grated raw and mashed cooked potato bound "
+          "with flour and buttermilk, fried on a griddle.",
+          "From the northern midlands, with its own rhyme: if you can't make boxty you "
+          "will never get a man.",
+          wiki="Boxty"),
+        d("Colcannon",
+          "Mashed potato beaten with butter and milk and shot through with finely "
+          "shredded cooked kale or cabbage, with a well of melted butter in the middle.",
+          "Eaten at Halloween with charms hidden inside -- a ring for marriage, a coin "
+          "for wealth.",
+          wiki="Colcannon"),
+        d("Soda bread",
+          "A dense round loaf raised with bicarbonate of soda and buttermilk instead of "
+          "yeast, scored with a deep cross before it goes into the oven.",
+          "The soft local wheat will not make a good yeasted loaf, which is why "
+          "chemical raising took hold here in the 1830s.",
+          wiki="Soda bread"),
+        d("Irish stew",
+          "Mutton or lamb on the bone layered with potato and onion and simmered in "
+          "water until the top layer of potato breaks down and thickens it.",
+          "Carrots and barley are late arrivals and still contested; the original was "
+          "mutton, potato, onion and water, and nothing else.",
+          wiki="Irish stew"),
+    ]),
+
+    # ══ POLAND ════════════════════════════════════════════════════════════
+    ("PL", [
+        d("Żurek",
+          "A sour soup based on a fermented rye-flour starter, with white sausage, "
+          "boiled egg and marjoram, sometimes served inside a hollowed loaf.",
+          "The Easter breakfast soup; the sour starter is left to ferment for days and "
+          "sold in bottles in every shop before the holiday.",
+          wiki="Żurek"),
+        d("Bigos",
+          "Sauerkraut and fresh cabbage stewed for days with several meats, dried wild "
+          "mushrooms and prunes, improving each time it is cooled and reheated.",
+          "The hunter's stew of the old nobility, taken on hunts in a barrel and "
+          "reheated over a fire; it is supposed to be better on day three.",
+          wiki="Bigos"),
+        d("Gołąbki",
+          "Blanched cabbage leaves rolled around minced meat and rice into parcels and "
+          "baked under a tomato or mushroom sauce.",
+          "The name means 'little pigeons', and the parcels turn up right across the "
+          "region -- but this is where they are a Sunday centrepiece.",
+          mdb="Braised stuffed cabbage"),
+        d("Pierogi",
+          "Half-moon dumplings of soft dough filled with curd cheese and potato, or "
+          "mushroom and sauerkraut, boiled and then fried in butter with onion.",
+          "The cheese-and-potato filling is called ruskie, which refers to a historic "
+          "region and not to Russia.",
+          wiki="Pierogi"),
+    ]),
+
+    # ══ CZECHIA ═══════════════════════════════════════════════════════════
+    ("CZ", [
+        d("Kulajda",
+          "A creamy dill and wild mushroom soup soured with vinegar, with diced potato "
+          "and a poached egg floating in it.",
+          "A Bohemian country soup; the combination of dill, sour cream and vinegar is "
+          "the local flavour signature.",
+          wiki="Kulajda"),
+        d("Svíčková",
+          "Larded beef sirloin roasted and served in a smooth sauce of pureed root "
+          "vegetables and cream, with sliced bread dumplings, cranberry and lemon.",
+          "The Sunday dish, and the reason a whole genre of bread dumplings exists to "
+          "mop up the sauce.",
+          wiki="Svíčková"),
+        d("Smažený sýr",
+          "A thick slab of semi-hard cheese breaded and deep-fried until it just starts "
+          "to run, served with tartare sauce and chips.",
+          "Communist-era pub food that never left; sold from hatches and eaten in a "
+          "bread roll.",
+          wiki="Smažený sýr"),
+        d("Vepřo knedlo zelo",
+          "Roast pork with slices of steamed bread dumpling cut off a log with thread, "
+          "and stewed cabbage on the side.",
+          "The three-word national dish -- pork, dumpling, cabbage -- and the standard "
+          "measure of a pub kitchen.",
+          wiki="Vepřo knedlo zelo"),
+    ]),
+
+    # ══ HUNGARY ═══════════════════════════════════════════════════════════
+    ("HU", [
+        d("Halászlé",
+          "A fiery river-fish soup coloured deep red with sweet ground pepper, cooked "
+          "in a kettle hung over an open fire.",
+          "A fishermen's soup of the Danube and Tisza; Szeged strains it and Baja "
+          "serves it over noodles, and the two do not agree.",
+          wiki="Fisherman's soup", wikias="Fisherman's soup"),
+        d("Lecsó",
+          "Sliced sweet yellow peppers and tomato cooked down slowly in lard with onion "
+          "and ground red pepper, often with sausage or a beaten egg stirred in.",
+          "Late-summer food made when the pepper glut arrives, and preserved in jars "
+          "for winter.",
+          wiki="Lecsó"),
+        d("Dobos torte",
+          "A cake of five thin sponge layers with chocolate buttercream, capped with a "
+          "disc of hard caramel scored into wedges.",
+          "Created by Jozsef Dobos in 1885; the caramel top was there to stop the cake "
+          "drying out before refrigeration existed.",
+          wiki="Dobos torte"),
+        d("Gulyás",
+          "A soup of beef and potato in a thin broth loaded with sweet ground red "
+          "pepper, caraway and onion, cooked in a kettle over a fire.",
+          "A herdsmen's soup -- the word means 'cowherd' -- and abroad it got thickened "
+          "into a stew it never was at home.",
+          wiki="Goulash"),
+    ]),
+
+    # ══ GREECE ════════════════════════════════════════════════════════════
+    ("GR", [
+        d("Fasolada",
+          "A soup-stew of white beans with carrot, celery and tomato and a very large "
+          "quantity of olive oil, eaten with olives and bread.",
+          "Often called the real national dish rather than the restaurant ones -- "
+          "cheap, meatless and eaten through the Orthodox fasts.",
+          wiki="Fasolada"),
+        d("Pastitsio",
+          "Long tubular pasta layered with minced meat spiced with cinnamon and clove, "
+          "under a thick baked white sauce.",
+          "The cinnamon in the meat is the tell; it comes from the same Ottoman-era "
+          "spicing as the aubergine bake it sits beside on every menu.",
+          wiki="Pastitsio"),
+        d("Spanakopita",
+          "Layers of paper-thin pastry brushed with oil around a filling of spinach, "
+          "wild greens, dill and salty white cheese, baked in a tray and cut in squares.",
+          "One of a whole family of savoury pies; the filling changes with whatever "
+          "greens are growing on the hillside.",
+          wiki="Spanakopita"),
+        d("Moussaka",
+          "Layers of fried aubergine and spiced minced lamb under a thick white sauce "
+          "that puffs and browns in the oven.",
+          "The custard-like top layer was added by Nikolaos Tselementes in the 1920s, "
+          "which is why older versions elsewhere in the region have none.",
+          wiki="Moussaka"),
+        d("Souvlaki",
+          "Small cubes of pork grilled on wooden skewers over coals and wrapped in "
+          "flatbread with tomato, onion, chips and a thick garlic-yoghurt sauce.",
+          "Skewered meat cooked exactly this way has been dug up here from the Bronze "
+          "Age -- portable clay firedogs and all.",
+          wiki="Souvlaki"),
+    ]),
 ]

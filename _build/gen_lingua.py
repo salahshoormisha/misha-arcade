@@ -1721,6 +1721,7 @@ def write_out(samples, meta):
         'samples': samples,
     }
     body = json.dumps(payload, ensure_ascii=False, indent=1, sort_keys=False)
+    body = body.replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w', encoding='utf-8') as f:
         f.write(HEADER)
@@ -1773,7 +1774,11 @@ def main():
                 continue
             score, n, i, text = best
             article_use[n] = article_use.get(n, 0) + 1
-            gloss = eng.get((n, i)) or ' '.join(eng_art.get(n, []))
+            # Translations do not always split an article into the same number of
+            # paragraphs as the English does. Only trust a paragraph-for-paragraph
+            # gloss when the counts agree; otherwise gloss the whole article.
+            same_shape = len(eng_art.get(n, [])) == sum(1 for (a2, _b, _c) in paras if a2 == n)
+            gloss = (eng.get((n, i)) if same_shape else None) or ' '.join(eng_art.get(n, []))
             if len(gloss) > 300:
                 gloss = gloss[:297].rsplit(' ', 1)[0] + '...'
             rec = dict(
