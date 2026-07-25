@@ -221,8 +221,8 @@ LANGS = [
             'silent hard sign — and has no infinitive verbs at all.',
             'The oldest literary Slavic tradition, in a Balkan country between the Danube and '
             'the Aegean; the definite article is stuck on the END of the noun.',
-            'Words like «България» aside, the tell is a Slavic language with Balkan grammar: '
-            'no cases, postposed articles, and «да» where others use "to".',
+            'The tell is a Slavic language with Balkan grammar: no noun cases at all, articles '
+            'stuck on the end, and «да» where the others would use an infinitive. Cyrillic began here.',
         ],
     ),
     dict(
@@ -263,8 +263,8 @@ LANGS = [
             'added to the Russian set. Look for ұ — a у with a bar through the stem.',
             'A Turkic language of the great central steppe, in the ninth-largest country on Earth, '
             'which is slowly switching this alphabet over to Latin.',
-            'Turkic vowel harmony written in Cyrillic, with қ and ғ for the deep back consonants — '
-            'this is the language of Astana and Almaty.',
+            'Turkic vowel harmony written in Cyrillic, with қ and ғ for the deep back consonants; '
+            'the state that writes it moved its capital 1,200 km north in 1997.',
         ],
     ),
     dict(
@@ -421,8 +421,8 @@ LANGS = [
             'the dotted i, so the capital of i is İ. That i/ı pair is the fingerprint.',
             'A Turkic language that switched from Arabic script to Latin in 1928 by decree, '
             'spoken astride the Bosphorus and on part of a divided island.',
-            'Vowel harmony plus suffix chains like -lerimizden, and the ubiquitous "ve" for "and": '
-            'the Oghuz language of Istanbul and Ankara.',
+            'Vowel harmony plus suffix chains like -lerimizden, and the ubiquitous "ve" for "and". '
+            'Its speakers straddle two continents at a strait, and drink çay out of tulip glasses.',
         ],
     ),
     dict(
@@ -435,8 +435,8 @@ LANGS = [
             'vowel quality and one for tone. Words are one syllable each, separated by spaces.',
             'The national language of a long, thin South-East Asian country that used Chinese '
             'characters for centuries before Portuguese and French missionaries romanised it.',
-            'Horned vowels ơ and ư plus a dot-below tone mark, and monosyllables everywhere — '
-            'this is Hanoi and Saigon.',
+            'Horned vowels ơ and ư plus a dot-below tone mark, and monosyllables everywhere. '
+            'Six tones, a lot of phở, and a script designed by a 17th-century Jesuit.',
         ],
     ),
     dict(
@@ -893,32 +893,49 @@ def load_countries():
     return json.loads(m.group(1))
 
 
+def country_terms(c):
+    out = []
+    for s in [c.get('n'), c.get('cap'), c.get('demo')] + list(c.get('alt') or []):
+        if s and len(s) >= 4:
+            out.append(s.lower())
+    return out
+
+
+# English common nouns that happen to be somebody's country name or alt spelling.
+# Keeping them would reject honest prose ("a North Atlantic island language").
+HOMOGRAPHS = {'island', 'islands', 'jersey', 'turkey', 'guinea', 'union', 'georgia'}
+
+
 def build_blocklist(countries):
     """Lowercased strings that must never appear in a sample."""
     bad = set()
     for c in countries:
-        for s in [c.get('n'), c.get('cap'), c.get('demo')] + list(c.get('alt') or []):
-            if s and len(s) >= 5:
-                bad.add(s.lower())
-    # a few short but unmistakable ones the >=5 filter drops
+        bad.update(country_terms(c))
     for s in ['iran', 'iraq', 'cuba', 'peru', 'chad', 'togo', 'laos', 'mali', 'oman',
               'fiji', 'chile', 'india', 'china', 'japan', 'korea', 'nepal']:
         bad.add(s)
-    # generic words that legitimately appear in the UDHR and are NOT giveaways
-    for s in ['georgia']:   # "Georgia" never appears, but guard the concept
-        bad.discard(s)
-    return bad
+    return bad - HOMOGRAPHS
 
 
 def has_blocked(text, blocklist, extra):
+    """First giveaway term found in `text`, or None.
+
+    `extra` (endonyms, non-Latin) is matched as a plain substring, because word
+    boundaries are meaningless in an unspaced or non-Latin script. The English
+    country list is matched on word boundaries so that "Romance" does not trip
+    over "Roman" and "woman" does not trip over "Oman".
+    """
     low = text.lower()
     for s in extra:
         if s and s.lower() in low:
             return s
-    # Only Latin-script text can collide with the English country names.
     if re.search(r'[A-Za-z]{4}', text):
+        words = set(re.findall(r"[a-zÀ-ɏ']+", low))
         for s in blocklist:
-            if s in low:
+            if ' ' in s or '-' in s:
+                if s in low:
+                    return s
+            elif s in words:
                 return s
     return None
 
@@ -1024,7 +1041,8 @@ def write_out(samples, meta):
 def main():
     import datetime
     countries = load_countries()
-    valid_iso = set(c['i'] for c in countries)
+    by_iso = dict((c['i'], c) for c in countries)
+    valid_iso = set(by_iso)
     blocklist = build_blocklist(countries)
 
     # English UDHR, for the glosses
@@ -1106,10 +1124,16 @@ def main():
             problems.append('%s: ISO2 not in countries.js: %s' % (e['key'], bad_iso))
         if len(e['hints']) != 3:
             problems.append('%s: %d hints, expected 3' % (e['key'], len(e['hints'])))
-        for h in e['hints'] + [rec['text']]:
-            hit = has_blocked(h, blocklist, list(e.get('avoid') or []) + [e['lang'].lower()])
-            if hit and h is not rec['text']:
-                problems.append('%s: hint names "%s"' % (e['key'], hit))
+        # A hint may name a NEIGHBOUR ("between Poland and a larger eastern
+        # neighbour") -- that is the game. It may never name the answer itself.
+        answer_terms = set()
+        for iso in e['countries']:
+            answer_terms.update(country_terms(by_iso[iso]) if iso in by_iso else [])
+        answer_terms -= HOMOGRAPHS
+        for hi, h in enumerate(e['hints']):
+            hit = has_blocked(h, answer_terms, list(e.get('avoid') or []))
+            if hit:
+                problems.append('%s: hint %d names the answer ("%s")' % (e['key'], hi + 1, hit))
 
         samples.append({
             'key': e['key'],

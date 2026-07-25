@@ -208,7 +208,7 @@ window.AD_LINGUA = {
    "hints": [
     "Cyrillic that uses ъ as a full vowel in the middle of ordinary words — not as a silent hard sign — and has no infinitive verbs at all.",
     "The oldest literary Slavic tradition, in a Balkan country between the Danube and the Aegean; the definite article is stuck on the END of the noun.",
-    "Words like «България» aside, the tell is a Slavic language with Balkan grammar: no cases, postposed articles, and «да» where others use \"to\"."
+    "The tell is a Slavic language with Balkan grammar: no noun cases at all, articles stuck on the end, and «да» where the others would use an infinitive. Cyrillic began here."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_bul.xml, Article 25 (para 2)"
   },
@@ -265,7 +265,7 @@ window.AD_LINGUA = {
    "hints": [
     "The most decorated Cyrillic alphabet in the world: ә ғ қ ң ө ұ ү һ і, nine letters added to the Russian set. Look for ұ — a у with a bar through the stem.",
     "A Turkic language of the great central steppe, in the ninth-largest country on Earth, which is slowly switching this alphabet over to Latin.",
-    "Turkic vowel harmony written in Cyrillic, with қ and ғ for the deep back consonants — this is the language of Astana and Almaty."
+    "Turkic vowel harmony written in Cyrillic, with қ and ғ for the deep back consonants; the state that writes it moved its capital 1,200 km north in 1997."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_kaz.xml, Article 13"
   },
@@ -477,7 +477,7 @@ window.AD_LINGUA = {
    "hints": [
     "Latin with a soft g that has a breve — ğ — and, crucially, a dotless ı alongside the dotted i, so the capital of i is İ. That i/ı pair is the fingerprint.",
     "A Turkic language that switched from Arabic script to Latin in 1928 by decree, spoken astride the Bosphorus and on part of a divided island.",
-    "Vowel harmony plus suffix chains like -lerimizden, and the ubiquitous \"ve\" for \"and\": the Oghuz language of Istanbul and Ankara."
+    "Vowel harmony plus suffix chains like -lerimizden, and the ubiquitous \"ve\" for \"and\". Its speakers straddle two continents at a strait, and drink çay out of tulip glasses."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tur.xml, Article 30"
   },
@@ -496,7 +496,7 @@ window.AD_LINGUA = {
    "hints": [
     "Latin so heavily accented that letters carry TWO marks at once — ế, ộ, ữ, ậ — one for vowel quality and one for tone. Words are one syllable each, separated by spaces.",
     "The national language of a long, thin South-East Asian country that used Chinese characters for centuries before Portuguese and French missionaries romanised it.",
-    "Horned vowels ơ and ư plus a dot-below tone mark, and monosyllables everywhere — this is Hanoi and Saigon."
+    "Horned vowels ơ and ư plus a dot-below tone mark, and monosyllables everywhere. Six tones, a lot of phở, and a script designed by a 17th-century Jesuit."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_vie.xml, Article 23"
   },
@@ -840,8 +840,8 @@ window.AD_LINGUA = {
    "script": "Latin (Filipino)",
    "sc": "Latn",
    "family": "Austronesian > Philippine",
-   "text": "Walang sino mang aalipinin o bubusabusin; ipagbabawal ang ano mang anyo ng pang-aalipin at ang pangangalakal ng alipin.",
-   "gloss": "No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
+   "text": "Walang sino mang aalisan ng kanyang pagkamamamayan ng walang katwiran ni pagkakaitan ng karapatang magpalit ng kanyang pagkamamamayan.",
+   "gloss": "No one shall be arbitrarily deprived of his nationality nor denied the right to change his nationality.",
    "countries": [
     "PH"
    ],
@@ -851,7 +851,7 @@ window.AD_LINGUA = {
     "The basis of the national language of a South-East Asian archipelago of 7,000 islands that spent three centuries under Spain and fifty years under the USA.",
     "Infixes cut into the middle of words — \"sumulat\" from \"sulat\" — and \"ang\", \"ng\", \"sa\" mark every phrase. Look for \"karapatan\" and \"kalayaan\"."
    ],
-   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tgl.xml, Article 4"
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tgl.xml, Article 15 (para 2)"
   },
   {
    "key": "haw",
@@ -916,8 +916,8 @@ window.AD_LINGUA = {
    "script": "Latin (Azerbaijani)",
    "sc": "Latn",
    "family": "Turkic > Oghuz",
-   "text": "Heç kim özbaşına olaraq vətəndaşlıqdan və vətəndaşlığını dəyişmək hüququndan məhrum edilə bilməz.",
-   "gloss": "No one shall be arbitrarily deprived of his nationality nor denied the right to change his nationality.",
+   "text": "Heç kim kölə və ya asılı vəziyyətdə saxlanıla bilməz; quldarlıq və qul ticarəti bütün formalarda qadağan edilir.",
+   "gloss": "No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
    "countries": [
     "AZ"
    ],
@@ -927,7 +927,7 @@ window.AD_LINGUA = {
     "A Turkic language of the eastern Caucasus, on the Caspian, whose speakers south of the border write it in Arabic script instead.",
     "Almost mutually intelligible with the Turkic language of Anatolia, but this alphabet has been changed three times in a century — Arabic, then Cyrillic, then Latin again."
    ],
-   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_azj_latn.xml, Article 15 (para 2)"
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_azj_latn.xml, Article 4"
   }
  ]
 };

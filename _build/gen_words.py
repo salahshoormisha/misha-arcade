@@ -218,22 +218,29 @@ def hard_blocked(w):
     return w in HARD
 
 
-def attested(w):
-    """Is w a real English word?  web2 headword, regular inflection of one, or
-    an explicitly vouched modern word."""
-    if w in WEB2:
-        return 'web2'
-    r = XW.dict_reason(w)
-    if r:
-        return r
-    if w in MODERN:
-        return 'modern'
-    return None
+CURATED = set()                                  # filled in below, after EXTRA_VALID
+ATTEST_FREQ = 4.0e5                              # route (c): real corpus usage
+ATTEST_SUB = 30000                               # ...or it is spoken often enough
 
 
 def is_name(w):
     """Proper-noun screen -- only bites words that are NOT web2 headwords."""
-    return w not in WEB2 and w in NAMES
+    return w not in WEB2 and (w in NAMES or w in PROPER)
+
+
+def attested(w):
+    """Is w a real English word?  See "what counts as a word" in the docstring."""
+    if w in WEB2:
+        return 'web2'
+    if w in CURATED:
+        return 'curated'
+    r = XW.dict_reason(w)
+    if r:
+        return r
+    if w in ALPHA and not is_name(w) and (freq(w) >= ATTEST_FREQ or
+                                          subrank(w) <= ATTEST_SUB):
+        return 'alpha+freq'
+    return None
 
 
 def sane(w):
@@ -256,20 +263,20 @@ EXTRA_ANS5 = """
 alien amber ankle apron badly bland blaze blitz bloom blush brand brass bread
 brick bride broom brush buddy budge bumpy cabin cameo canoe cargo chunk clamp
 cliff cloak clove clump comet cough couch crane crate creek creep crisp crumb
-crust daisy dairy debit denim depth diner dodge dough drake drape dress dryer
-eager easel ebony elbow elite ember enact endow ferry fetch fibre flair flame
+crust daisy dairy debit denim depth diner dodge dough drape dress dryer
+eager easel ebony elbow elite ember enact endow ferry fetch flair flame
 fleet flint flour fluff flush focal forge frost fudge gauge ghost glide gloss
 glove grasp gravy grill groom grove gruff habit haste hedge hinge hobby honey
 hound humor ivory jelly jetty jewel jolly kayak kneel knelt knife knock koala
 ladle lapse latch leash ledge lemon lever lilac linen llama lodge lunch magma
-maple marsh medal melon mercy mirth moist motto mound mound mouse mural nacho
+maple marsh medal melon mercy mirth moist motto mound mouse mural nacho
 niece noble nudge oasis olive onion opera otter ozone paddy panda pansy pasta
 patch pearl pedal penny perch pilot pinch pitch plaid plank plaza plumb poppy
-porch prawn prism prize prong prune quail quart queso quilt quirk quota rabbi
-ranch rebel relic rhino ridge rifle rinse risky robin rodeo rouge royal rugby
+porch prawn prism prize prong prune quail quart quilt quirk quota rabbi
+ranch rebel relic rhino ridge rinse risky robin rodeo rouge royal rugby
 salsa satin sauna scarf scoop scout scrap shark shawl sheep sheet shelf shine
 shore shrub siren skate skirt slate sleek slice slime slope slush smock snack
-snail snore socks solar spade spark spice spine spoon sprig squid stack stale
+snail snore socks solar spark spice spine spoon sprig squid stack stale
 stark stump surge swirl syrup tacky talon tango taper tempo thorn tiara tidal
 tiger toast tonic torch towel trout tulip tunic tutor twine ulcer usher vault
 venue vigil villa vinyl vivid vodka wafer wagon waltz whale wharf wheat whisk
@@ -331,41 +338,36 @@ karaoke playlist mixtape smoothie granola oatmeal ketchup yogurt
 
 
 # ───────────────────────────────────────────────────────── candidate assembly
+EXTRA_VALID_SET = set(tok(EXTRA_VALID))
+EXTRA_JUNK_SET = set(tok(EXTRA_JUNK))
+JUNK |= EXTRA_JUNK_SET
+CURATED |= MODERN | EXTRA_VALID_SET | set(XW.ALLOW)
+
+UNIVERSE = ALPHA | WEB2 | CURATED | set(tok(WA.ANS5)) | set(tok(WA.ANS4)) \
+    | set(tok(EXTRA_ANS5)) | set(tok(WA.CROSS3))
+
+
 def by_len(maxlen=12):
-    out = {}
-    for L in range(3, maxlen + 1):
-        out[L] = set()
-    for w in ALPHA:
+    out = dict((L, set()) for L in range(3, maxlen + 1))
+    for w in UNIVERSE:
         L = len(w)
-        if 3 <= L <= maxlen:
+        if 3 <= L <= maxlen and w.isalpha() and w.islower():
             out[L].add(w)
     return out
 
 
 BYLEN = by_len(12)
-EXTRA_VALID_SET = set(tok(EXTRA_VALID))
-EXTRA_JUNK_SET = set(tok(EXTRA_JUNK))
-JUNK |= EXTRA_JUNK_SET
 
 
 # ── the guess lists: permissive on purpose.  A player must never be told that a
-#    real word "is not a word".  Gates: dictionary-attested, not a proper noun,
-#    not a slur.
-VALID_FREQ_FLOOR = 3.0e6          # lets in modern words web2 predates
+#    real word "is not a word".  Gates: dictionary-attested (any of the four
+#    routes), not a proper noun, not a slur.
 def build_valid(L):
     out = set()
     for w in BYLEN[L]:
-        if hard_blocked(w) or not sane(w):
+        if hard_blocked(w) or not sane(w) or is_name(w):
             continue
-        if w in WEB2:
-            out.add(w)
-            continue
-        if is_name(w):
-            continue
-        if XW.dict_reason(w) or w in MODERN or w in EXTRA_VALID_SET:
-            out.add(w)
-            continue
-        if freq(w) >= VALID_FREQ_FLOOR and subrank(w) <= 25000:
+        if attested(w):
             out.add(w)
     return out
 
@@ -375,26 +377,40 @@ VALID4 = build_valid(4)
 
 
 # ── the answer lists: every word must be one a player recognises instantly.
+STEM_FREQ = 1.0e6                      # a stem this common makes the word an inflection
+
+
+def is_stem(s):
+    return len(s) >= 3 and s in ALPHA and freq(s) >= STEM_FREQ
+
+
+def inflected(w):
+    """Plural / past / present-participle of a common word?  Stems are checked
+    against words_alpha + frequency, not web2, because web2 is missing BOX."""
+    if w.endswith('s') and not w.endswith('ss'):
+        if is_stem(w[:-1]) or (w.endswith('es') and is_stem(w[:-2])) or \
+           (w.endswith('ies') and is_stem(w[:-3] + 'y')):
+            return True
+    if w.endswith('ed') and (is_stem(w[:-2]) or is_stem(w[:-1]) or
+                             (w.endswith('ied') and is_stem(w[:-3] + 'y'))):
+        return True
+    if w.endswith('ing') and (is_stem(w[:-3]) or is_stem(w[:-3] + 'e')):
+        return True
+    return False
+
+
 def answer_ok(w, hand):
     """Shape/quality gate for an AUTOMATIC answer-list addition."""
     if w in hand:
         return True
     if hard_blocked(w) or w in SOFT or w in JUNK:
         return False
-    if w in NAMES or is_name(w):
+    if w in NAMES or is_name(w) or w in PROPER:
         return False
-    a = attested(w)
-    if a is None or a == 'modern' and w not in MODERN_VOUCHED and w not in MODERN:
+    if attested(w) is None:
         return False
-    if a not in ('web2', 'modern'):
-        return False                       # no inflections: no plurals, no -ed, no -ing
-    if w.endswith('s') and (w[:-1] in WEB2 or w[:-2] in WEB2 or
-                            (w.endswith('ies') and w[:-3] + 'y' in WEB2)):
-        return False                       # plural / 3rd-person -s
-    if w.endswith('ed') and (w[:-2] in WEB2 or w[:-1] in WEB2):
-        return False                       # past tense
-    if w.endswith('ing') and (w[:-3] in WEB2 or w[:-3] + 'e' in WEB2):
-        return False
+    if inflected(w):
+        return False                       # no plurals, no -ed, no -ing as answers
     return True
 
 
@@ -407,6 +423,12 @@ def build_answers(L, hand_block, extra_block, target, freq_floor, sub_max):
             continue
         if hard_blocked(w):
             rejected.append((w, 'blocked'))
+            continue
+        if w in SOFT:
+            rejected.append((w, 'soft-blocked'))
+            continue
+        if w in JUNK:
+            rejected.append((w, 'junk'))
             continue
         if w not in (VALID5 if L == 5 else VALID4):
             rejected.append((w, 'not in valid%d' % L))
@@ -460,8 +482,11 @@ COMMON5 = [w for w in sorted(ANSWERS5, key=sortkey) if freq(w) > 0][:300]
 #        distinct letters can never be played.
 #    Everything else is a straight commonness gate, loosened for longer words
 #    because long words are rarer but are exactly what the game is played with.
-BOXED_FLOOR = {3: 2.0e6, 4: 1.5e6, 5: 1.0e6, 6: 8.0e5, 7: 5.0e5,
-               8: 3.0e5, 9: 2.0e5, 10: 1.5e5, 11: 1.2e5, 12: 1.0e5}
+#    The list is FREQUENCY-ORDERED, commonest first: the game validates against
+#    the whole list but can take a prefix when it wants an elegant two-word
+#    solution to show the player.
+BOXED_FLOOR = {3: 3.0e6, 4: 3.0e6, 5: 2.5e6, 6: 2.0e6, 7: 1.6e6,
+               8: 1.2e6, 9: 9.0e5, 10: 7.0e5, 11: 6.0e5, 12: 5.0e5}
 
 
 def has_double(w):
@@ -480,11 +505,11 @@ def build_boxed():
                 continue
             if hard_blocked(w) or w in JUNK or not sane(w):
                 continue
-            if is_name(w) or w in NAMES and w not in WEB2:
+            if is_name(w) or w in NAMES or w in PROPER:
                 continue
             if attested(w) is None:
                 continue
-            if freq(w) >= floor or subrank(w) <= 20000 or w in G20:
+            if freq(w) >= floor:
                 out.add(w)
     return out
 
@@ -496,6 +521,9 @@ BOXED = build_boxed()
 #    built (frequency-ranked, hand-blocklisted); 6/7 are built here with the
 #    same recipe.  Nothing enters that is not a lowercase web2 headword or a
 #    regular inflection of one, so proper nouns cannot leak in.
+CROSS_LONG_RANK = 12000        # 6/7-letter fill comes from the top 12k words only
+
+
 def build_cross():
     pool = XW.load()
     cross = {}
@@ -506,13 +534,13 @@ def build_cross():
     for L in (6, 7):
         s = set()
         for w, r in G20.items():
-            if len(w) != L or not sane(w):
+            if len(w) != L or not sane(w) or r >= CROSS_LONG_RANK:
                 continue
             if w in JUNK or hard_blocked(w) or w in SOFT:
                 continue
-            if is_name(w) or w in NAMES:
+            if is_name(w) or w in NAMES or w in PROPER:
                 continue
-            if XW.dict_reason(w) is None and w not in MODERN:
+            if XW.dict_reason(w) is None and w not in CURATED:
                 continue
             s.add(w)
         cross[L] = s
@@ -636,7 +664,7 @@ def payload():
     d.append(('valid5', ' '.join(sorted(VALID5))))
     d.append(('answers4', ' '.join(ANSWERS4)))
     d.append(('valid4', ' '.join(sorted(VALID4))))
-    d.append(('boxed', ' '.join(sorted(BOXED))))
+    d.append(('boxed', ' '.join(sorted(BOXED, key=sortkey))))
     d.append(('common5', ' '.join(COMMON5)))
     return d
 

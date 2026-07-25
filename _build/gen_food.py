@@ -61,20 +61,27 @@ def save(path, obj):
     os.replace(tmp, path)
 
 
-def http_json(url, tries=3):
+def http_json(url, tries=5):
+    """-> (json|None, status). status 404 = the article really is absent (cacheable);
+    anything else falsy is transient and must NOT be cached as a negative."""
+    last = 0
     for k in range(tries):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
             with urllib.request.urlopen(req, timeout=30) as r:
-                return json.loads(r.read().decode("utf-8", "replace"))
+                return json.loads(r.read().decode("utf-8", "replace")), 200
         except urllib.error.HTTPError as e:
-            if e.code in (404, 400):
-                return None
+            last = e.code
+            if e.code in (400, 404):
+                return None, e.code
+            if e.code == 429:              # Wikimedia rate limit -- back right off
+                time.sleep(8.0 * (k + 1))
+                continue
         except Exception:
-            pass
+            last = 0
         if k < tries - 1:
-            time.sleep(1.0 + k)
-    return None
+            time.sleep(1.5 * (k + 1))
+    return None, last
 
 
 def http_status(url, timeout=25):
