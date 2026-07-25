@@ -10,9 +10,13 @@ permissions:
   pages: write
   id-token: write
 
+# Several sessions push to this repo at once. cancel-in-progress would kill a
+# deploy mid-flight and leave GitHub's Pages service holding a half-finished
+# deployment, which then blocks every later one ("due to in progress
+# deployment"). Queueing instead is GitHub's own recommendation for Pages.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -29,3 +33,6 @@ jobs:
           path: .
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 300000        # fail fast rather than hanging for 10 minutes
+          error_count: 15
