@@ -43,6 +43,15 @@
     return (n === null || n === undefined || isNaN(n)) ? "—" : Number(n).toLocaleString();
   };
 
+  // Loose name key: lowercase, diacritics stripped, punctuation flattened.
+  // Lives here rather than in picker.js because games that never draw a picker
+  // still need to compare names ("is this capital just the country again?").
+  A.normName = function (s) {
+    s = String(s).toLowerCase();
+    if (s.normalize) s = s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+    return s.replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  };
+
   // Great-circle distance in km — used by every geo game, so it lives here.
   A.haversine = function (lat1, lon1, lat2, lon2) {
     var R = 6371, r = Math.PI / 180;

@@ -13,13 +13,7 @@
 (function (A) {
   "use strict";
 
-  function norm(s) {
-    return String(s).toLowerCase()
-      .normalize ? String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
-        .replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim()
-      : String(s).toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-  }
-  A.normName = norm;
+  var norm = A.normName;   // defined in arcade.js — every game can compare names
 
   // Extra ways people actually type countries, beyond the dataset's own aliases.
   var EXTRA = {

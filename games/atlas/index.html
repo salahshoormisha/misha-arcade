@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATLAS GYM · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=4">
+<style>
+  .prompt { text-align: center; margin: 10px auto 0; }
+  .prompt .q { font-size: 11px; letter-spacing: 2.4px; color: var(--ink4); }
+  .prompt .big { font-size: clamp(20px, 5.4vw, 28px); font-weight: 900; letter-spacing: 2px;
+                 color: #fff; margin-top: 8px; line-height: 1.3; }
+  #qflag { width: min(240px, 62vw); border-radius: 6px; display: block; margin: 12px auto 0;
+           box-shadow: 0 8px 26px #0008; }
+  #qshape { width: min(210px, 54vw); height: min(210px, 54vw); display: block; margin: 8px auto 0; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 440px; margin: 16px auto 0; }
+  .opts button {
+    background: #ffffff0a; border: 1px solid var(--line2); border-radius: 12px; color: var(--ink);
+    padding: 13px 10px; font-size: 13px; cursor: pointer; min-height: 52px; letter-spacing: .6px;
+    transition: transform .1s, background .15s;
+  }
+  .opts button:hover { background: #ffffff16; }
+  .opts button:active { transform: scale(.98); }
+  .opts button.right { background: var(--ok); color: #06210f; border-color: var(--ok); font-weight: 800; }
+  .opts button.wrong { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .opts button[disabled] { cursor: default; }
+  .prog { display: flex; gap: 3px; justify-content: center; margin-top: 12px; }
+  .prog i { width: 15px; height: 5px; border-radius: 9px; background: #ffffff18; }
+  .prog i.ok { background: var(--ok); } .prog i.no { background: var(--bad); }
+  .weak { max-width: 440px; margin: 18px auto 0; font-size: 11.5px; color: var(--ink3); line-height: 1.9; }
+  .weak b { color: var(--gold); }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=4"></script>
+<script src="../../core/arcade.js?v=4"></script>
+<script src="../../core/ui.js?v=4"></script>
+<script src="../../core/audio.js?v=4"></script>
+<script src="../../core/worldmap.js?v=4"></script>
+<script src="../../core/flagart.js?v=4"></script>
+<script src="../../core/data/countries.js?v=4"></script>
+<script src="../../core/data/flags.js?v=4"></script>
+<script src="../../core/data/world.js?v=4"></script>
+<script src="game.js?v=4"></script>
+</body>
+</html>
