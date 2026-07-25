@@ -79,7 +79,7 @@
       dpr: 1,
       proj: null,
       colours: Object.assign({
-        sea: "#0b0620", land: "#241a4d", border: "#3b2a6e",
+        sea: "#080a1e", land: "#2b4a6b", border: "#5d86ad",
         graticule: "#ffffff0d", rim: "#4fd8ff",
       }, opts.colours || {}),
     };
@@ -253,9 +253,18 @@
     function path(g, P, rings) {
       if (!rings) return;
       for (var i = 0; i < rings.length; i++) {
-        var r = rings[i], started = false;
+        var r = rings[i], started = false, prevLon = null;
         for (var j = 0; j < r.length; j++) {
-          var q = P.to(r[j][1], r[j][0]);      // rings are [lon,lat]
+          var lon = r[j][0], lat = r[j][1];    // rings are [lon,lat]
+          // Antimeridian: Russia/Fiji/Kiribati wrap from +179 to -179, which
+          // would otherwise draw a hairline straight back across the whole map.
+          // Break the subpath instead of joining the two sides.
+          if (prevLon !== null && Math.abs(lon - prevLon) > 180) {
+            if (started) g.closePath();
+            started = false;
+          }
+          prevLon = lon;
+          var q = P.to(lat, lon);
           if (q[2] === false) { started = false; continue; }
           if (!started) { g.moveTo(q[0], q[1]); started = true; }
           else g.lineTo(q[0], q[1]);
@@ -439,26 +448,6 @@
     if (o.stroke) { g.strokeStyle = o.stroke; g.lineWidth = o.lw || 1; g.stroke(); }
     g.restore();
     return true;
-  };
-
-  /* ── proximity helpers every geo game wants ──────────────────────────── */
-
-  A.geo = {
-    // 0..1 closeness, the *-dle convention (max distance ≈ half the globe)
-    prox: function (km) { return A.clamp(1 - km / 20015, 0, 1); },
-    // Globle-style heat colour: near = hot
-    heat: function (km) {
-      var t = A.clamp(1 - km / 12000, 0, 1);
-      var stops = [[0, [70, 50, 140]], [.45, [255, 216, 79]], [.75, [255, 140, 60]], [1, [255, 45, 90]]];
-      for (var i = 1; i < stops.length; i++) {
-        if (t <= stops[i][0]) {
-          var a = stops[i - 1], b = stops[i], f = (t - a[0]) / (b[0] - a[0]);
-          return "rgb(" + a[1].map(function (v, k) { return Math.round(v + (b[1][k] - v) * f); }).join(",") + ")";
-        }
-      }
-      return "rgb(255,45,90)";
-    },
-    km: function (n) { return n < 10 ? n.toFixed(1) + " km" : Math.round(n).toLocaleString() + " km"; },
   };
 
 })(window.A);

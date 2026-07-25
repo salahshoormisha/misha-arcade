@@ -66,6 +66,26 @@
     return ["⬆️", "↗️", "➡️", "↘️", "⬇️", "↙️", "⬅️", "↖️"][Math.round(((deg % 360) / 45)) % 8];
   };
 
+  // Proximity helpers. These live here, not in worldmap.js: they are pure
+  // maths that every geo game needs, including the ones that draw no map.
+  A.geo = {
+    // 0..1 closeness, the *-dle convention (max distance ≈ half the globe)
+    prox: function (km) { return A.clamp(1 - km / 20015, 0, 1); },
+    // Globle-style heat colour: near = hot
+    heat: function (km) {
+      var t = A.clamp(1 - km / 12000, 0, 1);
+      var stops = [[0, [70, 50, 140]], [.45, [255, 216, 79]], [.75, [255, 140, 60]], [1, [255, 45, 90]]];
+      for (var i = 1; i < stops.length; i++) {
+        if (t <= stops[i][0]) {
+          var a = stops[i - 1], b = stops[i], f = (t - a[0]) / (b[0] - a[0]);
+          return "rgb(" + a[1].map(function (v, k) { return Math.round(v + (b[1][k] - v) * f); }).join(",") + ")";
+        }
+      }
+      return "rgb(255,45,90)";
+    },
+    km: function (n) { return n < 10 ? n.toFixed(1) + " km" : Math.round(n).toLocaleString() + " km"; },
+  };
+
   /* ── dates ───────────────────────────────────────────────────────────── */
 
   function ymd(d) {
