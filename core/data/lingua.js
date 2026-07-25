@@ -22,9 +22,9 @@ window.AD_LINGUA = {
   "WIKI": "Wikipedia REST summaries (CC BY-SA 4.0)"
  },
  "counts": {
-  "samples": 46,
-  "scripts": 44,
-  "families": 28
+  "samples": 82,
+  "scripts": 75,
+  "families": 44
  },
  "samples": [
   {
@@ -928,6 +928,710 @@ window.AD_LINGUA = {
     "Almost mutually intelligible with the Turkic language of Anatolia, but this alphabet has been changed three times in a century — Arabic, then Cyrillic, then Latin again."
    ],
    "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_azj_latn.xml, Article 4"
+  },
+  {
+   "key": "hin",
+   "lang": "Hindi",
+   "script": "Devanagari",
+   "sc": "Deva",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "माता-पिता को सबसे पहले इस बात का अक्षिकार है कि वे चुनाव कर सकें कि किस क़िस्म की शिक्षा उनके बच्चों को दी जाएगी ।",
+   "gloss": "Parents have a prior right to choose the kind of education that shall be given to their children.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 610000000,
+   "hints": [
+    "Every word hangs from a continuous horizontal bar, with vowel marks clipped above, below, before and after the consonant. No capital letters, and the full stop is a vertical stroke ।",
+    "The most-spoken language of a vast northern river plain; a near-identical spoken language next door is written right-to-left in a completely different script.",
+    "The postpositions का / की / के and the sentence-final है, plus Sanskrit-heavy vocabulary where its twin would use Persian words."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_hin.xml, Article 26 (para 3)"
+  },
+  {
+   "key": "mar",
+   "lang": "Marathi",
+   "script": "Devanagari",
+   "sc": "Deva",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "प्रत्येकास काम मिळण्याचा, आपल्या इच्छेनुरूप काम निवडण्याचा, कामाच्या न्याय्य व अनुकूल शर्तीचा फायदा मिळण्याचा व बेका रीपासन संरक्षण मिळण्यांचा अधिकार आहे.",
+   "gloss": "Everyone has the right to work, to free choice of employment, to just and favourable conditions of work and to protection against unemployment.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 99000000,
+   "hints": [
+    "Devanagari, the same barred script as its northern neighbour, but with a letter the northern standard does not use: ळ, a retroflex L.",
+    "Spoken on the western Deccan plateau and down to a huge port city on the Arabian Sea — the state language of the subcontinent's financial capital.",
+    "Three genders instead of two, the ending -आहे for \"is\", and possessives in -चा / -ची / -चे. It has its own 13th-century literary tradition."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_mar.xml, Article 23"
+  },
+  {
+   "key": "nep",
+   "lang": "Nepali",
+   "script": "Devanagari",
+   "sc": "Deva",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "प्रत्येक व्यक्तिलाई विचार, मत, धार्मिक स्वतन्त्रताको अधिकार छ। धर्म वा मत बदल्ने स्वतन्त्रता र सार्वजनिक तथा व्यक्तिगत रूपमा एकलै वा समूहमा आफ्नो धर्म वा मतलाई शिक्षा आचरण",
+   "gloss": "Everyone has the right to freedom of thought, conscience and religion; this right includes freedom to change his religion or belief, and freedom, either alone or in community with others and in public or private, to manifest his religion or belief in teaching, practice, worship and observance.",
+   "countries": [
+    "NP"
+   ],
+   "speakers": 32000000,
+   "hints": [
+    "Devanagari again — the barred script of the northern plains — but the verbs end in छ, छन् and गर्नु, which the big plains language never does.",
+    "The language of a Himalayan republic sandwiched between the two most populous countries on Earth, plus the hill districts either side of it.",
+    "Honorifics तपाईं and हजुर, and a calendar running about 57 years ahead of the Gregorian one. Ex-Gurkha communities carry it worldwide."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_nep.xml, Article 18"
+  },
+  {
+   "key": "ben",
+   "lang": "Bengali",
+   "script": "Bengali (Bangla)",
+   "sc": "Beng",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "প্রত্যেকের‌ই মতামত পোষণ এবং মতামত প্রকাশের স্বাধীনতায় অধিকার রয়েছে। অবাধে মতামত পোষণ এবং রাষ্ট্রীয় সীমানা নির্বিশেষে যে কোন মাধ্যমের মারফত ভাব এবং তথ্য জ্ঞাপন, গ্রহণ ও সন্ধানের স্বাধীনতা‌ও এ অধিকারের অন্তর্ভূক্ত।",
+   "gloss": "Everyone has the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media and regardless of frontiers.",
+   "countries": [
+    "BD",
+    "IN"
+   ],
+   "speakers": 270000000,
+   "hints": [
+    "A headstroke script like Devanagari, but the letters are rounder and hook sharply to the left; look for the triangular য, the tailed ৎ and the crowded conjuncts.",
+    "Spoken across a great delta at the head of a bay — one whole country plus the state on the other side of the border, together well over 250 million people.",
+    "This is the only language whose speakers were shot dead defending it: 21 February 1952 is now International Mother Language Day."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_ben.xml, Article 19"
+  },
+  {
+   "key": "pan",
+   "lang": "Punjabi",
+   "script": "Gurmukhi",
+   "sc": "Guru",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "ਕਿਸੇ ਵਿਅਕਤੀ ਨੂੰ ਐਵੇਂ ਆਪਹੁਦਰੇ ਢੰਗ ਜਾਂ ਮਨਮਰਜੀ ਨਾਲ ਗਿ੍ਰਫਤਾਰ, ਨਜ਼ਰਬੰਦ ਨਹੀਂ ਕੀਤਾ ਜਾਏਗਾ ਜਾ ਦੇਸ਼ ਨਿਕਾਲਾ ਨਹੀਂ ਦਿੱਤਾ ਜਾਏਗਾ ।",
+   "gloss": "No one shall be subjected to arbitrary arrest, detention or exile.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 113000000,
+   "hints": [
+    "A barred script whose letters sit on flat feet and whose alphabet opens with three vowel-carriers ੳ ਅ ੲ; nukta dots turn ਖ into ਖ਼. Nothing else looks quite like ੜ.",
+    "The tongue of a five-rivers region cut in two by a 1947 border; on the far side the same language is written in Perso-Arabic instead.",
+    "Guru Angad standardised this script in the 16th century for Sikh scripture — the name means \"from the Guru's mouth\"."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_pan.xml, Article 9"
+  },
+  {
+   "key": "guj",
+   "lang": "Gujarati",
+   "script": "Gujarati",
+   "sc": "Gujr",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "દરેક વ્યક્તિને સંવિધાન અથવા કાયદા દ્વારા તેને મળેલા મૂળભૂત અધિકારોનો ભંગ કરતા કૃત્યો માટે સક્ષમ રાષ્ટ્રીય ન્યાયાધિકરણ દ્વારા અસરકારક ઉપાયો લેવાનો હક્ક છે.",
+   "gloss": "Everyone has the right to an effective remedy by the competent national tribunals for acts violating the fundamental rights granted him by the constitution or by law.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 57000000,
+   "hints": [
+    "Devanagari with the roof taken off: the same family of letter shapes, but no horizontal bar joining them, so the words float open and round.",
+    "A western coastal state of the subcontinent facing the Arabian Sea, with an enormous merchant diaspora in East Africa, Britain and North America.",
+    "Gandhi's mother tongue. Look for the ending -છે and the postposition -નું."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_guj.xml, Article 8"
+  },
+  {
+   "key": "tam",
+   "lang": "Tamil",
+   "script": "Tamil",
+   "sc": "Taml",
+   "family": "Dravidian > Southern",
+   "text": "ஒவ்வொரு நாட்டினதும் எல்லைகளுக்குள் சுதந்திரமாகப் பயணம் செய்வதற்கும் வசிப்பதற்கும் ஒவ்வொருவருக்கும் உரிமையுண்டு.",
+   "gloss": "Everyone has the right to freedom of movement and residence within the borders of each State.",
+   "countries": [
+    "IN",
+    "LK",
+    "SG",
+    "MY"
+   ],
+   "speakers": 87000000,
+   "hints": [
+    "Big, open, loopy letters with hardly any stacked conjuncts, so the line looks unusually sparse; the alphabet has no separate letters for voiced or aspirated consonants, and ழ is unique to it.",
+    "A Dravidian classical language of the far south of the subcontinent and the north and east of the island below it, plus official status in a South-East Asian city-state.",
+    "Two thousand years of continuous literature, an unbroken diglossia between the written and spoken forms, and the ஃ (aytam) character."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tam.xml, Article 13"
+  },
+  {
+   "key": "tel",
+   "lang": "Telugu",
+   "script": "Telugu",
+   "sc": "Telu",
+   "family": "Dravidian > South-Central",
+   "text": "ప్రతిపత్తిస్వత్వముల విషయమున మానవులెల్లరును జన్మతః స్వతంత్రులును సమానులును నగుదురు. వారు వివేచన-అంతఃకరణ సంపన్నులగుటచే పరస్పరము భ్రాతృభావముతో వర్తింపవలయును.",
+   "gloss": "All human beings are born free and equal in dignity and rights. They are endowed with reason and conscience and should act towards one another in a spirit of brotherhood.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 96000000,
+   "hints": [
+    "Round bodies each capped with a little tick or check-mark, and vowel signs that hang below the line. Its near-twin script to the west has squarer headmarks.",
+    "The largest Dravidian language, spoken along the eastern coast of the subcontinent's south across two neighbouring states.",
+    "Most words end in a vowel, which earned it the nickname \"the Italian of the East\"; the script split from its western twin only around the 15th century."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tel.xml, Article 1"
+  },
+  {
+   "key": "kan",
+   "lang": "Kannada",
+   "script": "Kannada",
+   "sc": "Knda",
+   "family": "Dravidian > Southern",
+   "text": "ಎಲ್ಲೆಡೆಯಲ್ಲಿಯೂ ನ್ಯಾಯದ ಸಮಕ್ಷಮದಲ್ಲಿ ಪ್ರತಿಯೊಬ್ಬನಿಗೂ ತಾನೊಬ್ಬ ವ್ಯಕ್ತಿಯೆಂದು ಗಣಿಸಲ್ಪಡುವ ಹಕ್ಕುಂಟು.",
+   "gloss": "Everyone has the right to recognition everywhere as a person before the law.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 59000000,
+   "hints": [
+    "Round letters topped with squarish headmarks — the near-twin of the script used on the coast to its east, but the tops are flatter and you see ಠ and ಱ.",
+    "A Dravidian language of the inland Deccan plateau, centred on the city that became the subcontinent's software capital.",
+    "Eight of its writers have won the country's top literary prize, more than in any other of its languages; the script also writes Tulu and Konkani."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_kan.xml, Article 6"
+  },
+  {
+   "key": "mal",
+   "lang": "Malayalam",
+   "script": "Malayalam",
+   "sc": "Mlym",
+   "family": "Dravidian > Southern",
+   "text": "സ്വയരക്ഷാബോധത്തോടും സ്വാതന്ത്ര്യത്തോടും കൂടി ജീവിക്കുവാന്‍ ഏതൊരാള്‍ക്കും അധികാരമുണ്ട്‌.",
+   "gloss": "Everyone has the right to life, liberty and the security of person.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 37000000,
+   "hints": [
+    "The roundest of the southern scripts — long sweeping curls and big loops — with a set of \"chillu\" letters that stand alone at the end of a word: ൻ ർ ൽ ൾ ൺ.",
+    "Spoken on a narrow, wet, tropical coastal strip at the south-western tip of the subcontinent, walled off from the interior by mountains.",
+    "Its name is a palindrome in Latin letters. Enormous Gulf-migrant population, near-universal literacy, and the longest consonant clusters of any Dravidian language."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_mal.xml, Article 3"
+  },
+  {
+   "key": "sin",
+   "lang": "Sinhala",
+   "script": "Sinhala",
+   "sc": "Sinh",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "තවද යම් පුද්ගලයකු අයත්වන රටේ දේශපාලන, නීතිමය හෝ ජාත්‍යන්තර තත්ත්වයන් පිළිබඳ කිසිදු විශේෂයක් ද ඒ රටේ ස්වාධීන, භාරකාර, අස්වාධීන ආදී කවර තත්ත්වයක් පිළිබඳ විශේෂයක් ද නොමැතිව මේ හිමිකම් ඔහු සතු වන්නේය.",
+   "gloss": "Furthermore, no distinction shall be made on the basis of the political, jurisdictional or international status of the country or territory to which a person belongs, whether it be independent, trust, non‐self‐governing or under any other limitation of sovereignty.",
+   "countries": [
+    "LK"
+   ],
+   "speakers": 17000000,
+   "hints": [
+    "Bubbly, almost entirely curved letters — there is barely a straight line in it — with vowel signs that curl right round the consonant.",
+    "An Indo-Aryan language stranded about 2,000 km from its nearest relatives, on a teardrop-shaped island, sharing the place with a Dravidian language.",
+    "It has prenasalised stops (ඟ, ඬ, ඳ) that no other Indo-Aryan language kept, and the writing was shaped by palm-leaf styluses that would tear on a straight stroke."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_sin.xml, Article 2 (para 2)"
+  },
+  {
+   "key": "tha",
+   "lang": "Thai",
+   "script": "Thai",
+   "sc": "Thai",
+   "family": "Kra-Dai > Tai",
+   "text": "บุคคลใด ๆ จะถูกแทรกสอดโดยพลการในความเป็นอยู่ส่วนตัวในครอบครัว ในเคหสถานหรือในการสื่อสาร หรือจะถูกลบหลู่ในเกียรติยศและชื่อเสียงไม่ได้ ทุกคนมีสิทธิที่จะได้รับความคุ้มครองของกฎหมายต่อการแทรกสอด หรือการลบหลู่ดังกล่าวนั้น",
+   "gloss": "No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.",
+   "countries": [
+    "TH"
+   ],
+   "speakers": 61000000,
+   "hints": [
+    "Each letter starts from a small circle and no spaces separate the words, only the phrases; four tone marks and several vowel signs perch above and below the line.",
+    "A Tai language of a South-East Asian kingdom that was never colonised, wedged between the Mekong and two seas.",
+    "Forty-four consonant letters for twenty-one sounds, because the Sanskrit and Pali spellings were kept intact — and a royal vocabulary used only for the monarchy."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tha.xml, Article 12"
+  },
+  {
+   "key": "lao",
+   "lang": "Lao",
+   "script": "Lao",
+   "sc": "Laoo",
+   "family": "Kra-Dai > Tai",
+   "text": "ບຸກຄົນທຸກຄົນມີສິດທີ່ຈະມີການສະຫງົບເກີດຂື້ນໃນດ້ານສັງຄົມ ແລະ ໃນດ້ານຕ່າງປະເທດເພື່ອຈະໃຫ້ມີສິດ ແລະ ເສລີພາບທັງມວນທີ່ໄດ້ກ່າວໃນໃບປະກາດສະບັບນີ້ດຳເນີນໄປຢ່າງສັກສິດສົມບູນ.",
+   "gloss": "Everyone is entitled to a social and international order in which the rights and freedoms set forth in this Declaration can be fully realized.",
+   "countries": [
+    "LA"
+   ],
+   "speakers": 30000000,
+   "hints": [
+    "The rounder, simpler sibling of the script next door: same loop-started letters and no word spaces, but far fewer characters and no silent Sanskrit spellings.",
+    "A landlocked Tai country strung along the Mekong, the only one in its region with no coastline at all.",
+    "A 20th-century spelling reform made it purely phonetic; the same language is spoken by far more people in the big region across the river to the west."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_lao.xml, Article 28"
+  },
+  {
+   "key": "khm",
+   "lang": "Khmer",
+   "script": "Khmer",
+   "sc": "Khmr",
+   "family": "Austroasiatic > Khmeric",
+   "text": "ឆន្ទៈរបស់ប្រជាពលរដ្ឋ ជាមូលដ្ឋានអំណាចនៃការដឹកនាំកិច្ចការសាធារណៈ។ ឆន្ទៈនេះ ត្រូវសម្ដែងចេញតាមរយៈការបោះឆ្នោតទៀងទាត់ តាមពេលកំណត់ និងពិតប្រាកដ ដែលមានលក្ខណៈសកល ស្មើភាព និងសម្ងាត់់ ឬតាមនីតិវិធីសមមូល ដែលធានាសេរីភាពនៃការបោះឆ្នោត។",
+   "gloss": "The will of the people shall be the basis of the authority of government; this will shall be expressed in periodic and genuine elections which shall be by universal and equal suffrage and shall be held by secret vote or by equivalent free voting procedures.",
+   "countries": [
+    "KH"
+   ],
+   "speakers": 18000000,
+   "hints": [
+    "Tall, angular letters with little shoulders and flags, and a second consonant stacked underneath the first as a subscript; no spaces between words.",
+    "An Austroasiatic language — not Tai, not Sino-Tibetan — of a lower-Mekong kingdom whose ancestors built the largest religious monument on Earth.",
+    "It has no tones at all, unlike everything around it, and the longest alphabet in the world by Guinness's count: 74 letters."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_khm.xml, Article 21 (para 3)"
+  },
+  {
+   "key": "mya",
+   "lang": "Burmese",
+   "script": "Myanmar",
+   "sc": "Mymr",
+   "family": "Sino-Tibetan > Lolo-Burmese",
+   "text": "လူတိုင်းတွင် လွတ်လပ် အေးချမ်းစွာ စုဝေးနိုင်ခွင့် နှင့် ဖွဲ့စည်းနိုင်ခွင့် တို့ ရှိသည်။",
+   "gloss": "Everyone has the right to freedom of peaceful assembly and association.",
+   "countries": [
+    "MM"
+   ],
+   "speakers": 43000000,
+   "hints": [
+    "Circles. Nearly every letter is built from one or more rings — ကခဂဃင — because it was scratched onto palm leaves that split along a straight stroke.",
+    "A Sino-Tibetan language of a delta-and-mountain country between the subcontinent and mainland South-East Asia, on the Bay of Bengal.",
+    "Three tones, a strong split between the written literary form and the spoken one, and the doubled ဿ. The Mon people passed the script on around the 11th century."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_mya.xml, Article 20"
+  },
+  {
+   "key": "bod",
+   "lang": "Tibetan",
+   "script": "Tibetan",
+   "sc": "Tibt",
+   "family": "Sino-Tibetan > Bodish",
+   "text": "སུ་ཡིན་རུང་མནར་གཅོད་གཏོང་བ་དང༌། ཡང་སྙིང་རྗེ་བྲལ་ཞིང་མི་སྤྱོད་ལས་འདས་པའམ། མ་རབས་ཀྱི་སྤྱོད་ཚུལ་བཅས་ཏེ། སྡིག་ཉེས་ཅན་གྱི་བྱ་སྤྱོད་འཛིན་པའི་རིགས་མི་ཆོག།",
+   "gloss": "No one shall be subjected to torture or to cruel, inhuman or degrading treatment or punishment.",
+   "countries": [
+    "CN",
+    "IN",
+    "NP"
+   ],
+   "speakers": 6000000,
+   "hints": [
+    "Letters hang from a bar with a small triangular head, syllables are separated by a raised dot ་ and sentences closed with a vertical stroke །; consonants stack downwards.",
+    "The language of the world's highest plateau, now written in an autonomous region of a very large state, in Himalayan border districts, and in exile communities.",
+    "Spelling froze in the 9th century while pronunciation moved on, so half the letters in a word are silent — the script of the Buddhist canon."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_bod.xml, Article 5"
+  },
+  {
+   "key": "dzo",
+   "lang": "Dzongkha",
+   "script": "Tibetan",
+   "sc": "Tibt",
+   "family": "Sino-Tibetan > Bodish",
+   "text": "བཟའ་ཚང་ཟེར་མི་འདི་ མི་སྡེ་ནང་གི་སྡེ་ཚན་གི་རང་བཞིན་དང་ མང་གཞི་བཟུམ་གཅིག་ཨིནམ་ལས་ དེ་ཚུ་ལུ་མི་སྡེ་དང་རྒྱལ་ཁབ་གཉིས་ཆ་རང་གིས་ར་ཉེན་སྲུང་འབད་དགོ་པའི་ཐོབ་དབང་ཡོད།",
+   "gloss": "The family is the natural and fundamental group unit of society and is entitled to protection by society and the State.",
+   "countries": [
+    "BT"
+   ],
+   "speakers": 650000,
+   "hints": [
+    "The same head-barred, stacking Himalayan script as its big northern neighbour uses, written in the same letters — here the language is the difference, not the writing.",
+    "The national language of a small Himalayan kingdom that measures Gross National Happiness and did not allow television until 1999.",
+    "Its name means \"the language of the fortress\" — the dzongs are the fortified monasteries that run each district."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_dzo.xml, Article 16 (para 3)"
+  },
+  {
+   "key": "jav",
+   "lang": "Javanese",
+   "script": "Javanese (Aksara Jawa)",
+   "sc": "Java",
+   "family": "Austronesian > Malayo-Polynesian",
+   "text": "꧋ꦱꦧꦼꦤ꧀ꦲꦸꦮꦺꦴꦁꦢꦸꦮꦺꦲꦏ꧀ꦔꦿꦱꦸꦏ꧀ꦭꦤ꧀ꦲꦩ꧀ꦧꦾꦸꦂꦲꦶꦁꦏꦶꦥꦿꦃꦲꦶꦁꦏꦧꦸꦢꦪꦤ꧀ꦲꦶꦁꦱꦢꦶꦤꦢꦶꦤꦤꦺꦲꦶꦁꦧꦼꦧꦿꦪꦤ꧀​ ꦔꦽꦱꦼꦥ꧀ꦥꦶꦱꦼꦤꦶ꧈​ꦭꦤ꧀ꦧꦶꦱꦔꦿꦱꦏ꧀ꦏꦏꦺꦔꦭꦩ꧀ꦩꦶꦩꦗꦸꦤꦶꦁꦲꦸꦫꦶꦥ꧀ꦭꦤ꧀ꦥꦲꦺꦢꦃꦲꦶꦁꦏꦮꦿꦸꦃ꧉​",
+   "gloss": "Everyone has the right freely to participate in the cultural life of the community, to enjoy the arts and to share in scientific advancement and its benefits.",
+   "countries": [
+    "ID"
+   ],
+   "speakers": 82000000,
+   "hints": [
+    "Ornate, rounded letters that all sit at the same height with little curls on top, and \"killer\" marks hanging below to cancel the built-in vowel. A Brahmi descendant.",
+    "The traditional writing of the most populous island on Earth, now taught in school but almost entirely replaced by Latin letters in daily life.",
+    "The language has three politeness registers — you pick a different word for \"eat\" depending on who you are talking to — and about 80 million speakers."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_jav_java.xml, Article 27"
+  },
+  {
+   "key": "cmn_hans",
+   "lang": "Chinese (Simplified)",
+   "script": "Han (Simplified)",
+   "sc": "Hans",
+   "family": "Sino-Tibetan > Sinitic",
+   "text": "每个人,作为社会的一员,有权享受社会保障,并有权享受他的个人尊严和人格的自由发展所必需的经济、社会和文化方面各种权利的实现,这种实现是通过国家努力和国际合作并依照各国的组织和资源情况。",
+   "gloss": "Everyone, as a member of society, has the right to social security and is entitled to realization, through national effort and international co‐operation and in accordance with the organization and resources of each State, of the economic, social and cultural rights indispensable for his dignity...",
+   "countries": [
+    "CN",
+    "SG"
+   ],
+   "speakers": 1100000000,
+   "hints": [
+    "Logographs — one block per syllable, no alphabet — in their reduced forms: 门 车 国 学 有 far fewer strokes than the older versions used elsewhere.",
+    "The everyday writing of the mainland of the most populous state on Earth and of a South-East Asian city-state; the unsimplified forms survive on an island and in two coastal territories.",
+    "The four commonest characters are 的 是 在 了, and 们 marks a plural. The simplification was decreed in the 1950s and 60s."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_cmn_hans.xml, Article 22"
+  },
+  {
+   "key": "cmn_hant",
+   "lang": "Chinese (Traditional)",
+   "script": "Han (Traditional)",
+   "sc": "Hant",
+   "family": "Sino-Tibetan > Sinitic",
+   "text": "每個人，作為社會的一員，有權享受社會保障，並有權享受他的個人尊嚴和人格的自由發展所必需的經濟、社會和文化方面各種權利的實現，這種實現是通過國家努力和國際合作並依照各國的組織和資源情況。",
+   "gloss": "Everyone, as a member of society, has the right to social security and is entitled to realization, through national effort and international co‐operation and in accordance with the organization and resources of each State, of the economic, social and cultural rights indispensable for his dignity...",
+   "countries": [
+    "TW",
+    "HK",
+    "MO"
+   ],
+   "speakers": 1100000000,
+   "hints": [
+    "The same logographs in their full, unreduced forms: 國 門 車 學 — count the strokes and compare with the stripped-down versions used on the mainland.",
+    "Kept as the standard on a large island a hundred miles off the south-east coast of the mainland, and in two small former-colonial coastal territories.",
+    "Written vertically in older books, still using 繁體字 in newspapers, and the place where Zhuyin/Bopomofo — not Pinyin — is taught to children."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_cmn_hant.xml, Article 22"
+  },
+  {
+   "key": "jpn",
+   "lang": "Japanese",
+   "script": "Japanese (Kanji + Kana)",
+   "sc": "Jpan",
+   "family": "Japonic",
+   "text": "すべての人は、法の下において平等であり、また、いかなる差別もなしに法の平等な保護を受ける権利を有する。すべての人は、この宣言に違反するいかなる差別に対しても、また、そのような差別をそそのかすいかなる行為に対しても、平等な保護を受ける権利を有する。",
+   "gloss": "All are equal before the law and are entitled without any discrimination to equal protection of the law. All are entitled to equal protection against any discrimination in violation of this Declaration and against any incitement to such discrimination.",
+   "countries": [
+    "JP"
+   ],
+   "speakers": 123000000,
+   "hints": [
+    "Three systems mixed in one line: Chinese characters plus two syllabaries — the angular カタカナ for loanwords and the cursive ひらがな for grammar. The little の and は between the characters are the tell.",
+    "The language of a long four-island archipelago off the east Asian coast, with essentially no relatives anywhere else.",
+    "Verbs go last, particles mark every role (は, が, を, に), and the writing has no spaces at all — the script mixture does the word-separating."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_jpn.xml, Article 7"
+  },
+  {
+   "key": "kor",
+   "lang": "Korean",
+   "script": "Hangul",
+   "sc": "Hang",
+   "family": "Koreanic",
+   "text": "어느 누구도 행위시에 국내법 또는 국제법에 의하여 범죄를 구성하지 아니하는 작위 또는 부작위를 이유로 유죄로 되지 아니한다. 또한 범죄 행위시에 적용될 수 있었던 형벌보다 무거운 형벌이 부과되지 아니한다.",
+   "gloss": "No one shall be held guilty of any penal offence on account of any act or omission which did not constitute a penal offence, under national or international law, at the time when it was committed. Nor shall a heavier penalty be imposed than the one that was applicable at the time the penal...",
+   "countries": [
+    "KR",
+    "KP"
+   ],
+   "speakers": 81000000,
+   "hints": [
+    "Alphabetic letters made of circles, squares and straight lines, but stacked into square syllable blocks: 한 글 습 니 다. Nothing else in the world is built like this.",
+    "Spoken on a peninsula split in two since 1945, between a large continental power and an island archipelago.",
+    "King Sejong's scholars published it in 1446 and shaped each consonant to picture the mouth making it — ㄱ is the back of the tongue, ㅁ is the lips."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_kor.xml, Article 11 (para 2)"
+  },
+  {
+   "key": "amh",
+   "lang": "Amharic",
+   "script": "Ethiopic (Geʽez)",
+   "sc": "Ethi",
+   "family": "Afro-Asiatic > Semitic",
+   "text": "እያንዳንዱ፡ሰው፡የሃሳብ፡የሕሊናና፡የሃይማኖት፡ነጻነት፡መብት፡አለው።፡ይህም፡መብት፡ሃይማኖቱን፡ወይም፡እምነቱን፡የመለወጥ፡ነጻነትንና፡ብቻውን፡ወይም፡ከሌሎች፡ጋር፡በኀብረት፡በይፋ፡ወይም፡በግል፡ሆኖ፡ሃይማኖቱን፡ወይም፡እምነቱን፡የማስተማር፣፡በተግባር፡የመግለጽ፡የማምለክና፡የማክበር፡ነጻነትን፡ይጨምራል።",
+   "gloss": "Everyone has the right to freedom of thought, conscience and religion; this right includes freedom to change his religion or belief, and freedom, either alone or in community with others and in public or private, to manifest his religion or belief in teaching, practice, worship and observance.",
+   "countries": [
+    "ET"
+   ],
+   "speakers": 60000000,
+   "hints": [
+    "An abugida of some 270 characters where each consonant grows little legs, loops and bars to mark its seven vowels; the word separator is a double dot ፡ and the full stop is ።",
+    "A Semitic language — cousin to Arabic and Hebrew — spoken in the highlands of the Horn of Africa, the working language of a large federal republic there.",
+    "It is written left to right, unlike its Semitic cousins, and the script it uses is the only indigenous African writing system still in wide official use."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_amh.xml, Article 18"
+  },
+  {
+   "key": "tir",
+   "lang": "Tigrinya",
+   "script": "Ethiopic (Geʽez)",
+   "sc": "Ethi",
+   "family": "Afro-Asiatic > Semitic",
+   "text": "ዝኾነ ይኹን ሰብ ኦብ ኦጠቓቕማ መሰላቱን ነፃነታቱን ንመሰላትን ነፃነታትን ካልኦት ንምቕባልን ንምኽባርን፣ ኦብ ሓደ ዲሞክራሲያዊ ሕብሪተሰብ ዘድልዩ ስነ ምግባር፣ ፀጥታን ድሕነትን ንምምላእን ተባሂሉ ብሕጊ ንዝተወሰኑሉ ማዕቀባት ጥራሕ ተገዛኢ ይኸውን፡፡",
+   "gloss": "In the exercise of his rights and freedoms, everyone shall be subject only to such limitations as are determined by law solely for the purpose of securing due recognition and respect for the rights and freedoms of others and of meeting the just requirements of morality, public order and the...",
+   "countries": [
+    "ER",
+    "ET"
+   ],
+   "speakers": 9500000,
+   "hints": [
+    "The same Ethiopic syllabary as its larger southern neighbour, but with a series the other standard dropped: ቐ ቑ ቒ ቓ ቔ ቕ ቖ.",
+    "A Semitic language spoken on both sides of a hard-fought Red Sea border — the main language of one small coastal state and of the province just south of it.",
+    "It is the closest living relative of Geʽez, the ancient liturgical language whose alphabet everyone in the region still writes."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_tir.xml, Article 29 (para 2)"
+  },
+  {
+   "key": "zgh",
+   "lang": "Tamazight (Berber)",
+   "script": "Tifinagh (Neo-Tifinagh)",
+   "sc": "Tfng",
+   "family": "Afro-Asiatic > Berber",
+   "text": "ⵎⴳⴰⴷⴷⴰⵏ ⴰⴽⵯ ⵎⵉⴷⴷⵏ ⵎⵏⵉⴷ ⵏ ⵓⵍⵓⴳⵏ ⵢⵉⵍⵉ ⴷⴰⵔⵙⵏ ⵓⵣⵔⴼ ⵏ ⵓⵃⵟⵟⵓ ⵏ ⵓⵍⵓⴳⵏ ⴰⵎⵔ ⴰⵙⵏⵓⵃⵢⵓ, ⵖⵉⴽⵍⵍⵉ ⴷⴰⵔⵙⵏ ⵉⵍⵍⴰ ⵓⵣⵔⴼ ⵖ ⵓⵃⵟⵟⵓ ⵉⵎⴳⴰⴷⴷⴰⵏ ⵎⵏⵉⴷ ⵏ ⴰⵙⵏⵓⵃⵢⵓ ⵏⵏⴰ ⴷ ⵓⵔ ⵉⵎⵛⵓⵛⴽⵉⵏ ⴷ ⵓⵍⵖⵓ ⵢⴰⴷ.",
+   "gloss": "All are equal before the law and are entitled without any discrimination to equal protection of the law. All are entitled to equal protection against any discrimination in violation of this Declaration and against any incitement to such discrimination.",
+   "countries": [
+    "MA",
+    "DZ"
+   ],
+   "speakers": 14000000,
+   "hints": [
+    "Geometric shapes — circles, crosses, chevrons and dot-clusters (ⵣ ⵎ ⵍ ⵓ ⵢ) — that look like runes but are an ancient Saharan alphabet, revived and standardised in 2003.",
+    "The indigenous language of North Africa west of the Nile, now co-official with Arabic in a kingdom facing both the Atlantic and the Mediterranean.",
+    "The letter ⵣ (yaz) is the emblem of the Amazigh movement; the Tuareg have been writing the older form of these letters on rock for two thousand years."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_zgh.xml, Article 7"
+  },
+  {
+   "key": "fuf",
+   "lang": "Pular (Fula)",
+   "script": "Adlam",
+   "sc": "Adlm",
+   "family": "Niger-Congo > Atlantic",
+   "text": "𞤐𞤫𞤯𞥆𞤮 𞤳𞤢𞤤𞤢 𞤭𞤲𞤢 𞤶𞤮𞤺𞤭 𞤸𞤢𞤳𞥆𞤫 𞤫 𞤬𞤮𞥅𞤬𞤼𞤫𞤪𞤫 𞤱𞤢𞤤𞥆𞤢 𞤱𞤫𞤤𞤼𞤭𞤲𞤣𞤫 𞤩𞤫𞤪𞤲𞤣𞤫 𞤲𞤵𞤥 𞤱𞤢𞤤𞥆𞤢 𞤱𞤮𞥅𞤣𞤢 𞤯𞤮 𞤸𞤢𞥄’𞤯𞤲𞤭 𞤤𞤭𞤺𞥆𞤫𞥅𞤴 𞤥𞤵𞤥 𞤫𞤼𞤫 𞤳𞤢𞤤𞤢 𞤤𞤭𞤺𞥆𞤮𞤼𞤮𞥅𞤯𞤮 𞤭𞤲𞤢 𞤶𞤮𞤺𞤭𞥅 𞤸𞤢𞤳𞥆𞤫 𞤫 𞤬𞤮𞥅𞤬𞤼𞤫𞤪𞤫 𞤴𞤮𞤩 𞤫𞤼𞤫𞥅𞤲𞤣𞤫.",
+   "gloss": "Everyone has the right to rest and leisure, including reasonable limitation of working hours and periodic holidays with pay.",
+   "countries": [
+    "GN",
+    "SN",
+    "ML"
+   ],
+   "speakers": 37000000,
+   "hints": [
+    "Right to left, in rounded letters with long tails and dots, that belong to no older script family — one of the youngest alphabets on Earth, devised in the late 1980s.",
+    "It writes a herders' language of the West African savanna, spread in a belt from the Atlantic coast eastward across the Sahel.",
+    "Two teenage brothers, Ibrahima and Abdoulaye Barry, invented it; the name is an acronym of its first four letters and means \"the alphabet that stops a people vanishing\"."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_fuf_adlm.xml, Article 24"
+  },
+  {
+   "key": "vai",
+   "lang": "Vai",
+   "script": "Vai",
+   "sc": "Vaii",
+   "family": "Niger-Congo > Mande",
+   "text": "ꗞ ꕮ ꖏꕎꔀ ꖴꗷ ꗏꗒ ꗨꗡ ꕘꕢꔤ ꕺꖃ ꘈꗢ ꗏ ꗷꔤ ꕞ ꕉ ꘃꖷ ꖴꘋ ꕧ ꕀꕩ ꕮꕊ ꘃ ꕸꖃ ꖴꘋ ꔰ, ꖺ ꗞ ꖸ ꖺ ꗞ ꖴꘋ ꖏꕚꕌꘂ ꕃꔤ ꖸ ꔬꕩꕌ ꕉ ꘃꖷ ꖸ ꖴꘋ ꕯꕊ ꖏ ꗏ ꕧꕴ ꕞ ꕉꖷ ꕉꔤ ꗓ ꔎꘋ ꗋꖺꕰꕊ ꖸ ꗪ ꖴꕮ ꕪ ꖷ ꖸ ꗪ ꕮꕞꘋꔕ ꗪ ꕺꖃ ꘈꗢꗏ.",
+   "gloss": "Nothing in this Declaration may be interpreted as implying for any State, group or person any right to engage in any activity or to perform any act aimed at the destruction of any of the rights and freedoms set forth herein.",
+   "countries": [
+    "LR",
+    "SL"
+   ],
+   "speakers": 200000,
+   "hints": [
+    "A syllabary — around 200 characters, one per consonant-plus-vowel — with no relationship to any other script; it was designed from nothing, not adapted.",
+    "Used on the West African Atlantic coast, around the border between a republic founded by freed American slaves and the colony next door.",
+    "Momolu Duwalu Bukele said the whole system came to him in a dream in the 1830s; it is one of very few indigenous African scripts still in everyday use."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_vai.xml, Article 30"
+  },
+  {
+   "key": "chr",
+   "lang": "Cherokee",
+   "script": "Cherokee",
+   "sc": "Cher",
+   "family": "Iroquoian",
+   "text": "Ꭿꭲꮎꭲ ꭴꮒꮂ ꮪᏻꭺꮫ ꮭ ꭱꮅꮚ ᏹꭼꮎꮞꭿꮝꮧ ꮎꮝꭹ ꮣꮅᏹꮅꮩꮂ ꮩᏻꮓ ꮥꭸꮵꮝꮫꮂꮝꭼꭹ ꮎꮝꭹꮎ ꮧꮣꮄꮒꮝꭼ ꭼꮒꭼꭼ-ꭰꮩꭹꮿꮫ ꭴꭼꮹꮅ ꭴꮝꭶꮕꮸꭲ ꭰꮄ ꮎꮝꭹꮎ ꮧꭷꮏꮹꮫꮝꮧ ꭰꮅꮝꭶꮑꮝꭹ ꭴꭼꮹꮅ ꭰꮄ ꭰꮝꭺꮅᏼ ꮎꮝꭹ ꭴꮎꮣꮪꮥꮻꮫ ꭰᏸꮅ.",
+   "gloss": "This right may not be invoked in the case of prosecutions genuinely arising from non‐political crimes or from acts contrary to the purposes and principles of the United Nations.",
+   "countries": [
+    "US"
+   ],
+   "speakers": 2000,
+   "hints": [
+    "Characters that look like Latin and Greek letters wearing the wrong hats — Ꭰ Ꭱ Ꮃ Ꮈ Ꮝ Ꮤ — except each one is a whole syllable and none has the sound you expect.",
+    "An Iroquoian language of the south-eastern woodlands of a large continental republic, and of the nation forcibly marched a thousand miles west in the 1830s.",
+    "Sequoyah built this syllabary around 1821 without being able to read any language at all; within a few years his people had a newspaper printed in it."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_chr_cased.xml, Article 14 (para 2)"
+  },
+  {
+   "key": "ike",
+   "lang": "Inuktitut",
+   "script": "Canadian Aboriginal Syllabics",
+   "sc": "Cans",
+   "family": "Eskimo-Aleut > Inuit",
+   "text": "ᑭᓇᑐᐃᓐᓇᑦᑎᐊᖅᒥᒃ ᓯᐊᓛᓯᐊᖃᖅᑐᒃᓴᐅᔪᖃᙱᓚᖅ ᓱᒃᑯᔨᐊᕆᓗᒍ ᐅᕝᕙᓘᓐᓃᑦ ᐱᔨᑦᑎᕋᖅᑎᑐᐃᓐᓇᐅᓂᒃᑯᑦ; ᓯᐊᓛᖃᓗᐊᕐᓂᖅ ᐊᒻᒪᓗ ᓵᓚᑲᑐᒃᓴᕆᔭᐅᓂᐊᕐᑐᒥᒃ ᑕᐅᕐᓰᓂᖅ ᐱᑦᑕᐃᓕᑎᑕᐅᕙᖕᓂᐊᓕᖅᑐᖅ ᖃᓄᐃᑦᑐᑐᐃᓐᓇᒃᑰᕆᐊᖃᓪᖤᓕᕋᓗᐊᕐᐸᑦ ᓴᓇᒪᓂᓕᐅᖅᑕᐅᓂᒃᑯᑦ.",
+   "gloss": "No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
+   "countries": [
+    "CA"
+   ],
+   "speakers": 40000,
+   "hints": [
+    "Triangles, hooks and chevrons that ROTATE to change their vowel — ᐃ ᐄ ᐅ ᐆ ᐊ ᐋ — with tiny raised characters for a final consonant. One shape, four directions.",
+    "An Inuit language of the Arctic, co-official in a vast, treeless northern territory carved out of a large country in 1999.",
+    "Words are built by piling suffix on suffix until one word does the job of an English sentence; a missionary adapted the syllabics from a Cree system in the 1850s."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_ike.xml, Article 4"
+  },
+  {
+   "key": "csw",
+   "lang": "Cree",
+   "script": "Canadian Aboriginal Syllabics",
+   "sc": "Cans",
+   "family": "Algic > Algonquian",
+   "text": "ᒥᓯᐌ ᐊᐌᓇ ᐁ ᐃᑌᓂᑕᑯᓯᐟ ᐯᔭᑾᓄᐟ ᑭᒋ ᐁᔑ ᑲᓇᐗᐸᒥᐟ ᐃᐢᐱ ᑲ ᑎᐸᐢᑯᓂᑲᓂᐗᐠ ᑎᐸᐣ ᑲ ᑎᐸᐣᑯᓂᑫᓂᒋ ᐃᐢᐱ ᑲ ᓇᑕᐎ ᑭᐢᑫᓂᒋᑲᑌᓂᐠ ᐅᒥᓂᑯᐎᓯᐎᓇ ᓀᐢᑕ ᐅᐟ ᐃᑌᓂᑕᑯᓯᐎᓇ ᐃᐢᐱ ᑲ ᑎᐯᐢᑯᓂᐟ ᑲ ᐗᓂᔑᒋᑫᑴ᙮",
+   "gloss": "Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him.",
+   "countries": [
+    "CA"
+   ],
+   "speakers": 95000,
+   "hints": [
+    "The same rotating triangles and hooks as the Arctic script — but a different set of raised finals, and a lot more ᒥ, ᓯ, ᐧ and ᐦ.",
+    "An Algonquian language of the boreal forest and the prairies, the most widely spoken Indigenous language of a large northern country.",
+    "James Evans devised these syllabics in the 1840s for this language first; the Arctic people to the north-east borrowed them afterwards."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_csw.xml, Article 10"
+  },
+  {
+   "key": "div",
+   "lang": "Dhivehi (Maldivian)",
+   "script": "Thaana",
+   "sc": "Thaa",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "ކުދިންނަށް ދޭނެ ތަޢުލީމެއްގެ ބާވަތް އިޚްތިޔާރު ކުރުމުގެ އިސް ޙައްޤެއް، ކުދިންގެ މައިންބަފައިންނަށް ލިބިގެންވެއެވެ.",
+   "gloss": "Parents have a prior right to choose the kind of education that shall be given to their children.",
+   "countries": [
+    "MV"
+   ],
+   "speakers": 350000,
+   "hints": [
+    "Written right to left, but the consonants are derived from ARABIC AND INDIC NUMERALS, and every single vowel must be marked above or below — no bare consonants.",
+    "The language of a low-lying atoll nation strung across the equator in the Indian Ocean, with fewer than half a million speakers.",
+    "Thaana appeared in the 16th century, reportedly so that magical writing could not be read by outsiders; the first nine consonants are literally the digits one to nine."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_div.xml, Article 26 (para 3)"
+  },
+  {
+   "key": "aii",
+   "lang": "Assyrian Neo-Aramaic",
+   "script": "Syriac",
+   "sc": "Syrc",
+   "family": "Afro-Asiatic > Semitic",
+   "text": "ܟܠ ܚܕ ܐܝܬܠܗ ܗܩܘܬܐ ܕܪܥܝܢܐ ܘܗܡܙܡܬܐ. ܐܗܐ ܚܐܪܘܬܐ ܒܚܒ݂ܫܝܠܐ ܚܐܪܘܬܐ ܕܪܥܝܢܐ ܕܠܐ ܘܪܬܐ ܕܓܘܝ ܡܢ ܗܟ̰ ܐܢܫܐ ܘܛܥܘܝܐ ܒܬܪ ܘܩܒܠܬܐ ܡܕܥܢܘܬܐ ܒܟܠ ܐܘܪܚܐ ܕܗܘܝܐ ܕܠܐ ܩܝܕܐ ܕܬܚܘܒܐ.",
+   "gloss": "Everyone has the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media and regardless of frontiers.",
+   "countries": [
+    "IQ",
+    "SY",
+    "IR",
+    "TR"
+   ],
+   "speakers": 600000,
+   "hints": [
+    "A right-to-left cursive that looks like an older, rounder relative of Arabic — because it is one. Letters join up, and two dots (siyame) over a word make it plural.",
+    "A modern descendant of the language Jesus spoke, kept alive by Christian communities on the plains around Nineveh, in the mountains of the north, and in a huge diaspora.",
+    "Vowels are written as little dots and dashes above and below the line in the eastern style; the script has been in use for over two thousand years."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_aii.xml, Article 19"
+  },
+  {
+   "key": "khk_mong",
+   "lang": "Mongolian (Traditional)",
+   "script": "Mongolian (vertical)",
+   "sc": "Mong",
+   "family": "Mongolic",
+   "text": "ᠬᠦᠮᠦᠨ ᠪᠦᠷ ᠲᠥᠷᠥᠵᠦ ᠮᠡᠨᠳᠡᠯᠡᠬᠦ ᠡᠷᠬᠡ ᠴᠢᠯᠥᠭᠡ ᠲᠡᠢ᠂ ᠠᠳᠠᠯᠢᠬᠠᠨ ᠨᠡᠷ᠎ᠡ ᠲᠥᠷᠥ ᠲᠡᠢ᠂ ᠢᠵᠢᠯ ᠡᠷᠬᠡ ᠲᠡᠢ ᠪᠠᠢᠠᠭ᠃ ᠣᠶᠤᠨ ᠤᠬᠠᠭᠠᠨ᠂ ᠨᠠᠨᠳᠢᠨ ᠴᠢᠨᠠᠷ ᠵᠠᠶᠠᠭᠠᠰᠠᠨ ᠬᠦᠮᠦᠨ ᠬᠡᠭᠴᠢ ᠥᠭᠡᠷ᠎ᠡ ᠬᠣᠭᠣᠷᠣᠨᠳᠣ᠎ᠨ ᠠᠬᠠᠨ ᠳᠡᠭᠦᠦ ᠢᠨ ᠦᠵᠢᠯ ᠰᠠᠨᠠᠭᠠ ᠥᠠᠷ ᠬᠠᠷᠢᠴᠠᠬᠥ ᠤᠴᠢᠷ ᠲᠠᠢ᠃",
+   "gloss": "All human beings are born free and equal in dignity and rights. They are endowed with reason and conscience and should act towards one another in a spirit of brotherhood.",
+   "countries": [
+    "CN",
+    "MN"
+   ],
+   "speakers": 5500000,
+   "hints": [
+    "Written VERTICALLY, top to bottom, with the columns running LEFT to right — a flowing spine with teeth, hooks and tails hanging off it. Almost nothing else alive is written this way.",
+    "The classical script of a steppe people: still the everyday writing in an autonomous region of a very large southern state, and being restored in the independent country to its north.",
+    "It was adapted from the Old Uyghur alphabet, which came from Sogdian, which came from Aramaic — the whole line simply turned ninety degrees."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_khk_mong.xml, Article 1"
+  },
+  {
+   "key": "iii",
+   "lang": "Nuosu (Yi)",
+   "script": "Yi (Liangshan)",
+   "sc": "Yiii",
+   "family": "Sino-Tibetan > Lolo-Burmese",
+   "text": "ꊾꂷꈀꐥꌠꃅꄜꋊꄯꒉꇬꅑꌠꌅꅍꌋꆀꄿꐨꆹ，ꊿꋅ、ꊾꐎꊾꆈ、ꌋꅪꌺꃰ、ꅇꂷ、ꑞꑇꌠ、ꍔꍞꌋꆀꀉꁁꑞꉜꐨ、ꑞꇩꏤ、ꐧꋦꊾꏥ、ꁨꇐ、ꒆꊿꀋꉬꀐꇬꀉꁁꊿꑞꉬꅉꂿꇬꐥꋭꌠꉬ。",
+   "gloss": "Everyone is entitled to all the rights and freedoms set forth in this Declaration, without distinction of any kind, such as race, colour, sex, language, religion, political or other opinion, national or social origin, property, birth or other status.",
+   "countries": [
+    "CN"
+   ],
+   "speakers": 2000000,
+   "hints": [
+    "A syllabary of about 1,100 spiky, angular characters that look like abstract stick figures — no strokes shared with the Han characters used all around it.",
+    "A Tibeto-Burman language of the cold mountains of the south-west of a very large country, where it is co-official in an autonomous prefecture.",
+    "The classic form ran vertically and had thousands of variants; the state standardised it to 819 syllable signs plus tone marks in 1974 and turned it on its side."
+   ],
+   "src": "UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr) :: udhr_iii.xml, Article 2"
+  },
+  {
+   "key": "snd",
+   "lang": "Sindhi",
+   "script": "Arabic (Sindhi)",
+   "sc": "Arab",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "فطرت جي نظام ۾ پاڻيءَ کي ئي زندگيءَ جو سرچشمو قرار ڏنو ويو آهي. آڳاٽي وقت کان ڪائنات جي جوڙجڪ ۾ چئن عنصرن مٽي، هوا ۽ پاڻي کي مکيه عنصر مڃيو ويو آهي.",
+   "gloss": "Opening of the Wikipedia article \"Water\" in this language (Wikidata Q283). A description of the passage's subject, not a word-for-word translation.",
+   "countries": [
+    "PK",
+    "IN"
+   ],
+   "speakers": 33000000,
+   "hints": [
+    "Perso-Arabic taken to its extreme — 52 letters — including ones with FOUR dots (ٿ ڦ) and dots stacked in diamonds and arcs: ڪ, ڳ, ٻ, ڇ. Nothing else is this densely dotted.",
+    "An Indo-Aryan language of the lower valley and delta of a great river that gave a whole subcontinent its name.",
+    "Implosive consonants ٻ ڄ ڏ ڳ, which almost no other language of the region has; a large community across the eastern border writes it in Devanagari instead."
+   ],
+   "src": "Wikipedia (CC BY-SA 4.0) :: sd.wikipedia.org REST summary of \"پاڻي\" (Wikidata Q283), opening lines"
+  },
+  {
+   "key": "ory",
+   "lang": "Odia",
+   "script": "Odia (Oriya)",
+   "sc": "Orya",
+   "family": "Indo-European > Indo-Aryan",
+   "text": "ପୃଥିବୀର ଅତି ସାଧାରଣ ତରଳ ହେଉଛି ଜଳ । ପୃଥିବୀର ପ୍ରାୟ ୭୧. ୪% ଜଳପୂର୍ଣ୍ଣ ଅଟେ । ବିଶୁଦ୍ଧ ଜଳର ଗନ୍ଧ, ସ୍ୱାଦ ଓ ରଙ୍ଗ ନାହିଁ । ହ୍ରଦ, ନଦୀ ଓ ମହାସାଗର ଆଦିରେ ଜଳ ଥାଏ । ଆକାଶରେ ବାଦଲରୁ ବର୍ଷା ରୂପରେ ଜଳ ତଳକୁ ପଡେ ।",
+   "gloss": "Opening of the Wikipedia article \"Water\" in this language (Wikidata Q283). A description of the passage's subject, not a word-for-word translation.",
+   "countries": [
+    "IN"
+   ],
+   "speakers": 35000000,
+   "hints": [
+    "Almost every letter is capped with a big rounded umbrella, so the line looks like a row of domes — the palm-leaf stylus would have torn a straight horizontal bar.",
+    "A classical Indo-Aryan language of an eastern coastal state on the Bay of Bengal, famous for a chariot festival that gave English the word \"juggernaut\".",
+    "It is the only eastern Indo-Aryan language that is not heavily Persianised, and one of a handful given official \"classical language\" status."
+   ],
+   "src": "Wikipedia (CC BY-SA 4.0) :: or.wikipedia.org REST summary of \"ଜଳ\" (Wikidata Q283), opening lines"
   }
  ]
 };

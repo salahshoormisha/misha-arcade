@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THIRDLE · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=6">
+<style>
+  #grid { display: grid; gap: 5px; margin: 14px auto 0; justify-content: center; }
+  #grid .cell { width: var(--cs, 46px); height: var(--cs, 46px); }
+  #grid .gap { visibility: hidden; }
+  .ac-tile.elsewhere { background: #8b3ecb; border-color: #8b3ecb; color: #fff; }
+  .ac-tile.lock { box-shadow: inset 0 0 0 2px var(--gold); }
+  .ac-tile.cur { border-color: var(--accent); box-shadow: 0 0 12px var(--glow); }
+  .ac-kbd button.elsewhere { background: #8b3ecb; color: #fff; }
+  .key { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+         font-size: 9.5px; letter-spacing: 1px; color: var(--ink4); margin-top: 10px; }
+  .key i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+  .tries { display: flex; gap: 5px; justify-content: center; margin-top: 10px; }
+  .tries i { width: 24px; height: 5px; border-radius: 9px; background: #ffffff18; }
+  .tries i.used { background: var(--bad); }
+  .tries i.won { background: var(--ok); }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=6"></script>
+<script src="../../core/arcade.js?v=6"></script>
+<script src="../../core/ui.js?v=6"></script>
+<script src="../../core/audio.js?v=6"></script>
+<script src="../../core/data/words.js?v=6"></script>
+<script src="game.js?v=6"></script>
+</body>
+</html>
