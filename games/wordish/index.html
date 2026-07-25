@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WORDISHA · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=1">
+<style>
+  #board { display: grid; gap: 6px; margin: 14px auto 0; width: min(330px, 82vw); }
+  #board .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  #board .ac-tile { aspect-ratio: 1; }
+  .modes { display: flex; justify-content: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .etym { font-size: 12px; color: var(--gold); text-align: center; line-height: 1.7; margin-top: 8px; }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=1"></script>
+<script src="../../core/arcade.js?v=1"></script>
+<script src="../../core/ui.js?v=1"></script>
+<script src="../../core/audio.js?v=1"></script>
+<script src="../../core/data/words.js?v=1" onerror="window.__noWords=1"></script>
+<script src="game.js?v=1"></script>
+</body>
+</html>

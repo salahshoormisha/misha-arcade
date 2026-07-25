@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE DAILY RUN · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓️</text></svg>">
+<link rel="stylesheet" href="../core/style.css?v=1">
+<style>
+  .hero { text-align: center; padding: 6px 0 14px; }
+  .ring { position: relative; width: 148px; height: 148px; margin: 4px auto 2px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .mid {
+    position: absolute; inset: 0; display: grid; place-items: center; line-height: 1;
+  }
+  .ring .mid b { font-size: 42px; font-weight: 900; color: #fff; text-shadow: 0 0 24px var(--glow); }
+  .ring .mid span { font-size: 9px; letter-spacing: 2.5px; color: var(--ink4); display: block; margin-top: 5px; }
+  .streaks { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+
+  .set { margin: 18px 0 6px; }
+  .set h3 {
+    font-size: 10.5px; letter-spacing: 2.6px; color: var(--ink4); font-weight: 700;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .set h3::after { content: ""; flex: 1; height: 1px; background: #ffffff12; }
+
+  .cab {
+    display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;
+    border: 1px solid var(--line); border-radius: 14px; padding: 11px 13px; margin-bottom: 7px;
+    background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.015));
+    transition: transform .14s, border-color .14s;
+  }
+  .cab:hover { transform: translateX(3px); border-color: var(--a); }
+  .cab .ic { font-size: 21px; width: 30px; text-align: center; flex: 0 0 auto; }
+  .cab .txt { flex: 1 1 auto; min-width: 0; }
+  .cab .txt b { display: block; font-size: 13.5px; letter-spacing: 1.8px; color: var(--a); font-weight: 900; }
+  .cab .txt i { display: block; font-style: normal; font-size: 10.5px; color: var(--ink3); margin-top: 2px;
+                overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cab .st { flex: 0 0 auto; text-align: right; font-size: 10px; letter-spacing: 1px; }
+  .cab .st .n { font-size: 17px; font-weight: 900; color: #fff; display: block; line-height: 1.1; }
+  .cab .st .d { color: var(--ink3); }
+  .cab.done { border-color: #ffffff22; }
+  .cab.done .ic { filter: none; }
+  .cab.todo .st .go {
+    background: linear-gradient(180deg, #fff, var(--a)); color: #14032a; font-weight: 800;
+    border-radius: 999px; padding: 6px 13px; font-size: 10.5px; letter-spacing: 1.2px; display: inline-block;
+  }
+  .cab .mini { display: block; height: 4px; border-radius: 9px; background: #ffffff14; margin-top: 5px; overflow: hidden; width: 62px; }
+  .cab .mini i { display: block; height: 100%; background: var(--a); }
+  .offline .cab { opacity: 1; }
+  .netwarn { font-size: 9.5px; color: var(--gold); letter-spacing: .5px; }
+
+  .suggest {
+    border: 1px dashed var(--line2); border-radius: 14px; padding: 13px; margin: 4px 0 2px;
+    background: #ffffff06;
+  }
+  .suggest h4 { font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
+  .suggest p { font-size: 11.5px; color: var(--ink3); line-height: 1.6; }
+  .suggest .go { margin-top: 9px; }
+  footer { text-align: center; font-size: 10px; color: var(--ink4); padding: 26px 0 10px; line-height: 2; }
+</style>
+</head>
+<body>
+<script src="../core/registry.js?v=1"></script>
+<script src="../core/arcade.js?v=1"></script>
+<script src="../core/ui.js?v=1"></script>
+<script src="../core/audio.js?v=1"></script>
+<script>
+(function () {
+  var main = A.mount({ title: "THE DAILY RUN", sub: null, wide: true, accent: "--hot" });
+  var dayN = A.dayNumber();
+
+  function pct(n) { return Math.max(0, Math.min(100, n)); }
+
+  function render() {
+    var card = A.card(dayN);
+    var rs = A.runStreak();
+    var total = A.registry.length;
+    var left = A.registry.filter(function (g) { return !A.isDone(g.id, dayN); });
+    var minsLeft = Math.round(left.reduce(function (a, g) { return a + (g.parMs || 150000); }, 0) / 60000);
+
+    var h = '<div class="hero">';
+    // score ring
+    var C = 2 * Math.PI * 62;
+    h += '<div class="ring"><svg width="148" height="148" viewBox="0 0 148 148">' +
+      '<circle cx="74" cy="74" r="62" fill="none" stroke="#ffffff12" stroke-width="9"/>' +
+      '<circle cx="74" cy="74" r="62" fill="none" stroke="url(#gr)" stroke-width="9" stroke-linecap="round" ' +
+      'stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - pct(card.total) / 100)) + '"/>' +
+      '<defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#4fd8ff"/>' +
+      "</linearGradient></defs></svg>" +
+      '<div class="mid"><div><b>' + card.total + "</b><span>TODAY'S CARD</span></div></div></div>";
+
+    h += '<div class="streaks">' +
+      '<span class="ac-pill">🔥 RUN <b>' + rs.current + "</b></span>" +
+      '<span class="ac-pill">✅ <b>' + card.played + "</b>/" + total + " PLAYED</span>" +
+      (left.length ? '<span class="ac-pill">≈ <b>' + minsLeft + "</b> MIN LEFT</span>"
+        : '<span class="ac-pill on">CLEAN SWEEP 👑</span>') +
+      "</div>";
+    h += '<div class="ac-row" style="margin-top:12px">' +
+      '<button class="ac-btn sm" id="shareCard">📋 SHARE CARD</button>' +
+      '<a class="ac-btn ghost sm" href="../league/" style="text-decoration:none">⚔️ V DAVID</a>' +
+      '<a class="ac-btn ghost sm" href="../passport/" style="text-decoration:none">🛂 PASSPORT</a>' +
+      "</div>";
+    h += '<div class="ac-sub" style="padding-top:12px">DAY ' + dayN + " · " +
+      A.prettyDate(dayN).toUpperCase() + "</div></div>";
+
+    // a suggested short run, for evenings when 20 games is absurd
+    if (left.length > 5) {
+      var set = suggestSet(left);
+      h += '<div class="suggest"><h4>⚡ TONIGHT\'S SET</h4><p>Five games, one from each wing, ' +
+        "about " + Math.round(set.reduce(function (a, g) { return a + g.parMs; }, 0) / 60000) +
+        " minutes: " + set.map(function (g) { return "<b style='color:var(--ink)'>" + g.name + "</b>"; }).join(" · ") +
+        '</p><a class="ac-btn sm go" href="../games/' + set[0].id + '/" style="text-decoration:none">START WITH ' +
+        set[0].name + " →</a></div>";
+    }
+
+    // cabinets by family
+    Object.keys(window.AD_FAMILIES).forEach(function (fam) {
+      var F = window.AD_FAMILIES[fam];
+      var list = A.registry.filter(function (g) { return g.family === fam; });
+      if (!list.length) return;
+      h += '<div class="set ' + fam + '"><h3>' + F.icon + " " + F.name +
+        ' <span style="color:var(--ink4);letter-spacing:.5px;font-weight:400;text-transform:none">' +
+        F.note + "</span></h3>";
+      list.forEach(function (g) {
+        var st = A.load(g.id, dayN);
+        var done = st && st.done;
+        h += '<a class="cab ' + (done ? "done" : "todo") + '" href="../games/' + g.id +
+          '/" style="--a:var(' + g.accent + ')">' +
+          '<span class="ic">' + g.icon + "</span>" +
+          '<span class="txt"><b>' + g.name + "</b><i>" + A.esc(g.tagline) +
+          (g.needsNet ? ' <span class="netwarn">· needs wifi</span>' : "") + "</i>" +
+          (done ? '<span class="mini"><i style="width:' + pct(st.norm) + '%"></i></span>' : "") +
+          "</span>" +
+          '<span class="st">' + (done
+            ? '<span class="n">' + st.norm + '</span><span class="d">' + A.esc(st.detail || "") + "</span>"
+            : '<span class="go">PLAY ▶</span>') +
+          "</span></a>";
+      });
+      h += "</div>";
+    });
+
+    h += '<footer>every puzzle here is the same for you and for David, worked out from the date — ' +
+      "no server, no accounts, no idea what anyone else scored.<br>" +
+      '<a href="../">← back to the arcade</a></footer>';
+
+    main.innerHTML = h;
+    var sc = document.getElementById("shareCard");
+    if (sc) sc.onclick = function () {
+      if (!card.played) return A.toast("Play something first 🙂", true);
+      A.share(A.runCard(dayN));
+    };
+  }
+
+  // One from each wing, cheapest first — a real 15-minute evening, not a chore.
+  function suggestSet(left) {
+    var rand = A.rngFor("set", dayN), out = [], seen = {};
+    Object.keys(window.AD_FAMILIES).forEach(function (fam) {
+      var pool = left.filter(function (g) { return g.family === fam && !g.needsNet || (g.family === fam && navigator.onLine); });
+      if (!pool.length) pool = left.filter(function (g) { return g.family === fam; });
+      if (pool.length) { var g = A.pick(rand, pool); out.push(g); seen[g.id] = 1; }
+    });
+    while (out.length < 5) {
+      var extra = left.filter(function (g) { return !seen[g.id]; });
+      if (!extra.length) break;
+      var e = A.pick(rand, extra); seen[e.id] = 1; out.push(e);
+    }
+    return out.slice(0, 5).sort(function (a, b) { return a.parMs - b.parMs; });
+  }
+
+  render();
+  A.on("finish", render);
+
+  if (A.backupDue()) {
+    setTimeout(function () {
+      A.toast("⚠︎ Back up your streaks — settings ⚙", true);
+    }, 1200);
+  }
+
+  // Roll over at midnight without a reload.
+  setTimeout(function () { location.reload(); }, A.msToMidnight() + 2000);
+})();
+</script>
+</body>
+</html>

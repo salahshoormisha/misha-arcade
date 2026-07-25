@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE LEAGUE · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+<link rel="stylesheet" href="../core/style.css?v=1">
+<style>
+  .vs { display: flex; align-items: stretch; gap: 8px; margin: 6px 0 14px; }
+  .vs .side { flex: 1 1 0; text-align: center; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line); }
+  .vs .side.win { border-color: var(--ok); background: rgba(61,224,138,.08); }
+  .vs .side.lose { opacity: .72; }
+  .vs .side b { display: block; font-size: 34px; font-weight: 900; color: #fff; line-height: 1; }
+  .vs .side span { display: block; font-size: 10.5px; letter-spacing: 2px; color: var(--ink3); margin-top: 7px; }
+  .vs .mid { flex: 0 0 auto; display: grid; place-items: center; font-size: 11px; color: var(--ink4); letter-spacing: 2px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 7px 5px; text-align: center; }
+  th { font-size: 9px; letter-spacing: 1.4px; color: var(--ink4); font-weight: 700; border-bottom: 1px solid var(--line); }
+  td { border-bottom: 1px solid #ffffff0b; }
+  td.l, th.l { text-align: left; }
+  tr.me td { color: var(--ink); }
+  tbody tr.top td.l b { color: var(--hot); }
+  .pts { font-weight: 900; color: #fff; }
+
+  .g { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #ffffff0b; font-size: 12px; }
+  .g .n { flex: 1 1 auto; letter-spacing: 1.4px; }
+  .g .n i { display: block; font-style: normal; font-size: 10px; color: var(--ink4); letter-spacing: 0; }
+  .g .a, .g .b { width: 62px; text-align: center; font-weight: 800; }
+  .g .a.w, .g .b.w { color: var(--ok); }
+  .g .a.l, .g .b.l { color: var(--ink4); }
+  .g .bar { width: 54px; }
+  .g.none { opacity: .45; }
+
+  .form { letter-spacing: 3px; font-weight: 900; font-size: 13px; }
+  .form .W { color: var(--ok); } .form .L { color: var(--bad); } .form .D { color: var(--ink3); }
+
+  h3.sec { font-size: 10.5px; letter-spacing: 2.6px; color: var(--ink4); margin: 22px 0 8px;
+           display: flex; align-items: center; gap: 8px; }
+  h3.sec::after { content: ""; flex: 1; height: 1px; background: #ffffff12; }
+  .empty { text-align: center; color: var(--ink3); font-size: 12.5px; line-height: 1.9; padding: 10px 0 4px; }
+  footer { text-align: center; font-size: 10px; color: var(--ink4); padding: 26px 0 10px; line-height: 2; }
+  .steps { counter-reset: s; font-size: 12px; color: var(--ink2); }
+  .steps li { margin: 7px 0; line-height: 1.6; }
+</style>
+</head>
+<body>
+<script src="../core/registry.js?v=1"></script>
+<script src="../core/arcade.js?v=1"></script>
+<script src="../core/ui.js?v=1"></script>
+<script src="../core/audio.js?v=1"></script>
+<script>
+(function () {
+  var main = A.mount({ title: "THE LEAGUE", sub: null, wide: true, accent: "--hot",
+    help: "<p>Two people, no server. Play the day's games, tap <b>SEND MY CARD</b>, and text the " +
+      "link that lands in your clipboard. Opening it shows the other person the head-to-head and " +
+      "lets them fire theirs back.</p>" +
+      "<p>Every game contributes its <b>0–100 normalised score</b>, so a Wordle and a TimeGuessr " +
+      "count the same. Only games you <i>both</i> played are scored — no walkovers.</p>" +
+      "<p>Season points are football's: <b>3</b> for a win, <b>1</b> for a draw. Because of course they are.</p>" });
+
+  var incoming = A.readDuel();
+  render();
+
+  function myName() { return A.settings().player || "You"; }
+
+  function render() {
+    var T = A.leagueTable();
+    var h = "";
+
+    /* ── an incoming card, if someone just sent one ────────────────────── */
+    if (incoming) {
+      var mine = A.card(incoming.day);
+      var oppName = incoming.name || "David";
+      var iWin = mine.total > incoming.total, draw = mine.total === incoming.total;
+
+      h += '<h3 class="sec">📬 ' + A.esc(oppName.toUpperCase()) + " SENT DAY " + incoming.day + "</h3>";
+      h += '<div class="vs">' +
+        '<div class="side ' + (iWin ? "win" : draw ? "" : "lose") + '"><b>' + mine.total +
+        "</b><span>" + A.esc(myName().toUpperCase()) + "</span></div>" +
+        '<div class="mid">V</div>' +
+        '<div class="side ' + (!iWin && !draw ? "win" : draw ? "" : "lose") + '"><b>' + incoming.total +
+        "</b><span>" + A.esc(oppName.toUpperCase()) + "</span></div></div>";
+
+      var banner = draw ? "⚖️ HONOURS EVEN" : iWin ? "🏆 YOU TAKE THE DAY" : "😤 " + oppName.toUpperCase() + " TAKES IT";
+      h += '<p class="center" style="font-size:13px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">' +
+        banner + "</p>";
+
+      h += '<h3 class="sec">GAME BY GAME</h3>';
+      var both = 0;
+      A.registry.forEach(function (g) {
+        var a = mine.results[g.id], b = incoming.results[g.id];
+        if (!a && !b) return;
+        var cls = (a && b) ? "" : "none";
+        if (a && b) both++;
+        var aw = a && b && a.norm > b.norm, bw = a && b && b.norm > a.norm;
+        h += '<div class="g ' + cls + '"><span style="width:22px">' + g.icon + "</span>" +
+          '<span class="n">' + g.name + "<i>" + (a && b ? "" : "only one of you played this") + "</i></span>" +
+          '<span class="a ' + (aw ? "w" : bw ? "l" : "") + '">' + (a ? a.norm : "—") +
+          '<i style="display:block;font-style:normal;font-size:9px;color:var(--ink4)">' + A.esc(a ? a.detail : "") + "</i></span>" +
+          '<span class="b ' + (bw ? "w" : aw ? "l" : "") + '">' + (b ? b.norm : "—") +
+          '<i style="display:block;font-style:normal;font-size:9px;color:var(--ink4)">' + A.esc(b ? b.detail : "") + "</i></span>" +
+          "</div>";
+      });
+      if (!both) {
+        h += '<p class="empty">You haven\'t played any of the same games yet today — ' +
+          '<a href="../daily/">go and play some</a>, then come back here.</p>';
+      }
+
+      h += '<div class="ac-row" style="margin-top:16px">' +
+        '<button class="ac-btn" id="reply">↩︎ SEND MINE BACK</button>' +
+        '<button class="ac-btn ghost" id="save">💾 SAVE TO SEASON</button></div>';
+      h += '<p class="tiny dim center" style="margin-top:8px">Saving records it in the table below. ' +
+        "Do it once per day, or you'll double-count yourselves.</p>";
+    }
+
+    /* ── the season table ──────────────────────────────────────────────── */
+    var played = T.days.length;
+    h += '<h3 class="sec">🏆 THE SEASON</h3>';
+    if (!played) {
+      h += '<div class="ac-card"><p class="empty">No fixtures yet. Here\'s how it works:</p>' +
+        '<ol class="steps"><li>Both of you play some of <a href="../daily/">today\'s games</a> ' +
+        "(the puzzles are identical — they're worked out from the date).</li>" +
+        "<li>One of you taps <b>SEND MY CARD</b> and texts the link.</li>" +
+        "<li>The other opens it, sees the head-to-head, taps <b>SEND MINE BACK</b>.</li>" +
+        "<li>Both tap <b>SAVE TO SEASON</b>. That's a fixture in the books.</li></ol></div>";
+    } else {
+      var meRow = { n: myName(), p: played, w: T.me, d: T.draws, l: T.them };
+      var themRow = { n: T.opponent, p: played, w: T.them, d: T.draws, l: T.me };
+      var gf = 0, ga = 0;
+      T.days.forEach(function (m) { gf += m.mine.total; ga += m.theirs.total; });
+      meRow.f = gf; meRow.a = ga; themRow.f = ga; themRow.a = gf;
+      [meRow, themRow].forEach(function (r) { r.pts = r.w * 3 + r.d; });
+      var rows = [meRow, themRow].sort(function (x, y) { return y.pts - x.pts || (y.f - y.a) - (x.f - x.a); });
+
+      h += "<table><thead><tr><th class='l'>#</th><th class='l'>PLAYER</th><th>P</th><th>W</th><th>D</th>" +
+        "<th>L</th><th>PTS</th><th>+/−</th></tr></thead><tbody>";
+      rows.forEach(function (r, i) {
+        h += "<tr class='" + (i === 0 ? "top" : "") + (r === meRow ? " me" : "") + "'>" +
+          "<td class='l'>" + (i + 1) + "</td><td class='l'><b>" + A.esc(r.n) + "</b></td>" +
+          "<td>" + r.p + "</td><td>" + r.w + "</td><td>" + r.d + "</td><td>" + r.l + "</td>" +
+          "<td class='pts'>" + r.pts + "</td><td>" + (r.f - r.a > 0 ? "+" : "") + (r.f - r.a) + "</td></tr>";
+      });
+      h += "</tbody></table>";
+
+      // form guide, most recent first
+      var form = T.days.slice(-10).reverse().map(function (m) {
+        return m.mine.total > m.theirs.total ? "W" : m.mine.total < m.theirs.total ? "L" : "D";
+      });
+      h += '<p class="center" style="margin-top:12px"><span class="tiny dim">YOUR FORM </span>' +
+        '<span class="form">' + form.map(function (c) { return "<span class='" + c + "'>" + c + "</span>"; }).join("") +
+        "</span></p>";
+
+      /* ── who's better at what ────────────────────────────────────────── */
+      var keys = Object.keys(T.byGame);
+      if (keys.length) {
+        h += '<h3 class="sec">⚔️ RIVALRY BY GAME</h3>';
+        keys.map(function (k) { return { k: k, v: T.byGame[k] }; })
+          .sort(function (a, b) { return (b.v.me + b.v.them + b.v.draw) - (a.v.me + a.v.them + a.v.draw); })
+          .forEach(function (row) {
+            var g = A.game(row.k) || { name: row.k, icon: "•" };
+            var v = row.v, n = v.me + v.them + v.draw;
+            var w = Math.round(100 * v.me / (n || 1));
+            h += '<div class="g"><span style="width:22px">' + g.icon + "</span>" +
+              '<span class="n">' + g.name + "<i>" + v.me + "–" + v.draw + "–" + v.them + "</i></span>" +
+              '<span class="bar"><span class="ac-bar"><i style="width:' + w + '%"></i></span></span>' +
+              '<span class="a" style="width:44px">' + w + "%</span></div>";
+          });
+        var best = keys.slice().sort(function (a, b) { return (T.byGame[b].me - T.byGame[b].them) - (T.byGame[a].me - T.byGame[a].them); });
+        if (best.length > 1) {
+          var yours = A.game(best[0]), theirs = A.game(best[best.length - 1]);
+          h += '<p class="tiny dim center" style="margin-top:10px">Your patch: <b style="color:var(--ok)">' +
+            (yours ? yours.name : best[0]) + "</b> · " + A.esc(T.opponent) + "'s patch: <b>" +
+            (theirs ? theirs.name : best[best.length - 1]) + "</b></p>";
+        }
+      }
+    }
+
+    /* ── send your card ────────────────────────────────────────────────── */
+    var todayCard = A.card(A.dayNumber());
+    h += '<h3 class="sec">📤 TODAY</h3>';
+    h += '<div class="ac-card center"><p class="tiny muted">You\'ve played <b>' + todayCard.played +
+      "</b> game" + (todayCard.played === 1 ? "" : "s") + " today for a card of <b>" + todayCard.total +
+      '</b>.</p><div class="ac-row" style="margin-top:10px">' +
+      '<button class="ac-btn" id="send">🔗 SEND MY CARD</button>' +
+      '<a class="ac-btn ghost sm" href="../daily/" style="text-decoration:none">PLAY MORE →</a></div></div>';
+
+    h += '<footer>the link carries your scores inside it — nothing is uploaded anywhere.<br>' +
+      '<a href="../">← back to the arcade</a> · <a href="../daily/">the daily run</a></footer>';
+
+    main.innerHTML = h;
+    wire();
+  }
+
+  function wire() {
+    var s = document.getElementById("send");
+    if (s) s.onclick = function () { sendMine(A.dayNumber()); };
+    var r = document.getElementById("reply");
+    if (r) r.onclick = function () { sendMine(incoming.day); };
+    var sv = document.getElementById("save");
+    if (sv) sv.onclick = function () {
+      if (!A.settings().player) return askName(function () { sv.click(); });
+      A.recordMatch(incoming.day, incoming);
+      A.sfx(A.card(incoming.day).total >= incoming.total ? "win" : "david");
+      A.toast("Fixture saved");
+      incoming = null;
+      history.replaceState(null, "", location.pathname);
+      render();
+    };
+  }
+
+  function sendMine(dayN) {
+    var c = A.card(dayN);
+    if (!c.played) return A.toast("Play something first 🙂", true);
+    if (!A.settings().player) return askName(function () { sendMine(dayN); });
+    var link = A.duelLink(dayN);
+    var text = A.runCard(dayN) + "\n\nbeat that: " + link;
+    A.share(text);
+    A.modal("SENT", '<p>Your card and the link are in your clipboard — paste it into a message.</p>' +
+      '<p class="tiny dim">The link is long because your scores are packed inside it. That\'s the whole ' +
+      "trick: no server, no accounts, nothing stored anywhere but your two phones.</p>" +
+      '<div class="ac-grid-share" style="font-size:13px">' + A.esc(A.runCard(dayN)) + "</div>" +
+      '<div class="ac-row"><button class="ac-btn sm" id="again">COPY AGAIN</button></div>')
+      .body.querySelector("#again").onclick = function () { A.copy(text).then(function () { A.toast("Copied"); }); };
+  }
+
+  function askName(then) {
+    var m = A.modal("WHO ARE YOU?", '<p class="tiny muted">Just for the league table. Stays on this device.</p>' +
+      '<div class="ac-row" style="margin-top:10px"><input id="nm" placeholder="your name" ' +
+      'style="background:#ffffff10;border:1px solid var(--line2);border-radius:999px;padding:11px 16px;width:170px;text-align:center">' +
+      '</div><div class="ac-row" style="margin-top:12px"><button class="ac-btn sm" id="ok">THAT\'S ME</button>' +
+      '<button class="ac-btn ghost sm" id="misha">MISHA</button>' +
+      '<button class="ac-btn ghost sm" id="david">DAVID</button></div>');
+    var fin = function (v) { A.set("player", v); m.close(); render(); if (then) then(); };
+    m.body.querySelector("#ok").onclick = function () {
+      var v = m.body.querySelector("#nm").value.trim();
+      if (v) fin(v.slice(0, 18)); else A.toast("Type a name", true);
+    };
+    m.body.querySelector("#misha").onclick = function () { fin("Misha"); };
+    m.body.querySelector("#david").onclick = function () { fin("David"); };
+  }
+
+  if (incoming && !A.settings().player) setTimeout(function () { askName(); }, 500);
+})();
+</script>
+</body>
+</html>

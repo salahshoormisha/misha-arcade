@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARCADE PASSPORT · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛂</text></svg>">
+<link rel="stylesheet" href="../core/style.css?v=1">
+<style>
+  #map { width: 100%; height: 300px; display: block; border-radius: 14px; border: 1px solid var(--line); background: #0b0620; }
+  .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 7px; margin-top: 10px; }
+  .wall button {
+    background: none; border: none; padding: 0; cursor: pointer; position: relative;
+    border-radius: 4px; overflow: hidden; aspect-ratio: 3/2;
+  }
+  .wall img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 4px; }
+  .wall button.no img { filter: grayscale(1) brightness(.28); }
+  .wall button.no::after {
+    content: ""; position: absolute; inset: 0; border-radius: 4px;
+    border: 1px dashed #ffffff20;
+  }
+  .wall button b {
+    position: absolute; inset: auto 0 0 0; font-size: 8px; letter-spacing: .5px;
+    background: #000000aa; color: #fff; padding: 1px 0; font-weight: 700;
+  }
+  .cont { margin-top: 4px; }
+  .cont .r { display: flex; align-items: center; gap: 9px; font-size: 11.5px; padding: 5px 0; }
+  .cont .r span:first-child { width: 96px; color: var(--ink3); letter-spacing: 1px; }
+  .cont .r .ac-bar { flex: 1 1 auto; }
+  .cont .r b { width: 56px; text-align: right; color: #fff; font-size: 11px; }
+  h3.sec { font-size: 10.5px; letter-spacing: 2.6px; color: var(--ink4); margin: 22px 0 8px;
+           display: flex; align-items: center; gap: 8px; }
+  h3.sec::after { content: ""; flex: 1; height: 1px; background: #ffffff12; }
+  .want { display: flex; flex-wrap: wrap; gap: 7px; }
+  .want a { text-decoration: none; }
+  .stampbig { font-size: 46px; font-weight: 900; color: #fff; text-shadow: 0 0 26px var(--glow); line-height: 1; }
+  footer { text-align: center; font-size: 10px; color: var(--ink4); padding: 26px 0 10px; line-height: 2; }
+  .seg { display: flex; justify-content: center; margin: 10px 0 12px; }
+</style>
+</head>
+<body>
+<script src="../core/registry.js?v=1"></script>
+<script src="../core/arcade.js?v=1"></script>
+<script src="../core/ui.js?v=1"></script>
+<script src="../core/audio.js?v=1"></script>
+<script src="../core/flagart.js?v=1"></script>
+<script src="../core/worldmap.js?v=1"></script>
+<script src="../core/data/countries.js?v=1" onerror="window.__noCountries=1"></script>
+<script src="../core/data/flags.js?v=1" onerror="window.__noFlags=1"></script>
+<script src="../core/data/world.js?v=1" onerror="window.__noWorld=1"></script>
+<script>
+(function () {
+  var main = A.mount({ title: "ARCADE PASSPORT", sub: null, wide: true, accent: "--mint",
+    help: "<p>Every country you correctly name in <b>FLAGLE</b>, <b>TRADLE</b>, <b>GLOBLE</b>, " +
+      "<b>OUTLINE</b>, <b>GEOGRID</b>, <b>FOODGUESSR</b>, <b>CLUEDROP</b>, <b>LINGUAGUESSR</b>, " +
+      "<b>PICK 5</b> or the <b>PICTURE HOUSE</b> gets stamped in here — once, forever.</p>" +
+      "<p>195 UN member states to collect. The map is real geometry, so the shapes are the shapes.</p>" });
+
+  var C = window.AD_COUNTRIES || [];
+  var sovereign = C.filter(function (c) { return c.un === 1; });
+  var pass = A.passport();
+  var mode = "have";
+
+  function render() {
+    pass = A.passport();
+    var have = Object.keys(pass);
+    var total = sovereign.length || 195;
+    var haveSov = have.filter(function (i) { return sovereign.some(function (c) { return c.i === i; }); });
+
+    var h = '<div class="center" style="padding:4px 0 2px">' +
+      '<div class="stampbig">' + haveSov.length + '<span style="font-size:18px;color:var(--ink3)"> / ' + total + "</span></div>" +
+      '<div class="ac-sub" style="padding-top:6px">COUNTRIES STAMPED</div>' +
+      '<div class="ac-row" style="margin-top:10px">' +
+      '<button class="ac-btn sm" id="sh">📋 SHARE</button>' +
+      '<a class="ac-btn ghost sm" href="../daily/" style="text-decoration:none">EARN MORE →</a></div></div>';
+
+    h += '<canvas id="map"></canvas>';
+    h += '<p class="ac-credit">tap a country on the map to see when you got it · ' +
+      "map: Natural Earth (public domain)</p>";
+
+    // continent progress
+    h += '<h3 class="sec">🌍 BY REGION</h3><div class="cont">';
+    var regions = {};
+    sovereign.forEach(function (c) {
+      var r = c.reg || "Other";
+      regions[r] = regions[r] || { n: 0, got: 0 };
+      regions[r].n++;
+      if (pass[c.i]) regions[r].got++;
+    });
+    Object.keys(regions).sort().forEach(function (r) {
+      var x = regions[r], p = Math.round(100 * x.got / x.n);
+      h += '<div class="r"><span>' + A.esc(r.toUpperCase()) + '</span><span class="ac-bar">' +
+        '<i style="width:' + p + '%"></i></span><b>' + x.got + "/" + x.n + "</b></div>";
+    });
+    h += "</div>";
+
+    // the wall
+    h += '<h3 class="sec">🏳️ THE WALL</h3>' +
+      '<div class="seg"><span class="ac-seg">' +
+      '<button class="' + (mode === "have" ? "on" : "") + '" data-m="have">COLLECTED</button>' +
+      '<button class="' + (mode === "missing" ? "on" : "") + '" data-m="missing">MISSING</button>' +
+      '<button class="' + (mode === "all" ? "on" : "") + '" data-m="all">EVERYTHING</button></span></div>' +
+      '<div class="wall" id="wall"></div>';
+
+    // most wanted — with a route to getting them
+    h += '<h3 class="sec">🎯 MOST WANTED</h3>';
+    var missing = sovereign.filter(function (c) { return !pass[c.i]; });
+    if (!missing.length) {
+      h += '<p class="center" style="color:var(--gold);font-size:13px">Every single one. ' +
+        "There is genuinely nothing left to collect. 👑</p>";
+    } else {
+      var rand = A.rngFor("wanted", A.dayNumber());
+      var pickList = A.shuffle(rand, missing).slice(0, 6);
+      h += '<p class="tiny muted" style="margin-bottom:9px">Six you haven\'t got yet, and where to go hunting:</p><div class="want">';
+      pickList.forEach(function (c) {
+        var route = routeFor(c);
+        h += '<a class="ac-pill" href="../games/' + route.id + '/" title="' + A.esc(c.n) + '">' +
+          A.esc(c.n) + ' <b style="color:var(--ink3);font-weight:400">· ' + route.name + "</b></a>";
+      });
+      h += "</div>";
+    }
+
+    h += '<footer><a href="../">← back to the arcade</a> · <a href="../daily/">the daily run</a> · ' +
+      '<a href="../league/">the league</a></footer>';
+
+    main.innerHTML = h;
+
+    document.getElementById("sh").onclick = function () {
+      A.share("🛂 ARCADE PASSPORT\n" + haveSov.length + "/" + total + " countries stamped\n" +
+        Object.keys(regions).map(function (r) {
+          return A.bar(Math.round(100 * regions[r].got / regions[r].n)) + " " + r;
+        }).join("\n") + "\n" + A.SITE + "passport/");
+    };
+    A.$$(".ac-seg button", main).forEach(function (b) {
+      b.onclick = function () { mode = b.getAttribute("data-m"); render(); };
+    });
+    drawWall();
+    drawMap();
+  }
+
+  // Which game is most likely to hand you this country?
+  function routeFor(c) {
+    if (window.AD_TRADE && (window.AD_TRADE.countries || []).some(function (t) { return t.i === c.i; }))
+      return { id: "tradle", name: "TRADLE" };
+    if (window.AD_FOOD && (window.AD_FOOD.countries || []).some(function (t) { return t.i === c.i; }))
+      return { id: "foodguessr", name: "FOODGUESSR" };
+    if (window.AD_WORLD && window.AD_WORLD.rings && (window.AD_WORLD.rings(c.i) || []).length)
+      return { id: "outline", name: "OUTLINE" };
+    return { id: "flagle", name: "FLAGLE" };
+  }
+
+  function drawWall() {
+    var host = document.getElementById("wall");
+    if (!host) return;
+    var list = sovereign.slice().sort(function (a, b) { return a.n.localeCompare(b.n); });
+    if (mode === "have") list = list.filter(function (c) { return pass[c.i]; });
+    if (mode === "missing") list = list.filter(function (c) { return !pass[c.i]; });
+    if (!list.length) {
+      host.innerHTML = '<p class="tiny dim" style="grid-column:1/-1;text-align:center;padding:14px 0">' +
+        (mode === "have" ? "Nothing stamped yet — go and win a geography game." : "Nothing here.") + "</p>";
+      return;
+    }
+    host.innerHTML = "";
+    list.slice(0, 260).forEach(function (c) {
+      var b = document.createElement("button");
+      b.className = pass[c.i] ? "" : "no";
+      b.title = c.n;
+      b.setAttribute("aria-label", c.n + (pass[c.i] ? " — collected" : " — not collected"));
+      var im = A.flagEl(c.i, { blank: true });
+      im.onerror = function () { im.remove(); b.insertAdjacentHTML("afterbegin", '<span style="display:grid;place-items:center;height:100%;font-size:9px;color:var(--ink4)">' + c.i + "</span>"); };
+      b.appendChild(im);
+      b.insertAdjacentHTML("beforeend", "<b>" + c.i + "</b>");
+      b.onclick = function () { detail(c); };
+      host.appendChild(b);
+    });
+  }
+
+  function detail(c) {
+    var p = pass[c.i];
+    var h = '<div class="center" style="margin-bottom:12px" id="fh"></div>';
+    h += '<p class="center" style="font-size:17px;letter-spacing:2px;color:#fff">' + A.esc(c.n) + "</p>";
+    h += '<p class="center tiny muted">' + A.esc([c.cap, c.sub || c.reg].filter(Boolean).join(" · ")) + "</p>";
+    if (p) {
+      var games = (p.games || []).map(function (g) { var G = A.game(g); return G ? G.icon + " " + G.name : g; });
+      h += '<p class="center" style="margin-top:14px;color:var(--ok);font-size:12px;letter-spacing:1.5px">' +
+        "✔ STAMPED " + A.esc(p.first) + "</p>";
+      h += '<p class="center tiny muted" style="margin-top:6px">earned in ' + games.join(", ") +
+        (p.n > 1 ? " · identified " + p.n + " times" : "") + "</p>";
+    } else {
+      var r = routeFor(c);
+      h += '<p class="center" style="margin-top:14px;color:var(--ink4);font-size:12px;letter-spacing:1.5px">NOT YET COLLECTED</p>' +
+        '<div class="ac-row" style="margin-top:10px"><a class="ac-btn sm" href="../games/' + r.id +
+        '/" style="text-decoration:none">HUNT IT IN ' + r.name + " →</a></div>";
+    }
+    var m = A.modal(null, h);
+    var fh = m.body.querySelector("#fh");
+    var im = A.flagEl(c.i, { height: 74, css: "margin:0 auto" });
+    im.onerror = function () { im.remove(); };
+    fh.appendChild(im);
+  }
+
+  function drawMap() {
+    var cvs = document.getElementById("map");
+    if (!cvs) return;
+    if (!window.AD_WORLD) {
+      var g = cvs.getContext("2d");
+      cvs.width = cvs.clientWidth; cvs.height = 300;
+      g.fillStyle = "#6b5aa0"; g.font = "12px monospace"; g.textAlign = "center";
+      g.fillText("map data still building", cvs.width / 2, 150);
+      return;
+    }
+    var m = A.map(cvs, {
+      mode: "equirect", drag: true,
+      onCountry: function (iso) {
+        if (!iso) return;
+        var c = (window.AD_COUNTRIES || []).filter(function (x) { return x.i === iso; })[0];
+        if (c) detail(c);
+      },
+      colours: { sea: "#0b0620", land: "#1c1440", border: "#33245f" },
+    });
+    Object.keys(pass).forEach(function (iso) {
+      var n = pass[iso].n || 1;
+      m.fill(iso, n >= 5 ? "#ff4fa3" : n >= 3 ? "#c94fd8" : "#3de08a");
+    });
+    m.draw().resizeOn();
+  }
+
+  render();
+  A.on("stamp", render);
+})();
+</script>
+</body>
+</html>
