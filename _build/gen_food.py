@@ -191,6 +191,15 @@ def norm_title(s):
     return re.sub(r"[^a-z0-9 ]", "", s).strip()
 
 
+def wiki_key(title, expect=None, lang="en"):
+    """Cache key. The APPROVED redirect target is part of the key, so approving a
+    redirect after the fact invalidates the old rejection instead of sticking."""
+    k = title if lang == "en" else "%s:%s" % (lang, title)
+    if expect and norm_title(expect) != norm_title(title):
+        k += " |as| " + expect
+    return k
+
+
 def commons_image(filetitle, offline=False):
     """Resolve an exact Commons 'File:...' title -> a verified 500px thumbnail."""
     key = "commons:" + filetitle
@@ -232,7 +241,7 @@ def wiki_image(title, expect=None, lang="en", offline=False):
 
     Only PERMANENT outcomes are cached; a rate limit or a network blip is retried
     on the next run rather than being frozen in as a missing image."""
-    key = title if lang == "en" else "%s:%s" % (lang, title)
+    key = wiki_key(title, expect, lang)
     rec = WIKI.get(key)
     if rec is None and not offline:
         NET_CALLS[0] += 1
@@ -306,8 +315,7 @@ def resolve_img(dish, iso, offline=False):
                        offline=offline)
         if u:
             return u
-        key = dish["wiki"] if lang == "en" else "%s:%s" % (lang, dish["wiki"])
-        rec = WIKI.get(key) or {}
+        rec = WIKI.get(wiki_key(dish["wiki"], dish.get("wikias"), lang)) or {}
         DROPPED.append((iso, dish["name"], dish["wiki"],
                         "%s.wikipedia %s" % (lang, rec.get("status", "unresolved"))))
     return None

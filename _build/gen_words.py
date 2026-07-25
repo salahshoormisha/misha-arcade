@@ -174,16 +174,38 @@ with rd(os.path.join(B, 'src', 'ldnoobw_en.txt')) as f:
         t = line.strip().lower()
         if t and re.fullmatch(r'[a-z]+', t):
             HARD.add(t)
-# Plurals of a slur are slurs too -- but ONLY for strings that are not ordinary
-# words themselves, or the suffix walk starts eating the language (SPIC -> SPICY,
-# SPICE, SPICES; TIT -> TITLE).  Verified: no member of any shipped list is a
-# false positive of this rule.
+# Inflections of a slur are slurs too: block the regular forms of every blocked
+# string, then hand back the ordinary English words the walk swallows on the way
+# (SPIC -> SPICY/SPICED, BUTT -> BUTTER, MONG -> MONGER, TAIG -> TAIGA, TIT ->
+# TITER).  The reclaim list was built by printing every generated form that is a
+# web2 headword or has real corpus frequency, and reading all 96 of them.
+HARD_RECLAIM = set("""
+assessed assessing butter butting butty dicker dicky dickies spiced spicer
+spicing spicy spica sucker sucked sucking snatched snatcher snatching pricked
+pricking monger taiga titer skeeter spunky beanery
+""".split())
 for w in list(HARD):
-    if w not in WEB2:
-        HARD.add(w + 's')
-        HARD.add(w + 'es')
+    for suf in ('s', 'es', 'ed', 'ing', 'er', 'ers', 'y', 'ies', 'a', 'ish'):
+        HARD.add(w + suf)
+HARD -= HARD_RECLAIM
 
-SOFT = _expand(WA.BLOCK_SOFT)
+# Leaks found by the substring screen in the self-check below, added by hand.
+HARD |= set("""
+kikes redskins coony nazim nazir fagot fagots booby boobies bimbo bimbos hussy
+hussies slag slags butch homo homos erotica dildos pantyhose gimps shags scats
+japs wench wenches strumpet
+""".split())
+
+# Ordinary words, legal as GUESSES, that a cosy daily arcade should never serve
+# as an answer, a crossword entry or a Letter Boxed solution.  Added to the
+# hand-authored BLOCK_SOFT list.
+EXTRA_SOFT = """
+abortion abortions homicide slavery slave slaves slavers racist racism racial
+racially terror terrorism terrorist terrorists oriental lynch lynched lynching
+noose massacre genocide torture tortured hostage hostages fascist fascism
+"""
+
+SOFT = _expand(WA.BLOCK_SOFT) | _expand(EXTRA_SOFT)
 # JUNK: lowercased proper nouns, foreign words, abbreviations -- not words.
 # XW.BLOCK is the CROSSWORD-specific blocklist (crosswordese, abbreviations,
 # and grid-unfriendly vocabulary); it also contains ordinary words like BLOOD,
@@ -437,6 +459,8 @@ def build_valid(L):
     for w in BYLEN[L]:
         if hard_blocked(w) or not sane(w) or is_name(w):
             continue
+        if w in JUNK and w not in WEB2:
+            continue          # lowercased place names and abbreviations: not words
         if attested(w):
             out.add(w)
     return out
@@ -579,7 +603,7 @@ def build_boxed():
         for w in BYLEN[L]:
             if has_double(w) or len(set(w)) > 12:
                 continue
-            if hard_blocked(w) or w in JUNK or not sane(w):
+            if hard_blocked(w) or w in JUNK or w in SOFT or not sane(w):
                 continue
             if is_name(w) or w in NAMES or w in PROPER:
                 continue

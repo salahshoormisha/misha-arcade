@@ -38,20 +38,20 @@ def _ckey(prefix, s):
     return os.path.join(CACHE, "%s_%s.json" % (prefix, hashlib.sha1(s.encode("utf-8")).hexdigest()[:20]))
 
 
-def api(params, prefix="api", ttl=None, retries=3):
-    """GET the Commons API with an on-disk cache keyed by the query string."""
+def api(params, prefix="api", ttl=None, retries=3, endpoint=API):
+    """GET a MediaWiki API with an on-disk cache keyed by the query string."""
     p = dict(params)
     p.setdefault("format", "json")
     p.setdefault("formatversion", "2")
     qs = urllib.parse.urlencode(sorted(p.items()), doseq=True)
-    path = _ckey(prefix, qs)
+    path = _ckey(prefix, endpoint + "|" + qs)
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as fh:
                 return json.load(fh)
         except Exception:
             pass
-    url = API + "?" + qs
+    url = endpoint + "?" + qs
     last = None
     for attempt in range(retries):
         try:
@@ -67,6 +67,42 @@ def api(params, prefix="api", ttl=None, retries=3):
             time.sleep(1.2 * (attempt + 1))
     print("  ! api fail: %s -- %s" % (qs[:110], last))
     return {}
+
+
+WPAPI = "https://en.wikipedia.org/w/api.php"
+
+
+def resolve_places(names):
+    """['Kumasi, Ghana', ...] -> {name: (lat, lon, resolved_title)} via en.wikipedia coordinates.
+
+    Authoring place NAMES is far safer than authoring coordinates; this turns the
+    names into verified coordinates from Wikipedia (CC BY-SA) in batches of 40.
+    """
+    out = {}
+    names = list(dict.fromkeys(names))
+    for i in range(0, len(names), 40):
+        chunk = names[i:i + 40]
+        d = api({"action": "query", "titles": "|".join(chunk),
+                 "prop": "coordinates", "coprop": "type|name", "colimit": "max",
+                 "redirects": "1"}, prefix="wpcoord", endpoint=WPAPI)
+        q = d.get("query") or {}
+        # map redirects/normalisations back to what we asked for
+        alias = {}
+        for kind in ("normalized", "redirects"):
+            for r in q.get(kind) or []:
+                alias[r.get("to")] = r.get("from")
+        for p in q.get("pages") or []:
+            co = (p.get("coordinates") or [{}])[0]
+            if not co.get("lat"):
+                continue
+            title = p.get("title")
+            asked = title
+            seen = set()
+            while asked in alias and asked not in seen:
+                seen.add(asked)
+                asked = alias[asked]
+            out[asked] = (round(float(co["lat"]), 5), round(float(co["lon"]), 5), title)
+    return out
 
 
 _HEAD_CACHE_PATH = os.path.join(CACHE, "_head_cache.json")

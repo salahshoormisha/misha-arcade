@@ -1706,6 +1706,81 @@ window.AD_LINGUA_BY = (function (a, o) {
 """
 
 
+SELFCHECK = os.path.join(HERE, 'lingua_selfcheck.txt')
+JSC = ('/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/'
+       'Helpers/jsc')
+
+
+def payload_of(path):
+    """Pull the strict-JSON payload back out of the generated .js file."""
+    src = open(path, encoding='utf-8').read()
+    m = re.search(r'window\.AD_LINGUA = (\{.*\n\});\n\nwindow\.AD_LINGUA_BY', src, re.S)
+    if not m:
+        raise SystemExit('lingua.js does not have the expected shape')
+    return json.loads(m.group(1)), src
+
+
+def selfcheck(valid_iso):
+    """Re-read what we just wrote and prove the invariants. Returns a report."""
+    import subprocess
+    d, src = payload_of(OUT)
+    S = d['samples']
+    R = []
+
+    def ok(name, cond, detail):
+        R.append(('PASS' if cond else 'FAIL', name, detail))
+
+    ok('strict JSON payload', True, '%d samples parsed by json.loads' % len(S))
+    ok('utf-8, no mojibake', src.count('\ufffd') == 0 and not src.startswith('\ufeff'),
+       'U+FFFD x%d, BOM %s' % (src.count('\ufffd'), 'yes' if src.startswith('\ufeff') else 'no'))
+    ok('no raw U+2028/2029', ('\u2028' not in src and '\u2029' not in src),
+       'escaped for pre-ES2019 JS string literals')
+
+    req = ['key', 'lang', 'script', 'sc', 'family', 'text', 'gloss',
+           'countries', 'speakers', 'hints', 'src']
+    miss = [s['key'] for s in S if any(not s.get(k) for k in req)]
+    ok('every field populated', not miss, 'missing: %s' % (miss or 'none'))
+    ok('every sample sourced', all(s['src'] for s in S),
+       '%d unsourced' % sum(1 for s in S if not s['src']))
+    ok('exactly 3 hints each', all(len(s['hints']) == 3 for s in S),
+       'min %d max %d' % (min(len(s['hints']) for s in S), max(len(s['hints']) for s in S)))
+
+    lens = [len(s['text']) for s in S]
+    over = [s['key'] for s in S if len(s['text']) > MAXLEN]
+    under = [s['key'] for s in S if len(s['text']) < MINLEN]
+    ok('text length 80-220', not over and not under,
+       'min %d, max %d, mean %d; over=%s under=%s' % (min(lens), max(lens),
+                                                      sum(lens) // len(lens), over or '[]', under or '[]'))
+    ok('no duplicate text', len(set(s['text'] for s in S)) == len(S),
+       '%d distinct passages' % len(set(s['text'] for s in S)))
+    ok('no duplicate language', len(set(s['lang'] for s in S)) == len(S),
+       '%d distinct languages' % len(set(s['lang'] for s in S)))
+    badiso = [(s['key'], c) for s in S for c in s['countries'] if c not in valid_iso]
+    ok('answer ISO2 all in countries.js', not badiso,
+       '%d distinct codes used; bad=%s' % (len(set(c for s in S for c in s['countries'])), badiso or 'none'))
+    ok('>=50 languages', len(S) >= 50, '%d samples' % len(S))
+    ok('script diversity', len(set(s['sc'] for s in S)) >= 30,
+       '%d ISO 15924 writing systems: %s' % (len(set(s['sc'] for s in S)),
+                                             ' '.join(sorted(set(s['sc'] for s in S)))))
+    fams = sorted(set(s['family'].split(' > ')[0] for s in S))
+    ok('family diversity', len(fams) >= 15, '%d stocks: %s' % (len(fams), ', '.join(fams)))
+
+    if os.path.exists(JSC):
+        try:
+            out = subprocess.check_output(
+                [JSC, '-e', 'var window={};load("%s");'
+                            'print(window.AD_LINGUA.samples.length+"/"+'
+                            'Object.keys(window.AD_LINGUA_BY).length);' % OUT],
+                stderr=subprocess.STDOUT, timeout=60).decode().strip()
+            ok('parses in a JS engine', out.startswith(str(len(S))),
+               'JavaScriptCore evaluated the file: samples/index = %s' % out)
+        except Exception as exc:                        # noqa: BLE001
+            ok('parses in a JS engine', False, str(exc)[:120])
+    else:
+        R.append(('SKIP', 'parses in a JS engine', 'jsc not present on this machine'))
+    return R
+
+
 def write_out(samples, meta):
     payload = {
         'version': 1,
@@ -1853,7 +1928,8 @@ def main():
             'src': rec['src'],
         })
 
-    size = write_out(samples, {'generated': datetime.date.today().isoformat()})
+    meta_date = datetime.date.today().isoformat()
+    size = write_out(samples, {'generated': meta_date})
     print('wrote %s' % OUT)
     print('  %d bytes | %d samples | %d writing systems (ISO 15924) | %d language families'
           % (size, len(samples),
@@ -1866,7 +1942,18 @@ def main():
     print('  unsourced: %d' % sum(1 for s in samples if not s['src']))
     for p in problems:
         print('  ! ' + p)
-    return 0
+
+    report = selfcheck(valid_iso)
+    lines = ['LINGUA SELF-CHECK  (%s, %d samples)' % (meta_date, len(samples)), '']
+    for status, name, detail in report:
+        lines.append('[%s] %-34s %s' % (status, name, detail))
+    lines.append('')
+    lines.append('sources: %s' % by_src)
+    lines.append('generator problems: %s' % (problems or 'none'))
+    open(SELFCHECK, 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
+    print('\n'.join(lines[2:]))
+    print('  self-check written to %s' % SELFCHECK)
+    return 0 if all(st != 'FAIL' for st, _n, _d in report) and not problems else 1
 
 
 if __name__ == '__main__':

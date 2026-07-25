@@ -462,7 +462,7 @@ DISHES = [
           "spiced clarified butter, brought to the table still spitting in a clay dish.",
           "The celebration cut, often carved from an animal slaughtered that morning "
           "and cooked over a charcoal brazier set into the serving pot.",
-          commons="File:Person Enjoys Tibs.JPG"),
+          commons="File:Siga Tibs.jpg"),
         d("Doro wat",
           "Chicken stewed for hours with onions cooked dry until they collapse, a red "
           "chilli-and-spice blend and clarified butter, served with a whole hard-boiled "
@@ -929,7 +929,7 @@ DISHES = [
           "slice of mustard-spread bread stirred in at the end to thicken it.",
           "The beer does what wine does further south, and the mustardy bread is the "
           "traditional thickener instead of flour.",
-          wiki="Carbonade flamande"),
+          wiki="Carbonade flamande", wikias="Flemish stew"),
         d("Gaufre de Liège",
           "A dense, chewy yeasted waffle studded with pearl sugar that melts and "
           "caramelises against the hot iron, eaten warm in the hand.",
@@ -991,7 +991,7 @@ DISHES = [
           "and grated onion, served with potatoes and pickled red cabbage.",
           "Weeknight food, shaped with a spoon rather than by hand, and eaten cold on "
           "rye bread the next day.",
-          wiki="Frikadeller"),
+          wiki="Frikadeller", wikias="Frikadelle"),
         d("Smørrebrød",
           "A single slice of dense sour rye bread buttered and built up with cured "
           "fish or cold meat and an elaborate garnish, eaten with a knife and fork.",
@@ -1026,7 +1026,7 @@ DISHES = [
           "red berry jam.",
           "King Charles XII is credited with bringing the idea back from Constantinople "
           "in the 18th century; the lingonberry is non-negotiable.",
-          wiki="Köttbullar", wikias="Swedish meatball"),
+          commons="File:Köttbullar och potatismos från Cronwalls gatukök i Falköping 8579.jpg"),
     ]),
 
     # ══ NORWAY ════════════════════════════════════════════════════════════
@@ -1070,7 +1070,7 @@ DISHES = [
           "brown-spotted, served warm with cloudberry jam.",
           "Northern 'bread cheese', once made with the first milk after a cow calved; "
           "it squeaks against the teeth.",
-          wiki="Leipäjuusto"),
+          wiki="Leipäjuusto", wikias="Bread cheese"),
         d("Karjalanpiirakka",
           "An open oval pastry with a thin rye crust crimped around a filling of rice "
           "porridge, eaten spread with a mash of butter and chopped boiled egg.",
@@ -1099,7 +1099,7 @@ DISHES = [
           "browned in the oven and eaten with dark rye bread and butter.",
           "Leftovers food that became a canteen staple; the rye bread it is eaten with "
           "is steam-baked in the ground near hot springs.",
-          wiki="Plokkfiskur"),
+          commons="File:Plokkfiskur.jpg"),
         d("Skyr",
           "A very thick, almost fat-free strained fresh cheese set with rennet and "
           "eaten like a yoghurt with milk and berries.",
@@ -1111,7 +1111,7 @@ DISHES = [
           "fried onion, ketchup, a sweet brown mustard and a creamy remoulade.",
           "The lamb is the giveaway; one stand in the capital has been selling them "
           "since 1937 and is the closest thing to a national restaurant.",
-          wiki="Icelandic hot dog"),
+          commons="File:Hot dog from Bæjarins Beztu Pylsur.jpg"),
     ]),
 
     # ══ IRELAND ═══════════════════════════════════════════════════════════
@@ -1155,7 +1155,7 @@ DISHES = [
           "boiled egg and marjoram, sometimes served inside a hollowed loaf.",
           "The Easter breakfast soup; the sour starter is left to ferment for days and "
           "sold in bottles in every shop before the holiday.",
-          wiki="Żurek"),
+          commons="File:Żurek w chlebku.JPG"),
         d("Bigos",
           "Sauerkraut and fresh cabbage stewed for days with several meats, dried wild "
           "mushrooms and prunes, improving each time it is cooled and reheated.",
@@ -1251,7 +1251,7 @@ DISHES = [
           "wild greens, dill and salty white cheese, baked in a tray and cut in squares.",
           "One of a whole family of savoury pies; the filling changes with whatever "
           "greens are growing on the hillside.",
-          wiki="Spanakopita"),
+          wiki="Spanakopita", wikias="Savory spinach pie"),
         d("Moussaka",
           "Layers of fried aubergine and spiced minced lamb under a thick white sauce "
           "that puffs and browns in the oven.",

@@ -38,6 +38,13 @@ def clue_bank():
     bank = {}
     for k, v in xw_clues.CLUES.items():
         bank[k.upper()] = [v] if isinstance(v, str) else list(v)
+    for k, v in getattr(xw_clues, 'ALTERNATES', {}).items():
+        k = k.upper()
+        if k not in bank:
+            continue
+        for c in ([v] if isinstance(v, str) else v):
+            if c not in bank[k]:
+                bank[k].append(c)
     return bank
 
 
