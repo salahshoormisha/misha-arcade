@@ -30,7 +30,7 @@
   var sir = null, fri = null;          // managed loops (never stack)
   var mishBuf = [null, null];          // [MI, SHA] synth syllables (fallback)
   var voiceBuf = null;                 // the real thing: a spoken "MEE-sha"
-  var mishTried = false, wakaHi = false, lastWaka = 0;
+  var mishTried = false, wakaHi = false, lastWaka = 0, mishWaits = 0;
   // The voice is a real recording, embedded so it can never 404 or arrive late:
   // macOS `say -v Samantha -r 165 "Meesha"` — spelled phonetically because
   // "Misha" makes the synthesizer say MISH-uh (clipped ɪ) instead of MEE-sha.
@@ -58,8 +58,13 @@
     return 440 * Math.pow(2, (12 * (+m[3] + 1) + s - 69) / 12);
   }
 
-  // ---- lazy, iOS-safe context (created on demand, resumed on gesture) ----
-  function ensure() {
+  // ---- context lifecycle --------------------------------------------------
+  // build() makes the (initially suspended) context WITHOUT resuming, so we can
+  // decode the voice at page load; ensure() additionally resumes, and is what
+  // every gesture-driven API call uses. Splitting the two means the real
+  // "MEE-sha!" is already decoded by the time she clicks PLAY — otherwise the
+  // first thing she hears is the synth fallback, which is the wrong voice.
+  function build() {
     try {
       if (!ctx) {
         var AC = window.AudioContext || window.webkitAudioContext;
@@ -72,9 +77,30 @@
         wakaOut.gain.value = 0.34;               // loud & proud — she must hear MISH
         wakaOut.connect(master);
       }
-      if (ctx.state === "suspended") ctx.resume();
       return ctx;
     } catch (e) { return null; }
+  }
+  function ensure() {
+    var c = build(); if (!c) return null;
+    try { if (c.state === "suspended") { var p = c.resume(); if (p && p.catch) p.catch(function () {}); } } catch (e) {}
+    return c;
+  }
+  // decode the embedded recording once; safe to call repeatedly
+  function startDecode() {
+    if (mishTried) return;
+    var c = build(); if (!c) return;
+    mishTried = true;
+    try {
+      var bin = atob(VOICE_B64), n = bin.length, bytes = new Uint8Array(n);
+      for (var i = 0; i < n; i++) bytes[i] = bin.charCodeAt(i);
+      var d = c.decodeAudioData(bytes.buffer,
+        function (b) { voiceBuf = b; }, function () {});
+      if (d && d.then) d.then(function (b) { voiceBuf = b; }, function () {});
+    } catch (e) {}
+    try { // formant syllables as a last-resort fallback
+      renderSyl("mi", 215).then(function (b) { mishBuf[0] = b; }, function () {});
+      renderSyl("sha", 205).then(function (b) { mishBuf[1] = b; }, function () {});
+    } catch (e) {}
   }
 
   function link() { // connect(a,b,c,...) without relying on chainable connect
@@ -227,22 +253,7 @@
   // ======================== public API =====================================
   var API = {
     // first user gesture: create/resume ctx + pre-render both chomp variants
-    unlock: function () {
-      if (!ensure()) return;
-      if (mishTried) return;
-      mishTried = true;
-      try { // decode the embedded recording (no network, no cache, no 404)
-        var bin = atob(VOICE_B64), len = bin.length, bytes = new Uint8Array(len);
-        for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-        var dec = ctx.decodeAudioData(bytes.buffer,
-          function (b) { voiceBuf = b; }, function () {});
-        if (dec && dec.then) dec.then(function (b) { voiceBuf = b; }, function () {});
-      } catch (e) {}
-      try { // synth syllable pair as fallback — waka alternates MI / SHA
-        renderSyl("mi", 215).then(function (b) { mishBuf[0] = b; }, function () {});
-        renderSyl("sha", 205).then(function (b) { mishBuf[1] = b; }, function () {});
-      } catch (e) {} // and plain blips cover us if everything else fails
-    },
+    unlock: function () { ensure(); startDecode(); },
 
     toggleMute: function () {
       muted = !muted;
@@ -301,16 +312,21 @@
     mish: function () {
       var c = ensure(); if (!c) return;
       if (voiceBuf) { // the whole word, front and centre: "MEE-sha!"
+        mishWaits = 0;
         var s0 = c.createBufferSource(), g0 = c.createGain();
         s0.buffer = voiceBuf; g0.gain.value = 1.0;
         link(s0, g0, master);
         s0.start(0, VOICE_A, VOICE_B - VOICE_A);
         return;
       }
-      if (!mishBuf[0] || !mishBuf[1]) { // still decoding on the 1st gesture
-        setTimeout(function () { if (voiceBuf || (mishBuf[0] && mishBuf[1])) API.mish(); }, 320);
+      // Her name should always arrive in the REAL voice: if the recording is
+      // still decoding, wait for it rather than blurting the synth version.
+      if (mishWaits < 6) {
+        mishWaits++;
+        setTimeout(function () { API.mish(); }, 200);
         return;
       }
+      if (!mishBuf[0] || !mishBuf[1]) return;
       [[mishBuf[0], 0], [mishBuf[1], 0.19]].forEach(function (bt) {
         var s = c.createBufferSource(), g = c.createGain();
         s.buffer = bt[0]; g.gain.value = 0.65;
@@ -465,6 +481,10 @@
 
     stopLoops: function () { API.stopSiren(); API.stopFright(); },
   };
+
+  // Warm up immediately: creating a suspended context needs no gesture, and
+  // decoding now means the voice is ready long before the first PLAY click.
+  try { startDecode(); } catch (e) {}
 
   window.MM_AUDIO = API;
 })();
