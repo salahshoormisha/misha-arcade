@@ -75,6 +75,15 @@ ogre orcs elven gnome troll
 gonna wanna gotta kinda sorta dunno yeah yep nope nah huh hmm ugh
 xxx xml sql php htm jpeg mpeg wifi ipod ipad imac linux ubuntu
 juan jose luis maria pablo pedro diego mario rosa lucia
+pussy dildo sluts slut dicks cocks booty butts butt orgy babes babe ebony hairy
+sucks suck bras thong chick chicks gays escort escorts nude nudes naughty
+paris wales cisco honda yahoo smith chile japan china york dell visa mars chad
+hong ford lucy rita joey jake beck hart dans alto costa vista excel korea kenya
+india italy spain egypt tokyo miami vegas nokia sony intel lexus volvo mazda
+santa cass chico hanna hogan aries baht torah islam koran bible jesus allah
+basal renal ileal ulnar
+mens olds outs lows fest sans gage lite temp corp inter nulls nokia dept
+colley collie chevy buick dodge acura scion isuzu
 """.split())
 
 
@@ -496,12 +505,38 @@ def select(cands, f, want=40):
     return best
 
 
+CACHE = 'xw_mini_cands.json'
+
+
 def main():
+    """python3 xw_fill.py [want]            full search, caches every candidate fill
+       python3 xw_fill.py [want] reselect   re-run selection only, from the cache
+
+    `reselect` is the fast path used while cleaning the answer list: add a word to BAN,
+    re-select, and every candidate fill containing it disappears in a second or two."""
     want = int(sys.argv[1]) if len(sys.argv) > 1 else 40
+    reselect = 'reselect' in sys.argv
     patterns = gen_patterns()
     print('legal 5x5 block patterns (all orientations, <=6 blocks): %d' % len(patterns))
-    f, cands = generate(patterns)
-    print('total candidate fills: %d' % len(cands))
+    if reselect:
+        f = Filler(caps={3: 99999, 4: 99999, 5: 99999})
+        with open(os.path.join(B, CACHE)) as fh:
+            cands = json.load(fh)
+        print('cached candidate fills: %d' % len(cands))
+        keep = []
+        for c in cands:
+            a, d = entries_of(c['grid'], [tuple(b) for b in c['blocks']])
+            ws = [e[4] for e in a + d]
+            if any(w in BAN or w not in f.rank for w in ws):
+                continue
+            keep.append(c)
+        print('after BAN filter          : %d' % len(keep))
+        cands = keep
+    else:
+        f, cands = generate(patterns)
+        with open(os.path.join(B, CACHE), 'w') as fh:
+            json.dump(cands, fh, sort_keys=True)
+        print('total candidate fills: %d  (cached in %s)' % (len(cands), CACHE))
     chosen = select(cands, f, want=want)
     print('selected: %d' % len(chosen))
     if len(chosen) < want:

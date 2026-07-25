@@ -292,10 +292,16 @@ def palette_check():
 # build
 # ---------------------------------------------------------------------------
 
-N_ITEMS = 11          # named products per country before the "Other" remainder
-N_RCA = 6             # RCA-ranked products stored per country (Connectrade
-                      # takes the first 4 that survive its de-duplication rule)
+# SIZE BUDGET. CONTRACT.md §0 caps every data file at 300 KB. These three
+# numbers are the only dials; they were set by emitting and measuring, not
+# guessed. 8 named items is the contract minimum (§6 "≥8 items per country").
+# Product names are deliberately NOT interned into a lookup table even though
+# that would save ~80 KB: CONTRACT.md §6 fixes the item shape as
+# {name, hs, share, colour} and another agent's game is written against it.
+N_ITEMS = 8           # named products per country before the "Other" remainder
+N_RCA = 4             # RCA-ranked products per country (Connectrade's top four)
 RCA_MIN_SHARE = 0.005  # Connectrade's own filter: >= 0.5% of the country's exports
+MAX_PRODUCTS = 150    # PICK 5 products kept, chosen round-robin across sections
 
 
 def build(members, world, arr_countries, by3, product_ids):
@@ -351,13 +357,12 @@ def build(members, world, arr_countries, by3, product_ids):
             items.append({
                 "name": r["HS4"],
                 "hs": hs2,                 # HS2 chapter, per CONTRACT.md §6
-                "hs4": code,
                 "share": rnd(share, 4),
                 "colour": str(sec),        # HS section id -> AD_TRADE.sections
             })
         other = 1.0 - sum(i["share"] for i in items)
         if other > 0.00005:
-            items.append({"name": "Other", "hs": "", "hs4": "",
+            items.append({"name": "Other", "hs": "",
                           "share": rnd(other, 4), "colour": "0"})
 
         ssum = sum(i["share"] for i in items)
@@ -379,10 +384,8 @@ def build(members, world, arr_countries, by3, product_ids):
         rca_rows.sort(key=lambda t: (-t[0], t[2]))
         top_rca = []
         for rca, share, hid, name in rca_rows[:N_RCA]:
-            code, hs2, sec = hs4_of(hid)
-            top_rca.append({"name": name, "hs4": code,
-                            "rca": rnd(rca, 1), "share": rnd(share, 4),
-                            "colour": str(sec)})
+            top_rca.append({"name": name, "rca": rnd(rca, 1),
+                            "share": rnd(share, 4)})
         if len(top_rca) >= 4:
             rca_out[c["i"]] = top_rca
 
@@ -394,13 +397,13 @@ def build(members, world, arr_countries, by3, product_ids):
         dom_sec, dom_val = max(bysec.items(), key=lambda kv: (kv[1], -kv[0]))
         dom_pct = int(round(100.0 * dom_val / total))
 
-        bits = ["%s = %d%% of a %s export basket."
+        bits = ["%s %d%% of a %s basket."
                 % (SECTION_SHORT[dom_sec], dom_pct, usd(total))]
         if top_rca:
-            d = top_rca[0]
-            bits.append("Most distinctive: %s (%sx the world average share)."
-                        % (d["name"], ("%.0f" % d["rca"]) if d["rca"] >= 10
-                           else ("%.1f" % d["rca"])))
+            dd = top_rca[0]
+            bits.append("Most distinctive: %s (%sx world share)."
+                        % (dd["name"], ("%.0f" % dd["rca"]) if dd["rca"] >= 10
+                           else ("%.1f" % dd["rca"])))
         sub = c.get("sub") or c.get("reg")
         if sub:
             bits.append(sub + ".")
@@ -566,6 +569,36 @@ def resolve_products(world):
     return sorted(ids), missing
 
 
+def select_products(ids, world, limit):
+    """Trim the resolved product list to `limit`, keeping section spread.
+
+    Round-robin over the 21 HS sections, each contributing its largest remaining
+    product by world trade value. Deterministic, and guarantees PICK 5 never
+    turns into 150 days of machinery -- every section gets represented before
+    any section gets a second pick.
+    """
+    wv = {int(r["HS4 ID"]): float(r["Trade Value"]) for r in world["data"]}
+    bysec = {}
+    for hid in ids:
+        bysec.setdefault(hid // 10000, []).append(hid)
+    for sec in bysec:
+        bysec[sec].sort(key=lambda h: (-wv.get(h, 0.0), h))
+    out, sections = [], sorted(bysec)
+    round_i = 0
+    while len(out) < limit:
+        added = False
+        for sec in sections:
+            if round_i < len(bysec[sec]):
+                out.append(bysec[sec][round_i])
+                added = True
+                if len(out) >= limit:
+                    break
+        if not added:
+            break
+        round_i += 1
+    return sorted(out)
+
+
 # ---------------------------------------------------------------------------
 
 
@@ -578,14 +611,17 @@ def main():
     if members is None or world is None:
         raise SystemExit("cannot proceed without members + world table")
 
-    product_ids, missing_codes = resolve_products(world)
+    all_ids, missing_codes = resolve_products(world)
+    # Fetch every resolved product (the cache is the durable artifact), but ship
+    # only the section-balanced subset, so MAX_PRODUCTS can be retuned offline.
+    product_ids = select_products(all_ids, world, MAX_PRODUCTS)
 
     if do_all or "--fetch-countries" in args:
         sys.stderr.write("[1/3] country baskets ...\n")
         fetch_countries(members)
     if do_all or "--fetch-products" in args:
         sys.stderr.write("[2/3] product exporter tables ...\n")
-        fetch_products(product_ids)
+        fetch_products(all_ids)
 
     sys.stderr.write("[3/3] building ...\n")
     countries_out, top5_out, rca_out, warn_sum, skipped, world_total = build(
@@ -603,8 +639,8 @@ def main():
     print("core/data/trade.js  %d bytes  (%.1f KB)" % (size, size / 1024.0))
     print("  year               %d   cube %s" % (YEAR, CUBE))
     print("  countries          %d" % len(countries_out))
-    print("  products (top5)    %d  (requested %d, unresolved codes %d)"
-          % (len(top5_out), len(product_ids), len(missing_codes)))
+    print("  products (top5)    %d  (curated %d -> shipped %d, unresolved %d)"
+          % (len(top5_out), len(all_ids), len(product_ids), len(missing_codes)))
     print("  rca countries      %d" % len(rca_out))
     print("  shares sum > 1.02  %d %s" % (len(warn_sum), warn_sum if warn_sum else ""))
     print("  MUST_HAVE missing  %s" % (missing_must or "none"))
