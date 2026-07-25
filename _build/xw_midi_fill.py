@@ -353,8 +353,9 @@ class Filler:
             self.prefix[key] = p
         return p
 
-    def fill(self, blocks, seed, caps, node_budget=60000, banned=(), jitter=8):
-        """caps: {length: max word index usable}. Returns (letters|None, nodes)."""
+    def fill(self, blocks, seed, caps, node_budget=60000, banned=(), jitter=8, force=None):
+        """caps: {length: max word index usable}.  force: {slot index: WORD}, used to
+        plant a themed entry before the search starts.  Returns (letters|None, nodes)."""
         slots = [(len(cells), cells) for _d, cells in slots_of(blocks)]
         univ = [self.pref(L, caps.get(L, 10 ** 9)) for L, _ in slots]
         cell_slots = {}
@@ -366,6 +367,15 @@ class Filler:
         rnd = random.Random(seed)
         nodes = [0]
         banned = set(banned)
+        for si, w in (force or {}).items():
+            L, cells = slots[si]
+            if len(w) != L or w not in self.words.get(L, ()):
+                return None, 0
+            for p, cell in enumerate(cells):
+                if letters[cell] is not None and letters[cell] != w[p]:
+                    return None, 0
+                letters[cell] = w[p]
+            used.add(w)
 
         def cand_mask(si):
             L, cells = slots[si]
@@ -480,6 +490,116 @@ def number_grid(blocks, letters):
     return grid, across, down
 
 
+# ----------------------------------------------------------- themed construction ---
+# A midi carries a title, so a few of them are built around a shared idea: the theme
+# words are PLANTED in the long slots and the filler completes the rest of the grid.
+# Every set is plain vocabulary -- nothing that needs outside knowledge to enjoy.
+THEMES = [
+    ("FOUR OF A KIND", "Every long answer is a season",
+     ["SUMMER", "WINTER", "SPRING", "AUTUMN"]),
+    ("CREATURE FEATURE", "The long answers are all animals",
+     ["MONKEY", "RABBIT", "TURTLE", "PIGEON", "SPIDER"]),
+    ("GETTING DRESSED", "The long answers are all things you put on",
+     ["JACKET", "POCKET", "BUTTON", "COTTON", "ATTIRE"]),
+    ("BAND PRACTICE", "The long answers all belong in a music room",
+     ["GUITAR", "VIOLIN", "RECORD", "SINGER", "ENCORE"]),
+    ("SUNDAY LUNCH", "Everything long is something you eat",
+     ["POTATO", "TOMATO", "BUTTER", "CHEESE", "WALNUT"]),
+    ("HOUSE TOUR", "The long answers are all parts of a house",
+     ["GARDEN", "WINDOW", "CELLAR", "KITCHEN", "CLOSET"]),
+    ("WEATHER REPORT", "The long answers all come out of the sky",
+     ["THUNDER", "SUNSHINE", "SHOWERS", "BREEZE", "FROZEN"]),
+    ("PAPER ROUND", "The long answers all belong on a desk",
+     ["PENCIL", "LETTER", "RIBBON", "FOLDER", "ERASER"]),
+]
+
+
+def themed_fills(f, pats, caps, rankof, seen_grid, want, verbose=True):
+    """Try to build one grid per theme.  A theme succeeds when at least two of its
+    words land in the grid's long slots and the rest of the grid still fills."""
+    out = []
+    vocab = set()
+    for ws in f.words.values():
+        vocab |= set(ws)
+    for title, note, words in THEMES:
+        avail = [w for w in words if w in vocab]
+        if len(avail) < 2:
+            if verbose:
+                print("  theme %-16s SKIP (only %d of its words are in the vocabulary)"
+                      % (title, len(avail)))
+            continue
+        done = False
+        for pi, base in enumerate(pats):
+            if done:
+                break
+            for t in (0, 3):
+                blocks = orient(base, t)
+                if t and canon(blocks) != canon(base):
+                    continue
+                slots = slots_of(blocks)
+                longs = [(si, len(cells)) for si, (_d, cells) in enumerate(slots)
+                         if len(cells) >= 6]
+                if len(longs) < 2:
+                    continue
+                # try every ordered pair of long slots for every ordered pair of words
+                for si_a, la in longs:
+                    for si_b, lb in longs:
+                        if si_b <= si_a:
+                            continue
+                        for wa in avail:
+                            if len(wa) != la:
+                                continue
+                            for wb in avail:
+                                if wb == wa or len(wb) != lb:
+                                    continue
+                                letters, _n = f.fill(blocks, seed=7 * pi + t,
+                                                     caps=caps, node_budget=30000,
+                                                     force={si_a: wa, si_b: wb})
+                                if not letters:
+                                    continue
+                                grid, across, down = number_grid(blocks, letters)
+                                if tuple(grid) in seen_grid:
+                                    continue
+                                answers = [e["ans"] for e in across + down]
+                                if len(set(answers)) != len(answers):
+                                    continue
+                                rec = {
+                                    "pattern": sorted(blocks), "blocks": len(blocks),
+                                    "grid": grid, "across": across, "down": down,
+                                    "seed": 7 * pi + t, "orient": t,
+                                    "title": title, "theme": note,
+                                    "themewords": sorted(set(answers) & set(words)),
+                                    "quality": round(fill_score(answers, rankof), 1),
+                                    "avgrank": round(sum(rankof[a] for a in answers)
+                                                     / float(len(answers)), 1),
+                                    "maxrank": max(rankof[a] for a in answers),
+                                    "longs": [a for a in answers if len(a) >= 6],
+                                }
+                                out.append(rec)
+                                seen_grid.add(tuple(grid))
+                                done = True
+                                if verbose:
+                                    print("  theme %-16s %s | %s"
+                                          % (title, " ".join(rec["themewords"]),
+                                             " ".join(rec["longs"])))
+                                    sys.stdout.flush()
+                                break
+                            if done:
+                                break
+                        if done:
+                            break
+                    if done:
+                        break
+                if done:
+                    break
+        if not done and verbose:
+            print("  theme %-16s NO GRID" % title)
+            sys.stdout.flush()
+        if len(out) >= want:
+            break
+    return out
+
+
 # ----------------------------------------------------------------------- main ---
 DULL_SUFFIX = ("ed", "ing", "ies", "est", "ers")
 
@@ -546,6 +666,17 @@ def main():
     if prev:
         print("resumed: kept %d of %d puzzles from midi_fills.json" % (len(out), len(prev)))
         sys.stdout.flush()
+
+    have_titles = set(r.get("title") for r in out if r.get("title"))
+    if len(have_titles) < 5:
+        global THEMES
+        THEMES = [t for t in THEMES if t[0] not in have_titles]
+        themed = themed_fills(f, pats, caps, rankof, seen_grid, want=5 - len(have_titles))
+        for rec in themed:
+            out.append(rec)
+            kept_shapes[canon(frozenset(rec["pattern"]))] = per_shape
+            for e in rec["across"] + rec["down"]:
+                seen_answers[e["ans"]] = seen_answers.get(e["ans"], 0) + 1
 
     for pi, base in enumerate(pats):
         if kept_shapes.get(canon(base), 0) >= per_shape:

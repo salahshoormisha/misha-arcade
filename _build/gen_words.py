@@ -184,16 +184,26 @@ assessed assessing butter butting butty dicker dicky dickies spiced spicer
 spicing spicy spica sucker sucked sucking snatched snatcher snatching pricked
 pricking monger taiga titer skeeter spunky beanery
 """.split())
+SUF = ('s', 'es', 'ed', 'd', 'ing', 'er', 'r', 'ers', 'rs', 'est', 'st',
+       'y', 'ies', 'a', 'ish')
 for w in list(HARD):
-    for suf in ('s', 'es', 'ed', 'ing', 'er', 'ers', 'y', 'ies', 'a', 'ish'):
+    for suf in SUF:
         HARD.add(w + suf)
+    if w.endswith('e'):                  # rape -> raped/raping/raper, nude -> nuder
+        for suf in ('ed', 'ing', 'er', 'ers', 'est', 'y', 'ies'):
+            HARD.add(w[:-1] + suf)
 HARD -= HARD_RECLAIM
 
 # Leaks found by the substring screen in the self-check below, added by hand.
+# The sexual-anatomy / sexual-orientation entries are excluded as adult-content
+# vocabulary, symmetrically (HETEROSEXUAL is out for the same reason as
+# HOMOSEXUAL) -- they are simply not daily-puzzle words.
 HARD |= set("""
 kikes redskins coony nazim nazir fagot fagots booby boobies bimbo bimbos hussy
 hussies slag slags butch homo homos erotica dildos pantyhose gimps shags scats
-japs wench wenches strumpet
+japs wench wenches strumpet massa
+homosexual homosexuals homosexuality heterosexual heterosexuals bisexual
+bisexuals vaginal genital genitals genitalia penile intercourse
 """.split())
 
 # Ordinary words, legal as GUESSES, that a cosy daily arcade should never serve
@@ -203,6 +213,7 @@ EXTRA_SOFT = """
 abortion abortions homicide slavery slave slaves slavers racist racism racial
 racially terror terrorism terrorist terrorists oriental lynch lynched lynching
 noose massacre genocide torture tortured hostage hostages fascist fascism
+jihad abort aborted
 """
 
 SOFT = _expand(WA.BLOCK_SOFT) | _expand(EXTRA_SOFT)
@@ -343,6 +354,7 @@ slovak somali soviet spain sudan sweden swiss sydney syria taiwan tampa texas
 tibet tokyo tunis turk turkish tuscan uganda ukraine urdu utah vegas venice
 verde vienna vietnam viking wales warsaw welsh yahoo yemen yiddish yoruba yukon
 zaire zambia zionist zulu buick clive dante franz claus mardi trump satan
+nigeria mongolia pakistan siberia bavaria bohemia arabia persia anatolia
 abbr admin advil aspx blvd ceos cfos cgi ciao cmos corp crm ctrl dhcp dsl eval
 exec faq faqs ffff fyi gnu gpa gui href html http https iirc imho inet ipo irc
 iso isp jpeg jpg lan lcd lite mailto mfg mhz mpeg mph msg mysql nbsp nntp nsw
@@ -624,11 +636,26 @@ BOXED = build_boxed()
 CROSS_LONG_RANK = 12000        # 6/7-letter fill comes from the top 12k words only
 
 
+def good3():
+    """The hand-picked 3-letter fill: words_authored.CROSS3 plus the (stricter,
+    smaller) GOOD3 list _build/xw_fill.py uses.  The xw_pool 3-letter bucket is
+    deliberately NOT used -- it is frequency-filtered but not hand-read, and
+    three-letter fill is exactly where junk (AES, AMT, ORS, YRS) hurts most."""
+    words = set(tok(WA.CROSS3))
+    try:
+        with rd(os.path.join(B, 'xw_fill.py')) as f:
+            m = re.search(r'GOOD3\s*=\s*"""(.*?)"""', f.read(), re.S)
+        if m:
+            words |= set(tok(m.group(1)))
+    except IOError:
+        pass
+    return words
+
+
 def build_cross():
     pool = XW.load()
     cross = {}
-    cross3 = set(tok(WA.CROSS3)) | set(pool[3].keys())
-    cross[3] = cross3
+    cross[3] = good3()
     cross[4] = set(pool[4].keys())
     cross[5] = set(pool[5].keys())
     for L in (6, 7):
