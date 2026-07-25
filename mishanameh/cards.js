@@ -12,14 +12,14 @@ function C(def) { CARDS[def.id] = def; return def; }
    Strength, punishment, standing in the road and refusing to move. */
 
 C({ id:'r_strike', name:'Shamshir', fa:'شمشیر', hero:'rostam', type:'attack', cost:1, rarity:'basic',
-  targeted:true, t:u=>`Deal ${u?9:6} damage.`, fx:(G,c)=>G.dmg(c.target, c.up?9:6) });
+  targeted:true, t:u=>`Deal ${u?11:7} damage.`, fx:(G,c)=>G.dmg(c.target, c.up?11:7) });
 
 C({ id:'r_guard', name:'Sipar', fa:'سپر', hero:'rostam', type:'skill', cost:1, rarity:'basic',
   t:u=>`Gain ${u?8:5} Block.`, fx:(G,c)=>G.blk(c.up?8:5) });
 
 C({ id:'r_gorz', name:'Gorz‑e Gāvsar', fa:'گرز گاوسر', hero:'rostam', type:'attack', cost:2, rarity:'uncommon',
   targeted:true, flavor:'The ox‑headed mace of Sām. It has never been put down gently.',
-  t:u=>`Deal ${u?23:17} damage. Lose 3 HP.`, fx:(G,c)=>{ G.dmg(c.target, c.up?23:17); G.loseHp(3); } });
+  t:u=>`Deal ${u?25:19} damage. Lose 3 HP.`, fx:(G,c)=>{ G.dmg(c.target, c.up?25:19); G.loseHp(3); } });
 
 C({ id:'r_sam', name:"Sām's Legacy", fa:'میراث سام', hero:'rostam', type:'attack', cost:1, rarity:'common',
   targeted:true, t:u=>`Deal ${u?10:7} damage. If this kills, gain 2 Strength.`,
@@ -324,11 +324,10 @@ C({ id:'n_ulad', name:'Ulād, Bound', fa:'اولاد', hero:'any', type:'skill',
 C({ id:'s_thirst', name:'Thirst', fa:'تشنگی', hero:'status', type:'status', cost:-1, rarity:'basic', unplayable:true,
   t:()=>`Unplayable. At the end of your turn, lose 3 HP.`, endTurn:(G)=>G.loseHp(3) });
 
-C({ id:'s_blind', name:'Blinded', fa:'کوری', hero:'status', type:'status', cost:-1, rarity:'basic', unplayable:true,
-  t:()=>`Unplayable. At the start of your turn, draw 1 fewer card.`, });
-
-C({ id:'s_ash', name:'Ash', fa:'خاکستر', hero:'status', type:'status', cost:-1, rarity:'basic', unplayable:true,
-  t:()=>`Unplayable. Exhausts at the end of your turn.`, });
+C({ id:'s_blind', name:'Blinded', fa:'کوری', hero:'status', type:'status', cost:-1, rarity:'basic',
+  unplayable:true, retain:true,
+  flavor:'The White Demon blinded a king and his whole army. Only one thing burned it off.',
+  t:()=>`Unplayable. Stays in your hand. You draw 1 fewer card while you hold it. Invoking the Simurgh destroys it.` });
 
 C({ id:'c_doubt', name:'Doubt', fa:'دودلی', hero:'status', type:'curse', cost:-1, rarity:'basic', unplayable:true, retain:true,
   flavor:'Not every wound is a wound.',
