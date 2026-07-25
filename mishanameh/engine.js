@@ -14,7 +14,7 @@ const SAVE_KEY = 'mishanameh.v1';
 const defaultSave = ()=>({
   unlocked:{ zal:false }, khan:1, khanMax:1,
   stats:{ runs:0, wins:0, bestTrial:0, kills:0, byHero:{}, secretSeen:false, secretWin:false },
-  codexSeen:{}, mute:false, run:null, seenIntro:false,
+  codexSeen:{}, mute:false, run:null, seenIntro:false, seenCoach:false,
 });
 let SAVE = defaultSave();
 function loadSave(){

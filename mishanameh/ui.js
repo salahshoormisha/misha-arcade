@@ -42,7 +42,10 @@ function modal(node, opts={}){
   const box = el('div',{class:'mbox '+(opts.wide?'wide':'')},[node]);
   const back = el('div',{class:'mback', onclick:(e)=>{ if(e.target===back && !opts.sticky) closeModal(); }},[box]);
   root.innerHTML=''; root.appendChild(back);
+  // rAF is paused in background tabs — belt and braces so a modal can never
+  // be left stuck at opacity 0 if the tab was hidden when it opened
   requestAnimationFrame(()=>back.classList.add('in'));
+  setTimeout(()=>back.classList.add('in'), 60);
   return back;
 }
 function closeModal(){ const r=$('#modal'); const b=r.firstChild; if(b){ b.classList.remove('in'); setTimeout(()=>{ if(r.firstChild===b) r.innerHTML=''; },180); } }
@@ -265,7 +268,29 @@ function startNodeCombat(kind){
   renderCombat();
   if(kind==='boss'){ setTimeout(()=>bossIntro(t), 260); }
   else if(kind==='elite'){ const d=FOES[foes[0]]; if(d.intro) setTimeout(()=>eliteIntro(d), 260); }
+  else if(!SAVE.seenCoach){ SAVE.seenCoach = true; persist(); setTimeout(showCoach, 420); }
 }
+function showCoach(){
+  const H = HEROES[R.hero];
+  const box = el('div',{class:'lore-modal coach'},[
+    el('h2',{text:'FIRST FIGHT'}),
+    el('p',{class:'dim center', style:'text-align:center', text:'Never played one of these? It is four ideas, and then you are fine.'}),
+    el('div',{class:'coachrow'},[
+      el('div',{class:'coachitem'},[el('b',{text:'🗡️ 9'}),
+        el('span',{html:'The number above each enemy is <b>exactly</b> what it will do to you next turn. It is already adjusted for everything in play. Hover it to read the move.'})]),
+      el('div',{class:'coachitem'},[el('b',{text:'🛡️'}),
+        el('span',{html:'<b>Block</b> soaks that damage — and then <b>vanishes</b> at the start of your next turn. Block is meant to be spent, not saved.'})]),
+      el('div',{class:'coachitem'},[el('b',{text:'⚡ 3'}),
+        el('span',{html:'You get <b>3 Energy</b> a turn and draw a fresh <b>5 cards</b>. Anything you do not play is discarded, so use the whole hand.'})]),
+      el('div',{class:'coachitem'},[el('b',{text:'✦'}),
+        el('span',{html:`Fill the gold <b>Farr</b> meter and <b>INVOKE</b> lights up — ${esc(H.invoke.name)}. It empties, and you can fill it again in the same fight.`})]),
+    ]),
+    el('p',{class:'dim center', style:'text-align:center', html:'You are meant to lose runs. That is the genre — each one you start knowing more. <b>📖 The Codex → How to Play</b> has the rest.'}),
+    el('button',{class:'btn gold', onclick:closeModal},'RIDE'),
+  ]);
+  modal(box,{sticky:true});
+}
+
 function bossIntro(t){
   const f = FOES[t.boss];
   const box = el('div',{class:'lore-modal boss'},[
