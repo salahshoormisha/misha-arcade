@@ -100,7 +100,8 @@ DISHES = [
           "A thick soup of smoked haddock poached in milk with potato and onion, left "
           "chunky and eaten with bread.",
           "From the fishing town of Cullen on the Moray Firth; 'skink' is an old word "
-          "for a shin-of-beef broth that the fishermen replaced with smoked fish."),
+          "for a shin-of-beef broth that the fishermen replaced with smoked fish.",
+          wiki="Cullen skink"),
         d("Toad in the hole",
           "Sausages baked inside a loose egg-and-flour batter that puffs up and crisps "
           "around them, served with onion gravy.",
@@ -378,7 +379,7 @@ DISHES = [
           "its edges folded up to hold the filling in.",
           "Baked in a stone oven and cut across into strips; the Black Sea version "
           "closes over cheese and butter and gets an egg on top.",
-          wiki="Pide"),
+          wiki="Turkish pide", wikias="İçli pide"),
         d("Iskender kebab",
           "Sliced spit-roasted lamb laid over cubes of flatbread, doused in hot tomato "
           "sauce and foaming melted butter, with thick yoghurt on the side.",
@@ -461,7 +462,7 @@ DISHES = [
           "spiced clarified butter, brought to the table still spitting in a clay dish.",
           "The celebration cut, often carved from an animal slaughtered that morning "
           "and cooked over a charcoal brazier set into the serving pot.",
-          wiki="Tibs"),
+          commons="File:Person Enjoys Tibs.JPG"),
         d("Doro wat",
           "Chicken stewed for hours with onions cooked dry until they collapse, a red "
           "chilli-and-spice blend and clarified butter, served with a whole hard-boiled "
@@ -652,7 +653,7 @@ DISHES = [
           "chilled.",
           "Built on the yellow potato of the highlands -- one of thousands of native "
           "varieties -- and eaten cold, in neat layers, like a savoury cake.",
-          wiki="Causa"),
+          wiki="Causa limeña", wikias="Causa a la limeña", wl="es"),
         d("Aji de gallina",
           "Shredded hen in a thick sauce of yellow chilli, bread soaked in milk, walnuts "
           "and cheese, spooned over boiled potato and white rice.",

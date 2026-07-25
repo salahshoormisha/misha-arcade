@@ -46,8 +46,8 @@ BOARDS = [
     "note": "Squad numbers only arrived in 1993–94. Since then the 10 has been a striker's shirt without exception."},
    {"name": "PLAYED IN THE 1968 EUROPEAN CUP FINAL", "tiles": ["STILES", "CRERAND", "ASTON", "DUNNE"],
     "note": "Wembley, 4–1 after extra time, ten years and three months after Munich. John Aston had the game of his life on the left wing and nobody remembers."},
-   {"name": "RED ___", "tiles": ["CARD", "DEVIL", "MIST", "HERRING"],
-    "note": "Red card, red devil, red mist, red herring. This board contains at least two of them."},
+   {"name": "___ CARD", "tiles": ["RED", "WILD", "POST", "FLASH"],
+    "note": "Red card, wildcard, postcard, flashcard. Only one of them gets you an early bath."},
  ],
  "traps": [
    ["CHARLTON", 2, "Bobby Charlton scored twice in the 1968 final. He is also United's second-highest appearance maker, and only one of those facts gets a seat."],
@@ -79,7 +79,7 @@ BOARDS = [
  "groups": [
    {"name": "UNITED'S DUTCHMEN", "tiles": ["BLIND", "DE LIGT", "WEGHORST", "DEPAY"],
     "note": "Daley Blind's father Danny won the European Cup with Ajax; Daley won the Europa League with United in 2017."},
-   {"name": "SCOTS AT OLD TRAFFORD", "tiles": ["McCLAIR", "McTOMINAY", "DENIS LAW", "FLETCHER"],
+   {"name": "SCOTS AT OLD TRAFFORD", "tiles": ["MCCLAIR", "MCTOMINAY", "DENIS LAW", "FLETCHER"],
     "note": "McClair scored 24 in his first season, the first United player past 20 since Best. Law is still the only Scot to win the Ballon d'Or."},
    {"name": "CAME THROUGH UNITED'S ACADEMY", "tiles": ["RASHFORD", "MAINOO", "WELBECK", "WES BROWN"],
     "note": "United have named an academy graduate in every matchday squad since October 1937 — the longest unbroken run in English football."},
@@ -88,7 +88,7 @@ BOARDS = [
  ],
  "traps": [
    ["FLETCHER", 2, "Darren Fletcher is Scottish AND a United academy graduate — he joined at 11 and later ran the academy. Both groups have a legitimate claim."],
-   ["McTOMINAY", 2, "Scott McTominay came through the same academy, having declared for Scotland through his grandmother. Same double claim as Fletcher."],
+   ["MCTOMINAY", 2, "Scott McTominay came through the same academy, having declared for Scotland through his grandmother. Same double claim as Fletcher."],
  ],
  "epilogue": "Two Scots are also academy boys, which is what happens when a club scouts north of the border for a hundred years. RASHFORD, MAINOO, WELBECK and WES BROWN can only be one thing, so the academy is full before the Scots even sit down.",
 },
@@ -125,7 +125,6 @@ BOARDS = [
  ],
  "traps": [
    ["BROWN", 2, "BROWN is a colour in a surname and also, flatly, an ordinary English word. It qualifies for two groups on pure logic."],
-   ["BLIND", 1, "BLIND is not a colour, but it is one letter and one squint away from feeling like one on a board full of them — and it is also a Dutchman, which is a different board entirely."],
  ],
  "epilogue": "BROWN is the honest double-fit: a colour AND a word you'd find in a dictionary. The resolution is that BLACKMORE, WHITESIDE and GREENHOFF are not words, so the colour group needs BROWN more than the word group does — and BUTT, PARK and BLIND make four on their own.",
 },

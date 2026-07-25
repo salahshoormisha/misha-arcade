@@ -747,6 +747,559 @@ LANGS = [
             'has been changed three times in a century — Arabic, then Cyrillic, then Latin again.',
         ],
     ),
+
+    # ---------------------------------------------------------------- Indic abugidas
+    dict(
+        key='hin', lang='Hindi', script='Devanagari', family='Indo-European > Indo-Aryan',
+        udhr='hin', countries=['IN'],
+        speakers=610000000, prefer='ीेैोौ',
+        avoid=['हिन्दी', 'हिंदी', 'भारत'],
+        hints=[
+            'Every word hangs from a continuous horizontal bar, with vowel marks clipped above, '
+            'below, before and after the consonant. No capital letters, and the full stop is a '
+            'vertical stroke ।',
+            'The most-spoken language of a vast northern river plain; a near-identical spoken '
+            'language next door is written right-to-left in a completely different script.',
+            'The postpositions का / की / के and the sentence-final है, plus Sanskrit-heavy '
+            'vocabulary where its twin would use Persian words.',
+        ],
+    ),
+    dict(
+        key='mar', lang='Marathi', script='Devanagari', family='Indo-European > Indo-Aryan',
+        udhr='mar', countries=['IN'],
+        speakers=99000000, prefer='ळ्यंश',
+        avoid=['मराठी', 'भारत', 'महाराष्ट्र'],
+        hints=[
+            'Devanagari, the same barred script as its northern neighbour, but with a letter '
+            'the northern standard does not use: ळ, a retroflex L.',
+            'Spoken on the western Deccan plateau and down to a huge port city on the Arabian '
+            'Sea — the state language of the subcontinent\'s financial capital.',
+            'Three genders instead of two, the ending -आहे for "is", and possessives in '
+            '-चा / -ची / -चे. It has its own 13th-century literary tradition.',
+        ],
+    ),
+    dict(
+        key='nep', lang='Nepali', script='Devanagari', family='Indo-European > Indo-Aryan',
+        udhr='nep', countries=['NP'],
+        speakers=32000000, prefer='छन्नुहुन',
+        avoid=['नेपाल', 'नेपाली'],
+        hints=[
+            'Devanagari again — the barred script of the northern plains — but the verbs end in '
+            'छ, छन् and गर्नु, which the big plains language never does.',
+            'The language of a Himalayan republic sandwiched between the two most populous '
+            'countries on Earth, plus the hill districts either side of it.',
+            'Honorifics तपाईं and हजुर, and a calendar running about 57 years ahead of the '
+            'Gregorian one. Ex-Gurkha communities carry it worldwide.',
+        ],
+    ),
+    dict(
+        key='ben', lang='Bengali', script='Bengali (Bangla)', family='Indo-European > Indo-Aryan',
+        udhr='ben', countries=['BD', 'IN'],
+        speakers=270000000, prefer='ৎয়ঃঞ',
+        avoid=['বাংলা', 'বাঙ্গালী', 'ভারত'],
+        hints=[
+            'A headstroke script like Devanagari, but the letters are rounder and hook sharply '
+            'to the left; look for the triangular য, the tailed ৎ and the crowded conjuncts.',
+            'Spoken across a great delta at the head of a bay — one whole country plus the state '
+            'on the other side of the border, together well over 250 million people.',
+            'This is the only language whose speakers were shot dead defending it: 21 February '
+            '1952 is now International Mother Language Day.',
+        ],
+    ),
+    dict(
+        key='pan', lang='Punjabi', script='Gurmukhi', family='Indo-European > Indo-Aryan',
+        udhr='pan', countries=['IN'],
+        speakers=113000000, prefer='ਂੰੜਖ਼',
+        avoid=['ਪੰਜਾਬ', 'ਭਾਰਤ'],
+        hints=[
+            'A barred script whose letters sit on flat feet and whose alphabet opens with three '
+            'vowel-carriers ੳ ਅ ੲ; nukta dots turn ਖ into ਖ਼. Nothing else looks quite like ੜ.',
+            'The tongue of a five-rivers region cut in two by a 1947 border; on the far side the '
+            'same language is written in Perso-Arabic instead.',
+            'Guru Angad standardised this script in the 16th century for Sikh scripture — the '
+            'name means "from the Guru\'s mouth".',
+        ],
+    ),
+    dict(
+        key='guj', lang='Gujarati', script='Gujarati', family='Indo-European > Indo-Aryan',
+        udhr='guj', countries=['IN'],
+        speakers=57000000, prefer='ળઞઙૃ',
+        avoid=['ગુજરાત', 'ભારત'],
+        hints=[
+            'Devanagari with the roof taken off: the same family of letter shapes, but no '
+            'horizontal bar joining them, so the words float open and round.',
+            'A western coastal state of the subcontinent facing the Arabian Sea, with an '
+            'enormous merchant diaspora in East Africa, Britain and North America.',
+            'Gandhi\'s mother tongue. Look for the ending -છે and the postposition -નું.',
+        ],
+    ),
+    dict(
+        key='tam', lang='Tamil', script='Tamil', family='Dravidian > Southern',
+        udhr='tam', countries=['IN', 'LK', 'SG', 'MY'],
+        speakers=87000000, prefer='ழஃஎஐ',
+        avoid=['தமிழ்', 'இந்திய', 'இலங்கை'],
+        hints=[
+            'Big, open, loopy letters with hardly any stacked conjuncts, so the line looks '
+            'unusually sparse; the alphabet has no separate letters for voiced or aspirated '
+            'consonants, and ழ is unique to it.',
+            'A Dravidian classical language of the far south of the subcontinent and the north '
+            'and east of the island below it, plus official status in a South-East Asian city-state.',
+            'Two thousand years of continuous literature, an unbroken diglossia between the '
+            'written and spoken forms, and the ஃ (aytam) character.',
+        ],
+    ),
+    dict(
+        key='tel', lang='Telugu', script='Telugu', family='Dravidian > South-Central',
+        udhr='tel', countries=['IN'],
+        speakers=96000000, prefer='ఁౌృఞ',
+        avoid=['తెలుగు', 'భారత'],
+        hints=[
+            'Round bodies each capped with a little tick or check-mark, and vowel signs that '
+            'hang below the line. Its near-twin script to the west has squarer headmarks.',
+            'The largest Dravidian language, spoken along the eastern coast of the subcontinent\'s '
+            'south across two neighbouring states.',
+            'Most words end in a vowel, which earned it the nickname "the Italian of the East"; '
+            'the script split from its western twin only around the 15th century.',
+        ],
+    ),
+    dict(
+        key='kan', lang='Kannada', script='Kannada', family='Dravidian > Southern',
+        udhr='kan', countries=['IN'],
+        speakers=59000000, prefer='ಱಃೕೂ',
+        avoid=['ಕನ್ನಡ', 'ಭಾರತ', 'ಕರ್ನಾಟಕ'],
+        hints=[
+            'Round letters topped with squarish headmarks — the near-twin of the script used on '
+            'the coast to its east, but the tops are flatter and you see ಠ and ಱ.',
+            'A Dravidian language of the inland Deccan plateau, centred on the city that became '
+            'the subcontinent\'s software capital.',
+            'Eight of its writers have won the country\'s top literary prize, more than in any '
+            'other of its languages; the script also writes Tulu and Konkani.',
+        ],
+    ),
+    dict(
+        key='mal', lang='Malayalam', script='Malayalam', family='Dravidian > Southern',
+        udhr='mal', countries=['IN'],
+        speakers=37000000, prefer='ൻർൽൾഞ',
+        avoid=['മലയാള', 'ഭാരത', 'കേരള'],
+        hints=[
+            'The roundest of the southern scripts — long sweeping curls and big loops — with a '
+            'set of "chillu" letters that stand alone at the end of a word: ൻ ർ ൽ ൾ ൺ.',
+            'Spoken on a narrow, wet, tropical coastal strip at the south-western tip of the '
+            'subcontinent, walled off from the interior by mountains.',
+            'Its name is a palindrome in Latin letters. Enormous Gulf-migrant population, near-'
+            'universal literacy, and the longest consonant clusters of any Dravidian language.',
+        ],
+    ),
+    dict(
+        key='sin', lang='Sinhala', script='Sinhala', family='Indo-European > Indo-Aryan',
+        udhr='sin', countries=['LK'],
+        speakers=17000000, prefer='ේැඟඤ',
+        avoid=['සිංහල', 'ලංකා'],
+        hints=[
+            'Bubbly, almost entirely curved letters — there is barely a straight line in it — '
+            'with vowel signs that curl right round the consonant.',
+            'An Indo-Aryan language stranded about 2,000 km from its nearest relatives, on a '
+            'teardrop-shaped island, sharing the place with a Dravidian language.',
+            'It has prenasalised stops (ඟ, ඬ, ඳ) that no other Indo-Aryan language kept, and '
+            'the writing was shaped by palm-leaf styluses that would tear on a straight stroke.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- mainland South-East Asia
+    dict(
+        key='tha', lang='Thai', script='Thai', family='Kra-Dai > Tai',
+        udhr='tha', countries=['TH'],
+        speakers=61000000, prefer='ฏฎฬฤ',
+        avoid=['ไทย', 'สยาม'],
+        hints=[
+            'Each letter starts from a small circle and no spaces separate the words, only the '
+            'phrases; four tone marks and several vowel signs perch above and below the line.',
+            'A Tai language of a South-East Asian kingdom that was never colonised, wedged '
+            'between the Mekong and two seas.',
+            'Forty-four consonant letters for twenty-one sounds, because the Sanskrit and Pali '
+            'spellings were kept intact — and a royal vocabulary used only for the monarchy.',
+        ],
+    ),
+    dict(
+        key='lao', lang='Lao', script='Lao', family='Kra-Dai > Tai',
+        udhr='lao', countries=['LA'],
+        speakers=30000000, prefer='ຯໆຫງ',
+        avoid=['ລາວ', 'ປະເທດລາວ'],
+        hints=[
+            'The rounder, simpler sibling of the script next door: same loop-started letters and '
+            'no word spaces, but far fewer characters and no silent Sanskrit spellings.',
+            'A landlocked Tai country strung along the Mekong, the only one in its region with '
+            'no coastline at all.',
+            'A 20th-century spelling reform made it purely phonetic; the same language is spoken '
+            'by far more people in the big region across the river to the west.',
+        ],
+    ),
+    dict(
+        key='khm', lang='Khmer', script='Khmer', family='Austroasiatic > Khmeric',
+        udhr='khm', countries=['KH'],
+        speakers=18000000, prefer='ញឆធៈ',
+        avoid=['ខ្មែរ', 'កម្ពុជា'],
+        hints=[
+            'Tall, angular letters with little shoulders and flags, and a second consonant '
+            'stacked underneath the first as a subscript; no spaces between words.',
+            'An Austroasiatic language — not Tai, not Sino-Tibetan — of a lower-Mekong kingdom '
+            'whose ancestors built the largest religious monument on Earth.',
+            'It has no tones at all, unlike everything around it, and the longest alphabet in '
+            'the world by Guinness\'s count: 74 letters.',
+        ],
+    ),
+    dict(
+        key='mya', lang='Burmese', script='Myanmar', family='Sino-Tibetan > Lolo-Burmese',
+        udhr='mya', countries=['MM'],
+        speakers=43000000, prefer='ဿဋဎဌ',
+        avoid=['မြန်မာ', 'ဗမာ'],
+        hints=[
+            'Circles. Nearly every letter is built from one or more rings — ကခဂဃင — because it '
+            'was scratched onto palm leaves that split along a straight stroke.',
+            'A Sino-Tibetan language of a delta-and-mountain country between the subcontinent '
+            'and mainland South-East Asia, on the Bay of Bengal.',
+            'Three tones, a strong split between the written literary form and the spoken one, '
+            'and the doubled ဿ. The Mon people passed the script on around the 11th century.',
+        ],
+    ),
+    dict(
+        key='bod', lang='Tibetan', script='Tibetan', family='Sino-Tibetan > Bodish',
+        udhr='bod', countries=['CN', 'IN', 'NP'],
+        speakers=6000000, prefer='ཀྵཞཛྷ',
+        avoid=['བོད', 'རྒྱ་ནག'],
+        hints=[
+            'Letters hang from a bar with a small triangular head, syllables are separated by a '
+            'raised dot ་ and sentences closed with a vertical stroke །; consonants stack downwards.',
+            'The language of the world\'s highest plateau, now written in an autonomous region '
+            'of a very large state, in Himalayan border districts, and in exile communities.',
+            'Spelling froze in the 9th century while pronunciation moved on, so half the letters '
+            'in a word are silent — the script of the Buddhist canon.',
+        ],
+    ),
+    dict(
+        key='dzo', lang='Dzongkha', script='Tibetan', family='Sino-Tibetan > Bodish',
+        udhr='dzo', countries=['BT'],
+        speakers=650000, prefer='ཨིགཔའ',
+        avoid=['འབྲུག', 'རྫོང་ཁ'],
+        hints=[
+            'The same head-barred, stacking Himalayan script as its big northern neighbour uses, '
+            'written in the same letters — here the language is the difference, not the writing.',
+            'The national language of a small Himalayan kingdom that measures Gross National '
+            'Happiness and did not allow television until 1999.',
+            'Its name means "the language of the fortress" — the dzongs are the fortified '
+            'monasteries that run each district.',
+        ],
+    ),
+    dict(
+        key='jav', lang='Javanese', script='Javanese (Aksara Jawa)', family='Austronesian > Malayo-Polynesian',
+        udhr='jav_java', countries=['ID'],
+        speakers=82000000, prefer='ꦁꦼꦶꦺ',
+        avoid=['ꦗꦮ', 'ꦤꦸꦱꦤ꧀ꦠꦫ'],
+        hints=[
+            'Ornate, rounded letters that all sit at the same height with little curls on top, '
+            'and "killer" marks hanging below to cancel the built-in vowel. A Brahmi descendant.',
+            'The traditional writing of the most populous island on Earth, now taught in school '
+            'but almost entirely replaced by Latin letters in daily life.',
+            'The language has three politeness registers — you pick a different word for "eat" '
+            'depending on who you are talking to — and about 80 million speakers.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- East Asia
+    dict(
+        key='cmn_hans', lang='Chinese (Simplified)', script='Han (Simplified)',
+        family='Sino-Tibetan > Sinitic', dense=True,
+        udhr='cmn_hans', countries=['CN', 'SG'],
+        speakers=1100000000, prefer='国门车学习',
+        avoid=['中国', '中华'],
+        hints=[
+            'Logographs — one block per syllable, no alphabet — in their reduced forms: 门 车 '
+            '国 学 有 far fewer strokes than the older versions used elsewhere.',
+            'The everyday writing of the mainland of the most populous state on Earth and of a '
+            'South-East Asian city-state; the unsimplified forms survive on an island and in two '
+            'coastal territories.',
+            'The four commonest characters are 的 是 在 了, and 们 marks a plural. The '
+            'simplification was decreed in the 1950s and 60s.',
+        ],
+    ),
+    dict(
+        key='cmn_hant', lang='Chinese (Traditional)', script='Han (Traditional)',
+        family='Sino-Tibetan > Sinitic', dense=True,
+        udhr='cmn_hant', countries=['TW', 'HK', 'MO'],
+        speakers=1100000000, prefer='國門車學習',
+        avoid=['中國', '台灣', '臺灣', '中華'],
+        hints=[
+            'The same logographs in their full, unreduced forms: 國 門 車 學 — count the strokes '
+            'and compare with the stripped-down versions used on the mainland.',
+            'Kept as the standard on a large island a hundred miles off the south-east coast of '
+            'the mainland, and in two small former-colonial coastal territories.',
+            'Written vertically in older books, still using 繁體字 in newspapers, and the place '
+            'where Zhuyin/Bopomofo — not Pinyin — is taught to children.',
+        ],
+    ),
+    dict(
+        key='jpn', lang='Japanese', script='Japanese (Kanji + Kana)', family='Japonic',
+        dense=True,
+        udhr='jpn', countries=['JP'],
+        speakers=123000000, prefer='のはをするれた',
+        avoid=['日本'],
+        hints=[
+            'Three systems mixed in one line: Chinese characters plus two syllabaries — the '
+            'angular カタカナ for loanwords and the cursive ひらがな for grammar. The little の '
+            'and は between the characters are the tell.',
+            'The language of a long four-island archipelago off the east Asian coast, with '
+            'essentially no relatives anywhere else.',
+            'Verbs go last, particles mark every role (は, が, を, に), and the writing has no '
+            'spaces at all — the script mixture does the word-separating.',
+        ],
+    ),
+    dict(
+        key='kor', lang='Korean', script='Hangul', family='Koreanic', dense=True,
+        udhr='kor', countries=['KR', 'KP'],
+        speakers=81000000, prefer='ᄒᆫ글습니다',
+        avoid=['한국', '조선', '대한'],
+        hints=[
+            'Alphabetic letters made of circles, squares and straight lines, but stacked into '
+            'square syllable blocks: 한 글 습 니 다. Nothing else in the world is built like this.',
+            'Spoken on a peninsula split in two since 1945, between a large continental power '
+            'and an island archipelago.',
+            'King Sejong\'s scholars published it in 1446 and shaped each consonant to picture '
+            'the mouth making it — ㄱ is the back of the tongue, ㅁ is the lips.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- Africa
+    dict(
+        key='amh', lang='Amharic', script='Ethiopic (Geʽez)', family='Afro-Asiatic > Semitic',
+        udhr='amh', countries=['ET'],
+        speakers=60000000, prefer='ጸፀኸጐ',
+        avoid=['አማርኛ', 'ኢትዮጵያ'],
+        hints=[
+            'An abugida of some 270 characters where each consonant grows little legs, loops and '
+            'bars to mark its seven vowels; the word separator is a double dot ፡ and the full '
+            'stop is ።',
+            'A Semitic language — cousin to Arabic and Hebrew — spoken in the highlands of the '
+            'Horn of Africa, the working language of a large federal republic there.',
+            'It is written left to right, unlike its Semitic cousins, and the script it uses is '
+            'the only indigenous African writing system still in wide official use.',
+        ],
+    ),
+    dict(
+        key='tir', lang='Tigrinya', script='Ethiopic (Geʽez)', family='Afro-Asiatic > Semitic',
+        udhr='tir', countries=['ER', 'ET'],
+        speakers=9500000, prefer='ቐቕዅጐ',
+        avoid=['ትግርኛ', 'ኤርትራ', 'ኢትዮጵያ'],
+        hints=[
+            'The same Ethiopic syllabary as its larger southern neighbour, but with a series the '
+            'other standard dropped: ቐ ቑ ቒ ቓ ቔ ቕ ቖ.',
+            'A Semitic language spoken on both sides of a hard-fought Red Sea border — the main '
+            'language of one small coastal state and of the province just south of it.',
+            'It is the closest living relative of Geʽez, the ancient liturgical language whose '
+            'alphabet everyone in the region still writes.',
+        ],
+    ),
+    dict(
+        key='zgh', lang='Tamazight (Berber)', script='Tifinagh (Neo-Tifinagh)',
+        family='Afro-Asiatic > Berber',
+        udhr='zgh', countries=['MA', 'DZ'],
+        speakers=14000000, prefer='ⵣⵯⵖⵕ',
+        avoid=['ⵜⴰⵎⴰⵣⵉⵖⵜ', 'ⵍⵎⵖⵔⵉⴱ'],
+        hints=[
+            'Geometric shapes — circles, crosses, chevrons and dot-clusters (ⵣ ⵎ ⵍ ⵓ ⵢ) — that '
+            'look like runes but are an ancient Saharan alphabet, revived and standardised in 2003.',
+            'The indigenous language of North Africa west of the Nile, now co-official with '
+            'Arabic in a kingdom facing both the Atlantic and the Mediterranean.',
+            'The letter ⵣ (yaz) is the emblem of the Amazigh movement; the Tuareg have been '
+            'writing the older form of these letters on rock for two thousand years.',
+        ],
+    ),
+    dict(
+        key='fuf', lang='Pular (Fula)', script='Adlam', family='Niger-Congo > Atlantic',
+        udhr='fuf_adlm', countries=['GN', 'SN', 'ML'],
+        speakers=37000000, prefer='𞤢𞤫𞤭𞤮',
+        avoid=['𞤘𞤭𞤲𞤫'],
+        hints=[
+            'Right to left, in rounded letters with long tails and dots, that belong to no older '
+            'script family — one of the youngest alphabets on Earth, devised in the late 1980s.',
+            'It writes a herders\' language of the West African savanna, spread in a belt from '
+            'the Atlantic coast eastward across the Sahel.',
+            'Two teenage brothers, Ibrahima and Abdoulaye Barry, invented it; the name is an '
+            'acronym of its first four letters and means "the alphabet that stops a people vanishing".',
+        ],
+    ),
+    dict(
+        key='vai', lang='Vai', script='Vai', family='Niger-Congo > Mande',
+        udhr='vai', countries=['LR', 'SL'],
+        speakers=200000, prefer='ꕉꕌꖃꗪ',
+        avoid=['ꕙꔤ'],
+        hints=[
+            'A syllabary — around 200 characters, one per consonant-plus-vowel — with no '
+            'relationship to any other script; it was designed from nothing, not adapted.',
+            'Used on the West African Atlantic coast, around the border between a republic '
+            'founded by freed American slaves and the colony next door.',
+            'Momolu Duwalu Bukele said the whole system came to him in a dream in the 1830s; it '
+            'is one of very few indigenous African scripts still in everyday use.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- Americas & the Arctic
+    dict(
+        key='chr', lang='Cherokee', script='Cherokee', family='Iroquoian',
+        udhr='chr_cased', countries=['US'],
+        speakers=2000, prefer='ᏣᎳᎩᏍᏬ',
+        avoid=['ᏣᎳᎩ'],
+        hints=[
+            'Characters that look like Latin and Greek letters wearing the wrong hats — Ꭰ Ꭱ Ꮃ '
+            'Ꮈ Ꮝ Ꮤ — except each one is a whole syllable and none has the sound you expect.',
+            'An Iroquoian language of the south-eastern woodlands of a large continental republic, '
+            'and of the nation forcibly marched a thousand miles west in the 1830s.',
+            'Sequoyah built this syllabary around 1821 without being able to read any language at '
+            'all; within a few years his people had a newspaper printed in it.',
+        ],
+    ),
+    dict(
+        key='ike', lang='Inuktitut', script='Canadian Aboriginal Syllabics', family='Eskimo-Aleut > Inuit',
+        udhr='ike', countries=['CA'],
+        speakers=40000, prefer='ᐃᐄᐅᐆᐊ',
+        avoid=['ᐃᓄᒃᑎᑐᑦ', 'ᑲᓇᑕ'],
+        hints=[
+            'Triangles, hooks and chevrons that ROTATE to change their vowel — ᐃ ᐄ ᐅ ᐆ ᐊ ᐋ — '
+            'with tiny raised characters for a final consonant. One shape, four directions.',
+            'An Inuit language of the Arctic, co-official in a vast, treeless northern territory '
+            'carved out of a large country in 1999.',
+            'Words are built by piling suffix on suffix until one word does the job of an English '
+            'sentence; a missionary adapted the syllabics from a Cree system in the 1850s.',
+        ],
+    ),
+    dict(
+        key='csw', lang='Cree', script='Canadian Aboriginal Syllabics', family='Algic > Algonquian',
+        udhr='csw', countries=['CA'],
+        speakers=95000, prefer='ᐊᒥᓯᑭᓇ',
+        avoid=['ᓀᐦᐃᔭᐍᐏᐣ'],
+        hints=[
+            'The same rotating triangles and hooks as the Arctic script — but a different set of '
+            'raised finals, and a lot more ᒥ, ᓯ, ᐧ and ᐦ.',
+            'An Algonquian language of the boreal forest and the prairies, the most widely spoken '
+            'Indigenous language of a large northern country.',
+            'James Evans devised these syllabics in the 1840s for this language first; the Arctic '
+            'people to the north-east borrowed them afterwards.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- other one-off scripts
+    dict(
+        key='div', lang='Dhivehi (Maldivian)', script='Thaana', family='Indo-European > Indo-Aryan',
+        udhr='div', countries=['MV'],
+        speakers=350000, prefer='ޢޣޥޱ',
+        avoid=['ދިވެހި', 'ރާއްޖެ'],
+        hints=[
+            'Written right to left, but the consonants are derived from ARABIC AND INDIC '
+            'NUMERALS, and every single vowel must be marked above or below — no bare consonants.',
+            'The language of a low-lying atoll nation strung across the equator in the Indian '
+            'Ocean, with fewer than half a million speakers.',
+            'Thaana appeared in the 16th century, reportedly so that magical writing could not be '
+            'read by outsiders; the first nine consonants are literally the digits one to nine.',
+        ],
+    ),
+    dict(
+        key='aii', lang='Assyrian Neo-Aramaic', script='Syriac', family='Afro-Asiatic > Semitic',
+        udhr='aii', countries=['IQ', 'SY', 'IR', 'TR'],
+        speakers=600000, prefer='ܸܼܵܲ',
+        avoid=['ܐܬܘܪ', 'ܥܝܪܐܩ'],
+        hints=[
+            'A right-to-left cursive that looks like an older, rounder relative of Arabic — '
+            'because it is one. Letters join up, and two dots (siyame) over a word make it plural.',
+            'A modern descendant of the language Jesus spoke, kept alive by Christian communities '
+            'on the plains around Nineveh, in the mountains of the north, and in a huge diaspora.',
+            'Vowels are written as little dots and dashes above and below the line in the eastern '
+            'style; the script has been in use for over two thousand years.',
+        ],
+    ),
+    dict(
+        key='khk_mong', lang='Mongolian (Traditional)', script='Mongolian (vertical)', family='Mongolic',
+        udhr='khk_mong', countries=['CN', 'MN'],
+        speakers=5500000, prefer='ᠠᠣᠤᠰ',
+        avoid=['ᠮᠣᠩᠭᠣᠯ'],
+        hints=[
+            'Written VERTICALLY, top to bottom, with the columns running LEFT to right — a '
+            'flowing spine with teeth, hooks and tails hanging off it. Almost nothing else alive '
+            'is written this way.',
+            'The classical script of a steppe people: still the everyday writing in an autonomous '
+            'region of a very large southern state, and being restored in the independent country '
+            'to its north.',
+            'It was adapted from the Old Uyghur alphabet, which came from Sogdian, which came from '
+            'Aramaic — the whole line simply turned ninety degrees.',
+        ],
+    ),
+    dict(
+        key='iii', lang='Nuosu (Yi)', script='Yi (Liangshan)', family='Sino-Tibetan > Lolo-Burmese',
+        dense=True,
+        udhr='iii', countries=['CN'],
+        speakers=2000000, prefer='ꆈꌠꉙꀖ',
+        avoid=['ꆈꌠ'],
+        hints=[
+            'A syllabary of about 1,100 spiky, angular characters that look like abstract stick '
+            'figures — no strokes shared with the Han characters used all around it.',
+            'A Tibeto-Burman language of the cold mountains of the south-west of a very large '
+            'country, where it is co-official in an autonomous prefecture.',
+            'The classic form ran vertically and had thousands of variants; the state standardised '
+            'it to 819 syllable signs plus tone marks in 1974 and turned it on its side.',
+        ],
+    ),
+
+    # ---------------------------------------------------------------- Wikipedia-sourced
+    dict(
+        key='nqo', lang="N'Ko (Manding)", script="N'Ko", family='Mande > Manding',
+        wiki=('nqo', 'Q1420'), sc='Nkoo',
+        gloss='Opening of the Wikipedia article "Car / automobile" in this language '
+              '(Wikidata Q1420). A statement of the passage\'s subject, not a word-for-word '
+              'translation.',
+        countries=['GN', 'ML', 'CI'],
+        speakers=40000000, prefer='ߒߞߏߊ',
+        avoid=['ߖߌ߬ߣߍ߫', 'ߡߊ߬ߟߌ'],
+        hints=[
+            'Right to left, with every vowel written and a tone mark on nearly all of them; the '
+            'letters hang from a line above and curl underneath. It belongs to no older family.',
+            'It writes the Manding languages of the West African savanna interior — the heartland '
+            'of the medieval Mali Empire, upstream on the Niger.',
+            'Solomana Kanté devised it in 1949 to answer a claim that African languages could not '
+            'be written; the name means "I say" in every Manding variety.',
+        ],
+    ),
+    dict(
+        key='snd', lang='Sindhi', script='Arabic (Sindhi)', family='Indo-European > Indo-Aryan',
+        wiki=('sd', 'Q283'), sc='Arab',
+        gloss='Opening of the Wikipedia article "Water" in this language (Wikidata Q283). '
+              'A description of the passage\'s subject, not a word-for-word translation.',
+        countries=['PK', 'IN'],
+        speakers=33000000, prefer='ڪڳٻڦٿ',
+        avoid=['سنڌي', 'پاڪستان', 'سنڌ', 'ڀارت'],
+        hints=[
+            'Perso-Arabic taken to its extreme — 52 letters — including ones with FOUR dots (ٿ ڦ) '
+            'and dots stacked in diamonds and arcs: ڪ, ڳ, ٻ, ڇ. Nothing else is this densely dotted.',
+            'An Indo-Aryan language of the lower valley and delta of a great river that gave a '
+            'whole subcontinent its name.',
+            'Implosive consonants ٻ ڄ ڏ ڳ, which almost no other language of the region has; a '
+            'large community across the eastern border writes it in Devanagari instead.',
+        ],
+    ),
+    dict(
+        key='ory', lang='Odia', script='Odia (Oriya)', family='Indo-European > Indo-Aryan',
+        wiki=('or', 'Q283'), sc='Orya',
+        gloss='Opening of the Wikipedia article "Water" in this language (Wikidata Q283). '
+              'A description of the passage\'s subject, not a word-for-word translation.',
+        countries=['IN'],
+        speakers=35000000, prefer='ଓଣଡ଼ଢ଼',
+        avoid=['ଓଡ଼ିଆ', 'ଭାରତ', 'ଓଡ଼ିଶା'],
+        hints=[
+            'Almost every letter is capped with a big rounded umbrella, so the line looks like a '
+            'row of domes — the palm-leaf stylus would have torn a straight horizontal bar.',
+            'A classical Indo-Aryan language of an eastern coastal state on the Bay of Bengal, '
+            'famous for a chariot festival that gave English the word "juggernaut".',
+            'It is the only eastern Indo-Aryan language that is not heavily Persianised, and one '
+            'of a handful given official "classical language" status.',
+        ],
+    ),
 ]
 
 

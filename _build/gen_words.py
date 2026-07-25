@@ -445,14 +445,17 @@ def inflected(w):
 
 
 def answer_ok(w, hand):
-    """Shape/quality gate for an AUTOMATIC answer-list addition."""
+    """Shape/quality gate for an AUTOMATIC answer-list addition.  Deliberately
+    much stricter than the guess list: an automatic addition must be a real
+    dictionary HEADWORD (or curated), so slang, apostrophe-less contractions
+    (DOESN, WEREN) and lowercased place names cannot reach the answer list."""
     if w in hand:
         return True
-    if hard_blocked(w) or w in SOFT or w in JUNK:
+    if hard_blocked(w) or w in SOFT or w in JUNK or w in ANS_JUNK_SET:
         return False
     if w in NAMES or is_name(w) or w in PROPER:
         return False
-    if attested(w) is None:
+    if attested(w) not in ('web2', 'curated'):
         return False
     if inflected(w):
         return False                       # no plurals, no -ed, no -ing as answers
@@ -472,7 +475,7 @@ def build_answers(L, hand_block, extra_block, target, freq_floor, sub_max):
         if w in SOFT:
             rejected.append((w, 'soft-blocked'))
             continue
-        if w in JUNK:
+        if w in JUNK or w in ANS_JUNK_SET:
             rejected.append((w, 'junk'))
             continue
         if w not in (VALID5 if L == 5 else VALID4):
@@ -581,7 +584,7 @@ def build_cross():
         for w, r in G20.items():
             if len(w) != L or not sane(w) or r >= CROSS_LONG_RANK:
                 continue
-            if w in JUNK or hard_blocked(w) or w in SOFT:
+            if w in JUNK or w in JUNK_CROSS_ONLY or hard_blocked(w) or w in SOFT:
                 continue
             if is_name(w) or w in NAMES or w in PROPER:
                 continue
@@ -592,7 +595,9 @@ def build_cross():
     for L in cross:
         cross[L] = set(w for w in cross[L]
                        if not hard_blocked(w) and w not in SOFT
-                       and w not in JUNK and sane(w) and len(w) == L)
+                       and w not in JUNK and w not in JUNK_CROSS_ONLY
+                       and not is_name(w) and w not in PROPER
+                       and sane(w) and len(w) == L)
     return {L: sorted(v) for L, v in cross.items()}
 
 
