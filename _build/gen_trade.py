@@ -96,23 +96,23 @@ SECTION_COLOUR = {
     1:  "#ff7a9c",   # Animal Products              rose
     2:  "#4fd06a",   # Vegetable Products           grass green
     3:  "#9fd93a",   # Animal and Vegetable Bi-Products  olive lime
-    4:  "#ffc247",   # Foodstuffs                   amber
+    4:  "#ff8c1a",   # Foodstuffs                   orange
     5:  "#b07a3c",   # Mineral Products             bronze / crude-oil brown
     6:  "#b18cff",   # Chemical Products            violet
-    7:  "#d9a3ff",   # Plastics and Rubbers         pale lilac
-    8:  "#a35c4a",   # Animal Hides                 leather brown
+    7:  "#e9b0e0",   # Plastics and Rubbers         orchid
+    8:  "#8f4a55",   # Animal Hides                 oxblood leather
     9:  "#2f9e6e",   # Wood Products                forest
     10: "#7fd6b0",   # Paper Goods                  pale jade
     11: "#4fd8ff",   # Textiles                     cyan
-    12: "#3a9bd9",   # Footwear and Headwear        mid blue
-    13: "#9fb4c9",   # Stone And Glass              slate
+    12: "#2a86bd",   # Footwear and Headwear        ocean blue
+    13: "#a8d8e8",   # Stone And Glass              ice
     14: "#ffd84f",   # Precious Metals              gold
     15: "#8c93a8",   # Metals                       steel grey
     16: "#5b8dff",   # Machines                     electric blue
-    17: "#3d5fc4",   # Transportation               deep blue
-    18: "#ff4fa3",   # Instruments                  hot magenta
+    17: "#4a63d8",   # Transportation               indigo
+    18: "#ff2ee0",   # Instruments                  fuchsia
     19: "#e03a3a",   # Weapons                      crimson
-    20: "#c9a0dc",   # Miscellaneous                mauve
+    20: "#cfc3b0",   # Miscellaneous                sand
     21: "#ff9e6b",   # Arts and Antiques            peach
 }
 

@@ -67,6 +67,26 @@ aly ako oki ana ama abe abr abd ada eli eva liz gus ike ito iva ida hal lou lew
 lev leu meg ned nye pau ric sid stu syd tod uri wes cee wen dae hei koa noa sao
 """.split())
 
+# Second pass, added after eyeballing a real generated answer list: proper nouns and
+# transliterations that reach web2 as lowercase headwords, plus crosswordese with no
+# honest clue.  (Kept separate from BLOCK above so the provenance stays readable.)
+BLOCK |= set("""
+amar angeles angels bast berg bergs capulet cass dian dis ere eros gee harish molly
+ness oliver pandora russia ganges sen tao snog thou didst prithee
+sarah david peter james john mary paul mark luke simon jacob aaron adam alex
+brian bruce craig derek eddie frank gavin henry irene jason julia karen kevin
+linda maria nancy oscar paula quinn ralph susan tammy terry tracy wendy
+london paris tokyo berlin madrid moscow vienna dublin boston austin denver
+china japan india korea kenya egypt spain italy chile texas ohio iowa utah
+asia africa europe america canada mexico brazil france german
+latin greek roman norse celtic aryan
+tsarist czar czars kaiser sultan
+oleo olio esne etui adze ewer ogee anoa unau smee epee erne stoa asea alee
+apse nave apses naves
+sic viz ibid idem circa passim
+lorem ipsum dolor
+""".split())
+
 # how many words to admit per length, best-first by blended frequency
 CAPS = {3: 430, 4: 2400, 5: 3700, 6: 4800, 7: 5200}
 # vocabulary tiers tried for the long (>=6) slots, liveliest first
@@ -267,12 +287,12 @@ def orient(blocks, t):
     return frozenset(cur)
 
 
-def gen_patterns(maxblocks=12):
+def gen_patterns(maxblocks=14):
     """all legal symmetric patterns, deduped up to the 8 dihedral symmetries."""
     pairs = [(i, CELLS - 1 - i) for i in range(24)]
     out = []
     seen = set()
-    for k in (3, 4, 5, 6):
+    for k in (3, 4, 5, 6, 7):
         for combo in combinations(range(24), k):
             base = set()
             for i in combo:
@@ -302,7 +322,7 @@ def shape_ok(blocks):
     """reject grids that would not read as a midi: too many 3s, too many entries."""
     sl = slots_of(blocks)
     lens = sorted(len(s[1]) for s in sl)
-    return lens.count(3) <= 6 and 12 <= len(sl) <= 18 and lens.count(7) <= 4
+    return lens.count(3) <= 7 and 12 <= len(sl) <= 20 and lens.count(7) <= 4
 
 
 # --------------------------------------------------------------------- filler ---
@@ -458,8 +478,27 @@ def number_grid(blocks, letters):
 
 
 # ----------------------------------------------------------------------- main ---
+DULL_SUFFIX = ("ed", "ing", "ies", "est", "ers")
+
+
+def fill_score(answers, rankof):
+    """Lower is better.  Rewards common, uninflected, singular fill."""
+    ranks = [rankof[a] for a in answers]
+    pen = 0.0
+    for a in answers:
+        w = a.lower()
+        if len(w) > 3 and w.endswith("s"):
+            pen += 180
+        if w.endswith(DULL_SUFFIX):
+            pen += 260
+        if rankof[a] > 3200:
+            pen += 500
+    return 0.55 * (sum(ranks) / float(len(ranks))) + 0.45 * max(ranks) + pen
+
+
 def main():
     want = int(sys.argv[1]) if len(sys.argv) > 1 else 30
+    per_shape = int(sys.argv[2]) if len(sys.argv) > 2 else 1
     t0 = time.time()
     words = build_vocab()
     rankof = {}
@@ -469,60 +508,67 @@ def main():
     print("vocab:", {L: len(v) for L, v in sorted(words.items())}, "(%.1fs)" % (time.time() - t0))
     pats = [p for p in gen_patterns() if shape_ok(p)]
     print("legal symmetric patterns after shape filter:", len(pats))
+    sys.stdout.flush()
     f = Filler(words)
+    caps = {3: CAPS[3], 4: CAPS[4], 5: min(2400, CAPS[5]), 6: CAPS[6], 7: CAPS[7]}
     out = []
     seen_answers = {}
+    seen_grid = set()
     for pi, base in enumerate(pats):
         # each canonical shape is tried in a couple of orientations so that reused
         # shapes still produce visibly different grids
-        done = False
-        for t in (0, 3):
+        got = 0
+        for t in (0, 3, 1):
+            if got >= per_shape:
+                break
             blocks = orient(base, t)
             if t and canon(blocks) != canon(base):
                 continue
-            for tier in LONG_TIERS:
-                caps = {3: CAPS[3], 4: CAPS[4], 5: min(2400, CAPS[5]), 6: tier, 7: tier}
-                for seed in range(4):
-                    banned = set(w for w, c in seen_answers.items() if c >= 2)
-                    letters, nodes = f.fill(blocks, seed=977 * pi + 31 * t + seed,
-                                            caps=caps, banned=banned)
-                    if not letters:
-                        continue
-                    grid, across, down = number_grid(blocks, letters)
-                    answers = [e["ans"] for e in across + down]
-                    if len(set(answers)) != len(answers):
-                        continue
-                    longs = [a for a in answers if len(a) >= 6]
-                    rec = {
-                        "pattern": sorted(blocks),
-                        "blocks": len(blocks),
-                        "grid": grid,
-                        "across": across,
-                        "down": down,
-                        "tier": tier,
-                        "seed": seed,
-                        "orient": t,
-                        "avgrank": round(sum(rankof[a] for a in answers) / float(len(answers)), 1),
-                        "maxrank": max(rankof[a] for a in answers),
-                        "longmax": max([rankof[a] for a in longs] or [0]),
-                        "longs": longs,
-                    }
-                    out.append(rec)
-                    for a in answers:
-                        seen_answers[a] = seen_answers.get(a, 0) + 1
-                    print("  shape %2d/o%d blocks=%d ents=%2d tier=%4d avg=%6.1f max=%4d "
-                          "longmax=%4d nodes=%6d | %s"
-                          % (pi, t, len(blocks), len(across) + len(down), tier,
-                             rec["avgrank"], rec["maxrank"], rec["longmax"], nodes,
-                             " ".join(longs)))
-                    done = True
+            found = []
+            for seed in range(5):
+                banned = set(w for w, c in seen_answers.items() if c >= 2)
+                letters, nodes = f.fill(blocks, seed=977 * pi + 31 * t + seed,
+                                        caps=caps, banned=banned, node_budget=45000)
+                if not letters:
+                    continue
+                grid, across, down = number_grid(blocks, letters)
+                if tuple(grid) in seen_grid:
+                    continue
+                answers = [e["ans"] for e in across + down]
+                if len(set(answers)) != len(answers):
+                    continue
+                longs = [a for a in answers if len(a) >= 6]
+                found.append({
+                    "pattern": sorted(blocks),
+                    "blocks": len(blocks),
+                    "grid": grid,
+                    "across": across,
+                    "down": down,
+                    "seed": seed,
+                    "orient": t,
+                    "quality": round(fill_score(answers, rankof), 1),
+                    "avgrank": round(sum(rankof[a] for a in answers) / float(len(answers)), 1),
+                    "maxrank": max(rankof[a] for a in answers),
+                    "longmax": max([rankof[a] for a in longs] or [0]),
+                    "longs": longs,
+                })
+                if len(found) >= per_shape + 2:
                     break
-                if done:
-                    break
-            if done:
-                break
-        if not done:
+            found.sort(key=lambda r: r["quality"])
+            for rec in found[:per_shape - got]:
+                out.append(rec)
+                seen_grid.add(tuple(rec["grid"]))
+                for e in rec["across"] + rec["down"]:
+                    seen_answers[e["ans"]] = seen_answers.get(e["ans"], 0) + 1
+                got += 1
+                print("  shape %2d/o%d blocks=%2d ents=%2d q=%7.1f avg=%6.1f max=%4d | %s"
+                      % (pi, rec["orient"], rec["blocks"],
+                         len(rec["across"]) + len(rec["down"]), rec["quality"],
+                         rec["avgrank"], rec["maxrank"], " ".join(rec["longs"])))
+                sys.stdout.flush()
+        if not got:
             print("  shape %2d  blocks=%d  NO FILL" % (pi, len(base)))
+            sys.stdout.flush()
         if len(out) >= want:
             break
     with open(os.path.join(HERE, "midi_fills.json"), "w") as fh:
