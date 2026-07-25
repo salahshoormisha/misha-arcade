@@ -207,6 +207,36 @@ def fetch_meta():
     return members, world
 
 
+def fetch_worldbank():
+    """Independent benchmark for how COMPLETE each BACI basket is.
+
+    BACI is built from UN Comtrade. A country whose partners under-report (or
+    that stops reporting itself) shows a basket far smaller than its real trade
+    -- Iran being the extreme case: Comtrade-derived merchandise exports are
+    ~$13B while the World Bank puts its 2023 goods+services exports at ~$109B.
+    Shipping that silently would teach players something false, so every record
+    carries `cov` (BACI / World Bank merchandise exports) where computable, and
+    a `note` when the basket is demonstrably partial.
+
+    BX.GSR.MRCH.CD -- Merchandise exports, BoP, current US$ (primary benchmark)
+    NE.EXP.GNFS.CD -- Exports of goods and services, current US$ (fallback flag)
+    World Bank Open Data, CC BY 4.0.
+    """
+    out = {}
+    for ind, field in (("BX.GSR.MRCH.CD", "merch"), ("NE.EXP.GNFS.CD", "gnfs")):
+        d = get_json(
+            "https://api.worldbank.org/v2/country/all/indicator/%s"
+            "?format=json&date=%d&per_page=400" % (ind, YEAR),
+            cache_path("wb_%s_%d.json" % (field, YEAR)))
+        if not d or len(d) < 2 or not d[1]:
+            continue
+        for row in d[1]:
+            i3 = (row.get("countryiso3code") or "").upper()
+            if len(i3) == 3 and row.get("value"):
+                out.setdefault(i3, {})[field] = float(row["value"])
+    return out
+
+
 def fetch_countries(members):
     keys = [m["key"] for m in members["members"]]
     n_new = 0
@@ -304,7 +334,7 @@ RCA_MIN_SHARE = 0.005  # Connectrade's own filter: >= 0.5% of the country's expo
 MAX_PRODUCTS = 150    # PICK 5 products kept, chosen round-robin across sections
 
 
-def build(members, world, arr_countries, by3, product_ids):
+def build(members, world, arr_countries, by3, product_ids, wb):
     world_rows = world["data"]
     world_total = float(sum(r["Trade Value"] for r in world_rows))
     world_by_hs4 = {}
@@ -319,6 +349,7 @@ def build(members, world, arr_countries, by3, product_ids):
     rca_out = {}
     warn_sum = []
     skipped = []
+    partial = []
 
     for m in sorted(members["members"], key=lambda x: x["key"]):
         key = m["key"]
@@ -409,13 +440,37 @@ def build(members, world, arr_countries, by3, product_ids):
             bits.append(sub + ".")
         hint = " ".join(bits)
 
-        key_by_iso2[c["i"]] = key
-        countries_out.append({
+        # ---- completeness cross-check vs World Bank -------------------
+        rec = {
             "i": c["i"],
             "total": int(round(total)),
             "items": items,
             "hint": hint,
-        })
+        }
+        wbc = wb.get(iso3, {})
+        merch, gnfs = wbc.get("merch"), wbc.get("gnfs")
+        if merch and merch > 0:
+            cov = total / merch
+            rec["cov"] = rnd(cov, 2)
+            if cov < 0.6:
+                rec["note"] = ("Partial basket: partners report only %s of the "
+                               "%s of merchandise exports the World Bank records "
+                               "for %d." % (usd(total), usd(merch), YEAR))
+            elif cov > 1.6:
+                rec["note"] = ("Re-export hub: partner-reported flows (%s) run "
+                               "well above the %s of merchandise exports the "
+                               "World Bank records for %d."
+                               % (usd(total), usd(merch), YEAR))
+        elif gnfs and gnfs > 0 and total < 0.5 * gnfs:
+            rec["note"] = ("Partial basket: the World Bank puts %d exports of "
+                           "goods and services at %s, but Comtrade partners "
+                           "report only %s of merchandise."
+                           % (YEAR, usd(gnfs), usd(total)))
+        if "note" in rec:
+            partial.append((c["i"], rec.get("cov")))
+
+        key_by_iso2[c["i"]] = key
+        countries_out.append(rec)
 
     countries_out.sort(key=lambda x: x["i"])
 
@@ -458,7 +513,8 @@ def build(members, world, arr_countries, by3, product_ids):
         })
     top5_out.sort(key=lambda p: p["hs4"])
 
-    return countries_out, top5_out, rca_out, warn_sum, skipped, world_total
+    return (countries_out, top5_out, rca_out, warn_sum, skipped, world_total,
+            partial)
 
 
 # ---------------------------------------------------------------------------

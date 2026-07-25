@@ -45,6 +45,7 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -56,15 +57,24 @@ WIKI_DIR = os.path.join(CACHE, 'wiki')
 OUT = os.path.join(ROOT, 'core', 'data', 'lingua.js')
 
 UDHR_RAW = 'https://raw.githubusercontent.com/eric-muller/udhr/main/data/udhr/udhr_%s.xml'
+UDHR_INDEX_URL = 'https://raw.githubusercontent.com/eric-muller/udhr/main/data/udhr/index.xml'
 UDHR_NS = '{http://efele.net/udhr}'
 UDHR_CREDIT = 'UDHR (github.com/eric-muller/udhr, ex-unicode.org/udhr)'
 
+WIKI_SUMMARY = 'https://%s.wikipedia.org/api/rest_v1/page/summary/%s'
+WIKIDATA_ENTITY = ('https://www.wikidata.org/w/api.php?action=wbgetentities'
+                   '&ids=%s&props=sitelinks&format=json')
+
 MAXLEN = 220
 MINLEN = 80
-# scripts where one character is a syllable or a whole morpheme: a shorter string
-# is still a visually generous sample.
-DENSE_SCRIPTS = {'Hans', 'Hant', 'Jpan', 'Hang', 'Yiii'}
+# Scripts where one character is a syllable or a whole morpheme: a shorter string
+# is still a visually generous sample. Set per entry with dense=True.
 DENSE_MINLEN = 45
+
+# The only two UDHR paragraphs that name an organisation (the United Nations),
+# as (article number, 0-based paragraph index). Skipped so no sample leaks its
+# own provenance to the player.
+SKIP_PARAS = {(26, 1), (29, 2)}
 
 # ---------------------------------------------------------------------------
 # THE LANGUAGE TABLE
@@ -753,19 +763,52 @@ def http_get(url, timeout=40):
         return r.read()
 
 
+def cached(path, url, minsize=200):
+    if os.path.exists(path) and os.path.getsize(path) > minsize:
+        return path
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    data = http_get(url)
+    with open(path, 'wb') as f:
+        f.write(data)
+    return path
+
+
 def udhr_path(code):
     return os.path.join(UDHR_DIR, 'udhr_%s.xml' % code)
 
 
 def fetch_udhr(code):
-    p = udhr_path(code)
-    if os.path.exists(p) and os.path.getsize(p) > 500:
-        return p
-    os.makedirs(UDHR_DIR, exist_ok=True)
-    data = http_get(UDHR_RAW % code)
-    with open(p, 'wb') as f:
-        f.write(data)
-    return p
+    return cached(udhr_path(code), UDHR_RAW % code, 500)
+
+
+def udhr_scripts():
+    """file code -> ISO 15924 script code, straight from the corpus index."""
+    p = cached(os.path.join(CACHE, 'udhr_index.xml'), UDHR_INDEX_URL, 10000)
+    out = {}
+    for u in ET.parse(p).getroot():
+        f = u.get('f')
+        if f:
+            out[f] = u.get('iso15924') or ''
+    return out
+
+
+def wiki_summary(wiki, title):
+    """Cached Wikipedia REST summary -> the plain-text `extract`."""
+    slug = re.sub(r'[^A-Za-z0-9]+', '_', '%s_%s' % (wiki, title))[:60]
+    p = os.path.join(WIKI_DIR, '%s.json' % slug)
+    cached(p, WIKI_SUMMARY % (wiki, urllib.parse.quote(title, safe='')), 100)
+    d = json.load(open(p, encoding='utf-8'))
+    return d.get('extract') or ''
+
+
+def wikidata_sitelink(qid, wiki):
+    """Resolve the per-language article title for a Wikidata item."""
+    p = os.path.join(CACHE, 'wikidata_%s.json' % qid)
+    cached(p, WIKIDATA_ENTITY % qid, 100)
+    d = json.load(open(p, encoding='utf-8'))
+    links = d['entities'][qid]['sitelinks']
+    entry = links.get(wiki + 'wiki')
+    return entry['title'] if entry else None
 
 
 # ---------------------------------------------------------------------------
@@ -796,9 +839,45 @@ def udhr_paragraphs(code):
             continue
         paras = [p for p in art.iter(UDHR_NS + 'para')]
         for i, p in enumerate(paras):
+            if (n, i) in SKIP_PARAS:
+                continue
             t = clean(''.join(p.itertext()))
             if t:
                 out.append((n, i, t))
+    return out
+
+
+# Sentence terminators across the scripts in play: Latin/Greek/Cyrillic full stop,
+# Arabic full stop, Devanagari/Bengali/Odia danda, CJK/Ethiopic/Armenian/Urdu stops,
+# Thai has none (space-delimited), N'Ko uses its own comma-ish separator.
+TERMINATORS = '.۔।॥。．！？!?；;።፡։՞՜:߹'
+
+
+def sentences(text):
+    """Split a plain-text passage into sentence-ish chunks, terminators kept."""
+    out, cur = [], ''
+    for ch in text:
+        cur += ch
+        if ch in TERMINATORS:
+            out.append(cur.strip())
+            cur = ''
+    if cur.strip():
+        out.append(cur.strip())
+    return [s for s in out if s]
+
+
+def passages(text, lo, hi):
+    """Every run of consecutive sentences whose length lands in [lo, hi]."""
+    ss = sentences(text)
+    out = []
+    for a in range(len(ss)):
+        acc = ''
+        for b in range(a, len(ss)):
+            acc = (acc + ' ' + ss[b]).strip()
+            if len(acc) > hi:
+                break
+            if len(acc) >= lo:
+                out.append((a, b, acc))
     return out
 
 
@@ -852,17 +931,8 @@ def stable_hash(s):
     return int(hashlib.sha1(s.encode('utf-8')).hexdigest()[:8], 16)
 
 
-def script_key(entry):
-    return entry['script'].split(' ')[0]
-
-
 def min_len_for(entry):
-    label = entry['script']
-    for d in DENSE_SCRIPTS:
-        pass
-    if entry.get('dense'):
-        return DENSE_MINLEN
-    return MINLEN
+    return DENSE_MINLEN if entry.get('dense') else MINLEN
 
 
 def choose(entry, paras, blocklist, article_use):
@@ -965,52 +1035,107 @@ def main():
         eng[(n, i)] = t
         eng_art.setdefault(n, []).append(t)
 
+    scripts_by_file = udhr_scripts()
+
     samples = []
     article_use = {}
     problems = []
 
     for e in LANGS:
-        if not e.get('udhr'):
+        rec = None
+        if e.get('udhr'):
+            try:
+                fetch_udhr(e['udhr'])
+                paras = udhr_paragraphs(e['udhr'])
+            except Exception as exc:                   # noqa: BLE001
+                problems.append('%s: UDHR fetch/parse failed: %s' % (e['key'], exc))
+                continue
+            best, rejected = choose(e, paras, blocklist, article_use)
+            if best is None:
+                problems.append('%s: no UDHR paragraph passed the filters '
+                                '(%d article paras, %d blocked)' % (e['key'], len(paras), rejected))
+                continue
+            score, n, i, text = best
+            article_use[n] = article_use.get(n, 0) + 1
+            gloss = eng.get((n, i)) or ' '.join(eng_art.get(n, []))
+            if len(gloss) > 300:
+                gloss = gloss[:297].rsplit(' ', 1)[0] + '...'
+            rec = dict(
+                text=text, gloss=gloss,
+                sc=e.get('sc') or scripts_by_file.get(e['udhr'], ''),
+                src='%s :: udhr_%s.xml, Article %d%s'
+                    % (UDHR_CREDIT, e['udhr'], n, '' if i == 0 else ' (para %d)' % (i + 1)),
+            )
+
+        elif e.get('wiki'):
+            wiki, qid = e['wiki']
+            try:
+                title = wikidata_sitelink(qid, wiki)
+                if not title:
+                    raise RuntimeError('no %swiki sitelink on %s' % (wiki, qid))
+                extract = clean(wiki_summary(wiki, title))
+            except Exception as exc:                   # noqa: BLE001
+                problems.append('%s: wiki fetch failed: %s' % (e['key'], exc))
+                continue
+            cands = passages(extract, min_len_for(e), MAXLEN)
+            extra = list(e.get('avoid') or []) + [e['lang'].lower()]
+            prefer = set(e.get('prefer') or '')
+            best = None
+            for (a, b, t) in cands:
+                if has_blocked(t, blocklist, extra):
+                    continue
+                sc = 6.0 * len(prefer & set(t)) / max(1, len(prefer))
+                sc -= abs(len(t) - 155) / 60.0
+                sc -= 0.5 * a                          # prefer the opening of the article
+                if best is None or sc > best[0]:
+                    best = (sc, a, b, t)
+            if best is None:
+                problems.append('%s: no wiki passage passed the filters' % e['key'])
+                continue
+            rec = dict(
+                text=best[3], gloss=e['gloss'], sc=e.get('sc', ''),
+                src='Wikipedia (CC BY-SA 4.0) :: %s.wikipedia.org REST summary of "%s" '
+                    '(Wikidata %s), opening lines' % (wiki, title, qid),
+            )
+        else:
+            problems.append('%s: no source configured' % e['key'])
             continue
-        try:
-            fetch_udhr(e['udhr'])
-            paras = udhr_paragraphs(e['udhr'])
-        except Exception as exc:                       # noqa: BLE001
-            problems.append('%s: fetch/parse failed: %s' % (e['key'], exc))
-            continue
-        best, rejected = choose(e, paras, blocklist, article_use)
-        if best is None:
-            problems.append('%s: no paragraph passed the filters (%d article paras, %d blocked)'
-                            % (e['key'], len(paras), rejected))
-            continue
-        score, n, i, text = best
-        article_use[n] = article_use.get(n, 0) + 1
-        gloss = eng.get((n, i)) or ' '.join(eng_art.get(n, []))
-        if len(gloss) > 300:
-            gloss = gloss[:297].rsplit(' ', 1)[0] + '...'
+
         bad_iso = [c for c in e['countries'] if c not in valid_iso]
         if bad_iso:
-            problems.append('%s: unknown ISO2 %s' % (e['key'], bad_iso))
-        assert len(e['hints']) == 3, e['key']
+            problems.append('%s: ISO2 not in countries.js: %s' % (e['key'], bad_iso))
+        if len(e['hints']) != 3:
+            problems.append('%s: %d hints, expected 3' % (e['key'], len(e['hints'])))
+        for h in e['hints'] + [rec['text']]:
+            hit = has_blocked(h, blocklist, list(e.get('avoid') or []) + [e['lang'].lower()])
+            if hit and h is not rec['text']:
+                problems.append('%s: hint names "%s"' % (e['key'], hit))
+
         samples.append({
             'key': e['key'],
             'lang': e['lang'],
             'script': e['script'],
+            'sc': rec['sc'],
             'family': e['family'],
-            'text': text,
-            'gloss': gloss,
+            'text': rec['text'],
+            'gloss': rec['gloss'],
             'countries': e['countries'],
             'speakers': e['speakers'],
             'hints': e['hints'],
-            'src': '%s :: udhr_%s.xml, Article %d' % (UDHR_CREDIT, e['udhr'], n)
-                   + ('' if i == 0 else ' (para %d)' % (i + 1)),
+            'src': rec['src'],
         })
 
     size = write_out(samples, {'generated': datetime.date.today().isoformat()})
-    print('wrote %s  (%d bytes, %d samples, %d scripts, %d families)'
-          % (OUT, size, len(samples),
-             len(set(s['script'] for s in samples)),
-             len(set(s['family'] for s in samples))))
+    print('wrote %s' % OUT)
+    print('  %d bytes | %d samples | %d writing systems (ISO 15924) | %d language families'
+          % (size, len(samples),
+             len(set(s['sc'] for s in samples)),
+             len(set(s['family'].split(' > ')[0] for s in samples))))
+    by_src = {}
+    for s in samples:
+        by_src[s['src'].split(' ::')[0]] = by_src.get(s['src'].split(' ::')[0], 0) + 1
+    print('  sources: %s' % by_src)
+    print('  unsourced: %d' % sum(1 for s in samples if not s['src']))
     for p in problems:
         print('  ! ' + p)
     return 0
