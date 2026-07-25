@@ -192,7 +192,7 @@ def gives_away(clue, answer):
     for t in toks:
         if t == a:
             return True
-        if len(a) >= 4:
+        if len(a) >= 4 and len(t) >= 4:
             for suf in SUFFIX:
                 if t == a + suf or a == t + suf:
                     return True

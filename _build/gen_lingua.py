@@ -103,8 +103,9 @@ LANGS = [
         speakers=390000000, prefer='ضظصثة',
         avoid=['العربية', 'عربي'],
         hints=[
-            'A right-to-left abjad with no vowel letters in ordinary print, and four '
-            'heavy "emphatic" letters — ص ض ط ظ — that no other user of this script added later.',
+            'A right-to-left abjad that writes no short vowels at all in ordinary print, with four '
+            'heavy "emphatic" consonants ص ض ط ظ — and none of the extra three-dot letters '
+            '(پ چ ژ گ) that every borrower of this script had to invent.',
             'The everyday written form is one shared standard from the Atlantic coast of '
             'Africa to the Persian Gulf, even though people speak very differently in each place.',
             'Look for the tied-off feminine ending ة and the definite article ال glued to the '
@@ -644,7 +645,7 @@ LANGS = [
             'Latin where c, q and x are not what you expect: they spell three different clicks. '
             'Plus hl, dl, ntsh and long prefix chains — "abantu", "ngokwemvelo".',
             'A Bantu language of the south-eastern coast of Africa, the biggest home language in '
-            'a country with eleven official ones.',
+            'a country that recognises a dozen official ones.',
             'Clicks written with c (dental), x (lateral) and q (palatal) were borrowed from Khoisan '
             'neighbours — that trio inside ordinary words is the giveaway.',
         ],
@@ -739,8 +740,8 @@ LANGS = [
         speakers=24000000, prefer='əğışöü',
         avoid=['azərbaycan', 'azerbaycan'],
         hints=[
-            'Latin with the schwa ə used as an ordinary letter — the only Latin alphabet in the '
-            'world that does — plus ğ, ı, ö, ü, ç and ş.',
+            'Latin using the schwa ə as an ordinary everyday letter — almost no other Latin '
+            'orthography does — alongside ğ, the dotless ı, ö, ü, ç and ş.',
             'A Turkic language of the eastern Caucasus, on the Caspian, whose speakers south of '
             'the border write it in Arabic script instead.',
             'Almost mutually intelligible with the Turkic language of Anatolia, but this alphabet '
@@ -900,7 +901,7 @@ LANGS = [
             'with vowel signs that curl right round the consonant.',
             'An Indo-Aryan language stranded about 2,000 km from its nearest relatives, on a '
             'teardrop-shaped island, sharing the place with a Dravidian language.',
-            'It has prenasalised stops (ඟ, ඬ, ඳ) that no other Indo-Aryan language kept, and '
+            'It has prenasalised stops (ඟ, ඬ, ඳ) that almost no other Indo-Aryan language kept, and '
             'the writing was shaped by palm-leaf styluses that would tear on a straight stroke.',
         ],
     ),
@@ -1018,8 +1019,8 @@ LANGS = [
             'The everyday writing of the mainland of the most populous state on Earth and of a '
             'South-East Asian city-state; the unsimplified forms survive on an island and in two '
             'coastal territories.',
-            'The four commonest characters are 的 是 在 了, and 们 marks a plural. The '
-            'simplification was decreed in the 1950s and 60s.',
+            'Among the commonest characters anywhere in the text are 的, 是, 在 and 了, and 们 marks '
+            'a plural. The simplification was decreed in the 1950s and 60s.',
         ],
     ),
     dict(
@@ -1080,8 +1081,8 @@ LANGS = [
             'stop is ።',
             'A Semitic language — cousin to Arabic and Hebrew — spoken in the highlands of the '
             'Horn of Africa, the working language of a large federal republic there.',
-            'It is written left to right, unlike its Semitic cousins, and the script it uses is '
-            'the only indigenous African writing system still in wide official use.',
+            'It is written left to right, unlike its Semitic cousins, and its script is one of the '
+            'very few indigenous African writing systems still in everyday official use.',
         ],
     ),
     dict(
@@ -1094,7 +1095,7 @@ LANGS = [
             'other standard dropped: ቐ ቑ ቒ ቓ ቔ ቕ ቖ.',
             'A Semitic language spoken on both sides of a hard-fought Red Sea border — the main '
             'language of one small coastal state and of the province just south of it.',
-            'It is the closest living relative of Geʽez, the ancient liturgical language whose '
+            'It is among the closest living relatives of Geʽez, the ancient liturgical language whose '
             'alphabet everyone in the region still writes.',
         ],
     ),
@@ -1179,8 +1180,8 @@ LANGS = [
         hints=[
             'The same rotating triangles and hooks as the Arctic script — but a different set of '
             'raised finals, and a lot more ᒥ, ᓯ, ᐧ and ᐦ.',
-            'An Algonquian language of the boreal forest and the prairies, the most widely spoken '
-            'Indigenous language of a large northern country.',
+            'An Algonquian language of the boreal forest and the prairies, among the most widely '
+            'spoken Indigenous languages of a large northern country.',
             'James Evans devised these syllabics in the 1840s for this language first; the Arctic '
             'people to the north-east borrowed them afterwards.',
         ],
@@ -1368,7 +1369,7 @@ LANGS = [
             'writes — plus ç and circumflexes. Words end -ão, -ões, -ção.',
             'A Romance language taken from a small Atlantic kingdom to a vast South American '
             'country, to southern Africa and to an island nation off the west African coast.',
-            'It has a personal infinitive no other Romance language kept, and "não", "são", '
+            'It has a personal infinitive that its big Romance siblings all lost, and "não", "são", '
             '"então" litter every page.',
         ],
     ),

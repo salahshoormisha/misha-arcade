@@ -84,6 +84,7 @@ santa cass chico hanna hogan aries baht torah islam koran bible jesus allah
 basal renal ileal ulnar
 mens olds outs lows fest sans gage lite temp corp inter nulls nokia dept
 colley collie chevy buick dodge acura scion isuzu
+argos carr crap irene porto petit petite belle alpha homo palma
 """.split())
 
 

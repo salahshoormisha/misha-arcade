@@ -85,6 +85,9 @@ oleo olio esne etui adze ewer ogee anoa unau smee epee erne stoa asea alee
 apse nave apses naves
 sic viz ibid idem circa passim
 lorem ipsum dolor
+alison bridger colley geneva shastri spanky lander orgasms opiates inbred hetero
+heteros bisexual erotica arousal
+hereto herein thereto whereto thereof herewith
 """.split())
 
 # how many words to admit per length, best-first by blended frequency
@@ -497,6 +500,12 @@ def fill_score(answers, rankof):
 
 
 def main():
+    """python3 xw_midi_fill.py [want] [per_shape]
+
+    RESUMABLE.  Any midi_fills.json already on disk is loaded first; puzzles whose
+    answers are all still legal are kept, and only the shapes not yet represented are
+    searched.  So adding a word to BLOCK and re-running throws away just the puzzles
+    that used it and refills those shapes -- it does not redo the whole (slow) search."""
     want = int(sys.argv[1]) if len(sys.argv) > 1 else 30
     per_shape = int(sys.argv[2]) if len(sys.argv) > 2 else 1
     t0 = time.time()
@@ -505,6 +514,7 @@ def main():
     for L, ws in words.items():
         for i, w in enumerate(ws):
             rankof[w] = i
+    legal = set(rankof)
     print("vocab:", {L: len(v) for L, v in sorted(words.items())}, "(%.1fs)" % (time.time() - t0))
     pats = [p for p in gen_patterns() if shape_ok(p)]
     print("legal symmetric patterns after shape filter:", len(pats))
@@ -514,7 +524,32 @@ def main():
     out = []
     seen_answers = {}
     seen_grid = set()
+    kept_shapes = {}
+    try:
+        with open(os.path.join(HERE, "midi_fills.json")) as fh:
+            prev = json.load(fh)
+    except (IOError, ValueError):
+        prev = []
+    for rec in prev:
+        answers = [e["ans"] for e in rec["across"] + rec["down"]]
+        dirty = [a for a in answers if a not in legal]
+        if dirty:
+            print("  drop %s -- no longer legal: %s"
+                  % ("".join(rec["grid"][0]), " ".join(sorted(set(dirty)))))
+            continue
+        key = canon(frozenset(rec["pattern"]))
+        out.append(rec)
+        seen_grid.add(tuple(rec["grid"]))
+        kept_shapes[key] = kept_shapes.get(key, 0) + 1
+        for a in answers:
+            seen_answers[a] = seen_answers.get(a, 0) + 1
+    if prev:
+        print("resumed: kept %d of %d puzzles from midi_fills.json" % (len(out), len(prev)))
+        sys.stdout.flush()
+
     for pi, base in enumerate(pats):
+        if kept_shapes.get(canon(base), 0) >= per_shape:
+            continue
         # each canonical shape is tried in a couple of orientations so that reused
         # shapes still produce visibly different grids
         got = 0
