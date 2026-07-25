@@ -143,12 +143,14 @@ def main():
 
     # Connectrade playability: can we build a 4-country board where all 16
     # products are distinct after the "first country keeps it" rule?
-    import itertools
+    # Deterministic random sample across the WHOLE country set, not the first N
+    # alphabetically -- the collisions live between similar economies.
+    import random
     ks = sorted(rca)
-    ok_boards = 0
-    tries = 0
-    for combo in itertools.islice(itertools.combinations(ks[:60], 4), 400):
-        tries += 1
+    rnd_ = random.Random(20260725)
+    ok_boards, tries, worst = 0, 4000, []
+    for _ in range(tries):
+        combo = rnd_.sample(ks, 4)
         used, good = set(), True
         for cc in combo:
             picks = [p["name"] for p in rca[cc] if p["name"] not in used][:4]
@@ -158,9 +160,11 @@ def main():
             used.update(picks)
         if good:
             ok_boards += 1
+        elif len(worst) < 3:
+            worst.append("/".join(combo))
     ck("connectrade boards solvable", ok_boards == tries,
-       "%d/%d sampled 4-country boards yield 16 distinct products"
-       % (ok_boards, tries))
+       "%d/%d random 4-country boards give 16 distinct products%s"
+       % (ok_boards, tries, ("  fails: " + ", ".join(worst)) if worst else ""))
 
     # ---- pick-5 scoreability -------------------------------------------
     conc = sorted((sum(v for _, v in p["top"]) / max(p["world"], 1), p["name"])

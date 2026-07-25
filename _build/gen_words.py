@@ -13,13 +13,20 @@ STDLIB ONLY.  No network.  Nothing is generated at page load.
 
 ------------------------------------------------------------------ the sources
   /usr/share/dict/words + /usr/share/dict/connectives
-        Webster's Second (1934), public domain.  THE dictionary gate: it lists
-        proper nouns capitalised, so requiring a LOWERCASE headword (or a
+        Webster's Second (1934), public domain.  The primary dictionary gate: it
+        lists proper nouns capitalised, so requiring a LOWERCASE headword (or a
         regular inflection of one) throws out place names and given names for
-        free.  8,498 five-letter lowercase headwords.
+        free, and the capitalised-only entries give a second, independent
+        proper-noun screen.  8,498 five-letter lowercase headwords.
+        CAVEAT, verified here: the BSD web2 file has holes in exactly the place
+        you would least expect — it has BOXBERRY, BOXBOARD and BOXCAR but not
+        BOX; NEARABLE and NEAP but not NEAR; no HELD, PAID, PROUD, WOMEN,
+        GEESE.  So web2 alone cannot be the only gate, which is why route (c)
+        below exists.
   _build/src/words_alpha.txt        dwyl/words_alpha (Unlicense), 370k words.
         A superset of web2 (verified: web2-lowercase minus words_alpha = 0).
-        Used to enumerate candidate letter-strings, never as proof of a word.
+        Used to enumerate candidates and, together with corpus frequency, to
+        fill web2's holes.
   _build/count_1w.txt               Norvig / Google Web Trillion Word Corpus
         (333,333 words with counts).  The commonness signal.
   _build/en_50k.txt                 hermitdave FrequencyWords, English subtitle
@@ -33,10 +40,21 @@ STDLIB ONLY.  No network.  Nothing is generated at page load.
   /usr/share/dict/propernames, _build/src/firstnames.txt,
   _build/src/surnames.csv (US Census top surnames) -- the name screen.
 
+------------------------------------------------------------ what counts as a word
+  A candidate is ATTESTED if any of:
+    (a) it is a lowercase web2 headword;
+    (b) it is a regular inflection of one (-s/-es/-ies/-ed/-ing/-er/-est/-ly,
+        xw_words.dict_reason);
+    (c) it is in words_alpha AND has real corpus frequency AND is not a
+        capitalised-only web2 entry and not a personal name -- this is what
+        rescues BOX, NEAR, HELD, PAID, PROUD, WOMEN, GEESE;
+    (d) it is on an explicit curated allowlist (words_authored.MODERN,
+        xw_words.ALLOW, EXTRA_VALID below), each hand-checked.
+
 ------------------------------------------------------------------ the gates
-  HARD BLOCK  (LDNOOBW + words_authored.BLOCK_HARD, plus any word CONTAINING a
-              slur as a substring at a word boundary) -- removed from EVERY
-              list, including the "is this a word" guess lists.
+  HARD BLOCK  (LDNOOBW + words_authored.BLOCK_HARD, plus -s/-es plurals of any
+              blocked string that is not itself an ordinary word) -- removed
+              from EVERY list, including the "is this a word" guess lists.
   SOFT BLOCK  (words_authored.BLOCK_SOFT: kill/death/war/drugs...) -- ordinary
               English, so it stays LEGAL AS A GUESS (valid4/valid5/boxed) but
               never appears as an answer, a crossword entry or a hint.
@@ -87,6 +105,16 @@ def rd(path):
 
 # ────────────────────────────────────────────────────────────────── the corpus
 WEB2 = XW.WEB2                                   # lowercase headwords (web2 + connectives)
+
+# Capitalised-only web2 entries = proper nouns (Allah, Asian, Bible, Russia...).
+# A second, independent proper-noun screen that costs nothing.
+PROPER = set()
+with rd('/usr/share/dict/words') as f:
+    for line in f:
+        w = line.strip()
+        if w and w[0].isupper() and w.isalpha():
+            PROPER.add(w.lower())
+PROPER -= WEB2
 
 ALPHA = set()
 with rd(os.path.join(B, 'src', 'words_alpha.txt')) as f:
@@ -146,10 +174,14 @@ with rd(os.path.join(B, 'src', 'ldnoobw_en.txt')) as f:
         t = line.strip().lower()
         if t and re.fullmatch(r'[a-z]+', t):
             HARD.add(t)
-# inflections of a slur are slurs too
+# Plurals of a slur are slurs too -- but ONLY for strings that are not ordinary
+# words themselves, or the suffix walk starts eating the language (SPIC -> SPICY,
+# SPICE, SPICES; TIT -> TITLE).  Verified: no member of any shipped list is a
+# false positive of this rule.
 for w in list(HARD):
-    for suf in ('s', 'es', 'ed', 'ing', 'er', 'ers', 'y'):
-        HARD.add(w + suf)
+    if w not in WEB2:
+        HARD.add(w + 's')
+        HARD.add(w + 'es')
 
 SOFT = _expand(WA.BLOCK_SOFT)
 JUNK = _expand(WA.JUNK) | _expand('\n'.join(XW.BLOCK))

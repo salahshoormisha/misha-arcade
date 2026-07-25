@@ -329,7 +329,15 @@ def palette_check():
 # that would save ~80 KB: CONTRACT.md §6 fixes the item shape as
 # {name, hs, share, colour} and another agent's game is written against it.
 N_ITEMS = 8           # named products per country before the "Other" remainder
-N_RCA = 4             # RCA-ranked products per country (Connectrade's top four)
+# N_RCA is 6, not 4, on purpose. Connectrade shows four countries and gives each
+# four products, but two countries in one board often share a signature export
+# (two Gulf states both peak on Crude Petroleum). The original resolves that by
+# letting the country listed FIRST keep the product and pulling the next one down
+# for the later country -- so a strict top-4 list literally cannot build a board.
+# Six gives every country two spare products to absorb collisions; the game takes
+# the first four that survive de-duplication. _build/check_trade.py proves that
+# every sampled 4-country board yields 16 distinct products.
+N_RCA = 6
 RCA_MIN_SHARE = 0.005  # Connectrade's own filter: >= 0.5% of the country's exports
 MAX_PRODUCTS = 150    # PICK 5 products kept, chosen round-robin across sections
 
@@ -534,6 +542,11 @@ def emit(countries_out, top5_out, rca_out):
         "source": SOURCE_STR,
         "cube": CUBE,
         "worldTotal": None,      # filled by caller
+        "coverage": ("cov = this basket divided by the World Bank's merchandise "
+                     "exports (BX.GSR.MRCH.CD) for the same year. ~1.0 means the "
+                     "basket is complete. Below 0.6 the country's trade is "
+                     "under-reported to UN Comtrade and `note` says so - show "
+                     "that warning rather than presenting the basket as whole."),
         "sections": sections,
         "countries": countries_out,
         "top5": top5_out,
@@ -559,12 +572,19 @@ def write_file(payload):
         "   SCRIPT  _build/gen_trade.py  (re-runnable, deterministic, stdlib only)\n"
         "\n"
         "   countries[] .i ISO2  .total USD  .hint one-liner\n"
-        "               .items[] {name, hs (HS2 chapter), hs4, share, colour}\n"
+        "               .items[] {name, hs (HS2 chapter), share, colour}\n"
         "               shares sum to 1 including the trailing \"Other\" remainder.\n"
+        "               .cov  basket / World Bank merchandise exports, same year.\n"
+        "               .note present ONLY when the basket is demonstrably partial\n"
+        "                     (under-reported to Comtrade, e.g. Iran) or is\n"
+        "                     re-export inflated. Surface it in the UI.\n"
         "   top5[]      .hs4 .name .colour .n (how many countries export it at all)\n"
         "               .world (world trade USD)  .top [[ISO2, USD] x5] rank 1..5\n"
-        "   rca{ISO2}   top products by revealed comparative advantage, >=0.5%% of\n"
-        "               that country's exports, RCA-descending.\n"
+        "               PICK 5 scores a pick as value / sum(top 5 values).\n"
+        "   rca{ISO2}   six products by revealed comparative advantage (Balassa),\n"
+        "               each >=0.5%% of that country's exports, RCA-descending.\n"
+        "               CONNECTRADE takes the first FOUR still unclaimed by an\n"
+        "               earlier country in the board -- hence six, not four.\n"
         "   sections{}  HS section id -> {name, colour}; \"0\" = the Other remainder.\n"
         "*/\n"
     )
@@ -679,9 +699,11 @@ def main():
         sys.stderr.write("[2/3] product exporter tables ...\n")
         fetch_products(all_ids)
 
+    wb = fetch_worldbank()
+
     sys.stderr.write("[3/3] building ...\n")
-    countries_out, top5_out, rca_out, warn_sum, skipped, world_total = build(
-        members, world, arr_countries, by3, product_ids)
+    (countries_out, top5_out, rca_out, warn_sum, skipped, world_total,
+     partial) = build(members, world, arr_countries, by3, product_ids, wb)
 
     payload = emit(countries_out, top5_out, rca_out)
     payload["worldTotal"] = int(round(world_total))
@@ -699,6 +721,7 @@ def main():
           % (len(top5_out), len(all_ids), len(product_ids), len(missing_codes)))
     print("  rca countries      %d" % len(rca_out))
     print("  shares sum > 1.02  %d %s" % (len(warn_sum), warn_sum if warn_sum else ""))
+    print("  flagged baskets    %d partial/re-export (see .note)" % len(partial))
     print("  MUST_HAVE missing  %s" % (missing_must or "none"))
     print("  min colour sep     %.0f between sections %s" % (worst, pair))
     if missing_codes:

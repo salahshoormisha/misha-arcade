@@ -180,8 +180,31 @@ def in_dict(word, w2, extra):
     return any(len(c) >= 3 and c in w2 for c in cands)
 
 
-STOP = set('a an and the of or in on at to for is it its with as by from that this '
-           'not no you your i he she they we but if so'.split())
+SUFFIX = ('', 's', 'es', 'd', 'ed', 'ing', 'er', 'ers', 'ies', 'y', 'al')
+
+
+def gives_away(clue, answer):
+    """True if the clue reuses the answer as a WORD (or an obvious inflection of it).
+    Deliberately token-based: a plain substring test flags 'practice' for ACT and
+    'someone' for ONE, which are not giveaways."""
+    a = answer.lower()
+    toks = re.findall(r"[a-z]+", clue.lower())
+    for t in toks:
+        if t == a:
+            return True
+        if len(a) >= 4:
+            for suf in SUFFIX:
+                if t == a + suf or a == t + suf:
+                    return True
+            if a.endswith('y') and t == a[:-1] + 'ies':
+                return True
+            if t.endswith('y') and a == t[:-1] + 'ies':
+                return True
+    # a hyphen- or space-split answer is still a giveaway: "ice cream" for ICECREAM
+    flat = ''.join(toks)
+    if len(a) >= 6 and a in flat:
+        return True
+    return False
 
 
 def validate(puzzles, size, w2, extra, symmetric, par_lo, par_hi, label):
@@ -259,10 +282,8 @@ def validate(puzzles, size, w2, extra, symmetric, par_lo, par_hi, label):
             if not cl:
                 bad('%s %s: empty clue' % (pid, ans))
                 continue
-            flat = re.sub(r'[^a-z]', '', cl.lower())
-            if ans.lower() in flat:
+            if gives_away(cl, ans):
                 bad('%s %s: clue contains its own answer (%r)' % (pid, ans, cl))
-            # ... and no other answer in the same puzzle is given away either
             if len(cl) > 90:
                 bad('%s %s: clue is too long (%d chars)' % (pid, ans, len(cl)))
         if len(set(answers)) != len(answers):
@@ -310,11 +331,10 @@ def cross_checks(puzzles, label):
     for p in puzzles:
         answers = set(e['ans'] for e in p['across'] + p['down'])
         for e in p['across'] + p['down']:
-            flat = re.sub(r'[^a-z]', '', e['clue'].lower())
             for other in answers:
                 if other == e['ans'] or len(other) < 4:
                     continue
-                if other.lower() in flat:
+                if gives_away(e['clue'], other):
                     errs.append('%s %s %s: clue gives away %s (%r)'
                                 % (label, p['id'], e['ans'], other, e['clue']))
     return errs
