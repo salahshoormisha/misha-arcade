@@ -186,17 +186,64 @@ TRANSIENT = []        # (wiki title, status) -- rate limit / network; retry next
 NET_CALLS = [0]
 
 
-def wiki_image(title, offline=False):
-    """Resolve an en.wikipedia article title -> a verified upload.wikimedia.org URL.
+def norm_title(s):
+    s = strip_accents(s or "").lower().replace("_", " ")
+    return re.sub(r"[^a-z0-9 ]", "", s).strip()
+
+
+def commons_image(filetitle, offline=False):
+    """Resolve an exact Commons 'File:...' title -> a verified 500px thumbnail."""
+    key = "commons:" + filetitle
+    rec = WIKI.get(key)
+    if rec is None and not offline:
+        NET_CALLS[0] += 1
+        time.sleep(0.3)
+        j, st = http_json(
+            "https://commons.wikimedia.org/w/api.php?action=query&format=json"
+            "&prop=imageinfo&iiprop=url|size&iiurlwidth=%d&titles=%s"
+            % (IMG_W, urllib.parse.quote(filetitle, safe="")))
+        if j:
+            pages = (j.get("query") or {}).get("pages") or {}
+            info = None
+            for p in pages.values():
+                if p.get("imageinfo"):
+                    info = p["imageinfo"][0]
+            if info and info.get("thumburl"):
+                url = info["thumburl"]
+                rec = ({"url": url, "page": info.get("descriptionurl")}
+                       if http_status(url) == 200 else
+                       {"url": None, "status": "commons thumb not 200"})
+            else:
+                rec = {"url": None, "status": "no such Commons file"}
+        else:
+            TRANSIENT.append((filetitle, st))
+            return None
+        WIKI[key] = rec
+    return (rec or {}).get("url")
+
+
+def wiki_image(title, expect=None, lang="en", offline=False):
+    """Resolve a Wikipedia article title -> a verified upload.wikimedia.org URL.
+
+    Guards against redirects landing on a different subject: en.wikipedia's
+    'Causa' is a genus of SNAILS, and 'Tibs' redirects to a general cuisine
+    article.  If the article that answers is not the one we asked for, the image
+    is refused unless the authored entry named the redirect target explicitly.
+
     Only PERMANENT outcomes are cached; a rate limit or a network blip is retried
     on the next run rather than being frozen in as a missing image."""
-    rec = WIKI.get(title)
+    key = title if lang == "en" else "%s:%s" % (lang, title)
+    rec = WIKI.get(key)
     if rec is None and not offline:
         NET_CALLS[0] += 1
         time.sleep(0.4)                       # be polite to the Wikimedia API
-        j, st = http_json("https://en.wikipedia.org/api/rest_v1/page/summary/"
+        j, st = http_json("https://%s.wikipedia.org/api/rest_v1/page/summary/"
+                          % lang
                           + urllib.parse.quote(title.replace(" ", "_"), safe=""))
-        if j:
+        if j and norm_title(j.get("title")) != norm_title(expect or title):
+            rec = {"url": None,
+                   "status": "redirected to %r" % (j.get("title"),)}
+        elif j:
             thumb = (j.get("thumbnail") or {}).get("source")
             orig = j.get("originalimage") or {}
             if thumb and not BAD_FILE_HINT.search(thumb):
@@ -220,7 +267,7 @@ def wiki_image(title, offline=False):
         else:
             TRANSIENT.append((title, st))     # do NOT cache -- retry next run
             return None
-        WIKI[title] = rec
+        WIKI[key] = rec
         if NET_CALLS[0] % 10 == 0:
             save(WIKI_CACHE, WIKI)
     if rec and rec.get("url"):
@@ -246,13 +293,23 @@ def resolve_img(dish, iso, offline=False):
             DROPPED.append((iso, dish["name"], url, "themealdb status %s" % st))
         else:
             DROPPED.append((iso, dish["name"], mdb, "no such TheMealDB dish"))
-    if dish.get("wiki"):
-        u = wiki_image(dish["wiki"], offline=offline)
+    if dish.get("commons"):
+        u = commons_image(dish["commons"], offline=offline)
         if u:
             return u
-        rec = WIKI.get(dish["wiki"]) or {}
+        rec = WIKI.get("commons:" + dish["commons"]) or {}
+        DROPPED.append((iso, dish["name"], dish["commons"],
+                        "commons %s" % rec.get("status", "unresolved")))
+    if dish.get("wiki"):
+        lang = dish.get("wl", "en")
+        u = wiki_image(dish["wiki"], expect=dish.get("wikias"), lang=lang,
+                       offline=offline)
+        if u:
+            return u
+        key = dish["wiki"] if lang == "en" else "%s:%s" % (lang, dish["wiki"])
+        rec = WIKI.get(key) or {}
         DROPPED.append((iso, dish["name"], dish["wiki"],
-                        "wikipedia %s" % rec.get("status", "unresolved")))
+                        "%s.wikipedia %s" % (lang, rec.get("status", "unresolved"))))
     return None
 
 

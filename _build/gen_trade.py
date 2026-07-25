@@ -479,6 +479,11 @@ def build(members, world, arr_countries, by3, product_ids, wb):
                            % (YEAR, usd(gnfs), usd(total)))
         if "note" in rec:
             partial.append((c["i"], rec.get("cov")))
+            # The hint is what Tradle actually renders. Carry the caveat into it
+            # so a partial basket can never be shown as if it were the whole
+            # story -- Iran's oil is missing from BACI and a bare
+            # "Minerals 24% of a $13B basket" would teach a falsehood.
+            rec["hint"] = rec["hint"] + " [partial data]"
 
         key_by_iso2[c["i"]] = key
         countries_out.append(rec)

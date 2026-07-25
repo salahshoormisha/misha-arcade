@@ -288,41 +288,50 @@ venue vigil villa vinyl vivid vodka wafer wagon waltz whale wharf wheat whisk
 widow wince wharf woven wrist yacht yeast yodel yummy zebra zesty
 """
 
-# Anything here never becomes an ANSWER, a crossword entry or a hint.  These all
-# pass the frequency + dictionary gates; they are simply bad daily-puzzle words:
-# abbreviations, technical/registry vocabulary, lowercased proper nouns, and
-# words whose only common sense is unpleasant.
+# NOT WORDS: lowercased place names, brands, given names, foreign words and
+# abbreviations that clear the dictionary + frequency gates.  Collected by
+# eyeballing the generated tails (`--tails`).  Nothing here is an ordinary
+# English common noun -- ordinary words that merely READ as proper nouns
+# (delta, china, turkey, polish) are left in the guess lists.
 EXTRA_JUNK = """
-aaron abbey acura adobe aires ajax alexa allah altos amish amiga amigo andes
-angus anime annum anton aqua arabs argos argus aries armani asian aussie aztec
-azusa bhutan bilbo boise brazil briton buddha cairo canon carib celtic celts
-chile china chios cisco congo corel corfu cuban czech dakar dalai danish dawson
-delhi delta denver diablo diesel dixie dodge dorset dubai dutch eddie egypt
-elvis essex eurasia excel fiji flash fresno gaelic gambia gaza genoa ghana
-gothic gucci haiti hawaii hebrew hindi hindu honda hyundai ibiza inca indies
-indus intel irish islam italy iowa japan jesus jewish jonah judaism kansas kenya
-korea kuwait laos latin latino latvia libya lima linux london lycos macau macro
-madrid maine malawi malta manila maori marine maya mecca metro mexico miami
-milan mongol mumbai munich muslim nepal nevada nike nokia nordic norway nubian
-ohio olympic omaha oregon oscar oxford pacific panama paris peru polish polska
-prague punjab qatar quebec quran renault reuters rio roman rugby russia rwanda
-saudi seoul serbia seville siberia sicily sierra sinai slavic slovak somali
-soviet spain sudan sweden swiss sydney syria taiwan texas thai tibet tokyo
-tonga tunis turk turkish tuscan uganda ukraine urdu utah vegas venice vienna
-vietnam viking wales warsaw welsh yahoo yemen yiddish yoruba yukon zaire zambia
-zionist zulu
-abbr admin advil aspx blvd ceos cfos cgi ciao cmos comp corp crm ctrl dept dhcp
-dial dsl eval exec faq faqs ffff fyi gnu gpa gui href html http https ie iirc
-imho inet ip ipo irc iso isp jpeg jpg lan lcd led lite lol mailto memo mfg mhz
-misc mpeg mph msg mysql nbsp nntp nsw obj ohm oled pdf perl php pkg png poly
-pref proc prod prof pubs pwd qty ram rdf regex repl req rev rfc rpm rss sdk
-seq sgml sic sku smtp sql src ssl subj svc tbsp tcp tel tif tiff tmp tsp txt
-uid unix url urls usb usr utf uuid vhs vlan vpn wap wav xhtml xml xsl
-anon avg bbs bios cpu cvs dept diff dns dos dvd eng env exe faq gif gnome ide
-img inc init inst intranet jsp kde lib lisp mac msdos ncr novell nvidia oem
-oracle pentium perl pgp posix ppc proxy qbasic ram rpc sas sco sgi shockwave
-sms smtp solaris sparc spss ssh svga sybase sysop tcl telnet tftp tiff tty unix
-uucp vax vga vic vlsi vms wais wysiwyg xerox xhtml xmas xterm yacc zilog
+aaron acura aires ajax alexa allah altos amiga amigo andes angus anton armani
+asian aussie aztec azusa bhutan bilbo boise brazil briton buddha burma cairo
+carib celts chile chios cisco congo corel corfu cuban czech dakar dalai danish
+dawson delhi denver diablo dixie dorset dubai dutch eddie egypt elvis essex
+eurasia evite fiji fresno gabon gaelic gambia gaza genoa ghana gucci haiti
+hawaii hebrew hindi hindu honda hyundai ibiza inca indies indus intel irish
+islam italy iowa japan jesus jewish jonah judaism julio kansas kenya korea
+kuwait kyoto laos latino latvia libya lima linux london lycos macau madrid
+malawi malta manila maori mecca mexico miami milan mongol mumbai munich muslim
+nepal nevada nike nikon nokia notre norway nubian ohio omaha oregon oxford
+panama papua paris polska prague punjab qatar quebec quran renault reuters
+rwanda salem samoa saudi seoul serbia seville shiva siberia sicily sinai slavic
+slovak somali soviet spain sudan sweden swiss sydney syria taiwan tampa texas
+tibet tokyo tunis turk turkish tuscan uganda ukraine urdu utah vegas venice
+verde vienna vietnam viking wales warsaw welsh yahoo yemen yiddish yoruba yukon
+zaire zambia zionist zulu buick clive dante franz claus mardi trump satan
+abbr admin advil aspx blvd ceos cfos cgi ciao cmos corp crm ctrl dhcp dsl eval
+exec faq faqs ffff fyi gnu gpa gui href html http https iirc imho inet ipo irc
+iso isp jpeg jpg lan lcd lite mailto mfg mhz mpeg mph msg mysql nbsp nntp nsw
+oled pdf perl php pkg png pref pubs pwd qty rdf regex repl req rfc rpm rss sdk
+sgml sku smtp sql ssl subj svc tbsp tcp tif tiff tmp tsp txt uid usr utf uuid
+vhs vlan vpn wap wav xhtml xml xsl
+bbs bios cvs dns dvd exe gif gnome img jsp kde lisp msdos ncr novell nvidia oem
+oracle pentium pgp posix ppc qbasic rpc sas sco sgi shockwave sms solaris sparc
+spss ssh svga sybase sysop tcl telnet tftp tty unix uucp vax vga vlsi vms wais
+wysiwyg xerox xmas xterm yacc zilog const multi supra lemma
+"""
+
+# Real words, but never as an ANSWER or a hint: informal/dialect spellings,
+# apostrophe-less contractions, crudities, and words whose everyday sense is
+# unpleasant.  They stay legal as guesses.
+ANS_JUNK = """
+dunno gonna gotta wanna gimme momma mamma mommy daddy piggy kiddo aunty fella
+bloke howdy snuck takin doesn weren needn hadn wasn couldn shouldn ain aint
+spank thong booty butch moron idiot filth curse loser tramp swine phony freak
+whack bleep sarge honks thuds mafia agony wrath stink drown haunt medic sniff
+psych bawdy hooch hokey dorky gooey icky yucky dweeb nerdy chump chubby
+dummy dopey slimy gross grody scuzzy skank creep creepy weirdo bimbo klutz
 """
 
 # Curated allowlist: everyday words the 1934 dictionary predates and the
@@ -343,10 +352,41 @@ karaoke playlist mixtape smoothie granola oatmeal ketchup yogurt
 
 
 # ───────────────────────────────────────────────────────── candidate assembly
+# ── the Persian pack.  words_authored.PERSIAN, re-checked entry by entry
+#    against OED / Merriam-Webster / etymonline senses.  Anything whose Persian
+#    link is only "perhaps" was dropped; where Persian is an intermediary rather
+#    than the origin, the gloss says so.  These are an explicit curated
+#    allowlist: MAGUS and MOGUL, for instance, are ordinary dictionary words
+#    that the 1934 web2 file happens to list only capitalised.
+PERSIAN_DROP = {
+    # M-W and the OED trace satin to Arabic zaytūnī, from Zaytūn = Quanzhou in
+    # China -- the Persian step is speculative, so it does not ship.
+    'SATIN',
+}
+PERSIAN_ADD = [
+    # Greek arsenikon <- Syriac zarnīkā <- Middle Persian zarnīk, "orpiment",
+    # from zar "gold" (Merriam-Webster).  As solid as the rest of the list.
+    ('ARSENIC', u'zarnīk (Middle Persian), yellow orpiment, from zar, gold'),
+]
+PERSIAN_REGLOSS = {
+    'CANDY': u'qand, cane sugar — Persian into Arabic qandī, then French',
+    'SUGAR': u'shakar, sugar — Persian into Arabic sukkar, then Old French',
+    'ORANGE': u'nārang, orange — Persian into Arabic nāranj, then Old French',
+    'SHERBET': u'sharbat, a sweet drink — Persian into Turkish şerbet',
+    'LACQUER': u'lāk, lac resin — Persian into Arabic lakk, then Portuguese',
+    'PEACH': u'named for Persia — Old Persian Pārsa, via Latin persica, "Persian apple"',
+    'NAPHTHA': u'naft, petroleum — Persian into Greek naphtha',
+    'TANDOOR': u'tanūr, clay oven — Persian into Urdu tandūr',
+    'ALGORITHM': u'from al-Khwārizmī, the Persian mathematician of Khwārazm',
+    'PARADISE': u'pairi-daēza (Old Iranian), a walled garden — into Greek paradeisos',
+}
+
 EXTRA_VALID_SET = set(tok(EXTRA_VALID))
 EXTRA_JUNK_SET = set(tok(EXTRA_JUNK))
+ANS_JUNK_SET = set(tok(ANS_JUNK))
 JUNK |= EXTRA_JUNK_SET
-CURATED |= MODERN | EXTRA_VALID_SET | set(XW.ALLOW)
+CURATED |= MODERN | EXTRA_VALID_SET | set(XW.ALLOW) | set(
+    p[0].lower() for p in list(WA.PERSIAN) + PERSIAN_ADD)
 
 UNIVERSE = ALPHA | WEB2 | CURATED | set(tok(WA.ANS5)) | set(tok(WA.ANS4)) \
     | set(tok(EXTRA_ANS5)) | set(tok(WA.CROSS3))
@@ -557,34 +597,6 @@ def build_cross():
 
 
 CROSS = build_cross()
-
-
-# ── the Persian pack.  words_authored.PERSIAN, re-checked entry by entry
-#    against OED / Merriam-Webster / etymonline senses.  Anything whose Persian
-#    link is only "perhaps" was dropped; where Persian is an intermediary
-#    rather than the origin, the gloss says so.
-PERSIAN_DROP = {
-    # M-W and the OED trace satin to Arabic zaytūnī, from Zaytūn = Quanzhou in
-    # China -- the Persian step is speculative, so it does not ship.
-    'SATIN',
-}
-PERSIAN_ADD = [
-    # Greek arsenikon <- Syriac zarnīkā <- Middle Persian zarnīk, "orpiment",
-    # from zar "gold" (Merriam-Webster).  As solid as the rest of the list.
-    ('ARSENIC', u'zarnīk (Middle Persian), yellow orpiment, from zar, gold'),
-]
-PERSIAN_REGLOSS = {
-    'CANDY': u'qand, cane sugar — Persian into Arabic qandī, then French',
-    'SUGAR': u'shakar, sugar — Persian into Arabic sukkar, then Old French',
-    'ORANGE': u'nārang, orange — Persian into Arabic nāranj, then Old French',
-    'SHERBET': u'sharbat, a sweet drink — Persian into Turkish şerbet',
-    'LACQUER': u'lāk, lac resin — Persian into Arabic lakk, then Portuguese',
-    'PEACH': u'named for Persia — Old Persian Pārsa, via Latin persica, "Persian apple"',
-    'NAPHTHA': u'naft, petroleum — Persian into Greek naphtha',
-    'TANDOOR': u'tanūr, clay oven — Persian into Urdu tandūr',
-    'ALGORITHM': u'from al-Khwārizmī, the Persian mathematician of Khwārazm',
-    'PARADISE': u'pairi-daēza (Old Iranian), a walled garden — into Greek paradeisos',
-}
 
 
 def build_persian():

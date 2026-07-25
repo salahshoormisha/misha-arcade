@@ -21,12 +21,20 @@ clues: round shows dish 1, then falls back to more famous ones.
 """
 
 
-def d(name, desc, why, wiki=None, mdb=None):
+def d(name, desc, why, wiki=None, mdb=None, commons=None, wikias=None, wl=None):
+    """wiki    en.wikipedia article title (its lead photo is used)
+       wikias  the title the article ANSWERS with, when it is a known redirect --
+               gen_food.py refuses any image whose article title it did not expect,
+               because 'Causa' is a snail genus and 'Tibs' redirects to a general
+               cuisine page.  Only set this after checking the target by hand.
+       wl      wikipedia language code, default 'en'
+       commons exact 'File:...' title on Wikimedia Commons
+       mdb     exact TheMealDB dish name"""
     r = {"name": name, "desc": desc, "why": why}
-    if wiki:
-        r["wiki"] = wiki
-    if mdb:
-        r["mdb"] = mdb
+    for k, v in (("wiki", wiki), ("mdb", mdb), ("commons", commons),
+                 ("wikias", wikias), ("wl", wl)):
+        if v:
+            r[k] = v
     return r
 
 
