@@ -55,6 +55,8 @@
   .big { font-size: clamp(22px, 5vw, 34px); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 16px currentColor; }
   .sub { font-size: 12px; color: #d9c6ff; line-height: 1.6; }
   .dim { opacity: .6; font-size: 10px; }
+  .tiny { font-size: 9px; opacity: .75; }
+  .btn.alt { background: linear-gradient(180deg, #c9fff1, #7dffa8); box-shadow: 0 0 18px rgba(125,255,168,.45); font-size: 13px; }
   .btn {
     cursor: pointer; font-family: inherit; font-weight: 800; letter-spacing: 2px;
     font-size: 15px; color: #14032a; background: linear-gradient(180deg, #ffd1ec, var(--pink));
@@ -103,7 +105,8 @@
       <div class="panel"><span class="lbl">HOLD (C)</span><canvas id="hold" width="72" height="60"></canvas></div>
       <div class="panel"><span class="lbl">SCORE</span><b id="score">0</b></div>
       <div class="panel"><span class="lbl">HI-SCORE</span><b id="hiscore">0</b></div>
-      <div class="panel"><span class="lbl">LINES</span><b id="lines">0</b></div>
+      <div class="panel" id="clockPanel" style="display:none"><span class="lbl">TIME</span><b id="clock">0:00.00</b></div>
+      <div class="panel"><span class="lbl" id="linesLbl">LINES</span><b id="lines">0</b></div>
       <div class="panel"><span class="lbl">LEVEL</span><b id="level">1</b></div>
     </div>
     <div id="stage">
@@ -139,7 +142,7 @@
       t.textContent = "⚠️ " + (e.message || "script error") + " — tell Claude!";
     });
   </script>
-  <script src="audio.js?v=7"></script>
-  <script src="game.js?v=7"></script>
+  <script src="audio.js?v=9"></script>
+  <script src="game.js?v=9"></script>
 </body>
 </html>

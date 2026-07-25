@@ -63,11 +63,14 @@
   }
 
   // ---------- state ----------
-  const HI_KEY = "tt_hi";
+  const HI_KEY = "tt_hi", SPRINT_KEY = "tt_sprint", SPRINT_LINES = 40;
+  const fmtTime = (s) => Math.floor(s / 60) + ":" + (s % 60).toFixed(2).padStart(5, "0");
   const game = {
     state: "title", // title|play|clearing|heartburst|gameover
     board: [], piece: null, hold: null, holdUsed: false,
     queue: [], bag: [],
+    mode: "marathon", clock: 0, perfects: 0,
+    bestSprint: +(localStorage.getItem(SPRINT_KEY) || 0) || null,
     score: 0, lines: 0, level: 1, hi: +(localStorage.getItem(HI_KEY) || 0),
     meter: 0, heartQueued: false, b2b: false, combo: -1,
     gravT: 0, lockT: 0, lockResets: 0, grounded: false,
@@ -77,8 +80,9 @@
   window.__TT = {
     game,
     step: (ms) => { for (let i = 0; i < Math.round(ms / (1000 / 120)); i++) sim(1 / 120); render(); },
-    start: () => start(),
+    start: (m) => start(m),
     spawn: (t) => spawn(t),
+    tSpinKind: () => tSpinKind(game.piece),
     fillRow: (r, gap) => { for (let c = 0; c < COLS; c++) game.board[r][c] = c === gap ? null : "Z"; },
     forceMeter: (n) => { game.meter = n; updateMeter(); },
     hardDrop: () => hardDrop(),
@@ -97,7 +101,9 @@
     return game.queue.shift();
   }
 
-  function start() {
+  function start(mode) {
+    game.mode = mode === "sprint" ? "sprint" : "marathon";
+    game.clock = 0; game.perfects = 0;
     game.board = emptyBoard(); game.queue = []; game.bag = [];
     game.score = 0; game.lines = 0; game.level = 1; game.meter = 0;
     game.heartQueued = false; game.b2b = false; game.combo = -1;
@@ -113,7 +119,8 @@
       if (game.heartQueued) { type = "♥"; game.heartQueued = false; game.meter = 0; updateMeter(); }
       else type = nextType();
     }
-    game.piece = { type, rot: 0, x: 3, y: type === "I" ? 0 : 0, isHeart: type === "♥" };
+    game.piece = { type, rot: 0, x: 3, y: type === "I" ? 0 : 0, isHeart: type === "♥",
+                   spun: false, lastKick: false };
     game.gravT = 0; game.lockT = 0; game.lockResets = 0; game.grounded = false;
     game.holdUsed = false;
     if (collides(game.piece, 0, 0, game.piece.rot)) {
@@ -138,10 +145,34 @@
     if (!game.piece || game.state !== "play") return false;
     if (!collides(game.piece, dx, dy, game.piece.rot)) {
       game.piece.x += dx; game.piece.y += dy;
+      game.piece.spun = false;          // any move cancels a pending T-spin
       if (dx !== 0) { sfx("move"); lockReset(); }
       return true;
     }
     return false;
+  }
+
+  // ---------- T-spin (3-corner rule) ----------
+  // A T-spin counts only when the last successful action was a rotation and at
+  // least 3 of the 4 diagonals around the T's centre are blocked. If both
+  // "front" corners (the side the nub points at) are blocked it's a full
+  // T-spin; otherwise a mini. The final kick of the table always upgrades to
+  // full — that's the classic tuck the kick table exists to allow.
+  const T_FRONT = { 0: [[-1, -1], [1, -1]], 1: [[1, -1], [1, 1]], 2: [[-1, 1], [1, 1]], 3: [[-1, -1], [-1, 1]] };
+  function blocked(x, y) {
+    if (x < 0 || x >= COLS || y >= ROWS) return true;   // walls & floor count
+    if (y < 0) return false;
+    return !!game.board[y][x];
+  }
+  function tSpinKind(p) {
+    if (!p || p.type !== "T" || !p.spun) return null;
+    const cx = p.x + 1, cy = p.y + 1;
+    let total = 0;
+    for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) if (blocked(cx + dx, cy + dy)) total++;
+    if (total < 3) return null;
+    const front = T_FRONT[p.rot] || T_FRONT[0];
+    const frontBlocked = front.filter(([dx, dy]) => blocked(cx + dx, cy + dy)).length;
+    return (frontBlocked === 2 || p.lastKick) ? "tspin" : "mini";
   }
   function rotate(dir) { // dir = 1 CW, -1 CCW
     const p = game.piece;
@@ -151,10 +182,12 @@
     const from = p.rot, to = (p.rot + (dir === 1 ? 1 : 3)) % 4;
     const table = p.type === "I" ? KICKS_I : KICKS_JLSTZ;
     const kicks = table[from + ">" + to] || [[0, 0]];
-    for (const [kx, kyUp] of kicks) {
-      const ky = -kyUp;
+    for (let i = 0; i < kicks.length; i++) {
+      const kx = kicks[i][0], ky = -kicks[i][1];
       if (!collides(p, kx, ky, to)) {
         p.x += kx; p.y += ky; p.rot = to;
+        p.spun = true;                       // arms T-spin detection
+        p.lastKick = (i === kicks.length - 1);
         sfx("rotate"); lockReset();
         return;
       }
@@ -221,12 +254,14 @@
 
   function lockPiece() {
     const p = game.piece;
-    for (const [x, y] of cellsOf(p)) if (y >= 0) game.board[y][x] = p.isHeart ? "♥" : p.type;
+    const spin = tSpinKind(p);            // must be read BEFORE the board changes
+    for (const [x, y] of cellsOf(p))      // bounds-guarded: a stray cell must never crash the loop
+      if (y >= 0 && y < ROWS && x >= 0 && x < COLS) game.board[y][x] = p.isHeart ? "♥" : p.type;
     game.lockFx = { cells: cellsOf(p).filter(([, y]) => y >= HIDDEN), ttl: 0.13 };
     if (p.isHeart) { detonateHeart(p); return; }
     sfx("lock");
     game.piece = null;
-    resolveClears(false);
+    resolveClears(false, spin);
   }
 
   function detonateHeart(p) {
@@ -253,17 +288,27 @@
     updateHud();
   }
 
-  function resolveClears(afterHeart) {
+  function resolveClears(afterHeart, spin) {
     const full = [];
     for (let y = 0; y < ROWS; y++) if (game.board[y].every((v) => v)) full.push(y);
+    if (spin && !full.length) {          // a spin that clears nothing still scores
+      game.score += (spin === "tspin" ? 400 : 100) * game.level;
+      flair(spin === "tspin" ? "T-SPIN!" : "T-SPIN MINI", "#c77dff");
+      sfx("tspin"); shake(3, 0.18);
+      updateHud();
+    }
     if (full.length) {
       game.clearingRows = full; game.clearT = 0; game.state = "clearing";
       const n = full.length;
-      const base = [0, 100, 300, 500, 800][n] * game.level;
-      const b2bBonus = n === 4 && game.b2b ? base * 0.5 : 0;
-      game.b2b = n === 4 ? true : (n > 0 ? false : game.b2b);
+      const base = spin === "tspin" ? [0, 800, 1200, 1600, 1600][n] * game.level
+                 : spin === "mini" ? [0, 200, 400, 400, 400][n] * game.level
+                 : [0, 100, 300, 500, 800][n] * game.level;
+      const hard = n === 4 || !!spin;     // quads and spins chain back-to-back
+      const b2bBonus = hard && game.b2b ? base * 0.5 : 0;
+      game.b2b = hard;
       game.combo++;
       game.score += base + b2bBonus + (game.combo > 0 ? 50 * game.combo * game.level : 0);
+      game.pendingSpin = spin;
       // MISHA meter — each cleared line lights the next letter
       const before = game.meter;
       game.meter = Math.min(5, game.meter + n);
@@ -272,8 +317,13 @@
         game.heartQueued = true;
         setTimeout(() => { flair("💌 INCOMING FROM DAVID", "#ff8fc6"); sfx("heartIncoming"); }, 500);
       }
-      if (n === 4) { flair(b2bBonus ? "M I S H A !!! B2B!!" : "M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4); }
-      else {
+      if (spin) {
+        const label = (spin === "tspin" ? "T-SPIN " : "T-SPIN MINI ") + ["", "SINGLE", "DOUBLE", "TRIPLE", "QUAD"][n];
+        flair(b2bBonus ? label + " B2B!" : label, "#c77dff");
+        sfx("tspin"); sfx("lineClear", n); shake(4, 0.25);
+      } else if (n === 4) {
+        flair(b2bBonus ? "M I S H A !!! B2B!!" : "M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4);
+      } else {
         let txt = ["nice ✨", "cute!! 💅", "slayyy 🔥"][n - 1];
         if (game.combo >= 1) txt += " · combo ×" + (game.combo + 1);
         flair(txt, ["#b18cff", "#4fd8ff", "#ffd84f"][n - 1]); sfx("lineClear", n);
@@ -291,6 +341,16 @@
     const rows = game.clearingRows;
     for (const y of rows) { game.board.splice(y, 1); game.board.unshift(Array(COLS).fill(null)); }
     game.lines += rows.length;
+    // Perfect clear — not one block left standing. Rare enough to celebrate.
+    if (game.board.every((row) => row.every((v) => !v))) {
+      game.score += 2000 * game.level;
+      game.perfects = (game.perfects || 0) + 1;
+      flair("✨ PERFECT CLEAR ✨", "#7dffa8");
+      sfx("perfectClear"); shake(6, 0.4);
+      for (let i = 0; i < 50; i++)
+        particle(Math.random() * LWb, LHb * (0.4 + Math.random() * 0.6), ["#7dffa8", "#fff", "#4fd8ff"][i % 3]);
+    }
+    if (game.mode === "sprint" && game.lines >= SPRINT_LINES) { sprintWin(); return; }
     const newLevel = 1 + Math.floor(game.lines / 10);
     if (newLevel > game.level) { game.level = newLevel; sfx("levelUp"); sfx("musicStart", game.level); flair("LEVEL " + game.level + " 💫", "#7dffa8"); }
     game.clearingRows = [];
@@ -298,6 +358,21 @@
     spawn(); updateHud();
   }
 
+  function sprintWin() {
+    game.state = "gameover"; game.piece = null;
+    sfx("musicStop"); sfx("perfectClear"); sfx("misha");
+    const t = game.clock;
+    const best = game.bestSprint;
+    const isBest = !best || t < best;
+    if (isBest) { game.bestSprint = t; try { localStorage.setItem(SPRINT_KEY, String(t)); } catch (e) {} }
+    overlay(`<div class="big" style="color:#7dffa8">40 LINES 🏁</div>
+      <div class="sub" style="font-size:26px;font-weight:900;color:#fff">${fmtTime(t)}</div>
+      <div class="sub">${isBest ? "💅 NEW PERSONAL BEST" : "best " + fmtTime(best)}</div>
+      <div class="sub dim">${game.perfects ? game.perfects + " perfect clear(s) · " : ""}score ${game.score.toLocaleString()}</div>
+      <button class="btn" onclick="__TT.start('sprint')">RACE AGAIN</button>
+      <button class="btn alt" onclick="__TT.start('marathon')">MARATHON</button>`);
+    updateHud();
+  }
   function gameOver() {
     game.state = "gameover"; game.piece = null;
     sfx("musicStop"); sfx("gameOver");
@@ -305,7 +380,8 @@
     overlay(`<div class="big" style="color:#ff5e7a">TOP OUT 💔</div>
       <div class="sub">score ${game.score.toLocaleString()} · lines ${game.lines} · best ${game.hi.toLocaleString()}</div>
       <div class="sub dim">David says: you'll get 'em next time.</div>
-      <button class="btn" onclick="__TT.start()">ONE MORE GAME</button>`);
+      <button class="btn" onclick="__TT.start('marathon')">ONE MORE GAME</button>
+      <button class="btn alt" onclick="__TT.start('sprint')">🏁 SPRINT 40</button>`);
     updateHud();
   }
 
@@ -341,6 +417,8 @@
       return;
     }
     if (game.state !== "play" || game.paused || !game.piece) return;
+    game.clock += dt;
+    if (game.mode === "sprint") updateSprintHud();
 
     // DAS/ARR horizontal
     tickInput(dt);
@@ -384,7 +462,7 @@
     if ([" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (k === "m") { const m = sfx("toggleMute"); const b = document.getElementById("mute"); if (b) b.textContent = m ? "🔇" : "🔊"; return; }
-    if (game.state === "title" || game.state === "gameover") { if (e.key === "Enter" || e.key === " ") start(); return; }
+    if (game.state === "title" || game.state === "gameover") { if (e.key === "Enter" || e.key === " ") start("marathon"); return; }
     if (game.paused) { resumeGame(); return; } // any key resumes
     if (k === "p" || e.key === "Escape") { pauseGame(); return; }
     if (e.repeat) return;
@@ -442,7 +520,7 @@
   document.getElementById("paused").addEventListener("click", () => { sfx("unlock"); resumeGame(); });
   document.getElementById("overlay").addEventListener("click", (e) => {
     if (e.target.closest(".btn")) return; // buttons keep their own actions
-    if (game.state === "title" || game.state === "gameover") { sfx("unlock"); start(); }
+    if (game.state === "title" || game.state === "gameover") { sfx("unlock"); start("marathon"); }
   });
 
   // ---------- render ----------
@@ -469,6 +547,10 @@
       g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("💗", x + s / 2, y + s / 2 + 1);
     }
   }
+  // GLAM MODE — unlocked on the arcade hub. Cosmetic: the whole well takes on a
+  // slowly drifting holographic sheen.
+  let glam = false;
+  try { glam = localStorage.getItem("arcade_glam") === "1"; } catch (e) {}
   function shade(hex, amt) {
     const n = parseInt(hex.slice(1), 16);
     const r = Math.max(0, Math.min(255, (n >> 16) + amt)),
@@ -482,6 +564,14 @@
     if (game.shakeT > 0) {
       const m = (game.shakeMag || 3) * (game.shakeT / (game.shakeDur || 1));
       ctx.translate((Math.random() * 2 - 1) * m, (Math.random() * 2 - 1) * m);
+    }
+    if (glam) {                                   // holographic wash behind the well
+      const h = (performance.now() / 40) % 360;
+      const gr = ctx.createLinearGradient(0, 0, LWb, LHb);
+      gr.addColorStop(0, `hsla(${h} 90% 60% / .16)`);
+      gr.addColorStop(0.5, `hsla(${(h + 120) % 360} 90% 60% / .10)`);
+      gr.addColorStop(1, `hsla(${(h + 240) % 360} 90% 60% / .16)`);
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, LWb, LHb);
     }
     // faint grid
     ctx.strokeStyle = "rgba(140,110,255,.07)"; ctx.lineWidth = 1;
@@ -580,8 +670,17 @@
   }
 
   // ---------- HUD ----------
+  function updateSprintHud() {
+    const el = document.getElementById("clock");
+    if (el) el.textContent = fmtTime(game.clock);
+  }
   function updateHud() {
     if (game.score > game.hi) { game.hi = game.score; try { localStorage.setItem(HI_KEY, String(game.hi)); } catch (e) {} }
+    const panel = document.getElementById("clockPanel");
+    if (panel) panel.style.display = game.mode === "sprint" ? "" : "none";
+    const lbl = document.getElementById("linesLbl");
+    if (lbl) lbl.textContent = game.mode === "sprint" ? "LINES / 40" : "LINES";
+    updateSprintHud();
     document.getElementById("score").textContent = game.score.toLocaleString();
     document.getElementById("hiscore").textContent = game.hi.toLocaleString();
     document.getElementById("lines").textContent = game.lines;
@@ -606,8 +705,9 @@
   game.board = emptyBoard(); // never let render see a missing row
   overlay(`<div class="logo">TETRISHA</div>
     <div class="sub">clear lines to spell <b style="color:#ff4fd8">M·I·S·H·A</b> —<br>complete it and <b style="color:#ff8fc6">DAVID</b> sends a heart 💗 that detonates</div>
-    <button class="btn" onclick="__TT.start()">▶ PLAY</button>
-    <div class="sub dim">click anywhere or press ENTER to start<br>←→ move · ↑/X · Z rotate · ↓ soft · space hard drop · C hold · P pause · M mute</div>`);
+    <button class="btn" onclick="__TT.start('marathon')">▶ MARATHON</button>
+    <button class="btn alt" onclick="__TT.start('sprint')">🏁 SPRINT 40${game.bestSprint ? " <span class='tiny'>best " + fmtTime(game.bestSprint) + "</span>" : ""}</button>
+    <div class="sub dim">click anywhere or press ENTER to start<br>←→ move · ↑/X · Z rotate · ↓ soft · space hard drop · C hold · P pause · M mute<br>T-spins &amp; perfect clears score big ✨</div>`);
   updateHud(); updateMeter();
   let last = performance.now(), acc = 0;
   const STEP = 1 / 120;

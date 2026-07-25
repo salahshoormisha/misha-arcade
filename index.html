@@ -62,7 +62,28 @@
     color: #14032a; background: linear-gradient(180deg, #fff, var(--accent));
     border-radius: 999px; padding: 10px 24px; box-shadow: 0 0 18px var(--glow);
   }
+  .best {
+    margin-top: 12px; font-size: 10px; letter-spacing: 1.5px; color: #9d88d8;
+    border-top: 1px solid #ffffff14; padding-top: 10px; line-height: 1.9;
+  }
+  .best b { color: #fff; font-size: 12px; }
   .duo { margin-top: 20px; font-size: 11px; color: #8f7bd8; letter-spacing: 1px; }
+  .rank {
+    margin-top: 14px; font-size: 12px; letter-spacing: 3px; color: #ffd1ec;
+    text-shadow: 0 0 14px rgba(255,79,163,.6);
+  }
+  .hint { margin-top: 6px; font-size: 9px; color: #6b5aa0; letter-spacing: 1px; }
+  /* ── GLAM MODE ── unlocked by typing her name on this page ── */
+  body.glam .marquee { animation: glamcycle 6s linear infinite; }
+  @keyframes glamcycle { to { filter: hue-rotate(360deg) drop-shadow(0 0 26px rgba(255,79,163,.8)); } }
+  body.glam .cab { border-color: #ff8fc6; }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 20; }
+  #glamBadge {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 21;
+    background: linear-gradient(180deg, #fff, #ff8fc6); color: #14032a;
+    font-weight: 900; font-size: 11px; letter-spacing: 2px; padding: 8px 18px;
+    border-radius: 999px; box-shadow: 0 0 24px rgba(255,79,163,.7); display: none;
+  }
   footer { margin-top: 26px; font-size: 11px; color: #7c68b8; line-height: 2; }
   #note-btn { cursor: pointer; font-size: 20px; background: none; border: none; filter: drop-shadow(0 0 8px #ff8fc6); animation: glowpulse 2s infinite alternate; }
   #note {
@@ -91,6 +112,7 @@
       <p>The maze spells <b>M·I·S·H·A</b> in neon — eat every pellet to light your name up,
       letter by letter. Outrun the office ghosts: <b>DEADLINE</b>, <b>INBOX</b>,
       <b>MEETINGS</b> &amp; <b>BUDGET</b>. The chomp? It says <i>mish&nbsp;mish&nbsp;mish</i>. 💋</p>
+      <div class="best" id="best-mm">HI-SCORE <b>—</b></div>
       <span class="cta">INSERT COIN ▶</span>
     </a>
     <a class="cab" href="tetrisha/" style="--accent:#4fd8ff; --glow:rgba(79,216,255,.45)">
@@ -98,7 +120,9 @@
       <span class="art">🟦🟪🟨 💗 🟩🟧🟥</span>
       <p>Every line clear lights a letter of <b>M·I·S·H·A</b>. Spell it all and
       <b>DAVID</b> sends a heart piece that detonates &amp; tidies your stack.
-      A quad clear isn't a "tetris" here — it's a <b>MISHA!!!</b></p>
+      A quad clear isn't a "tetris" here — it's a <b>MISHA!!!</b> Now with
+      <b>T-spins</b>, <b>perfect clears</b> and a timed <b>🏁 Sprint 40</b>.</p>
+      <div class="best" id="best-tt">HI-SCORE <b>—</b></div>
       <span class="cta">INSERT COIN ▶</span>
     </a>
     <a class="cab" href="https://salahshoormisha.github.io/fourmations/" style="--accent:#3de08a; --glow:rgba(61,224,138,.5)">
@@ -121,7 +145,11 @@
     </a>
   </div>
 
+  <div class="rank" id="rank"></div>
   <div class="duo">💑 pro tip: MISHA-MAN has a DUO DATE MODE — player two is David, on WASD</div>
+  <div class="hint">psst — try typing your name on this page ✨</div>
+  <canvas id="confetti"></canvas>
+  <div id="glamBadge">✨ GLAM MODE UNLOCKED ✨</div>
 
   <footer>
     hand-built overnight, with love, by Claude Fable ✦ for Misha (&amp; David)<br>
@@ -150,6 +178,78 @@
     });
     document.getElementById("note").addEventListener("click", (e) => {
       if (e.target.id === "note") e.target.classList.remove("show");
+    });
+
+    // ── the score wall ────────────────────────────────────────────────────
+    // The games live on this same origin, so their localStorage is readable
+    // right here — the cabinets show your own best without any server.
+    const ls = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    const fmtTime = (s) => Math.floor(s / 60) + ":" + (s % 60).toFixed(2).padStart(5, "0");
+    const mm = +(ls("mm_hi") || 0), tt = +(ls("tt_hi") || 0), sp = +(ls("tt_sprint") || 0);
+    document.getElementById("best-mm").innerHTML =
+      "HI-SCORE <b>" + (mm ? mm.toLocaleString() : "—") + "</b>";
+    document.getElementById("best-tt").innerHTML =
+      "HI-SCORE <b>" + (tt ? tt.toLocaleString() : "—") + "</b>" +
+      (sp ? " · SPRINT 40 <b>" + fmtTime(sp) + "</b>" : "");
+    // a title that grows with the combined score, just for the ego of it
+    const total = mm + tt;
+    const RANKS = [[0, "NEW IN TOWN"], [2000, "REGULAR"], [8000, "HIGH ROLLER"],
+                   [20000, "ARCADE ROYALTY"], [50000, "MIDNIGHT LEGEND 👑"]];
+    let rank = RANKS[0][1];
+    for (const [n, r] of RANKS) if (total >= n) rank = r;
+    document.getElementById("rank").textContent =
+      total ? "RANK · " + rank + " · " + total.toLocaleString() + " pts" : "";
+
+    // ── GLAM MODE ─────────────────────────────────────────────────────────
+    // Type MISHA anywhere on this page. Cosmetic only — it never touches your
+    // scores — and it carries into both games via localStorage.
+    const cvs = document.getElementById("confetti"), cx = cvs.getContext("2d");
+    let bits = [], raf = null;
+    function sizeCanvas() { cvs.width = innerWidth; cvs.height = innerHeight; }
+    sizeCanvas(); addEventListener("resize", sizeCanvas);
+    function burst() {
+      const C = ["#ff4fa3", "#ffd1ec", "#b18cff", "#4fd8ff", "#ffd84f", "#7dffa8"];
+      for (let i = 0; i < 140; i++) bits.push({
+        x: innerWidth / 2 + (Math.random() - .5) * 260, y: innerHeight * .3,
+        vx: (Math.random() - .5) * 420, vy: -180 - Math.random() * 420,
+        r: 3 + Math.random() * 5, c: C[i % C.length], rot: Math.random() * 6, ttl: 2.4,
+        heart: Math.random() < .3,
+      });
+      if (!raf) { let last = performance.now(); raf = requestAnimationFrame(function loop(t) {
+        const dt = Math.min(.05, (t - last) / 1000); last = t;
+        cx.clearRect(0, 0, cvs.width, cvs.height);
+        bits = bits.filter(b => (b.ttl -= dt) > 0);
+        for (const b of bits) {
+          b.x += b.vx * dt; b.y += b.vy * dt; b.vy += 900 * dt; b.rot += dt * 6;
+          cx.globalAlpha = Math.min(1, b.ttl);
+          if (b.heart) { cx.font = (b.r * 4) + "px serif"; cx.fillText("💗", b.x, b.y); }
+          else { cx.save(); cx.translate(b.x, b.y); cx.rotate(b.rot);
+                 cx.fillStyle = b.c; cx.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); cx.restore(); }
+        }
+        cx.globalAlpha = 1;
+        if (bits.length) raf = requestAnimationFrame(loop); else { raf = null; cx.clearRect(0,0,cvs.width,cvs.height); }
+      }); }
+    }
+    function setGlam(on, announce) {
+      document.body.classList.toggle("glam", on);
+      try { localStorage.setItem("arcade_glam", on ? "1" : "0"); } catch (e) {}
+      const badge = document.getElementById("glamBadge");
+      badge.textContent = on ? "✨ GLAM MODE UNLOCKED ✨" : "glam mode off";
+      badge.style.display = "block";
+      if (on && announce) burst();
+      clearTimeout(setGlam._t);
+      setGlam._t = setTimeout(() => { badge.style.display = "none"; }, 2600);
+    }
+    setGlam(ls("arcade_glam") === "1", false);
+    document.getElementById("glamBadge").style.display = "none";
+    let typed = "";
+    addEventListener("keydown", (e) => {
+      if (e.key.length !== 1) return;
+      typed = (typed + e.key.toUpperCase()).slice(-5);
+      if (typed === "MISHA") {
+        typed = "";
+        setGlam(!document.body.classList.contains("glam"), true);
+      }
     });
   </script>
 </body>

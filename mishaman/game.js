@@ -570,6 +570,10 @@
     g.beginPath(); g.moveTo(19 * T + 2, 18 * T + T / 2); g.lineTo(21 * T - 2, 18 * T + T / 2); g.stroke();
   }
 
+  // GLAM MODE — unlocked by typing MISHA on the arcade hub. Purely cosmetic:
+  // the letters of her name cycle through the whole spectrum, forever.
+  let glam = false;
+  try { glam = localStorage.getItem("arcade_glam") === "1"; } catch (e) {}
   let flashHue = 0;
   function render() {
     ctx.save();
@@ -580,6 +584,9 @@
     if (game.state === "levelclear") {
       flashHue += 12;
       drawWalls(ctx, (cell) => cell.letter ? `hsl(${(flashHue + "MISHA".indexOf(cell.letter) * 40) % 360} 100% 70%)` : null);
+    } else if (glam) {                       // her name cycles the whole spectrum
+      flashHue += 0.9;
+      drawWalls(ctx, (cell) => cell.letter ? `hsl(${(flashHue + "MISHA".indexOf(cell.letter) * 55) % 360} 100% 72%)` : null);
     } else {
       ctx.drawImage(staticCvs, 0, 0, LW, LH);
     }
