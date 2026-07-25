@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GLOBLE · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=3">
+<style>
+  #globe { width: min(360px, 84vw); height: min(360px, 84vw); display: block; margin: 8px auto 0;
+           cursor: grab; touch-action: none; }
+  #globe:active { cursor: grabbing; }
+  .legend { display: flex; align-items: center; gap: 7px; justify-content: center;
+            font-size: 9.5px; letter-spacing: 1.4px; color: var(--ink4); margin-top: 4px; }
+  .legend .sw { display: flex; border-radius: 999px; overflow: hidden; }
+  .legend .sw i { width: 19px; height: 8px; }
+  .best { text-align: center; font-size: 12px; color: var(--ink2); margin-top: 10px; letter-spacing: 1px; }
+  .best b { color: var(--gold); }
+  .guesses { max-width: 400px; margin: 12px auto 0; }
+  .gr { display: flex; align-items: center; gap: 8px; padding: 7px 11px; margin-bottom: 5px;
+        border: 1px solid var(--line); border-radius: 10px; background: #ffffff07; font-size: 13px; }
+  .gr .dot { width: 13px; height: 13px; border-radius: 4px; flex: 0 0 auto; border: 1px solid #ffffff30; }
+  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; }
+  .gr .km { color: var(--ink3); font-size: 11.5px; }
+  .gr.win { border-color: var(--ok); background: rgba(61,224,138,.1); }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=3"></script>
+<script src="../../core/arcade.js?v=3"></script>
+<script src="../../core/ui.js?v=3"></script>
+<script src="../../core/audio.js?v=3"></script>
+<script src="../../core/worldmap.js?v=3"></script>
+<script src="../../core/data/countries.js?v=3"></script>
+<script src="../../core/data/world.js?v=3"></script>
+<script src="../../core/picker.js?v=3"></script>
+<script src="game.js?v=3"></script>
+</body>
+</html>
