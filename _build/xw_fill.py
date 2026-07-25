@@ -47,22 +47,117 @@ tab tag tan tap tar tax tea tee ten the tie tin tip toe ton too top toy try tub 
 use van wax way web wed wet who why win wow yes yet you zip zoo
 """.split()
 
-PATTERNS = [
-    ((0, 0),),
-    ((0, 4),),
-    ((4, 0),),
-    ((4, 4),),
-    ((0, 0), (4, 4)),
-    ((0, 4), (4, 0)),
-    ((0, 0), (0, 4)),
-    ((4, 0), (4, 4)),
-    ((0, 0), (0, 1), (4, 3), (4, 4)),
-    ((0, 0), (1, 0), (3, 4), (4, 4)),
-    ((0, 0), (0, 4), (4, 0), (4, 4)),
-    ((0, 0), (0, 1), (1, 0), (1, 1)),
-    ((0, 3), (0, 4), (4, 0), (4, 1)),
-    ((3, 3), (3, 4), (4, 3), (4, 4)),
-]
+# ---------------------------------------------------------------------------
+# BAN -- words the pool still lets through that must never reach a grid.
+# Every one of these was caught by eyeballing a real generated answer list:
+# slurs and dated racial terms, crude anatomy, corpus artifacts that are not
+# English words, transliterations and proper nouns, and crosswordese that has
+# no honest clue.  Filtering happens here (not in xw_words.py) so the shared
+# pool file stays untouched for the other word games.
+BAN = set("""
+negro negros negroes coloured asses ass arse boobs bitch damned
+param ther tele thier ther teh todo init args func regex http href utf ascii
+plat parm proc calc alloc dealloc struct printf substr
+reese ricky bobby wendy kelly kevin karen debbie nancy nikki jimmy tammy susan
+kathy cathy bobbi becky terry jerry larry harry barry gerry marty monty rusty
+alamo texas tulsa vegas boise omaha aztec inca maori zulu bantu farsi hindi
+hebrew latin greek roman norse aryan aryans
+alfa largo lento forte tempo adagio
+avian renal aorta uveal ileum tibia femur pelvic
+nitro ortho meta para poly mono
+theta omega sigma delta gamma kappa lambda alpha beta zeta iota
+circa versus ergo ibid idem
+assay assays essay assai
+nanny mammy granny
+cess sess tion ings ests iest eous ance ence ible
+apse nave apsis ogee ewer adze oleo olio esne etui smee anoa unau okapi
+ogre orcs elven gnome troll
+gonna wanna gotta kinda sorta dunno yeah yep nope nah huh hmm ugh
+xxx xml sql php htm jpeg mpeg wifi ipod ipad imac linux ubuntu
+juan jose luis maria pablo pedro diego mario rosa lucia
+""".split())
+
+
+def _en50k():
+    """Spoken-English frequency list (OpenSubtitles).  Requiring a word to appear in
+    BOTH this and the written-web list kills corpus artifacts like PARAM and THER."""
+    out = set()
+    try:
+        with open(os.path.join(B, 'en_50k.txt')) as f:
+            for line in f:
+                w = line.split(' ')[0].strip().lower()
+                if w.isalpha():
+                    out.add(w)
+    except IOError:
+        pass
+    return out
+
+
+# ------------------------------------------------------------------- patterns
+def _row_options():
+    """A 5-wide row is legal iff its blocks sit only at the ends and the white run
+    left over is >= 3.  So a row is fully described by (prefix blocks, suffix blocks)."""
+    return [(p, s) for p in range(3) for s in range(3) if p + s <= 2]
+
+
+def _canon(blocks):
+    best = None
+    for t in range(8):
+        cur = []
+        for r, c in blocks:
+            rr, cc = (c, r) if t & 1 else (r, c)
+            if t & 2:
+                rr = N - 1 - rr
+            if t & 4:
+                cc = N - 1 - cc
+            cur.append((rr, cc))
+        k = tuple(sorted(cur))
+        if best is None or k < best:
+            best = k
+    return best
+
+
+def gen_patterns(max_blocks=6):
+    """Every legal 5x5 mini block pattern with <= max_blocks blocks, in ALL
+    orientations (a rotated pattern is a visually different puzzle), ordered so
+    the light patterns come first.  Deterministic."""
+    import itertools
+    opts = _row_options()
+    out = []
+    seen = set()
+    for rows in itertools.product(opts, repeat=N):
+        b = set()
+        for r, (p, s) in enumerate(rows):
+            for c in range(p):
+                b.add((r, c))
+            for c in range(N - s, N):
+                b.add((r, c))
+        if len(b) > max_blocks:
+            continue
+        if not pattern_ok(b):
+            continue
+        key = tuple(sorted(b))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(key)
+    # interleave by canonical family so consecutive patterns look different
+    fam = {}
+    for k in out:
+        fam.setdefault(_canon(k), []).append(k)
+    order = sorted(fam, key=lambda f: (len(f), f))
+    mixed = []
+    i = 0
+    while True:
+        added = False
+        for f in order:
+            if i < len(fam[f]):
+                mixed.append(fam[f][i])
+                added = True
+        if not added:
+            break
+        i += 1
+    return [tuple(p) for p in mixed]
 
 
 # --------------------------------------------------------------------- slots
@@ -153,6 +248,7 @@ class Filler(object):
         caps = caps or {3: 99999, 4: 11000, 5: 13000}
         pool = xw_words.load()
         good3 = set(GOOD3)
+        spoken = _en50k()
         self.words = {}
         self.rank = {}
         self.wid = {}
@@ -160,6 +256,10 @@ class Filler(object):
             ws = []
             for w, r in sorted(pool[L].items()):
                 if L == 3 and w not in good3:
+                    continue
+                if w in BAN:
+                    continue
+                if L >= 4 and spoken and w not in spoken:
                     continue
                 if r > caps[L]:
                     continue
@@ -310,20 +410,21 @@ def score(grid, blocks, rankmap):
     return -(0.55 * worst + 0.45 * mean + pen), mean, worst
 
 
-def generate(per_pattern=40, node_limit=120000, verbose=True):
+def generate(patterns, per_pattern=14, node_limit=60000, verbose=True):
     f = Filler(caps={3: 99999, 4: 99999, 5: 99999})
     if verbose:
         print('filler word counts: %s' % f.sizes())
+        sys.stdout.flush()
     cands = []
     seen_fills = set()
-    for pi, blocks in enumerate(PATTERNS):
+    for pi, blocks in enumerate(patterns):
         assert pattern_ok(blocks), blocks
         got = 0
         for s in range(per_pattern * 3):
             if got >= per_pattern:
                 break
             g = f.fill(blocks, seed=pi * 100003 + s,
-                       noise=1.0 + (s % 5) * 0.55, node_limit=node_limit)
+                       noise=1.0 + (s % 7) * 0.9, node_limit=node_limit)
             if not g:
                 continue
             key = tuple(g)
@@ -335,15 +436,12 @@ def generate(per_pattern=40, node_limit=120000, verbose=True):
                           'score': sc, 'mean': mean, 'worst': worst, 'seed': s})
             got += 1
         if verbose:
-            print('  pattern %2d %-42s fills=%d' % (pi, str(blocks), got))
+            print('  pattern %2d %-40s fills=%d' % (pi, str(blocks), got))
             sys.stdout.flush()
     return f, cands
 
 
-def select(cands, f, want=40, max_uses=2, max_overlap=1):
-    """Greedy: best score first; a word may appear in at most max_uses puzzles and two
-    chosen puzzles may share at most max_overlap words.  Round-robin over patterns so
-    the 40 are visually varied."""
+def _pick(cands, want, max_uses, max_overlap):
     cands = sorted(cands, key=lambda c: -c['score'])
     by_pat = {}
     for c in cands:
@@ -351,6 +449,7 @@ def select(cands, f, want=40, max_uses=2, max_overlap=1):
     chosen = []
     uses = {}
     chosen_sets = []
+    seen_grid = set()
     pats = sorted(by_pat)
     ptr = {p: 0 for p in pats}
     while len(chosen) < want:
@@ -362,6 +461,8 @@ def select(cands, f, want=40, max_uses=2, max_overlap=1):
             while ptr[p] < len(lst):
                 c = lst[ptr[p]]
                 ptr[p] += 1
+                if tuple(c['grid']) in seen_grid:
+                    continue
                 a, d = entries_of(c['grid'], [tuple(b) for b in c['blocks']])
                 ws = set(e[4] for e in a + d)
                 if any(uses.get(w, 0) >= max_uses for w in ws):
@@ -372,6 +473,7 @@ def select(cands, f, want=40, max_uses=2, max_overlap=1):
                     uses[w] = uses.get(w, 0) + 1
                 chosen.append(c)
                 chosen_sets.append(ws)
+                seen_grid.add(tuple(c['grid']))
                 progress = True
                 break
         if not progress:
@@ -379,13 +481,31 @@ def select(cands, f, want=40, max_uses=2, max_overlap=1):
     return chosen
 
 
+def select(cands, f, want=40):
+    """Greedy: best score first; a word may appear in at most `max_uses` puzzles and two
+    chosen puzzles may share at most `max_overlap` words.  Round-robin over patterns so
+    the set is visually varied.  Constraints relax in fixed steps until `want` is met, so
+    the result is still deterministic."""
+    for max_uses, max_overlap in ((2, 1), (2, 2), (3, 2), (3, 3), (4, 3)):
+        chosen = _pick(cands, want, max_uses, max_overlap)
+        if len(chosen) >= want:
+            print('  select: max_uses=%d max_overlap=%d -> %d' % (max_uses, max_overlap, len(chosen)))
+            return chosen
+        best = chosen
+    print('  select: exhausted relaxations -> %d' % len(best))
+    return best
+
+
 def main():
-    f, cands = generate()
+    want = int(sys.argv[1]) if len(sys.argv) > 1 else 40
+    patterns = gen_patterns()
+    print('legal 5x5 block patterns (all orientations, <=6 blocks): %d' % len(patterns))
+    f, cands = generate(patterns)
     print('total candidate fills: %d' % len(cands))
-    chosen = select(cands, f)
+    chosen = select(cands, f, want=want)
     print('selected: %d' % len(chosen))
-    if len(chosen) < 40:
-        print('!! WARNING: fewer than 40 fills selected')
+    if len(chosen) < want:
+        print('!! WARNING: fewer than %d fills selected' % want)
     allwords = []
     for c in chosen:
         a, d = entries_of(c['grid'], [tuple(b) for b in c['blocks']])
@@ -395,7 +515,7 @@ def main():
     uniq = sorted(set(allwords))
     print('entries: %d   distinct words: %d   worst rank in set: %d'
           % (len(allwords), len(uniq), max(f.rank[w] for w in uniq)))
-    out = {'patterns': [[list(b) for b in p] for p in PATTERNS], 'puzzles': chosen}
+    out = {'patterns': [[list(b) for b in p] for p in patterns], 'puzzles': chosen}
     path = os.path.join(B, 'xw_mini_fills.json')
     with open(path, 'w') as fh:
         json.dump(out, fh, indent=1, sort_keys=True)
