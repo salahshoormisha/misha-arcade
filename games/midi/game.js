@@ -190,11 +190,11 @@
     var bar = A.el("div");
     bar.id = "midibar";
     bar.innerHTML =
-      '<button class="ac-pill" id="mi-timer" title="pause the clock">⏱ 0:00</button>' +
+      '<button class="ac-pill" id="mi-timer" title="pause the clock">0:00</button>' +
       '<span class="ac-pill flat">PAR ' + A.fmtTime(PAR * 1000) + "</span>" +
-      '<button class="ac-pill" id="mi-pen" title="pencil mode">✎ PEN</button>' +
-      '<button class="ac-pill" id="mi-help">🩺 CHECK</button>' +
-      '<button class="ac-pill" id="mi-list">☰ CLUES</button>';
+      '<button class="ac-pill" id="mi-pen" title="pencil mode">PEN</button>' +
+      '<button class="ac-pill" id="mi-help">CHECK</button>' +
+      '<button class="ac-pill" id="mi-list">CLUES</button>';
     main.appendChild(bar);
 
     var cols = A.el("div", "midi-cols");
@@ -261,7 +261,7 @@
     extra.id = "mi-extra";
     extra.innerHTML = practice
       ? '<a class="ac-pill" href="./">← TODAY\'S MIDI</a>'
-      : '<a class="ac-pill" href="?practice=1">🎲 RANDOM ONE</a>';
+      : '<a class="ac-pill" href="?practice=1">RANDOM ONE</a>';
     main.appendChild(extra);
   }
 
@@ -418,7 +418,7 @@
   function togglePencil() {
     pencilMode = !pencilMode;
     pencilPill.classList.toggle("on", pencilMode);
-    pencilPill.textContent = pencilMode ? "✎ PENCIL" : "✎ PEN";
+    pencilPill.textContent = pencilMode ? "PENCIL" : "PEN";
     A.toast(pencilMode ? "Pencil: letters go in grey" : "Pen");
   }
 
@@ -448,7 +448,7 @@
 
   function paintClock() {
     if (!timerPill) return;
-    timerPill.textContent = (paused ? "▶ " : "⏱ ") + A.fmtTime(nowMs());
+    timerPill.textContent = A.fmtTime(nowMs()) + (paused ? " · PAUSED" : "");
     if (!over && !paused && running && nowMs() - (paintClock._saved || 0) > 10000) {
       paintClock._saved = nowMs();
       save();
@@ -752,10 +752,9 @@
     var title = themeTitle();
     var extra = "";
     if (title) {
-      extra += '<p class="center" style="margin:8px 0 0;color:var(--gold);letter-spacing:2px;' +
-        'font-size:13px">▧ ' + A.esc(title.toUpperCase()) + "</p>";
+      extra += '<p class="center mi-theme">' + A.esc(title.toUpperCase()) + "</p>";
     }
-    extra += '<p class="center tiny muted" style="margin-top:8px">⏱ <b style="color:#fff">' +
+    extra += '<p class="center tiny muted mi-time">YOUR TIME <b>' +
       A.fmtTime(ms) + "</b> · par " + A.fmtTime(PAR * 1000) + " · " +
       (ms <= PAR * 1000 ? "under par" : "over par by " + A.fmtTime(ms - PAR * 1000)) + "</p>";
 
