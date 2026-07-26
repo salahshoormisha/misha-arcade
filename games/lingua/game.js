@@ -109,6 +109,18 @@
   var RTL = { Arab: 1, Hebr: 1, Thaa: 1, Syrc: 1, Nkoo: 1, Adlm: 1 };
   var VERT = { Mong: 1 };                     // written top-to-bottom, columns L→R
 
+  /* The data keys are ISO 639-3, which IS valid in a lang attribute — but the
+     one place a wrong tag changes the GLYPHS is Han: the same code point is
+     drawn differently in Chinese, Japanese and Korean, and engines key that off
+     the 639-1 tag. So the languages where the tag does real work are spelled
+     the way browsers expect; everything else falls through to its 639-3 code. */
+  var LANGTAG = {
+    cmn_hans: "zh-Hans", cmn_hant: "zh-Hant", jpn: "ja", kor: "ko",
+    khk_mong: "mn-Mong", khk: "mn", arb: "ar", pes: "fa", urd: "ur",
+    heb: "he", ydd: "yi", hin: "hi", ben: "bn", tha: "th", ell: "el",
+    rus: "ru", kat: "ka", hye: "hy", amh: "am", bod: "bo",
+  };
+
   /* ── data ──────────────────────────────────────────────────────────────── */
 
   var L = window.AD_LINGUA || {};
@@ -232,10 +244,10 @@
 
   function fontFor(s) { return FONT_BY_KEY[s.key] || FONTS[s.sc] || TAIL; }
 
-  // "cmn_hans" → "cmn-Hans": a valid BCP-47 tag, so the browser shapes and
-  // reads the passage as the right language rather than guessing.
+  // A BCP-47 tag for the passage, so the browser shapes, breaks and reads it as
+  // the right language instead of guessing. "cmn_hans" → "zh-Hans".
   function bcp47(s) {
-    return s.key.replace(/_(hans|hant|mong)$/, function (m, g) {
+    return LANGTAG[s.key] || s.key.replace(/_(hans|hant|mong)$/, function (m, g) {
       return "-" + g.charAt(0).toUpperCase() + g.slice(1);
     });
   }

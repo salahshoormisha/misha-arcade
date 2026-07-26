@@ -24,6 +24,12 @@ VALIDATION (all of it fatal — the file is not written if anything fails):
   6. no clue longer than 190 chars (it has to fit a 375px phone)
 
 Run:  python3 _build/gen_chrono.py
+      python3 _build/gen_chrono.py --draft   # same checks, but allows a
+                                             # part-written bank through so the
+                                             # cabinet can be loaded mid-build.
+                                             # --draft relaxes ONLY the pool
+                                             # size and the decade spread; every
+                                             # per-clue check stays fatal.
 """
 
 import os
