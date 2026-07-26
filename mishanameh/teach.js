@@ -90,9 +90,11 @@ function intentWords(f){
       : { txt:`Strikes you for ${it.dmg}`, big:it.dmg, k:'atk' };
   }
   if(it.k==='block')  return { txt:`Braces — gains ${it.blk} Block`, big:it.blk, k:'def' };
-  if(it.k==='buff')   return { txt: it.txt || `Makes itself stronger`, k:'buf' };
-  if(it.k==='debuff') return { txt: it.txt || `Does something unpleasant to you`, k:'deb' };
-  return { txt: it.txt || it.n || `Something else`, k:'spc' };
+  // a bare "2 Frail" is a stat line, not a sentence. Say who it lands on.
+  if(it.k==='buff')   return { txt: it.txt ? `Strengthens itself: ${it.txt}` : `Makes itself stronger`, k:'buf' };
+  if(it.k==='debuff') return { txt: it.txt ? `Puts ${it.txt} on you` : `Weakens you`, k:'deb' };
+  if(it.txt)          return { txt: it.n ? `${it.n} — ${it.txt}` : it.txt, k:'spc' };
+  return { txt: it.n || `Something else`, k:'spc' };
 }
 
 /* ═══════════════  3. THE TUTOR  ═══════════════

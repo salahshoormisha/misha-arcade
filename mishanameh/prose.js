@@ -25,8 +25,8 @@ function moveWords(f, mv){
     return mv.hits>1 ? `hits you ${mv.hits}× for ${mv.dmg} (${total})` : `hits you for ${mv.dmg}`;
   }
   if(mv.k==='block')  return `braces for ${mv.blk} Block`;
-  if(mv.k==='buff')   return mv.txt ? mv.txt.toLowerCase() : 'strengthens itself';
-  if(mv.k==='debuff') return mv.txt ? mv.txt.toLowerCase() : 'weakens you';
+  if(mv.k==='buff')   return mv.txt ? `strengthens itself — ${mv.txt}` : 'strengthens itself';
+  if(mv.k==='debuff') return mv.txt ? `puts ${mv.txt} on you` : 'weakens you';
   return mv.txt || mv.n || 'does something else';
 }
 
