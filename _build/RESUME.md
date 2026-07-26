@@ -3,7 +3,7 @@
 If a session ended mid-build (usage limit, crash, closed laptop), start here.
 Everything needed to continue is on disk and in git.
 
-**Last updated:** 2026-07-26.
+**Last updated:** 2026-07-26, after the weekly-limit stop.
 
 ---
 
@@ -167,14 +167,54 @@ A background checkpoint loop may be committing `core/data/` and `games/` every
 
 ---
 
-## 7. Known open items
+## 7. Known open items — EXACTLY what is left
 
-- `photos.js` and `geogrid.js` still building; TIMEGUESSR, PLACEGUESSR, GEOGRID,
-  CHRONO and CLUEDROP depend on them.
-- `games/outline/game.js` — a QA pass left the hint reading
-  `"the shape" + size` with no separator ("the shapeenormous"). Fix the string.
-- Cache-buster versions have drifted between `?v=7` and `?v=8` across cabinets.
-  Normalise them in one pass before the next deploy.
-- Raw data inputs are gitignored and re-downloadable: `_build/countries-110m.json`
-  and `countries-50m.json` (unpkg world-atlas 2.0.2), `countries-full.json`
-  (raw.githubusercontent.com/mledoze/countries).
+A weekly usage limit stopped the last wave. Everything below is the remaining work,
+in priority order. Relaunch the saved workflow scripts rather than rewriting the briefs.
+
+### 1. Three cabinets not yet built
+`geogrid`, `timeguessr`, `placeguessr` — all still carry `soon: true` in
+`core/registry.js`, so the Daily Run shows them as pending rather than 404ing.
+**Their data is already done and committed** (`core/data/geogrid.js` 138 KB,
+`core/data/photos.js` 138 KB), so this is game code only.
+
+Relaunch:
+```
+Workflow({scriptPath: "~/.claude/projects/-Users-mishasalahshoor-cbai-ops-misha-arcade/94c0cfc1-e07b-4090-a957-ef69abdd367f/workflows/scripts/arcade-last-three-wf_566379ce-f16.js"})
+```
+**After building each one, delete its `soon: true` from `core/registry.js`.**
+
+### 2. The historical photo set is only half-harvested
+`AD_PHOTOS.place` is finished: 185 photos, 84 countries, every one with real
+geosearch coordinates and visual `clues`. **`AD_PHOTOS.time` only reached
+1850–1899 (48 photos)** — the harvester was cut off. It needs extending to
+1900–2015 at ≥8 per decade. The brief is the `photos-time` job in the workflow
+above; the previous harvester's script is in `_build/`.
+
+TIMEGUESSR is written to read the array's real min/max year at runtime, so it
+works with whatever is present — the set just gets better as it grows.
+
+### 3. The visual QA sweep never ran
+All three polish agents died on the limit. Relaunch:
+```
+Workflow({scriptPath: "~/.claude/projects/-Users-mishasalahshoor-cbai-ops-misha-arcade/94c0cfc1-e07b-4090-a957-ef69abdd367f/workflows/scripts/arcade-packs-and-polish-wf_e4161526-133.js"})
+```
+The `packs` job in it is **already done** (110 boards landed) — delete that job
+from the JOBS array before re-running, or it will redo finished work.
+The two QA jobs sweep every cabinet at 1280px and 375px for horizontal scroll,
+clipped text, blurry canvases, picker suggestions clipped by a parent overflow,
+long country names wrapping badly, and leftover emoji in button labels.
+
+### 4. Smaller things
+- Cache-busters are at `?v=11` everywhere. Bump on any core edit.
+- `games/_shared/` is an empty directory left by an agent; delete it.
+- Some cabinets still carry emoji in their own control labels (the QA sweep in
+  §3 covers this). Emoji in *share grids* is intentional and should stay.
+
+---
+
+## 8. Raw inputs (gitignored, re-downloadable)
+
+`_build/countries-110m.json`, `countries-50m.json` — unpkg world-atlas 2.0.2.
+`_build/countries-full.json` — raw.githubusercontent.com/mledoze/countries.
+`_build/RESEARCH.json` — the research corpus in machine-readable form.
