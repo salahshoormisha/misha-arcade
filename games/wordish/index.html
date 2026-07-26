@@ -24,9 +24,10 @@
      and the vertical space left once the header, mode row and keyboard have
      taken theirs. That last bound is what keeps the ENTER key on screen on a
      short phone instead of pushing the bottom keyboard row past the fold.
-     402px = header 61 + sub 29 + margins 40 + modes 92 + keyboard 144 + 36. */
+     354px = header 61 + sub 29 + margins 40 + mode row 44 + keyboard 144 + 36,
+     and the mode row is pinned to exactly one 44px row below. */
   #board {
-    --tile: min(58px, calc((100vw - 48px) / 5), calc((var(--vh) - 402px) / 6));
+    --tile: min(58px, calc((100vw - 48px) / 5), calc((var(--vh) - 354px) / 6));
     display: grid; gap: var(--sp-1); margin: var(--sp-3) auto 0;
     width: calc(var(--tile) * 5 + var(--sp-1) * 4);
   }
@@ -35,9 +36,21 @@
      change size between empty, filled and scored. */
   #board .ac-tile { width: var(--tile); height: var(--tile); font-size: calc(var(--tile) * .52); }
 
-  /* ── mode row ────────────────────────────────────────────────────────────── */
-  .modes { display: flex; justify-content: center; gap: var(--sp-1); margin-top: var(--sp-3); flex-wrap: wrap; }
-  .modes .ac-pill { min-height: 44px; text-decoration: none; cursor: pointer; }
+  /* ── mode row ─────────────────────────────────────────────────────────────
+     Three pills that always occupy exactly ONE row: the board's height budget
+     above is computed against that, so a second row would push the keyboard's
+     bottom row off a 667px screen. They share the width instead of wrapping. */
+  .modes {
+    display: flex; flex-wrap: nowrap; justify-content: center;
+    gap: var(--sp-1); margin-top: var(--sp-3);
+  }
+  .modes .ac-pill {
+    min-height: 44px; flex: 0 1 auto; min-width: 0; justify-content: center;
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+  }
+  @media (max-width: 440px) {
+    .modes .ac-pill { padding: 6px var(--sp-2); letter-spacing: .05em; }
+  }
 
   /* ── result sheet extras ─────────────────────────────────────────────────── */
   .wd-answer {

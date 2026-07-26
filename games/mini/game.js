@@ -248,6 +248,12 @@
   P = practice ? A.pick(A.rng(String(Date.now()) + Math.random()), POOL) : puzzleFor(day);
   for (var z = 0; z < SIZE * SIZE; z++) { fill[z] = ""; good[z] = 0; wrong[z] = 0; rev[z] = 0; }
 
+  // Start on the first clue, NOT on (0,0) — nine of the shipped grids open with
+  // a block there, and a cursor parked on a block has no entry and no clue.
+  cr = P.entries[0].cells[0][0];
+  cc = P.entries[0].cells[0][1];
+  dir = P.entries[0].dir;
+
   /* toolbar: clock · clues · tools */
   mtop = A.el("div", null, "");
   mtop.id = "mtop";
@@ -784,6 +790,9 @@
     } else if (e) {
       labEl.textContent = e.n + (e.dir === ACROSS ? "-ACROSS" : "-DOWN");
       clEl.textContent = e.clue;
+    } else {
+      labEl.textContent = "CLUE";
+      clEl.textContent = "Tap a square to start.";
     }
     parEl.textContent = over
       ? "PAR " + fmt(P.par) + " · YOU " + fmt(Math.round(ms() / 1000))

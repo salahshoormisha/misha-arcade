@@ -652,9 +652,9 @@
       L = P.letters.charAt(i);
       cls = "lb";
       if (used[L]) cls += " used";
-      if (cur.indexOf(L) >= 0) cls += " act";
-      if (L === lastCh) cls += " last";
-      else if (lastCh && P.of[L] === P.of[lastCh] && !over) cls += " off";
+      if (buf.indexOf(L) >= 0) cls += " act";
+      if (lastCh && L === lastCh) cls += " last";
+      else if (lastCh && P.of[L] === P.of[lastCh]) cls += " off";
       btn[L].className = cls;
     }
 
