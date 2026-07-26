@@ -205,13 +205,11 @@
     (practice || sandbox ? "∞" : "No. " + pad(day));
   spec.querySelector(".foot").textContent = srcLabel(S.src);
 
-  var pickHost = A.el("div");
-  pickHost.style.marginTop = "14px";
+  var pickHost = A.el("div", "pickhost");
   main.appendChild(pickHost);
   picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "where is this spoken?" });
 
-  var row = A.el("div", "ac-row");
-  row.style.marginTop = "10px";
+  var row = A.el("div", "ac-row underpick");
   row.innerHTML = practice
     ? '<a class="ac-pill" href="./">← TODAY\'S SPECIMEN</a>'
     : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>';
