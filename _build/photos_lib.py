@@ -82,9 +82,14 @@ def resolve_places(names):
     names = list(dict.fromkeys(names))
     for i in range(0, len(names), 40):
         chunk = names[i:i + 40]
+        # coprimary=all matters: plenty of settlement articles (Petra, Matera,
+        # Ubud, Hamilton/Bermuda…) tag their own coordinate primary=false, and the
+        # default coprimary=primary drops them silently. We still PREFER the
+        # primary coordinate when one exists — see pick_co below.
         d = api({"action": "query", "titles": "|".join(chunk),
                  "prop": "coordinates", "coprop": "type|name", "colimit": "max",
-                 "redirects": "1"}, prefix="wpcoord", endpoint=WPAPI)
+                 "coprimary": "all", "redirects": "1"}, prefix="wpcoord2",
+                endpoint=WPAPI)
         q = d.get("query") or {}
         # map redirects/normalisations back to what we asked for
         alias = {}
@@ -92,8 +97,11 @@ def resolve_places(names):
             for r in q.get(kind) or []:
                 alias[r.get("to")] = r.get("from")
         for p in q.get("pages") or []:
-            co = (p.get("coordinates") or [{}])[0]
-            if not co.get("lat"):
+            cos = p.get("coordinates") or []
+            # primary first, then any earth coordinate
+            co = next((c for c in cos if c.get("primary") and c.get("globe", "earth") == "earth"),
+                      next((c for c in cos if c.get("globe", "earth") == "earth"), {}))
+            if co.get("lat") is None:
                 continue
             title = p.get("title")
             asked = title

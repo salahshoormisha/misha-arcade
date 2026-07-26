@@ -258,9 +258,8 @@ BOARDS = [
  "traps": [
    ["DUGALD STEWART", 1, "Dugald Stewart was a professor of moral philosophy and the man who taught the Enlightenment to the next century. The monument is on Calton Hill; the philosopher belongs in the group above."],
    ["SCOTT MONUMENT", 0, "It is a two-hundred-foot Gothic rocket built for a novelist, on a board with a group of Edinburgh novelists. It is still a monument."],
-   ["HUME", 2, "There is a statue of Hume on the Royal Mile with a shiny toe, and a tower named after him. The man came first."],
  ],
- "epilogue": "The hardest board in the pack, and every trap points the same way: three tiles are monuments to the people in another group. STEVENSON, MURIEL SPARK, IAN RANKIN and CONAN DOYLE are four writers with no room for a spire, and PROCURATOR, SHERIFF, ADVOCATE and NOT PROVEN are four legal words that cannot be anything else — so start at the law and work backwards.",
+ "epilogue": "The hardest board in the pack, and the traps point the same way: two tiles are monuments to the sort of person in another group. One word in the blue category is doing all the disambiguating — SKYLINE. There is a statue of Hume on the Royal Mile with a toe rubbed gold by tourists, but it is at street level, so he stays a philosopher. STEVENSON, MURIEL SPARK, IAN RANKIN and CONAN DOYLE are four writers with no room for a spire, and PROCURATOR, SHERIFF, ADVOCATE and NOT PROVEN cannot be anything else — start at the law and work backwards.",
 },
 
 # ─────────────────────────────────── HOUSTON ─────────────────────────────────

@@ -289,6 +289,14 @@ SEEDS = [
     ("Weno", "Weno", "FM", "o"), ("Majuro", "Majuro", "MH", "o"),
     ("Easter Island", "Easter Island", "CL", "L"),
 
+    # ── Antarctica ────────────────────────────────────────────────────────
+    # Not "ordinary" in the inhabited sense, but the continent has to be
+    # represented or a world-guessing game has a hole in it.
+    ("McMurdo Station", "McMurdo Station", "AQ", "o"),
+    ("Rothera Research Station", "Rothera Station", "AQ", "o"),
+    ("Deception Island", "Deception Island", "AQ", "o"),
+    ("Paradise Harbor", "Paradise Harbour", "AQ", "o"),
+
     # ── a handful of instantly-recognisable landmarks for `easy:1` ────────
     ("Eiffel Tower", "Paris", "FR", "L"),
     ("Colosseum", "Rome", "IT", "L"),
