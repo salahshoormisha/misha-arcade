@@ -551,7 +551,11 @@ def main():
             ia, ib = ids[a], ids[b]
             inter = setmap[ia] & setmap[ib]
             n = len(inter)
-            pairs["%s|%s" % (ia, ib)] = n
+            # Only non-zero pairs are stored -- D.both() reads a missing key as 0,
+            # so the empty ones cost nothing but a lookup, and `incompatible`
+            # names them explicitly anyway.
+            if n:
+                pairs["%s|%s" % (ia, ib)] = n
             if n < 2:
                 incompatible.append([ia, ib])
             else:
@@ -616,6 +620,16 @@ def main():
     print("  distinct criteria used: %d / %d" % (report["distinct"], len(ids)))
     print("  mean tier spread     : %s" % json.dumps(report["tiers"]))
     print("  obviousness sanity   : %s" % json.dumps(report["obvSample"]))
+    cal = report["calibration"]
+    print()
+    print("CALIBRATION over %d boards (norm exponent %.2f)" % (cal["boards"], cal["exponent"]))
+    for who, blurb in (("first", "names the most obvious answer, 9/9"),
+                       ("third", "names the 3rd most obvious, 9/9"),
+                       ("eight", "the same player, one cell short"),
+                       ("mid", "names the median answer, 9/9"),
+                       ("deep", "names the deepest cut, 9/9")):
+        print("  %-6s %-38s %6.1f pts -> norm %3d"
+              % (who, blurb, cal["mean"][who], cal["norm"][who]))
     if no_gdp:
         print("  gdppc missing (median %.0f substituted): %s" % (med_gdp, ",".join(no_gdp)))
 
@@ -877,6 +891,7 @@ def render(payload):
      AD_GEOGRID.cell(a, b)            -> [ISO2, ...] valid in that cell
      AD_GEOGRID.share(a, b, iso)      -> 0..1 modelled pick probability
      AD_GEOGRID.obviousness(a,b,iso)  -> 0..1, 1 = the country everyone names
+     AD_GEOGRID.points(a, b, iso)     -> 10..100 for that cell; 900 = a perfect board
      AD_GEOGRID.cellScore(a,b,iso)    -> 100*share, one decimal; lower is better
      AD_GEOGRID.tierOf(pct)           -> Common/Uncommon/Rare/Epic/Legendary/Mythical
      AD_GEOGRID.buildGrid(rand, opts) -> {rows, cols, counts, minCell, ...}

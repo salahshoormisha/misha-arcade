@@ -152,6 +152,49 @@
     return q;
   }
 
+  /* ── silhouette ────────────────────────────────────────────────────────
+     Drawn here rather than with A.silhouette: that helper measures the wrapped
+     longitudes of AD_WORLD.rings() against the UNWRAPPED ones of
+     AD_WORLD.bbox() (Russia is 19.6 → 190.3), so Russia's Chukotka lobe lands
+     ~200° left of the box — it drags a white bar clean across the shape and
+     loses the far east. Same for New Zealand, Fiji and Kiribati, all of which
+     can be asked here. Lifting each ring longitude into the bbox's own frame
+     first is the whole fix; it belongs in core/worldmap.js and is reported. */
+
+  function silhouette(canvas, iso, o) {
+    var W = window.AD_WORLD, bb = W && W.bbox(iso), rings = W && W.rings(iso);
+    if (!bb || !rings || !rings.length) return false;
+    var kx = Math.cos((bb[1] + bb[3]) / 2 * Math.PI / 180) || 1;
+    var sw = (bb[2] - bb[0]) * kx, sh = bb[3] - bb[1];
+
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var box = canvas.getBoundingClientRect();
+    var cw = Math.round(box.width || 210), ch = Math.round(box.height || 210);
+    canvas.width = cw * dpr; canvas.height = ch * dpr;
+    var g = canvas.getContext("2d");
+    g.save(); g.scale(dpr, dpr); g.clearRect(0, 0, cw, ch);
+
+    var pad = o.pad === undefined ? 14 : o.pad;
+    var s = Math.min((cw - pad * 2) / (sw || 1), (ch - pad * 2) / (sh || 1));
+    g.translate((cw - sw * s) / 2, (ch - sh * s) / 2);
+    g.beginPath();
+    rings.forEach(function (r) {
+      for (var i = 0; i < r.length; i++) {
+        var lon = r[i][0];
+        while (lon < bb[0]) lon += 360;
+        while (lon > bb[2]) lon -= 360;
+        var x = (lon - bb[0]) * kx * s, y = (bb[3] - r[i][1]) * s;
+        i ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.closePath();
+    });
+    g.fillStyle = o.fill || "#f5f2f8";
+    g.fill();
+    if (o.stroke) { g.strokeStyle = o.stroke; g.lineWidth = o.lw || 1; g.stroke(); }
+    g.restore();
+    return true;
+  }
+
   /* ── rendering ───────────────────────────────────────────────────────── */
 
   function render() {
