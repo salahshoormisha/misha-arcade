@@ -254,6 +254,9 @@ def make_caption(desc, title):
     cap = "" if CHATTER.search(desc) else desc
     if len(cap) < 12:
         cap = title.replace("_", " ").rsplit(".", 1)[0]
+    # Commons structured-data captions append the other-language labels inline:
+    #   'View from the Royal mills ... label QS:Lde,"Aussicht von den ..."'
+    cap = re.split(r"\blabel\s+QS:", cap)[0]
     cap = IMPORT_JUNK.sub(" ", cap)
     cap = re.sub(r"[\[\]{}|]+", " ", cap)
     cap = re.sub(r"\s+", " ", cap).strip(" .,;:-|\"'")[:150]

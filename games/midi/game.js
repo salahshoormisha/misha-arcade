@@ -287,10 +287,16 @@
        scrolling the board out of sight. Measure the grid's own document offset
        (so the toolbar wrapping to two rows is accounted for) and keep MIN_CELL
        as the floor, so a very short window gets a small grid rather than a
-       sliver. On a tall phone or a desktop this changes nothing. */
-    var top = gridWrap.getBoundingClientRect().top + (window.scrollY || 0);
-    var byHeight = Math.floor((window.innerHeight - top - BELOW_GRID - (N - 1) * GAP) / N);
-    if (isFinite(byHeight)) cs = A.clamp(Math.min(cs, byHeight), MIN_CELL, MAX_CELL);
+       sliver. On a tall phone this changes nothing.
+
+       Only below the 900px breakpoint, where the clue list sits UNDER the grid
+       rather than beside it. Above it the taller clue column decides where the
+       keyboard lands, so bounding the grid would shrink it and fix nothing. */
+    if (window.innerWidth < 900) {
+      var top = gridWrap.getBoundingClientRect().top + (window.scrollY || 0);
+      var byHeight = Math.floor((window.innerHeight - top - BELOW_GRID - (N - 1) * GAP) / N);
+      if (isFinite(byHeight)) cs = A.clamp(Math.min(cs, byHeight), MIN_CELL, MAX_CELL);
+    }
 
     gridEl.style.gridTemplateColumns = "repeat(" + N + ", " + cs + "px)";
     gridEl.style.setProperty("--cs", cs + "px");

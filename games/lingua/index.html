@@ -86,6 +86,19 @@
 
   .pickhost { margin-top: var(--sp-4); }
   .underpick { margin-top: var(--sp-3); }
+  /* The practice / today's-specimen control is a shared .ac-pill, and the core
+     only gives states to the <button> form. It keeps the shared LOOK exactly;
+     what is added here is a 44px touch target (via ::after, so the pill's own
+     size never changes) and the hover/focus/active states a link needs. */
+  .underpick .ac-pill { position: relative; cursor: pointer; }
+  .underpick .ac-pill::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%;
+    height: 44px; transform: translateY(-50%);
+  }
+  .underpick .ac-pill:hover, .underpick .ac-pill:focus-visible {
+    border-color: var(--hair-2); color: var(--ink); background: var(--s2);
+  }
+  .underpick .ac-pill:active { transform: translateY(1px); }
 
   /* ── hint ladder ───────────────────────────────────────────────────────── */
   .ladder { max-width: 480px; margin: var(--sp-3) auto 0; display: grid; gap: var(--sp-1); }
