@@ -26,7 +26,10 @@
   body.rm #caret { animation: none; }
 
   /* ── the square ────────────────────────────────────────────────────────── */
-  #box { position: relative; width: min(340px, 100%); margin: 14px auto 0; touch-action: manipulation; }
+  #box {
+    position: relative; width: min(340px, 100%); margin: 14px auto 0;
+    touch-action: manipulation; transition: transform .13s ease-out;
+  }
   #cv { position: absolute; left: 0; top: 0; }
   .lb {
     position: absolute; width: 44px; height: 44px; border-radius: 50%;
@@ -34,11 +37,16 @@
     display: flex; align-items: center; justify-content: center;
     font-family: var(--mono); font-size: 17px; font-weight: 800; letter-spacing: 0;
     background: var(--panel); border: 1.5px solid var(--line2); color: var(--ink);
-    cursor: pointer; padding: 0; transition: background .12s, border-color .12s, color .12s;
+    cursor: pointer; padding: 0;
+    transition: background .12s, border-color .12s, color .12s, opacity .12s;
   }
-  .lb.used { background: #140a2c; border-color: #2b1f4d; color: var(--ink4); }
-  .lb.act { border-color: var(--gold); color: #fff; box-shadow: 0 0 12px var(--glow); }
-  .lb.last { background: var(--gold); border-color: var(--gold); color: #2a1f00; }
+  .lb:hover { background: var(--panel2); border-color: var(--ink3); }
+  .lb:active { transform: translate(-50%, -50%) scale(.9); }
+  .lb.used { background: transparent; border-color: var(--line); color: var(--ink4); }
+  .lb.act { border-color: var(--gold); color: var(--ink); }
+  .lb.last { background: var(--gold); border-color: var(--gold); color: var(--bg-far); }
+  /* a letter you cannot legally play next: same side as the one you're on */
+  .lb.off { opacity: .34; }
   .lb:focus-visible { outline: 2px solid var(--cool); outline-offset: 2px; }
   body.rm .lb { transition: none; }
 
@@ -51,7 +59,7 @@
   #words { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; min-height: 4px; }
   #words span {
     border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px;
-    font-size: 12px; letter-spacing: 1.5px; color: var(--ink2); background: #ffffff08;
+    font-size: 12px; letter-spacing: 1.5px; color: var(--ink2); background: var(--panel);
   }
   #words b { color: var(--gold); }
 

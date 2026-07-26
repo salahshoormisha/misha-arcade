@@ -11,7 +11,12 @@
   gap: 7px; flex-wrap: wrap; margin-top: 8px;
 }
 #mtop .ac-pill { min-height: 44px; padding: 6px 15px; }
-#mtop .clk { cursor: pointer; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: #fff; }
+/* fixed width so the paused state can widen the letter-spacing without
+   nudging the pills beside it */
+#mtop .clk {
+  cursor: pointer; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: #fff;
+  min-width: 100px; justify-content: center;
+}
 #mtop .clk.off { color: var(--ink4); letter-spacing: 3px; }
 #mtop .clk.beat { color: var(--mint); }
 #mtop button.ac-pill { cursor: pointer; }
@@ -60,11 +65,18 @@
 .sq.done { background: #0e3826; }
 .sq.done .l { color: var(--ok); }
 
+/* feedback on every square you can actually tap */
+.sq:not(.block):active { filter: brightness(1.45); }
+@media (min-width: 700px) { .sq:not(.block):hover { filter: brightness(1.3); } }
+
+/* the pause curtain fades rather than snapping in; it is always laid out, so
+   nothing on the page moves when it appears */
 #pz {
-  position: absolute; inset: 0; z-index: 5; display: none; place-items: center;
+  position: absolute; inset: 0; z-index: 5; display: grid; place-items: center;
   background: rgba(7, 3, 18, .95); border-radius: 10px; text-align: center;
+  opacity: 0; visibility: hidden; transition: opacity .16s ease, visibility .16s;
 }
-#pz.on { display: grid; }
+#pz.on { display: grid; opacity: 1; visibility: visible; }
 #pz b { display: block; font-size: 13px; letter-spacing: 3px; color: var(--cool); margin-bottom: 12px; }
 
 /* ── clue bar (lives directly above the keyboard) ───────────────────────── */
@@ -94,9 +106,11 @@
 @media (min-width: 720px) { #clues { display: grid; } }
 .cluelist h3 { font-size: 10px; letter-spacing: 2.4px; color: var(--ink4); margin-bottom: 6px; }
 .cluelist .ci {
-  display: flex; gap: 7px; padding: 6px 7px; border-radius: 7px; cursor: pointer;
+  display: flex; align-items: center; gap: 7px; padding: 6px 7px; border-radius: 7px;
+  cursor: pointer; min-height: 34px;
   font-size: 12.5px; line-height: 1.4; color: var(--ink2);
 }
+.cluelist .ci:hover { background: #ffffff10; color: #fff; }
 .cluelist .ci b { color: var(--ink4); min-width: 15px; text-align: right; }
 .cluelist .ci.on { background: #14344f; color: #fff; }
 .cluelist .ci.on b { color: var(--cool); }

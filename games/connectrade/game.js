@@ -62,7 +62,7 @@
   var PICK = 4;                  // tiles per guess
   var MIN_TOTAL = 1.5e9;         // pool floor: a real economy, not a lagoon
   var MAJOR_N = 45;              // the "household name" tier
-  var COOL_DAYS = 5;             // no country twice inside this many days
+  var BLOCK = 8;                 // no country twice inside a block of days
   var TRIES = 60;                // draw attempts per day before loosening
 
   var T = window.AD_TRADE || {};
@@ -285,23 +285,25 @@
     return null;
   }
 
-  /* The day's board. Deterministic in `dayN` alone: it walks the six-day window
-     ending today so that no country repeats inside it, and every step is
-     seeded, so both players build the identical board. */
+  /* The day's board. Deterministic in `dayN` alone, and cheap: days are built
+     in blocks of eight, each day excluding every country already used earlier
+     in ITS block, so no country can appear twice inside a block. Because a
+     block always starts from the same state, day N's board is the same however
+     you arrive at it — which a rolling window could not promise. Eight builds,
+     ~2 ms, and both players get the identical board. */
   var boardCache = {};
   function boardFor(dayN) {
     if (boardCache[dayN]) return boardCache[dayN];
-    var start = Math.max(0, dayN - COOL_DAYS), avoid = [], b = null, d;
-    for (d = start; d <= dayN; d++) {
-      b = buildOne(d, avoid, false);
-      if (!b) b = buildOne(d, [], false);
-      if (!b) b = buildOne(d, [], true);
-      if (!b) return null;
-      if (d < dayN) {
-        b.groups.forEach(function (g) { avoid.push(g.i); });
+    var d0 = Math.floor(dayN / BLOCK) * BLOCK, avoid = [], b = null, d;
+    for (d = d0; d <= dayN; d++) {
+      if (boardCache[d]) b = boardCache[d];
+      else {
+        b = buildOne(d, avoid, false) || buildOne(d, [], false) || buildOne(d, [], true);
+        if (!b) return null;
+        boardCache[d] = b;
       }
+      b.groups.forEach(function (g) { avoid.push(g.i); });
     }
-    boardCache[dayN] = b;
     return b;
   }
 
@@ -543,7 +545,7 @@
     for (fs = 13; fs >= 8; fs -= 0.5) {
       var cpl = Math.floor((w - 12) / (fs * 0.62));
       if (cpl < 3) continue;
-      var lines = 1, room = cpl, ok = true;
+      var lines = 1, room = cpl;
       for (i = 0; i < words.length; i++) {
         var wl = words[i].length;
         if (wl > cpl) {                              // hard-broken by overflow-wrap
@@ -557,7 +559,7 @@
         if (wl <= room) { room -= wl + 1; }
         else { lines++; room = cpl - wl - 1; }
       }
-      if (lines * fs * 1.16 <= h - 10 && ok) return fs;
+      if (lines * fs * 1.16 <= h - 10) return fs;
     }
     return 8;
   }
