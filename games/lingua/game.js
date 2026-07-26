@@ -414,15 +414,18 @@
       (function (k) {
         var hint = S.hints[k];
         if (!hint) return;
-        var got = taken.indexOf(k) >= 0;
+        // Once the round is over every rung opens up — the ladder becomes the
+        // lesson — but only the ones actually bought were ever charged for.
+        var bought = taken.indexOf(k) >= 0;
+        var got = bought || over;
         var open = unlocked(k);
         var b = A.el("button", "rung" + (got ? " done" : open ? "" : " locked"));
         b.type = "button";
         var head = '<span class="n">' + (k + 1) + "</span>" +
           '<span class="lb">' + RUNG[k] + "</span>";
         if (got) {
-          b.innerHTML = '<span class="hd">' + head +
-            '<span class="cost">' + (k === free ? "FREE" : "−" + HINT_COST) + "</span></span>" +
+          b.innerHTML = '<span class="hd">' + head + '<span class="cost">' +
+            (bought ? (k === free ? "FREE" : "−" + HINT_COST) : "NOT CHARGED") + "</span></span>" +
             '<span class="hx">' + A.esc(hint) + "</span>";
           b.disabled = true;
         } else if (open) {
