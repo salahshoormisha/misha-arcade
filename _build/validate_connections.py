@@ -32,13 +32,17 @@ CHECKS (all hard failures unless marked ADVISORY)
  12  ADVISORY: sibling categories inside one board (two group names sharing a
      content word), listed for human review.
 
-DETECTORS used by check 11
+SOURCES of double-fits used by check 11 (the union of all four is granted)
+  D  DECLARED: the `traps` the author wrote in _build/conn_*.py, matched to the
+     shipped board by its 16-tile signature (so the mapping cannot drift).
   A  COMPOUND: for a wordplay group named "___ X" or "X ___", any other tile T
      on the board where T+X (or X+T) is an English word — that tile really can
      be read into the wordplay group.
-  B  ELSEWHERE: tile T sits in board Y under a category whose wording overlaps
-     (>=1 distinctive content word) a *different* category on this board — i.e.
-     the dataset itself says T belongs to that other kind of thing too.
+  B  ELSEWHERE: tile T sits in board Y under a category whose wording shares a
+     DISTINCTIVE word (one used by <= DF_MAX category names dataset-wide) with a
+     *different* category on this board — i.e. the dataset itself files T under
+     that other kind of thing too. The distinctiveness filter is what stops
+     "united" or "london" matching half a pack to itself.
   C  IN-NAME: tile T appears as a word inside another group's category name on
      the same board.
 """
@@ -58,6 +62,7 @@ MAX_TILE = 14
 MAX_REUSE = 3
 SIZE_BUDGET = 300 * 1024
 COLOURS = ["y", "g", "b", "p"]
+DF_MAX = 8              # a word in more category names than this is not distinctive
 
 EXPECTED_PACKS = ["general", "persia", "united", "places", "ai", "jewish"]
 BANNED_PACKS = ["office", "cambridge"]
