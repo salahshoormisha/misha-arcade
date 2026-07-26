@@ -89,28 +89,44 @@
     document.documentElement.style.setProperty("--glow", glowFor(accent));
 
     var h = el("header", "ac-header");
-    var back = el("a", "back", "◂");
+    var back = el("a", "back", "");           // chevron drawn in CSS
     back.href = A.rootPath();
-    back.title = "back to the arcade";
+    back.title = "Back to the arcade";
     back.setAttribute("aria-label", "Back to the arcade");
     h.appendChild(back);
     h.appendChild(el("h1", null, A.esc(opts.title || (g && g.name) || "ARCADE")));
 
+    // Line icons rather than emoji — emoji as UI chrome is the single fastest
+    // way to make an interface look unconsidered, and it renders differently
+    // on every platform.
+    var ICON = {
+      help: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/>' +
+        '<path d="M7.8 7.6a2.2 2.2 0 1 1 3.1 2c-.6.4-.9.9-.9 1.6"/><circle cx="10" cy="14.6" r=".85" fill="currentColor" stroke="none"/></svg>',
+      stats: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.6" stroke-linecap="round"><path d="M3.5 16.5v-5m5 5V5m5 11.5v-8"/></svg>',
+      cog: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.6"/>' +
+        '<path d="M10 2.6v2m0 10.8v2M2.6 10h2m10.8 0h2M4.8 4.8l1.4 1.4m7.6 7.6 1.4 1.4m0-10.4-1.4 1.4M6.2 13.8l-1.4 1.4"/></svg>',
+    };
     var tools = el("div", "tools");
     if (opts.help) {
-      var qb = el("button", "ac-ico", "?");
-      qb.title = "how to play";
-      qb.onclick = function () { A.modal("HOW TO PLAY", opts.help); };
+      var qb = el("button", "ac-ico", ICON.help);
+      qb.title = "How to play";
+      qb.setAttribute("aria-label", "How to play");
+      qb.onclick = function () { A.modal("How to play", opts.help); };
       tools.appendChild(qb);
     }
     if (opts.id) {
-      var sb = el("button", "ac-ico", "📊");
-      sb.title = "stats";
+      var sb = el("button", "ac-ico", ICON.stats);
+      sb.title = "Stats";
+      sb.setAttribute("aria-label", "Stats");
       sb.onclick = function () { A.statsModal(opts.id); };
       tools.appendChild(sb);
     }
-    var gb = el("button", "ac-ico", "⚙");
-    gb.title = "settings";
+    var gb = el("button", "ac-ico", ICON.cog);
+    gb.title = "Settings";
+    gb.setAttribute("aria-label", "Settings");
     gb.onclick = function () { A.settingsModal(); };
     tools.appendChild(gb);
     h.appendChild(tools);

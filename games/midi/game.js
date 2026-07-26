@@ -274,6 +274,9 @@
     var cs = A.clamp(Math.floor((avail - (N - 1) * GAP) / N), MIN_CELL, MAX_CELL);
     gridEl.style.gridTemplateColumns = "repeat(" + N + ", " + cs + "px)";
     gridEl.style.setProperty("--cs", cs + "px");
+    // Publish the grid's exact width so the clue bar can line up with it to the
+    // pixel at every viewport instead of guessing with a percentage.
+    main.style.setProperty("--gw", (N * cs + (N - 1) * GAP) + "px");
   }
 
   /* ── navigation ──────────────────────────────────────────────────────── */
