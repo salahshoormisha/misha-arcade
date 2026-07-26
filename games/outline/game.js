@@ -116,8 +116,8 @@
     var c = byIso[answer];
     var n = (c.bord || []).length;
     var size = c.area > 2e6 ? "enormous" : c.area > 5e5 ? "large" : c.area > 1e5 ? "mid-sized" : "small";
-    hintBox.innerHTML = "<b>the shape</b>" + size + " (" + A.fmtNum(c.area) + " km²) · " +
-      (n ? "borders " + n + " countr" + (n === 1 ? "y" : "ies") : "borders no one") +
+    hintBox.innerHTML = "<b>The shape is</b> " + size + " — " + A.fmtNum(c.area) + " km², " +
+      (n ? "bordering " + n + " countr" + (n === 1 ? "y" : "ies") : "bordering no one") +
       ' <span class="dim">(−8 pts)</span>';
     A.sfx("reveal"); save();
   }
