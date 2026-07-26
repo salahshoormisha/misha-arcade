@@ -98,6 +98,7 @@
   .gr.w3 { border-left-color: var(--purple); } .gr.w3 .bd { color: var(--purple); }
   .gr.w4 { border-left-color: var(--cyan); }  .gr.w4 .bd { color: var(--cyan); }
   .gr.w5 { border-left-color: var(--no); }    .gr.w5 .bd { color: var(--ink-4); }
+  .gr.w6 { border-left-color: var(--no); }    .gr.w6 .bd { color: var(--ink-4); }
 
   /* ── the guess bar: sticks to the bottom so it never moves under a thumb ─ */
   .bar {
@@ -105,8 +106,11 @@
     margin: var(--sp-4) calc(var(--sp-4) * -1) 0;
     padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + var(--safe));
   }
+  /* The backdrop stays inside the column: a full-bleed `calc(50% - 50vw)` panel
+     is a horizontal-scrollbar bug waiting to happen on desktop. */
   .bar::before {
-    content: ""; position: absolute; inset: 0 calc(50% - 50vw); z-index: -1;
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--bg-far);
     background: color-mix(in srgb, var(--bg-far) 86%, transparent);
     backdrop-filter: saturate(1.4) blur(14px);
     -webkit-backdrop-filter: saturate(1.4) blur(14px);
