@@ -127,13 +127,11 @@
   meterBar = meter.querySelector(".bar");
   for (var p = 0; p < TRIES; p++) meterBar.appendChild(A.el("i"));
 
-  var pickHost = A.el("div");
-  pickHost.style.marginTop = "var(--sp-4)";
+  var pickHost = A.el("div", "pickhost");
   main.appendChild(pickHost);
   picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "which country?" });
 
-  var row = A.el("div", "ac-row");
-  row.style.marginTop = "var(--sp-3)";
+  var row = A.el("div", "ac-row pillrow");
   row.innerHTML = practice
     ? '<a class="ac-pill" href="./">← TODAY\'S COUNTRY</a>'
     : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>';
@@ -167,6 +165,9 @@
      are therefore true by construction; the sixth is authored. */
 
   function num(n) { return ONES[n] !== undefined ? ONES[n] : String(n); }
+
+  // The authored layer is written ASCII-clean and spells an em dash "--".
+  function pretty(s) { return String(s).replace(/\s--\s/g, " \u2014 "); }
 
   function listOf(a) {
     if (a.length < 2) return a[0] || "";
@@ -284,8 +285,8 @@
     el.innerHTML =
       '<div class="n">' + cl.n + "</div>" +
       '<div class="bd"><div class="lb">' + A.esc(cl.lb) + "</div>" +
-      '<div class="tx">' + A.esc(cl.tx) + "</div>" +
-      (cl.ex ? '<div class="ex">' + A.esc(cl.ex) + "</div>" : "") +
+      '<div class="tx">' + A.esc(pretty(cl.tx)) + "</div>" +
+      (cl.ex ? '<div class="ex">' + A.esc(pretty(cl.ex)) + "</div>" : "") +
       "</div>";
     tape.appendChild(el);
     return el;
@@ -382,7 +383,7 @@
     A.sfx("miss");
     shown = guesses.length + 1;
     var card = addClue(shown - 1, true, false);
-    A.sfx("reveal");
+    setTimeout(function () { A.sfx("reveal"); }, 180);
     paintMeter();
     save();
     nudge(card || row);
@@ -405,7 +406,6 @@
     if (st && st.guesses) guesses = st.guesses.slice(0, TRIES);
 
     var done = !!(st && st.done);
-    var solved = guesses.length && guesses[guesses.length - 1] === answer;
     shown = Math.min(TRIES, guesses.length + (done ? 0 : 1));
     if (done && !shown) shown = 1;
 
@@ -424,11 +424,7 @@
       picker.disable(true);
       revealRest();
       setTimeout(function () { sheet(!!st.won, st.shareGrid, st.norm); }, 240);
-    } else if (!guesses.length) {
-      // First visit today: nothing on the tape yet.
-      paintMeter();
     }
-    if (!done && solved) { /* unreachable: a solved day is always done */ }
   }
 
   /* ── ending ────────────────────────────────────────────────────────────── */
@@ -484,7 +480,7 @@
     if (also.length) {
       extra += '<div class="rv-hd">Also true of ' + A.esc(c.n) + "</div>" +
         '<div class="rv-also">' + also.map(function (nt) {
-          return "<div><b>" + A.esc(nt[0]) + "</b>" + A.esc(nt[1]) + "</div>";
+          return "<div><b>" + A.esc(nt[0]) + "</b>" + A.esc(pretty(nt[1])) + "</div>";
         }).join("") + "</div>";
     }
     if (won) {

@@ -42,10 +42,12 @@
     opacity: 0;
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   }
-  /* Opacity is set outright and the fade is a keyframe, not a transition: a
-     background tab runs no transitions, and the passage must be *there* the
-     instant the tab is looked at, whether or not anything animated. */
-  .spec .txt.in { opacity: 1; animation: fade var(--slow) var(--ease); }
+  /* No transition and no keyframe on the way in — deliberately. game.js fits
+     the type synchronously during boot, so the first painted frame is already
+     the right size and opaque; there is nothing to fade. And a tab that is
+     hidden at load runs neither transitions nor animation clocks, which would
+     leave the hero element stuck at zero opacity. This is one plain value. */
+  .spec .txt.in { opacity: 1; }
   /* Once the round is over, the passage is yours to select and look up. */
   .spec.done .txt { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
   /* traditional Mongolian is written in vertical columns, left to right */
