@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLACEGUESSR · Midnight Arcade</title>
+<meta name="theme-color" content="#0a0910">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛣️</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=11">
+<style>
+  /* ── head-up display ───────────────────────────────────────────────────── */
+  #hud { margin-top: var(--sp-3); }
+  #hud .pips { display: inline-flex; gap: var(--sp-1); align-items: center; }
+  #hud .pips i { width: 20px; height: 5px; border-radius: var(--r-full);
+                 background: var(--s3); transition: background var(--slow) var(--ease); }
+  #hud .pips i.now  { background: var(--ink-4); }
+  #hud .pips i.done { background: var(--accent); }
+
+  /* ── stage: photograph beside the map on a wide screen, stacked below it
+        on a phone. One column is the default so 375px needs no exceptions. ── */
+  #stage { display: grid; gap: var(--sp-4); margin-top: var(--sp-3); align-items: start; }
+  @media (min-width: 860px) {
+    #stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: var(--sp-5); }
+  }
+
+  /* ── the photograph ────────────────────────────────────────────────────── */
+  #fig { margin: 0; }
+  #shot {
+    display: block; margin: 0 auto;
+    max-width: 100%; max-height: 46vh; width: auto; height: auto;
+    border: 1px solid var(--hair); border-radius: var(--r-md);
+    background: var(--s1); box-shadow: var(--sh-2);
+  }
+  #fig.big #shot { max-height: 86vh; }
+
+  /* The photos are remote (Wikimedia), so a dead connection is routine rather
+     than exceptional: the round keeps working from its written clues and says
+     so, and a broken-image icon is never shown. */
+  #noshot {
+    display: grid; gap: var(--sp-3); justify-items: center; text-align: center;
+    padding: var(--sp-5) var(--sp-4); min-height: 190px; align-content: center;
+    border: 1px dashed var(--hair-2); border-radius: var(--r-md); background: var(--s1);
+  }
+  #noshot .ttl { font-size: var(--t-xs); font-weight: 550; letter-spacing: .2em;
+                 text-transform: uppercase; color: var(--ink-3); }
+  #noshot .say { font-size: var(--t-sm); color: var(--ink-4); max-width: 28ch; line-height: 1.7; }
+
+  .figline { text-align: center; font-size: var(--t-xs); color: var(--ink-4);
+             margin-top: var(--sp-2); line-height: 1.7; }
+  .figline a { color: var(--ink-3); }
+
+  /* ── clue ladder ───────────────────────────────────────────────────────── */
+  #hintbar { margin-top: var(--sp-3); }
+  #clues { list-style: none; padding: 0; margin: var(--sp-3) 0 0; display: grid; gap: var(--sp-2); }
+  #clues li {
+    display: flex; gap: var(--sp-3); align-items: flex-start;
+    font-size: var(--t-sm); color: var(--ink-2); line-height: 1.6;
+    background: var(--s1); border: 1px solid var(--hair);
+    border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3);
+  }
+  #clues li::before {
+    content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: 7px;
+    border-radius: var(--r-full); background: var(--amber);
+  }
+  #clues li.free::before { background: var(--ink-4); }
+
+  /* ── map ───────────────────────────────────────────────────────────────── */
+  #mapbox { border: 1px solid var(--hair); border-radius: var(--r-md);
+            overflow: hidden; background: var(--bg-far); box-shadow: var(--sh-1); }
+  #gmap { display: block; width: 100%; aspect-ratio: 360 / 141; touch-action: none; }
+
+  .mapctl { display: flex; gap: var(--sp-2); justify-content: center;
+            margin-top: var(--sp-2); flex-wrap: wrap; }
+  .mapctl button { min-height: 44px; min-width: 46px; justify-content: center; }
+
+  #act { display: grid; grid-template-columns: minmax(0, 1fr) auto;
+         gap: var(--sp-3); align-items: center; margin-top: var(--sp-3); }
+  #pinout { font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase;
+            color: var(--ink-4); line-height: 1.5; font-variant-numeric: tabular-nums; }
+  #pinout b { color: var(--ink-2); font-weight: 600; }
+
+  /* ── per-round verdict ─────────────────────────────────────────────────── */
+  #verdict:empty { display: none; }
+  #verdict { margin-top: var(--sp-4); }
+  .vd-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+  .vd-km { font-family: var(--display); font-size: var(--t-lg); font-weight: 650;
+           color: var(--ink-2); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .vd-pt { font-family: var(--display); font-size: var(--t-2xl); font-weight: 700;
+           color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .vd-pt small { font-size: var(--t-xs); font-weight: 550; color: var(--ink-4);
+                 letter-spacing: .1em; margin-left: 3px; }
+  .vd-place { margin-top: var(--sp-3); font-size: var(--t-md); color: var(--ink);
+              font-weight: 600; letter-spacing: .01em; text-wrap: balance; }
+  .vd-note { margin-top: var(--sp-1); font-size: var(--t-xs); color: var(--ink-4); line-height: 1.7; }
+  .vd-row { margin-top: var(--sp-3); }
+
+  /* ── the round-by-round review (also reused inside the result sheet) ────── */
+  .rv-h { font-family: var(--display); font-size: var(--t-sm); font-weight: 650;
+          letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3);
+          text-align: center; margin: var(--sp-5) 0 var(--sp-3); }
+  .rvlist { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+  .rvlist li { background: var(--s1); border: 1px solid var(--hair);
+               border-radius: var(--r-md); padding: var(--sp-3); }
+  .rvlist .top { display: flex; align-items: baseline; gap: var(--sp-2); }
+  .rvlist .n { flex: 0 0 auto; font-family: var(--mono); font-size: var(--t-xs);
+               color: var(--ink-4); font-variant-numeric: tabular-nums; }
+  .rvlist .pl { flex: 1 1 auto; min-width: 0; font-size: var(--t-sm); color: var(--ink);
+                font-weight: 600; }
+  .rvlist .pt { flex: 0 0 auto; font-size: var(--t-sm); font-weight: 650; color: var(--ink);
+                font-variant-numeric: tabular-nums; }
+  .rvlist .sub { margin-top: 2px; font-size: var(--t-xs); color: var(--ink-4);
+                 font-variant-numeric: tabular-nums; }
+  .rvlist .ac-credit { text-align: left; margin-top: var(--sp-2); }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=11"></script>
+<script src="../../core/arcade.js?v=11"></script>
+<script src="../../core/ui.js?v=11"></script>
+<script src="../../core/audio.js?v=11"></script>
+<script src="../../core/worldmap.js?v=11"></script>
+<script src="../../core/data/countries.js?v=11"></script>
+<script src="../../core/data/world.js?v=11"></script>
+<script src="../../core/data/photos.js?v=11"></script>
+<script src="game.js?v=11"></script>
+</body>
+</html>
