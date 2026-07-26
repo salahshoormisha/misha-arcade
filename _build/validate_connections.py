@@ -43,8 +43,10 @@ SOURCES of double-fits used by check 11 (the union of all four is granted)
      *different* category on this board — i.e. the dataset itself files T under
      that other kind of thing too. The distinctiveness filter is what stops
      "united" or "london" matching half a pack to itself.
-  C  IN-NAME: tile T appears as a word inside another group's category name on
-     the same board.
+  C  IN-NAME (ADVISORY, not granted): tile T appears as a word inside another
+     group's category name on the same board. This is a solver-confusion risk,
+     not a membership claim — "PARTS OF A BOOK" explicitly excludes BOOK — so it
+     is listed for review instead of being fed to the exact-cover recheck.
 """
 
 import json
@@ -79,7 +81,11 @@ only own same too very can will just don should now says say said says there's w
 name names word words thing things kind kinds type types sort sorts group groups
 also still yet even ever never always about after before during over under again once
 actually literally properly really genuinely mostly usually often sometimes
-call called calls calling means meaning meant read reads reading sit sits sitting""".split())
+call called calls calling means meaning meant read reads reading sit sits sitting
+have has had having won win wins played play plays playing scored score scores
+beat beats beaten managed manage manages took take takes taken wore wear wears
+came come comes made make makes gave give gives got get gets went goes going
+left leave leaves ran run runs said say says known know knows lived live lives""".split())
 
 
 def die(msg):
@@ -304,7 +310,7 @@ def detect(boards, words, declared):
             for t in g["tiles"]:
                 elsewhere.setdefault(tile_key(t), []).append((tag, g["name"]))
 
-    fits, report = {}, []
+    fits, report, echoes = {}, [], []
     for pid, tag, b, gs in boards:
         fits[tag] = {}
         gnames = [g["name"] for g in gs]
@@ -347,11 +353,10 @@ def detect(boards, words, declared):
                             if len(c) > 3 and c in words:
                                 why = "A:compound %r is an English word" % c
                                 break
-                    # C — tile named inside the other category
-                    if not why:
-                        tw = words_of(t)
-                        if tw and set(tw) <= gwords[gj]:
-                            why = "C:tile appears inside category %r" % other["name"]
+                    # C — tile named inside the other category (ADVISORY only)
+                    tw = words_of(t)
+                    if tw and set(tw) <= gwords[gj]:
+                        echoes.append((tag, t, gnames[gi], other["name"]))
                     # B — the dataset files this tile under a similar category elsewhere.
                     # Only DISTINCTIVE shared words count: 'united' is in 30 category
                     # names and would otherwise match a whole pack to itself.
@@ -373,7 +378,7 @@ def detect(boards, words, declared):
                                        "tile": t, "true": gnames[gi],
                                        "true_colour": COLOURS[gi],
                                        "also": gnames[gj], "why": why})
-    return fits, report
+    return fits, report, echoes
 
 
 def count_solutions(gs, fits, cap=6):
@@ -423,7 +428,7 @@ def main():
     errs, info = [], {}
     boards = structure(data, raw, errs, info)
     declared = load_declared()
-    fits, report = detect(boards, words, declared)
+    fits, report, echoes = detect(boards, words, declared)
 
     nonunique = []
     for pid, tag, b, gs in boards:
@@ -477,11 +482,11 @@ def main():
     print(" 11  unique solution granting every detected double-fit .... %s  (%d/%d boards)"
           % (ok(not nonunique), nb - len(nonunique), nb))
     nd = sum(1 for r in report if r["why"].startswith("D:"))
-    print("     sources: D declared %d · A compound %d · B elsewhere %d · C in-name %d"
+    print("     granted: D declared %d · A compound %d · B elsewhere %d   (+%d C name-echoes, advisory)"
           % (nd,
              sum(1 for r in report if r["why"].startswith("A:")),
              sum(1 for r in report if r["why"].startswith("B:")),
-             sum(1 for r in report if r["why"].startswith("C:"))))
+             len(echoes)))
     print("     detector A dictionary %s; %d/%d boards matched to an authored module"
           % ("live, %d words" % len(words) if words else "SKIPPED — no words_alpha.txt",
              sum(1 for _, _, _, gs in boards
@@ -499,6 +504,11 @@ def main():
             print("     %-14s %s [%s] also reads as: %s"
                   % (r["tile"], r["true_colour"], r["true"], r["also"]))
             print("        %s" % r["why"])
+
+        print("\nADVISORY — %d name echoes: a tile that appears inside another category's\n"
+              "wording on the same board. Not granted as a fit; listed to be eyeballed." % len(echoes))
+        for tag, t, mine, other in echoes:
+            print("  %-12s %-14s [%s]  echoed in  %r" % (tag, t, mine, other))
 
         sib = siblings(boards)
         print("\nADVISORY — %d sibling category pairs inside one board (share a content word).\n"
