@@ -106,6 +106,8 @@
     host: main,
   });
 
+  buildFooter();
+
   document.addEventListener("keydown", onPhysical);
   document.addEventListener("visibilitychange", onVisibility);
   window.addEventListener("pagehide", function () { stopClock(); save(); });
@@ -225,13 +227,6 @@
     cols.appendChild(side);
     main.appendChild(cols);
 
-    var extra = A.el("div", "ac-row");
-    extra.style.marginTop = "12px";
-    extra.innerHTML = practice
-      ? '<a class="ac-pill" href="./">← TODAY\'S MIDI</a>'
-      : '<a class="ac-pill" href="?practice=1">🎲 RANDOM ONE</a>';
-    main.appendChild(extra);
-
     for (var i = 0; i < N * N; i++) {
       var d = A.el("div", "cell");
       if (!sol[i]) {
@@ -257,6 +252,17 @@
     timerPill = bar.querySelector("#mi-timer");
 
     wireList(sideList);
+  }
+
+  /* The footer pill is appended AFTER the keyboard exists, so the clue bar
+     stays glued to the top of the keyboard the way the Mini's does. */
+  function buildFooter() {
+    var extra = A.el("div", "ac-row");
+    extra.id = "mi-extra";
+    extra.innerHTML = practice
+      ? '<a class="ac-pill" href="./">← TODAY\'S MIDI</a>'
+      : '<a class="ac-pill" href="?practice=1">🎲 RANDOM ONE</a>';
+    main.appendChild(extra);
   }
 
   function bindCell(node, i) {
@@ -672,6 +678,7 @@
       over = true;
       if (kbd) kbd.disable(true);
       gridWrap.classList.add("done");
+      paint();                        // repaint with over=true: drop the cursor highlight
       setTimeout(function () {
         sheet(!!st.won, st.norm || 0, st.shareGrid || [], st.durationMs || elapsed);
       }, 240);

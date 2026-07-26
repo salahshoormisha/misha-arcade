@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIDI · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<meta name="description" content="A themed 7×7 crossword against the clock. Reveal a square and you keep the solve but lose the streak.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▧</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=7">
+<style>
+  /* ==========================================================================
+     MIDI — game-specific CSS only. Shared .ac-* components come from
+     core/style.css and are not restyled, except for tap-target bumps on the
+     pills this game puts in its own toolbar (the 44 px rule).
+     Every colour is a token; nothing is hard-coded that the polish pass owns.
+     ========================================================================== */
+
+  /* ── the title card (a themed midi shows its title from the start) ──────── */
+
+  #midi-title {
+    max-width: 460px; margin: 12px auto 0; padding: 9px 14px; text-align: center;
+    border: 1px solid var(--line); border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+  }
+  #midi-title b { display: block; font-size: 13px; font-weight: 900; letter-spacing: 2.6px; color: var(--gold); }
+  #midi-title span { display: block; margin-top: 3px; font-size: 10.5px; letter-spacing: 1.2px; color: var(--ink4); }
+
+  /* ── toolbar: clock, par, pencil, help, clues ───────────────────────────── */
+
+  #midibar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 7px; flex-wrap: wrap; margin-top: 10px;
+  }
+  #midibar .ac-pill { min-height: 44px; padding: 6px 15px; }
+  #midibar button.ac-pill { cursor: pointer; transition: border-color .15s, color .15s, transform .08s; }
+  #midibar button.ac-pill:hover { border-color: var(--accent); color: #fff; }
+  #midibar button.ac-pill:active { transform: translateY(1px); }
+  /* fixed width so the ticking clock can never nudge the row around */
+  #mi-timer { min-width: 104px; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: 1.4px; color: #fff; }
+  #midibar .ac-pill.flat { color: var(--ink4); }
+
+  /* ── the grid ───────────────────────────────────────────────────────────── */
+
+  #gridwrap { position: relative; width: max-content; max-width: 100%; margin: 14px auto 0; }
+  #grid {
+    display: grid; gap: 4px;                       /* must equal GAP in game.js */
+    border-radius: 5px;
+    /* ring drawn with a shadow, not a border: it cannot widen the box, so a
+       375 px phone never gets a horizontal scrollbar */
+    box-shadow: 0 0 0 2px var(--line2), 0 12px 34px rgba(0, 0, 0, .5);
+  }
+  .cell {
+    position: relative; height: var(--cs, 44px);
+    display: grid; place-items: center; border-radius: 3px;
+    background: var(--panel); color: var(--ink);
+    font-weight: 800; font-size: calc(var(--cs, 44px) * .56); line-height: 1;
+    text-transform: uppercase; cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    transition: background .12s, box-shadow .12s;
+  }
+  .cell.blk { background: var(--bg); cursor: default; box-shadow: none; }
+  .cell .num {
+    position: absolute; top: 2px; left: 3px; font-style: normal; font-weight: 700;
+    font-size: 9px; line-height: 1; letter-spacing: 0; color: var(--ink4);
+  }
+  .cell .ch { pointer-events: none; }
+
+  .cell.inword { background: var(--panel2); }
+  .cell.inword .num { color: var(--cool); }
+  .cell.cur { background: var(--line2); box-shadow: inset 0 0 0 2px var(--gold); }
+  .cell.cur .num { color: var(--gold); }
+
+  .cell.pencil .ch { color: var(--ink3); }
+  .cell.sure .ch { color: var(--ok); }
+  .cell.shown .ch { color: var(--cool); }
+  /* revealed: a corner flag, so it reads without relying on colour */
+  .cell.shown::before {
+    content: ""; position: absolute; top: 0; right: 0;
+    border-style: solid; border-width: 0 9px 9px 0;
+    border-color: transparent var(--cool) transparent transparent;
+  }
+  /* wrong: a slash, so it reads without relying on colour */
+  .cell.wrong::after {
+    content: ""; position: absolute; inset: 9%;
+    background: linear-gradient(to bottom right,
+      transparent calc(50% - 1.4px), var(--bad) calc(50% - 1.4px),
+      var(--bad) calc(50% + 1.4px), transparent calc(50% + 1.4px));
+  }
+
+  #gridwrap.done #grid { box-shadow: 0 0 0 2px var(--ok), 0 12px 34px rgba(0, 0, 0, .5); }
+  #gridwrap.done .cell { cursor: default; }
+  #gridwrap.done .cell:not(.blk) { background: var(--panel2); }
+  #gridwrap.done .cell .ch { color: var(--ok); }
+  #gridwrap.done .cell.shown .ch { color: var(--cool); }
+
+  #pausemask {
+    position: absolute; inset: 0; z-index: 5; display: none; place-items: center;
+    background: rgba(7, 3, 18, .94); border-radius: 5px; text-align: center; cursor: pointer;
+  }
+  #gridwrap.paused #pausemask { display: grid; }
+  #pausemask b { display: block; font-size: 13px; font-weight: 900; letter-spacing: 3.4px; color: var(--cool); }
+  #pausemask small { display: block; margin-top: 8px; font-size: 10.5px; letter-spacing: 1.4px; color: var(--ink4); }
+
+  /* ── clue bar (sits directly above the keyboard) ─────────────────────────── */
+
+  #cluebar {
+    display: flex; align-items: stretch; width: min(500px, 100%);
+    margin: 12px auto 0; border: 1px solid var(--line); border-radius: 12px;
+    background: rgba(255, 255, 255, .04); overflow: hidden;
+  }
+  #cluebar .nav {
+    flex: 0 0 46px; min-height: 56px; background: none; border: none;
+    color: var(--ink3); font-size: 20px; line-height: 1; cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  #cluebar .nav:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+  #cluebar .nav:active { background: rgba(255, 255, 255, .12); }
+  #cluebar .txt {
+    flex: 1 1 auto; min-width: 0; min-height: 56px; padding: 8px 8px;
+    display: flex; flex-direction: column; justify-content: center; gap: 3px;
+    font-size: 13.5px; line-height: 1.35; color: var(--ink);
+  }
+  #cluebar .txt b { font-size: 9.5px; font-weight: 700; letter-spacing: 1.8px; color: var(--cool); }
+
+  /* ── clue lists (inline beside the grid on wide screens, modal on phones) ── */
+
+  .midi-cols { display: flex; flex-direction: column; align-items: center; }
+  .midi-main { width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+  .midi-side { display: none; }
+
+  #clues { width: 100%; }
+  .cl-col + .cl-col { margin-top: 16px; }
+  .cl-col h3 { font-size: 10px; font-weight: 800; letter-spacing: 2.4px; color: var(--ink4); margin-bottom: 6px; }
+  .clue {
+    display: flex; gap: 8px; padding: 7px 8px; border-radius: 8px; cursor: pointer;
+    font-size: 12.5px; line-height: 1.4; color: var(--ink2);
+    transition: background .12s, color .12s;
+  }
+  .clue b { flex: 0 0 auto; min-width: 16px; text-align: right; font-weight: 700; color: var(--ink4); }
+  .clue span { min-width: 0; }
+  .clue:hover { background: rgba(255, 255, 255, .05); }
+  .clue.done { color: var(--ink4); }
+  .clue.on { background: var(--panel2); color: #fff; }
+  .clue.on b { color: var(--cool); }
+
+  @media (min-width: 900px) {
+    .midi-cols { flex-direction: row; align-items: flex-start; justify-content: center; gap: 22px; }
+    .midi-main { width: auto; flex: 0 0 auto; }
+    .midi-side { display: block; flex: 1 1 0; min-width: 0; max-width: 340px; margin-top: 14px; }
+  }
+
+  /* the modal copy wants two columns where there's room */
+  #mi-modal-clues { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  #mi-modal-clues .cl-col + .cl-col { margin-top: 0; }
+  @media (max-width: 430px) {
+    #mi-modal-clues { grid-template-columns: 1fr; gap: 0; }
+    #mi-modal-clues .cl-col + .cl-col { margin-top: 16px; }
+  }
+
+  /* ── the STUCK? sheet + the result sheet's star line ─────────────────────── */
+
+  .ac-modal h3.mi-h { font-size: 10px; font-weight: 800; letter-spacing: 2.2px; color: var(--ink4); margin: 15px 0 7px; }
+  .ac-modal .mi-h + .ac-row { justify-content: stretch; }
+  .ac-modal .mi-h + .ac-row .ac-btn { flex: 1 1 0; padding-left: 6px; padding-right: 6px; }
+
+  .ac-modal p.mi-star {
+    margin: 12px 0 0; padding: 11px 13px; border-radius: 12px;
+    border: 1px solid var(--line2); background: rgba(255, 255, 255, .04);
+    font-size: 12px; line-height: 1.7; text-align: left;
+  }
+  .ac-modal p.mi-star.gold { border-color: var(--gold); color: var(--gold); }
+  .ac-modal p.mi-star.blue { border-color: var(--cool); color: var(--cool); }
+
+  /* ── footer pill (below the keyboard) ───────────────────────────────────── */
+
+  #mi-extra { margin-top: 14px; }
+  #mi-extra .ac-pill { min-height: 44px; padding: 6px 18px; text-decoration: none; cursor: pointer; transition: border-color .15s, color .15s; }
+  #mi-extra .ac-pill:hover { border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=7"></script>
+<script src="../../core/arcade.js?v=7"></script>
+<script src="../../core/ui.js?v=7"></script>
+<script src="../../core/audio.js?v=7"></script>
+<script src="../../core/data/crosswords.js?v=7"></script>
+<script src="game.js?v=7"></script>
+</body>
+</html>
