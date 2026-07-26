@@ -77,7 +77,8 @@ def build():
             problems.append("unknown category %r  (%s)" % (cat, where))
         if not (1 <= diff <= 5):
             problems.append("difficulty out of range: %r  (%s)" % (diff, where))
-        if not q.endswith("?") and not q.endswith(".") and ":" not in q:
+        tail = q.rstrip("'’\"")            # a quoted phrase may close the sentence
+        if not tail.endswith("?") and not tail.endswith(".") and ":" not in q:
             problems.append("question has no terminal punctuation: %s" % where)
         if not note:
             problems.append("missing note: %s" % where)

@@ -4,92 +4,113 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MIDI · Midnight Arcade</title>
-<meta name="theme-color" content="#070312">
+<meta name="theme-color" content="#0a0910">
 <meta name="description" content="A themed 7×7 crossword against the clock. Reveal a square and you keep the solve but lose the streak.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▧</text></svg>">
 <link rel="stylesheet" href="../../core/style.css?v=7">
 <style>
   /* ==========================================================================
-     MIDI — game-specific CSS only. Shared .ac-* components come from
-     core/style.css and are not restyled, except for tap-target bumps on the
-     pills this game puts in its own toolbar (the 44 px rule).
-     Every colour is a token; nothing is hard-coded that the polish pass owns.
+     MIDI — game-specific CSS only.
+
+     Written against the design system in core/style.css: its surface ramp
+     (--s1/--s2/--s3), spacing scale (--sp-*), type scale (--t-*), radii
+     (--r-*) and single easing pair (--fast/--ease). No literal colours, no
+     arbitrary sizes — a retheme of core/style.css retunes this page with it.
+
+     Shared .ac-* components are not restyled, with one exception the system
+     asks for anyway: the pills this game puts in its own toolbar get bumped to
+     a 44 px tap target.
      ========================================================================== */
 
-  /* ── the title card (a themed midi shows its title from the start) ──────── */
+  /* ── title card — a themed midi shows its title from the very start ─────── */
 
   #midi-title {
-    max-width: 460px; margin: 12px auto 0; padding: 9px 14px; text-align: center;
-    border: 1px solid var(--line); border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+    max-width: 460px; margin: var(--sp-3) auto 0;
+    padding: var(--sp-2) var(--sp-4); text-align: center;
+    background: var(--s1); border: 1px solid var(--hair); border-radius: var(--r-md);
   }
-  #midi-title b { display: block; font-size: 13px; font-weight: 900; letter-spacing: 2.6px; color: var(--gold); }
-  #midi-title span { display: block; margin-top: 3px; font-size: 10.5px; letter-spacing: 1.2px; color: var(--ink4); }
+  #midi-title b {
+    display: block; font-family: var(--display);
+    font-size: var(--t-sm); font-weight: 650; letter-spacing: .16em; color: var(--ink);
+  }
+  #midi-title span {
+    display: block; margin-top: 2px;
+    font-size: var(--t-xs); letter-spacing: .04em; color: var(--ink-4);
+  }
 
   /* ── toolbar: clock, par, pencil, help, clues ───────────────────────────── */
 
   #midibar {
     display: flex; align-items: center; justify-content: center;
-    gap: 7px; flex-wrap: wrap; margin-top: 10px;
+    gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3);
   }
-  #midibar .ac-pill { min-height: 44px; padding: 6px 15px; }
-  #midibar button.ac-pill { cursor: pointer; transition: border-color .15s, color .15s, transform .08s; }
-  #midibar button.ac-pill:hover { border-color: var(--accent); color: #fff; }
-  #midibar button.ac-pill:active { transform: translateY(1px); }
-  /* fixed width so the ticking clock can never nudge the row around */
-  #mi-timer { min-width: 104px; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: 1.4px; color: #fff; }
-  #midibar .ac-pill.flat { color: var(--ink4); }
+  #midibar .ac-pill { min-height: 44px; padding: 0 var(--sp-4); }
+  /* The clock is monospaced and a fixed width, so ticking can never nudge the
+     row around and re-centre the whole toolbar. */
+  #mi-timer {
+    min-width: 98px; justify-content: center;
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: var(--t-sm); font-weight: 600; letter-spacing: .04em; color: var(--ink);
+  }
+  #midibar .ac-pill.flat { color: var(--ink-4); }
 
   /* ── the grid ───────────────────────────────────────────────────────────── */
 
-  #gridwrap { position: relative; width: max-content; max-width: 100%; margin: 14px auto 0; }
+  #gridwrap { position: relative; width: max-content; max-width: 100%; margin: var(--sp-4) auto 0; }
   #grid {
-    display: grid; gap: 4px;                       /* must equal GAP in game.js */
-    background: var(--line2);                      /* the gaps become grid lines */
-    border-radius: 5px;
-    /* ring drawn with a shadow, not a border: it cannot widen the box, so a
-       375 px phone never gets a horizontal scrollbar */
-    box-shadow: 0 0 0 2px var(--line2), 0 12px 34px rgba(0, 0, 0, .5);
+    display: grid;
+    gap: 4px;                     /* must equal GAP in game.js — it sizes the cells */
+    background: var(--bg);        /* the gaps become the grid's ink */
+    border-radius: 6px;
+    /* The bezel is drawn with spread shadows rather than a border or padding:
+       shadows never widen the box, so a 375 px phone cannot get a horizontal
+       scrollbar no matter how the cell arithmetic rounds. */
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--hair), var(--sh-3);
   }
   .cell {
     position: relative; height: var(--cs, 44px);
-    display: grid; place-items: center; border-radius: 3px;
-    background: var(--panel); color: var(--ink);
-    font-weight: 800; font-size: calc(var(--cs, 44px) * .56); line-height: 1;
-    text-transform: uppercase; cursor: pointer;
-    user-select: none; -webkit-user-select: none;
-    transition: background .12s, box-shadow .12s;
+    display: grid; place-items: center;
+    background: var(--s2); border-radius: 2px;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    transition: background var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
   }
-  .cell.blk { background: var(--bg); cursor: default; box-shadow: none; }
+  .cell.blk { background: transparent; cursor: default; }
   .cell .num {
-    position: absolute; top: 2px; left: 3px; font-style: normal; font-weight: 700;
-    font-size: 9px; line-height: 1; letter-spacing: 0; color: var(--ink4);
+    position: absolute; top: 2px; left: 3px;
+    font-family: var(--mono); font-style: normal; font-weight: 600;
+    font-size: clamp(8px, calc(var(--cs, 44px) * .2), 11px);
+    line-height: 1; letter-spacing: 0; color: var(--ink-4);
   }
-  .cell .ch { pointer-events: none; }
+  .cell .ch {
+    pointer-events: none;
+    font-family: var(--mono); font-weight: 600; line-height: 1;
+    font-size: calc(var(--cs, 44px) * .5);
+    text-transform: uppercase; color: var(--ink);
+  }
 
-  /* Three unmistakable steps — base, active word, active square — built only
-     from tokens, so the polish pass can retune them all at once. */
-  .cell.inword { background: var(--line); }
-  .cell.inword .num { color: var(--cool); }
-  .cell.cur { background: var(--line2); box-shadow: inset 0 0 0 3px var(--gold); }
-  .cell.cur .num { color: var(--gold); }
-  /* Where the browser can mix colours, take the Mini's blue-word/amber-square
-     reading. Still tokens; still follows a retheme. */
+  /* Active word and active square. Two steps that must never be mistaken for
+     each other — this is the game's primary feedback, so it gets the accent
+     and the one warm colour, and nothing else on the page does. */
+  .cell.inword { background: var(--s3); }
+  .cell.inword .num { color: var(--ink-3); }
+  .cell.cur { background: var(--s3); box-shadow: inset 0 0 0 2px var(--amber); }
+  .cell.cur .num { color: var(--amber); }
   @supports (background: color-mix(in srgb, white, black)) {
-    .cell.inword { background: color-mix(in srgb, var(--cool) 20%, var(--panel)); }
-    .cell.cur { background: color-mix(in srgb, var(--gold) 24%, var(--panel)); }
+    .cell.inword { background: color-mix(in srgb, var(--cyan) 24%, var(--s2)); }
+    .cell.inword .num { color: color-mix(in srgb, var(--cyan) 70%, var(--ink)); }
+    .cell.cur { background: color-mix(in srgb, var(--amber) 26%, var(--s2)); }
   }
 
-  .cell.pencil .ch { color: var(--ink3); }
-  .cell.sure .ch { color: var(--ok); }
-  .cell.shown .ch { color: var(--cool); }
-  /* revealed: a corner flag, so it reads without relying on colour */
+  .cell.pencil .ch { color: var(--ink-3); }        /* pencil: written, not committed */
+  .cell.sure .ch { color: var(--ok); }             /* CHECK said this one is right */
+  .cell.shown .ch { color: var(--ink-3); }         /* REVEAL gave you this one */
+  /* revealed: a corner flag, so it reads without depending on colour */
   .cell.shown::before {
     content: ""; position: absolute; top: 0; right: 0;
     border-style: solid; border-width: 0 9px 9px 0;
-    border-color: transparent var(--cool) transparent transparent;
+    border-color: transparent var(--bad) transparent transparent;
   }
-  /* wrong: a slash, so it reads without relying on colour */
+  /* wrong: a slash, so it reads without depending on colour */
   .cell.wrong::after {
     content: ""; position: absolute; inset: 9%;
     background: linear-gradient(to bottom right,
@@ -97,99 +118,134 @@
       var(--bad) calc(50% + 1.4px), transparent calc(50% + 1.4px));
   }
 
-  #gridwrap.done #grid { box-shadow: 0 0 0 2px var(--ok), 0 12px 34px rgba(0, 0, 0, .5); }
+  #gridwrap.done #grid { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--ok), var(--sh-3); }
   #gridwrap.done .cell { cursor: default; }
-  #gridwrap.done .cell:not(.blk) { background: var(--panel2); }
   #gridwrap.done .cell .ch { color: var(--ok); }
-  #gridwrap.done .cell.shown .ch { color: var(--cool); }
+  #gridwrap.done .cell.shown .ch { color: var(--ink-3); }   /* still shows what you were given */
 
   #pausemask {
     position: absolute; inset: 0; z-index: 5; display: none; place-items: center;
-    background: rgba(7, 3, 18, .94); border-radius: 5px; text-align: center; cursor: pointer;
+    background: var(--bg); border-radius: 6px; text-align: center; cursor: pointer;
+  }
+  @supports (background: color-mix(in srgb, white, black)) {
+    #pausemask { background: color-mix(in srgb, var(--bg) 92%, transparent); }
   }
   #gridwrap.paused #pausemask { display: grid; }
-  #pausemask b { display: block; font-size: 13px; font-weight: 900; letter-spacing: 3.4px; color: var(--cool); }
-  #pausemask small { display: block; margin-top: 8px; font-size: 10.5px; letter-spacing: 1.4px; color: var(--ink4); }
+  #pausemask b {
+    display: block; font-family: var(--display);
+    font-size: var(--t-sm); font-weight: 650; letter-spacing: .2em; color: var(--ink);
+  }
+  #pausemask small {
+    display: block; margin-top: var(--sp-2);
+    font-size: var(--t-xs); letter-spacing: .1em; color: var(--ink-4);
+  }
 
   /* ── clue bar (sits directly above the keyboard) ─────────────────────────── */
 
-  /* --gw is the grid's exact pixel width, published by sizeGrid() — the bar and
-     the grid stay flush at every viewport. */
+  /* --gw is the grid's exact pixel width, published by sizeGrid(), so the bar
+     and the grid stay flush at every viewport instead of guessing with a %. */
   #cluebar {
-    display: flex; align-items: stretch; width: var(--gw, 100%); max-width: 100%;
-    margin: 12px auto 0; border: 1px solid var(--line); border-radius: 12px;
-    background: rgba(255, 255, 255, .04); overflow: hidden;
+    display: flex; align-items: stretch;
+    width: var(--gw, 100%); max-width: 100%; margin: var(--sp-3) auto 0;
+    background: var(--s1); border: 1px solid var(--hair); border-radius: var(--r-md);
+    overflow: hidden;
   }
   #cluebar .nav {
-    flex: 0 0 46px; min-height: 70px; background: none; border: none;
-    color: var(--ink3); font-size: 20px; line-height: 1; cursor: pointer;
-    transition: background .12s, color .12s;
+    flex: 0 0 46px; min-height: 70px; cursor: pointer;
+    background: none; border: none; color: var(--ink-3); font-size: var(--t-lg); line-height: 1;
+    transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
   }
-  #cluebar .nav:hover { color: #fff; background: rgba(255, 255, 255, .07); }
-  #cluebar .nav:active { background: rgba(255, 255, 255, .12); }
-  /* 70px holds the longest clue in the pool (32 chars → two lines at 375px)
-     without the bar changing height as you move between clues. No jump. */
+  #cluebar .nav:hover { color: var(--ink); background: var(--s2); }
+  #cluebar .nav:active { background: var(--s3); }
+  /* 70px is two lines of clue. The longest clue in the pool is 32 characters,
+     which wraps to two lines at 375px — so the bar is the same height for every
+     clue and moving between them never shifts the keyboard. */
   #cluebar .txt {
-    flex: 1 1 auto; min-width: 0; min-height: 70px; padding: 8px 8px;
+    flex: 1 1 auto; min-width: 0; min-height: 70px; padding: var(--sp-2);
     display: flex; flex-direction: column; justify-content: center; gap: 3px;
-    font-size: 13.5px; line-height: 1.35; color: var(--ink);
+    font-size: var(--t-md); line-height: 1.35; color: var(--ink);
   }
-  #cluebar .txt b { font-size: 9.5px; font-weight: 700; letter-spacing: 1.8px; color: var(--cool); }
+  #cluebar .txt b {
+    font-family: var(--display); font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent);
+  }
 
-  /* ── clue lists (inline beside the grid on wide screens, modal on phones) ── */
+  /* ── clue lists (beside the grid on wide screens, in a modal on phones) ──── */
 
   .midi-cols { display: flex; flex-direction: column; align-items: center; }
   .midi-main { width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; }
   .midi-side { display: none; }
 
   #clues { width: 100%; }
-  .cl-col + .cl-col { margin-top: 16px; }
-  .cl-col h3 { font-size: 10px; font-weight: 800; letter-spacing: 2.4px; color: var(--ink4); margin-bottom: 6px; }
-  .clue {
-    display: flex; gap: 8px; padding: 7px 8px; border-radius: 8px; cursor: pointer;
-    font-size: 12.5px; line-height: 1.4; color: var(--ink2);
-    transition: background .12s, color .12s;
+  .cl-col + .cl-col { margin-top: var(--sp-4); }
+  .cl-col h3 {
+    margin-bottom: var(--sp-2); font-family: var(--display);
+    font-size: var(--t-xs); font-weight: 650; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-4);
   }
-  .clue b { flex: 0 0 auto; min-width: 16px; text-align: right; font-weight: 700; color: var(--ink4); }
+  .clue {
+    display: flex; gap: var(--sp-2); padding: 6px var(--sp-2);
+    border-radius: var(--r-sm); cursor: pointer;
+    font-size: var(--t-sm); line-height: 1.45; color: var(--ink-2);
+    transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+  .clue b {
+    flex: 0 0 auto; min-width: 16px; text-align: right;
+    font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums;
+    color: var(--ink-4);
+  }
   .clue span { min-width: 0; }
-  .clue:hover { background: rgba(255, 255, 255, .05); }
-  .clue.done { color: var(--ink4); }
-  .clue.on { background: var(--panel2); color: #fff; }
-  .clue.on b { color: var(--cool); }
+  .clue:hover { background: var(--s2); color: var(--ink); }
+  .clue.done { color: var(--ink-4); }
+  .clue.on { background: var(--s3); color: var(--ink); }
+  .clue.on b { color: var(--accent); }
 
   @media (min-width: 900px) {
-    .midi-cols { flex-direction: row; align-items: flex-start; justify-content: center; gap: 22px; }
+    .midi-cols {
+      flex-direction: row; align-items: flex-start; justify-content: center;
+      gap: var(--sp-5);
+    }
     .midi-main { width: auto; flex: 0 0 auto; }
-    .midi-side { display: block; flex: 1 1 0; min-width: 0; max-width: 340px; margin-top: 14px; }
+    .midi-side {
+      display: block; flex: 1 1 0; min-width: 0; max-width: 340px;
+      margin-top: var(--sp-4);
+    }
   }
 
-  /* the modal copy wants two columns where there's room */
-  #mi-modal-clues { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  /* the modal copy takes two columns where there is room for them */
+  #mi-modal-clues { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
   #mi-modal-clues .cl-col + .cl-col { margin-top: 0; }
   @media (max-width: 430px) {
     #mi-modal-clues { grid-template-columns: 1fr; gap: 0; }
-    #mi-modal-clues .cl-col + .cl-col { margin-top: 16px; }
+    #mi-modal-clues .cl-col + .cl-col { margin-top: var(--sp-4); }
   }
 
-  /* ── the STUCK? sheet + the result sheet's star line ─────────────────────── */
+  /* ── the STUCK? sheet, and the result sheet's star line ─────────────────── */
 
-  .ac-modal h3.mi-h { font-size: 10px; font-weight: 800; letter-spacing: 2.2px; color: var(--ink4); margin: 15px 0 7px; }
-  .ac-modal .mi-h + .ac-row { justify-content: stretch; }
-  .ac-modal .mi-h + .ac-row .ac-btn { flex: 1 1 0; padding-left: 6px; padding-right: 6px; }
+  .ac-modal h3.mi-h {
+    margin: var(--sp-4) 0 var(--sp-2); font-family: var(--display);
+    font-size: var(--t-xs); font-weight: 650; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-4);
+  }
+  /* the three scope buttons share the row evenly instead of huddling */
+  .ac-modal .mi-h + .ac-row .ac-btn { flex: 1 1 0; padding: 0 var(--sp-2); }
 
+  /* GOLD STAR / BLUE STAR — the words name the colours, so the colours match
+     the words. Specificity has to clear `.ac-modal p`. */
   .ac-modal p.mi-star {
-    margin: 12px 0 0; padding: 11px 13px; border-radius: 12px;
-    border: 1px solid var(--line2); background: rgba(255, 255, 255, .04);
-    font-size: 12px; line-height: 1.7; text-align: left;
+    margin: var(--sp-3) 0 0; padding: var(--sp-3);
+    background: var(--s1); border: 1px solid var(--hair-2); border-radius: var(--r-md);
+    font-size: var(--t-sm); line-height: 1.7; text-align: left;
   }
-  .ac-modal p.mi-star.gold { border-color: var(--gold); color: var(--gold); }
-  .ac-modal p.mi-star.blue { border-color: var(--cool); color: var(--cool); }
+  .ac-modal p.mi-star.gold { border-color: var(--amber); color: var(--amber); }
+  .ac-modal p.mi-star.blue { border-color: var(--cyan); color: var(--cyan); }
+  .ac-modal p.mi-star b { color: var(--ink); }
 
-  /* ── footer pill (below the keyboard) ───────────────────────────────────── */
+  /* ── footer pill, below the keyboard ────────────────────────────────────── */
 
-  #mi-extra { margin-top: 14px; }
-  #mi-extra .ac-pill { min-height: 44px; padding: 6px 18px; text-decoration: none; cursor: pointer; transition: border-color .15s, color .15s; }
-  #mi-extra .ac-pill:hover { border-color: var(--accent); color: #fff; }
+  #mi-extra { margin-top: var(--sp-4); }
+  #mi-extra .ac-pill { min-height: 44px; padding: 0 var(--sp-4); cursor: pointer; }
+  #mi-extra .ac-pill:hover { border-color: var(--hair-2); color: var(--ink); background: var(--s2); text-decoration: none; }
 </style>
 </head>
 <body>
