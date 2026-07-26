@@ -512,6 +512,172 @@
     })(last);
   };
 
+  /* ── the share card, as an actual image ───────────────────────────────────
+     An emoji grid is fine for one game, but a whole day across twenty of them
+     is emoji soup in a message thread. So the day's card also renders as a
+     designed 1080px PNG, shared via the native sheet where that supports files
+     and downloaded where it doesn't. Drawn on the same palette as the site.  */
+
+  var CARD_INK = "#f5f2f8", CARD_INK2 = "#bdb6cb", CARD_INK3 = "#8b8399",
+      CARD_BG = "#0a0910", CARD_S1 = "#171423", CARD_HAIR = "rgba(255,255,255,.09)";
+
+  function accentHex(token) {
+    return ({
+      "--hot": "#ff5c9d", "--cool": "#56c8f5", "--gold": "#efbe5a",
+      "--mint": "#4ecb8f", "--violet": "#a78bfa",
+    })[token] || "#ff5c9d";
+  }
+
+  function roundRect(g, x, y, w, h, r) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + w, y, x + w, y + h, r);
+    g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r);
+    g.arcTo(x, y, x + w, y, r);
+    g.closePath();
+  }
+
+  var DISPLAY = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif';
+
+  /**
+   * A.cardImage(dayN) → Promise<Blob>  (1080 x 1080 PNG)
+   * The day's results as a card you'd actually want to send someone.
+   */
+  A.cardImage = function (dayN) {
+    if (dayN === undefined) dayN = A.dayNumber();
+    var c = A.card(dayN), rs = A.runStreak();
+    var played = (A.registry || []).filter(function (g) { return c.results[g.id]; });
+
+    var W = 1080, H = 1080, PAD = 84;
+    var cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var g = cv.getContext("2d");
+
+    // ground
+    g.fillStyle = CARD_BG; g.fillRect(0, 0, W, H);
+    var lift = g.createRadialGradient(W / 2, -H * 0.28, 0, W / 2, -H * 0.28, H * 1.05);
+    lift.addColorStop(0, "#2a2140"); lift.addColorStop(0.45, "#141122"); lift.addColorStop(1, CARD_BG);
+    g.fillStyle = lift; g.fillRect(0, 0, W, H);
+
+    // masthead
+    g.textBaseline = "alphabetic";
+    g.strokeStyle = "#ff5c9d"; g.lineWidth = 4;
+    g.beginPath(); g.arc(PAD + 15, PAD + 14, 15, 0, 6.2832); g.stroke();
+    g.fillStyle = "#ff5c9d";
+    g.beginPath(); g.arc(PAD + 15, PAD + 14, 7, 0, 6.2832); g.fill();
+    g.fillStyle = CARD_INK3;
+    g.font = "600 22px " + DISPLAY;
+    g.letterSpacing && (g.letterSpacing = "5px");
+    g.fillText("MIDNIGHT ARCADE", PAD + 44, PAD + 22);
+    g.letterSpacing && (g.letterSpacing = "0px");
+
+    g.fillStyle = CARD_INK3;
+    g.font = "500 24px " + DISPLAY;
+    g.textAlign = "right";
+    g.fillText("Day " + dayN + " · " + A.prettyDate(dayN), W - PAD, PAD + 22);
+    g.textAlign = "left";
+
+    // the number
+    g.fillStyle = CARD_INK;
+    g.font = "700 208px " + DISPLAY;
+    g.fillText(String(c.total), PAD - 6, PAD + 250);
+    var wNum = g.measureText(String(c.total)).width;
+    g.fillStyle = CARD_INK3;
+    g.font = "500 44px " + DISPLAY;
+    g.fillText("/100", PAD + wNum + 6, PAD + 250);
+
+    g.fillStyle = CARD_INK2;
+    g.font = "500 30px " + DISPLAY;
+    var sub = played.length + (played.length === 1 ? " game" : " games");
+    if (rs.current > 1) sub += "  ·  " + rs.current + "-day run";
+    if (c.name) sub = c.name + "  ·  " + sub;
+    g.fillText(sub, PAD, PAD + 300);
+
+    // rows
+    var y = PAD + 356, rowH = 62, maxRows = 9;
+    var show = played.slice(0, maxRows);
+    show.forEach(function (gm) {
+      var r = c.results[gm.id];
+      var acc = accentHex(gm.accent);
+      g.fillStyle = CARD_S1;
+      roundRect(g, PAD, y, W - PAD * 2, rowH - 8, 14); g.fill();
+      g.strokeStyle = CARD_HAIR; g.lineWidth = 1;
+      roundRect(g, PAD + .5, y + .5, W - PAD * 2 - 1, rowH - 9, 14); g.stroke();
+
+      g.font = "600 25px " + DISPLAY;
+      g.fillStyle = acc;
+      g.fillText(gm.name, PAD + 26, y + 36);
+
+      // norm bar
+      var barW = 210, barX = W - PAD - 26 - barW - 86;
+      g.fillStyle = "rgba(255,255,255,.09)";
+      roundRect(g, barX, y + 21, barW, 10, 5); g.fill();
+      g.fillStyle = acc;
+      roundRect(g, barX, y + 21, Math.max(6, barW * A.clamp(r.norm, 0, 100) / 100), 10, 5); g.fill();
+
+      g.fillStyle = CARD_INK;
+      g.font = "700 27px " + DISPLAY;
+      g.textAlign = "right";
+      g.fillText(String(r.norm), W - PAD - 26, y + 37);
+      g.textAlign = "left";
+      y += rowH;
+    });
+
+    if (played.length > maxRows) {
+      g.fillStyle = CARD_INK3;
+      g.font = "500 24px " + DISPLAY;
+      g.fillText("+ " + (played.length - maxRows) + " more", PAD + 4, y + 30);
+      y += 44;
+    }
+
+    if (!played.length) {
+      g.fillStyle = CARD_INK3;
+      g.font = "500 28px " + DISPLAY;
+      g.fillText("Nothing played yet today.", PAD, y + 30);
+    }
+
+    // footer
+    g.strokeStyle = CARD_HAIR; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(PAD, H - PAD - 52); g.lineTo(W - PAD, H - PAD - 52); g.stroke();
+    g.fillStyle = CARD_INK3;
+    g.font = "500 24px " + DISPLAY;
+    g.fillText("salahshoormisha.github.io/misha-arcade", PAD, H - PAD - 12);
+    g.textAlign = "right";
+    g.fillStyle = CARD_INK3;
+    g.fillText("same puzzles, no server", W - PAD, H - PAD - 12);
+    g.textAlign = "left";
+
+    return new Promise(function (res) {
+      if (cv.toBlob) cv.toBlob(function (b) { res(b); }, "image/png");
+      else res(null);
+    });
+  };
+
+  /** Share the day as an image, falling back to text then to a download. */
+  A.shareCardImage = function (dayN) {
+    if (dayN === undefined) dayN = A.dayNumber();
+    return A.cardImage(dayN).then(function (blob) {
+      var name = "midnight-arcade-day-" + dayN + ".png";
+      if (!blob) return A.share(A.runCard(dayN));
+      var file = null;
+      try { file = new File([blob], name, { type: "image/png" }); } catch (e) {}
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], text: A.runCard(dayN) })
+          .catch(function () { return dl(); });
+      }
+      return dl();
+      function dl() {
+        var u = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = u; a.download = name;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(u); a.remove(); }, 400);
+        A.toast("Card saved — the text is on your clipboard too");
+        return A.copy(A.runCard(dayN));
+      }
+    });
+  };
+
   /* ── small helpers games keep needing ────────────────────────────────── */
 
   A.timerEl = function (host) {
