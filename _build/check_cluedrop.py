@@ -182,7 +182,7 @@ def main():
           ", ".join("%s %d" % kv for kv in sorted(spread.items())))
     print("left-hand in pool  %d of %d"
           % (sum(1 for i in pool if i in left), len(pool)))
-    print("non-Latin script   %d of %d"
+    print("script-based rung  %d of %d"
           % (sum(1 for i in pool
                  if i in D["scriptBy"]
                  or any(l in D["scripts"] for l in (by[i].get("lang") or []))),
