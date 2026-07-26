@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FOODGUESSR · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍲</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=6">
+<style>
+  .round { text-align: center; font-size: 10.5px; letter-spacing: 2.4px; color: var(--ink4); margin-top: 6px; }
+  #dish { width: 100%; max-width: 380px; aspect-ratio: 4/3; object-fit: cover; border-radius: 14px;
+          display: block; margin: 10px auto 0; background: #150b30; box-shadow: 0 10px 34px #0009; }
+  .noimg { display: grid; place-items: center; color: var(--ink4); font-size: 40px; }
+  .dname { text-align: center; font-size: clamp(17px,4.6vw,23px); font-weight: 900; letter-spacing: 1.5px;
+           color: var(--gold); margin-top: 12px; }
+  .dname.hidden { color: var(--ink4); font-style: italic; font-weight: 400; font-size: 13px; letter-spacing: 1px; }
+  .ddesc { text-align: center; font-size: 13px; color: var(--ink2); line-height: 1.8; margin: 8px auto 0;
+           max-width: 420px; }
+  .guesses { max-width: 420px; margin: 12px auto 0; }
+  .gr { display: flex; align-items: center; gap: 8px; padding: 8px 11px; margin-bottom: 6px;
+        border: 1px solid var(--line); border-radius: 10px; background: #ffffff07; font-size: 13px; }
+  .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
+  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; }
+  .gr .warm { font-size: 11px; letter-spacing: .5px; }
+  .gr .ar { font-size: 15px; }
+  .gr.win { border-color: var(--ok); background: rgba(61,224,138,.1); }
+  .pips { display: flex; gap: 5px; justify-content: center; margin-top: 10px; }
+  .pips i { width: 22px; height: 5px; border-radius: 9px; background: #ffffff18; }
+  .pips i.used { background: var(--bad); }
+  .pips i.won { background: var(--ok); }
+  .why { font-size: 12px; color: var(--gold); text-align: center; line-height: 1.8; margin-top: 10px;
+         max-width: 420px; margin-left: auto; margin-right: auto; }
+  .scoreline { text-align: center; margin-top: 10px; font-size: 12px; letter-spacing: 1.5px; color: var(--ink3); }
+  .scoreline b { color: #fff; font-size: 16px; }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=6"></script>
+<script src="../../core/arcade.js?v=6"></script>
+<script src="../../core/ui.js?v=6"></script>
+<script src="../../core/audio.js?v=6"></script>
+<script src="../../core/data/countries.js?v=6"></script>
+<script src="../../core/data/food.js?v=6"></script>
+<script src="../../core/picker.js?v=6"></script>
+<script src="game.js?v=6"></script>
+</body>
+</html>
