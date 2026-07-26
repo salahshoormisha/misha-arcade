@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
-"""PERSIA pack — 12 boards. Nowruz, the Shahnameh, poets, food, carpets,
+"""PERSIA pack — 12 boards. Nowruz, poets, food, cities, carpets, music,
 the loanwords English quietly took, and the diaspora kitchen table.
+
+DELIBERATELY LIGHT ON THE SHAHNAMEH (players' instruction): the epic has its
+own cabinet, MISHANAMEH, and they told us they do not know the lore well.
+Ferdowsi and his book survive only as *names* in the poets board, where any
+reader of Persian culture would expect them; the old "Seven Trials" board was
+replaced outright by "Tehrangeles", and board 12's princes-who-die-young group
+became everyday Persian colours. No board here rewards knowing who Garsivaz is.
+
 Transliteration is the plain everyday Latin spelling a Persian-American
 household actually writes, not a scholarly scheme with diacritics."""
 
@@ -24,23 +32,23 @@ BOARDS = [
 },
 
 {
- "title": "The Seven Trials",
+ "title": "Tehrangeles",
  "diff": 2,
  "groups": [
-   {"name": "HEROES OF THE SHAHNAMEH", "tiles": ["ROSTAM", "SOHRAB", "ESFANDIYAR", "ZAL"],
-    "note": "Zal was born white-haired, abandoned, and raised by the Simorgh. His son Rostam holds the epic together for a third of its length."},
-   {"name": "SHAHNAMEH VILLAINS", "tiles": ["ZAHHAK", "AFRASIYAB", "SUDABEH", "GARSIVAZ"],
-    "note": "Zahhak grew serpents from his shoulders that had to be fed on human brains, which is a thousand years old and still the best villain design in the business."},
-   {"name": "OBSTACLES OF ROSTAM'S HAFT KHAN", "tiles": ["LION", "DRAGON", "SORCERESS", "WHITE DEMON"],
-    "note": "Seven trials on the road to Mazandaran: the lion Rakhsh kills alone, the thirst, the dragon, the sorceress, Ulad, Arzhang, and finally Div-e Sepid."},
-   {"name": "ROSTAM'S HORSE, COAT AND WEAPONS", "tiles": ["RAKHSH", "BABR-E BAYAN", "GORZ", "KAMAND"],
-    "note": "Rakhsh the stallion, the babr-e bayan that no weapon could pierce, the ox-headed mace and the lasso. He is the only hero whose horse gets its own reputation."},
+   {"name": "WHAT THE DIASPORA CALLS ITS OWN SUBURBS", "tiles": ["TEHRANGELES", "TEHRANTO", "WESTWOOD", "GREAT NECK"],
+    "note": "Westwood Boulevard in Los Angeles is signposted Persian Square; North York earned Tehranto; Great Neck on Long Island is where much of the Iranian-Jewish community landed after 1979."},
+   {"name": "PERSIAN BREADS", "tiles": ["SANGAK", "BARBARI", "LAVASH", "TAFTOON"],
+    "note": "Sangak is baked on a bed of hot pebbles and arrives with a few still in it; barbari is the thick breakfast one; lavash is thin enough to read through."},
+   {"name": "PERSIAN DAIRY AND PICKLES", "tiles": ["DOOGH", "KASHK", "MAST-O-KHIAR", "TORSHI"],
+    "note": "Doogh is salted yogurt soda with mint, kashk is dried whey you spoon over aubergine, mast-o-khiar is yogurt and cucumber, and torshi is whatever the household pickled last autumn."},
+   {"name": "LAID OUT FOR TEA", "tiles": ["SAMOVAR", "ESTEKAN", "QAND", "GHALYAN"],
+    "note": "The samovar that is never off, the little waisted glass, the sugar cube you hold between your teeth and drink the tea through, and the water pipe somebody's uncle is filling on the balcony."},
  ],
  "traps": [
-   ["WHITE DEMON", 1, "Div-e Sepid is unambiguously a villain — he blinds Kay Kavus and his whole army. He is here as the seventh trial, not as a character."],
-   ["RAKHSH", 0, "Rakhsh kills a lion while Rostam sleeps and is more heroic than most of the humans in the poem. He is still a horse."],
+   ["LAVASH", 2, "Lavash is the wrapper for the kashk and the pickles and reaches the table on the same plate — in a group about what's in the fridge it reads as one of the fillings."],
+   ["DOOGH", 3, "Doogh is poured into the same small glasses as the tea and sits on the same tray, which makes it look like part of the drinks service rather than the dairy shelf."],
  ],
- "epilogue": "Two tiles argue about which shelf they belong on and both lose: ZAHHAK, AFRASIYAB, SUDABEH and GARSIVAZ are already four villains, and ROSTAM, SOHRAB, ESFANDIYAR and ZAL are already four heroes. Rakhsh gets filed with the tack.",
+ "epilogue": "Nothing on this board is ancient — it is a shopping list and a street map for people who left. The two double-fits both fail on arithmetic: SANGAK, BARBARI and TAFTOON are three breads looking for a fourth, and SAMOVAR, ESTEKAN, QAND and GHALYAN are already a full tray.",
 },
 
 {
@@ -216,8 +224,8 @@ BOARDS = [
  "title": "Count to Four",
  "diff": 5,
  "groups": [
-   {"name": "PRINCES OF THE SHAHNAMEH WHO DIE YOUNG", "tiles": ["IRAJ", "SIYAVASH", "SOHRAB", "ESFANDIYAR"],
-    "note": "Iraj murdered by his brothers, Siyavash beheaded in exile, Sohrab killed by a father who didn't know him, Esfandiyar shot through both eyes by Rostam on Simorgh's advice. The epic is mostly a book about fathers and sons going wrong."},
+   {"name": "COLOURS IN PERSIAN", "tiles": ["SEFID", "SIYAH", "SORKH", "ABI"],
+    "note": "White, black, red, blue. Abi comes from ab, water — the same ab as the -jab in Punjab, which is panj-ab, five rivers."},
    {"name": "PERSIAN WORDS FOR POWER", "tiles": ["SHAH", "SHAHANSHAH", "VIZIER", "SATRAP"],
     "note": "King, king of kings, the minister who runs everything, and the provincial governor whose title the Greeks borrowed and never gave back."},
    {"name": "CREATURES OF PERSIAN MYTH", "tiles": ["SIMORGH", "DIV", "PERI", "HOMA"],
@@ -226,9 +234,10 @@ BOARDS = [
     "note": "Yek, do, se, chahar. 'Do' is two, which is why Chaharshanbe is the fourth day and the bonfire night is the last one of the year."},
  ],
  "traps": [
-   ["ESFANDIYAR", 2, "Esfandiyar was made invulnerable by Zoroaster and could only be killed by a very particular arrow. On a board with a mythical-creatures group, he reads as more-than-human."],
+   ["HOMA", 1, "The homa never lands, and whoever its shadow falls on becomes king — a bird whose entire job is conferring power, on a board with a group of Persian power words."],
+   ["SORKH", 2, "Sorkh, red, is the colour of half the creatures in Persian miniature painting and of the fire the myths are told around; on this board it reads as folklore before it reads as a paint chart."],
  ],
- "epilogue": "The hardest board in the pack, and the way in is the smallest tiles: YEK, DO, SE and CHAHAR are two and three letters long and mean nothing in English, which is exactly the shape of a purple. Solve those four first and the epic sorts itself out behind them.",
+ "epilogue": "The hardest board in the pack, and the way in is the smallest tiles: YEK, DO, SE and CHAHAR are two and three letters long and mean nothing in English, which is exactly the shape of a purple. The colours next door are the same size and the same everyday register, which is the real trap — but no colour is a number, and once the count is out the rest lines up behind it.",
 },
 
 ]

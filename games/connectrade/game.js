@@ -384,8 +384,8 @@
   function noteTag(iso) {
     var c = TCO[iso];
     if (!c || !c.note) return "";
-    return /^re-export/i.test(c.note) ? " · re-export inflated, see below"
-      : " · partial data, see below";
+    return /^re-export/i.test(c.note) ? " · ⚠︎ re-export inflated"
+      : " · ⚠︎ partial data";
   }
 
   /* ── boot ─────────────────────────────────────────────────────────────── */

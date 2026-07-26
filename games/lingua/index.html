@@ -73,8 +73,8 @@
   .rung:not([disabled]):active { transform: translateY(1px); }
   .rung[disabled] { cursor: default; opacity: .5; }
   .rung.done {
-    display: block; opacity: 1; border-color: rgba(255, 216, 79, .38);
-    background: rgba(255, 216, 79, .07); cursor: default;
+    display: block; opacity: 1; border-color: var(--gold);
+    background: #ffffff0a; cursor: default;
   }
   .rung.done .hd { display: flex; align-items: center; gap: 9px; }
   .rung.done .n { border-color: var(--gold); color: var(--gold); }
@@ -92,6 +92,7 @@
   .gr .km { color: var(--ink3); font-size: 11.5px; }
   .gr .ar { font-size: 15px; }
   .gr .pc { width: 42px; text-align: right; font-weight: 800; }
+  /* the one literal here is deliberate: byte-identical to FLAGLE's win row */
   .gr.win { border-color: var(--ok); background: rgba(61, 224, 138, .1); }
   .gr.win .pc { color: var(--ok); }
 
