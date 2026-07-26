@@ -612,25 +612,33 @@ def main():
 
     # ── validate: strict-JSON payload + JS self-test ──────────────────────
     verify_json(OUT_PATH)
-    report = selftest(OUT_PATH, seeds=500)
+    for opts in ({}, {"minCell": 3}):
+        report = selftest(OUT_PATH, seeds=500, grid_opts=opts)
+        print()
+        print("SELF-TEST over %d seeds   buildGrid opts %s"
+              % (report["seeds"], json.dumps(opts) if opts else "(defaults)"))
+        print("  grid failures        : %d" % report["failures"])
+        print("  mean answers per cell: %.1f" % report["meanCell"])
+        print("  min answers in a cell: %d" % report["minCell"])
+        print("  distinct criteria used: %d / %d" % (report["distinct"], len(ids)))
+        print("  mean tier spread     : %s" % json.dumps(report["tiers"]))
+        cal = report["calibration"]
+        print("  mean board ceiling   : %d of a theoretical 900" % cal["meanCeiling"])
+        print("  CALIBRATION (fill weight %.2f) -- norm for a player who…" % cal["fillWeight"])
+        for who, blurb in (("first", "names the most obvious answer, 9/9"),
+                           ("third", "names the 3rd most obvious, 9/9"),
+                           ("mid", "names the median answer, 9/9"),
+                           ("mid8", "…the same, 8 of 9 cells"),
+                           ("mid7", "…the same, 7 of 9 cells"),
+                           ("mid5", "…the same, 5 of 9 cells"),
+                           ("deep", "names the deepest cut, 9/9")):
+            pts = cal["mean"].get(who)
+            print("     %-5s %-38s %s norm %3d"
+                  % (who, blurb,
+                     ("%6.1f pts ->" % pts) if pts is not None else "             ",
+                     cal["norm"][who]))
     print()
-    print("SELF-TEST over %d seeds" % report["seeds"])
-    print("  grid failures        : %d" % report["failures"])
-    print("  mean answers per cell: %.1f" % report["meanCell"])
-    print("  min answers in a cell: %d" % report["minCell"])
-    print("  distinct criteria used: %d / %d" % (report["distinct"], len(ids)))
-    print("  mean tier spread     : %s" % json.dumps(report["tiers"]))
-    print("  obviousness sanity   : %s" % json.dumps(report["obvSample"]))
-    cal = report["calibration"]
-    print()
-    print("CALIBRATION over %d boards (norm exponent %.2f)" % (cal["boards"], cal["exponent"]))
-    for who, blurb in (("first", "names the most obvious answer, 9/9"),
-                       ("third", "names the 3rd most obvious, 9/9"),
-                       ("eight", "the same player, one cell short"),
-                       ("mid", "names the median answer, 9/9"),
-                       ("deep", "names the deepest cut, 9/9")):
-        print("  %-6s %-38s %6.1f pts -> norm %3d"
-              % (who, blurb, cal["mean"][who], cal["norm"][who]))
+    print("  obviousness sanity   : %s" % json.dumps(report["obvSample"], indent=None))
     if no_gdp:
         print("  gdppc missing (median %.0f substituted): %s" % (med_gdp, ",".join(no_gdp)))
 

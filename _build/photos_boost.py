@@ -152,15 +152,30 @@ def img_probe(url, retries=3):
     return res
 
 
+MIN_W = 800          # below this a photo looks soft in a full-width frame
+MAX_TALL = 1.25      # h/w -- taller than this letterboxes badly on a phone
+MAX_WIDE = 2.40      # w/h -- a 1280x429 panorama is a slit, not a scene
+
+
 def verified(e):
-    """Attach measured w/h + content type. -> '' if good, else a reject reason."""
+    """Attach measured w/h + content type. -> '' if good, else a reject reason.
+
+    The shape guard runs on the MEASURED dimensions, not on imageinfo's
+    (which reports the width you asked for, not the bucket it serves).
+    """
     st, ct, w, h = img_probe(e["url"])
     if st != 200:
         return "http-%s" % st
     if not ct.startswith("image/"):
         return "content-type-%s" % (ct or "none")
-    if not w or not h or w < 640:
-        return "unreadable-or-small"
+    if not w or not h:
+        return "undecodable"
+    if w < MIN_W:
+        return "low-res-%dpx" % w
+    if h > w * MAX_TALL:
+        return "too-tall"
+    if w > h * MAX_WIDE:
+        return "too-wide"
     e["w"], e["h"] = w, h
     e["ct"] = ct
     return ""

@@ -1648,6 +1648,48 @@ window.AD_GEOGRID = {
   D.pointsFor = function (obv) { return Math.round(D.FILL + (100 - D.FILL) * (1 - obv)); };
   D.points = function (a, b, iso) { return D.pointsFor(D.obviousness(a, b, iso)); };
 
+  /* The best points a cell can pay -- its least obvious valid answer. 900 is the
+     theoretical ceiling but it is never reachable: in a cell like "in Africa x
+     landlocked" even the deepest cut (Lesotho) is a country people know, so the
+     cell caps out around 85. So every board publishes its OWN ceiling, and the
+     cabinet's 0-100 norm is measured against that rather than against 900.
+     CONTRACT §3: use the game's realistic ceiling, not the theoretical one. */
+  D.bestFor = function (a, b) {
+    var list = D.cell(a, b), best = 0;
+    for (var j = 0; j < list.length; j++) {
+      best = Math.max(best, D.points(a, b, list[j]));
+    }
+    return best;
+  };
+  /* ceiling(grid) -> { cells:[9], total } */
+  D.ceiling = function (grid) {
+    var cells = [], tot = 0;
+    for (var r = 0; r < 3; r++) {
+      for (var c = 0; c < 3; c++) {
+        var v = D.bestFor(grid.rows[r], grid.cols[c]);
+        cells.push(v); tot += v;
+      }
+    }
+    return { cells: cells, total: tot };
+  };
+
+  /* Tier of a pick, keyed on obviousness rather than on a crowd percentage --
+     same six-rung vocabulary as the original, honestly re-based. */
+  var OTIERS = [
+    { max: 1.01, key: 'common',    label: 'Common',    emoji: '🟩' },
+    { max: 0.75, key: 'uncommon',  label: 'Uncommon',  emoji: '🔷' },
+    { max: 0.45, key: 'rare',      label: 'Rare',      emoji: '⚡' },
+    { max: 0.22, key: 'epic',      label: 'Epic',      emoji: '🌈' },
+    { max: 0.09, key: 'legendary', label: 'Legendary', emoji: '💎' },
+    { max: 0.03, key: 'mythical',  label: 'Mythical',  emoji: '🦄' }
+  ];
+  D.obvTiers = OTIERS;
+  D.tierOfObv = function (obv) {
+    var hit = OTIERS[0];
+    for (var j = 0; j < OTIERS.length; j++) { if (obv < OTIERS[j].max) { hit = OTIERS[j]; } }
+    return hit;
+  };
+
   var TIERS = [
     { min: 25, key: 'common',    label: 'Common',    emoji: '🟩' },
     { min: 10, key: 'uncommon',  label: 'Uncommon',  emoji: '🔷' },
@@ -1745,10 +1787,10 @@ window.AD_GEOGRID = {
   };
 
   /* run buildGrid over n seeds and report; used by _build/gen_geogrid.py */
-  D.selfTest = function (rngFactory, n) {
+  D.selfTest = function (rngFactory, n, opts) {
     var fails = 0, tot = 0, lo = 1e9, used = {}, mix = [0, 0, 0], j, r, c;
     for (var s = 0; s < n; s++) {
-      var g = D.buildGrid(rngFactory('seed-' + s));
+      var g = D.buildGrid(rngFactory('seed-' + s), opts);
       if (!g) { fails++; continue; }
       for (r = 0; r < 3; r++) {
         for (c = 0; c < 3; c++) {

@@ -241,7 +241,7 @@
     else { A.sfx("miss"); }
   }
 
-  function doHint() {
+  function doHint(quiet) {
     if (over || hinted) return;
     var h = (TRADE[answer] || {}).hint;
     if (!h) {
@@ -251,6 +251,7 @@
     hinted = true;
     hintBox.innerHTML = "<b>the economy</b>" + A.esc(h.replace(/\s*\[partial data\]\s*$/, "")) +
       ' <span class="dim">(−' + HINT_COST + " pts)</span>";
+    if (quiet) return;               // replaying it on restore would re-chime
     A.sfx("reveal");
     save();
   }
@@ -508,7 +509,7 @@
     if (st) {
       guesses = st.guesses || [];
       hinted = !!st.hinted;
-      if (hinted) { hinted = false; doHint(); }
+      if (hinted) { hinted = false; doHint(true); }
     }
     picker.setExclude(guesses);
     renderGuesses();

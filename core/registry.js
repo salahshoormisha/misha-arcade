@@ -152,7 +152,7 @@ window.AD_REGISTRY = [
 
   /* ── THE ONE YOU PLAY AGAINST EACH OTHER ──────────────────────────────── */
   {
-    id: "decider", soon: true, name: "THE DECIDER", icon: "🥊", accent: "--hot", family: "versus",
+    id: "decider", name: "THE DECIDER", icon: "🥊", accent: "--hot", family: "versus",
     tagline: "one device, two people, settle it",
     blurb: "General knowledge, head to head. Alternating questions, a steal round where a " +
       "miss hands it to the other one, and a final wager you can lose everything on. " +
@@ -163,7 +163,7 @@ window.AD_REGISTRY = [
 
   /* ── OFFLINE REINVENTIONS (work on a plane) ───────────────────────────── */
   {
-    id: "chrono", soon: true, name: "CHRONO", icon: "⏳", accent: "--violet", family: "offline",
+    id: "chrono", name: "CHRONO", icon: "⏳", accent: "--violet", family: "offline",
     tagline: "five clues, falling in value — what year?",
     blurb: "TimeGuessr with no photographs. Five facts about one year, revealed one " +
       "at a time, each cheaper than the last. Guess early for the points.",
@@ -171,7 +171,7 @@ window.AD_REGISTRY = [
     distLabel: "clues used", stamps: false,
   },
   {
-    id: "cluedrop", soon: true, name: "CLUEDROP", icon: "🔎", accent: "--mint", family: "offline",
+    id: "cluedrop", name: "CLUEDROP", icon: "🔎", accent: "--mint", family: "offline",
     tagline: "a country, described one detail at a time",
     blurb: "GeoGuessr's reasoning without the street view: traffic side, alphabet, " +
       "plug socket, what's on the money. Guess as soon as you dare.",
