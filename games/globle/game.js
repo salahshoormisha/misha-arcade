@@ -81,7 +81,14 @@
 
   var list = A.el("div", "guesses"); main.appendChild(list);
 
-  map = A.map(cvs, { mode: "globe", drag: true, colours: { sea: "#0a0a22", land: "#241a4d", border: "#3b2a6e" } });
+  // Land/sea must be legible without becoming the loudest thing on the page:
+  // neutral raised-surface land on a near-black ocean, hairline borders, and a
+  // dim rim instead of the renderer's default cyan halo. The only saturated
+  // colour on the globe is the guess heat itself.
+  map = A.map(cvs, {
+    mode: "globe", drag: true,
+    colours: { sea: "#0b0a12", land: "#241f36", border: "#3a3450", rim: "#4a4459" },
+  });
   map.spinTo(20, 10);
 
   row.querySelector("#spin").onclick = function () {
@@ -141,12 +148,12 @@
   function paint() {
     map.clearFills(); map.clearMarkers();
     guesses.forEach(function (g) {
-      map.fill(g, g === answer ? "#3de08a" : A.geo.heat(dist(g, answer)));
+      map.fill(g, g === answer ? "#4ecb8f" : A.geo.heat(dist(g, answer)));
     });
     if (over) {
-      map.stroke(answer, "#ffffff");
+      map.stroke(answer, "#f5f2f8");
       (byIso[answer].bord || []).forEach(function (n) {
-        if (byIso[n]) map.stroke(n, "#ffd84f");
+        if (byIso[n]) map.stroke(n, "#efbe5a");
       });
     }
     map.draw();
@@ -155,18 +162,22 @@
 
   function renderList() {
     var b = closest();
-    best.innerHTML = b
-      ? "closest so far: <b>" + A.esc(byIso[b].n) + "</b> · " + A.geo.km(dist(b, answer)) +
-        " · " + guesses.length + " guess" + (guesses.length === 1 ? "" : "es")
-      : "";
+    var n = guesses.length, plural = n + " guess" + (n === 1 ? "" : "es");
+    // Once you've found it, "closest so far: DR Congo · 0.0 km" is nonsense —
+    // say what actually happened instead.
+    best.innerHTML = !b ? ""
+      : b === answer
+        ? "found it in <b>" + plural + "</b>"
+        : "closest so far: <b>" + A.esc(byIso[b].n) + "</b> · " + A.geo.km(dist(b, answer)) +
+          " · " + plural;
     var sorted = guesses.slice().sort(function (x, y) { return dist(x, answer) - dist(y, answer); });
     list.innerHTML = "";
     sorted.forEach(function (g) {
       var d = dist(g, answer), won = g === answer;
       var el = A.el("div", "gr" + (won ? " win" : ""));
-      el.innerHTML = '<span class="dot" style="background:' + (won ? "#3de08a" : A.geo.heat(d)) + '"></span>' +
+      el.innerHTML = '<span class="dot" style="background:' + (won ? "#4ecb8f" : A.geo.heat(d)) + '"></span>' +
         '<span class="nm">' + A.esc(byIso[g].n) + "</span>" +
-        '<span class="km">' + (won ? "🎉" : A.geo.km(d)) + "</span>";
+        '<span class="km">' + (won ? "✓ FOUND" : A.geo.km(d)) + "</span>";
       list.appendChild(el);
     });
   }
@@ -182,7 +193,7 @@
     if (guesses.length) spinTo(closest());
     if (st && st.done) {
       over = true; picker.disable(true); paint();
-      setTimeout(function () { sheet(st.won, st.norm); }, 260);
+      setTimeout(function () { sheet(st.won, st.norm, st.shareGrid); }, 260);
     }
   }
 
@@ -220,13 +231,12 @@
   function sheet(won, norm, grid) {
     var c = byIso[answer];
     var nb = (c.bord || []).map(function (i) { return byIso[i] && byIso[i].n; }).filter(Boolean);
-    var extra = '<p class="center" style="margin:6px 0 2px"><b style="font-size:17px;letter-spacing:2px">' +
-      A.esc(c.n) + "</b></p>" +
+    var extra = '<p class="center" style="margin:var(--sp-2) 0 2px">' +
+      '<b style="font-size:var(--t-lg);letter-spacing:.08em">' + A.esc(c.n) + "</b></p>" +
       '<p class="center tiny muted">' + A.esc([c.cap, c.sub || c.reg].filter(Boolean).join(" · ")) + "</p>" +
-      (nb.length ? '<p class="center tiny" style="color:var(--gold);margin-top:8px">borders ' +
-        A.esc(nb.join(", ")) + "</p>"
-        : '<p class="center tiny" style="color:var(--gold);margin-top:8px">borders no one — it\'s an island</p>') +
-      '<p class="center tiny" style="color:var(--mint);margin-top:8px">🛂 stamped in your passport</p>';
+      '<p class="center tiny" style="color:var(--amber);margin-top:var(--sp-2)">' +
+      (nb.length ? "borders " + A.esc(nb.join(", ")) : "borders no one — it's an island") + "</p>" +
+      '<p class="center tiny" style="color:var(--green);margin-top:var(--sp-2)">stamped in your passport</p>';
 
     A.results(ID, practice ? A.PRACTICE : day, {
       title: guesses.length <= 3 ? "UNCANNY" : guesses.length <= 6 ? "GOT THERE" : "THE LONG WAY",

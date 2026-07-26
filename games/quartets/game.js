@@ -162,10 +162,10 @@
     /* top row: packs, difficulty, par, practice/today */
     var top = A.el("div", "qtop ac-row");
     top.innerHTML =
-      '<button class="ac-pill" id="qpacks">🗂 PACKS</button>' +
+      '<button class="ac-pill" id="qpacks">PACKS</button>' +
       '<span class="ac-pill" id="qdiff"></span>' +
-      (practice ? '<a class="ac-pill" href="' + hrefFor(pack.id, false) + '">← TODAY\'S BOARD</a>'
-        : '<a class="ac-pill" href="' + hrefFor(pack.id, true) + '">∞ PRACTICE</a>');
+      (practice ? '<a class="ac-pill" href="' + hrefFor(pack.id, false) + '">TODAY\'S BOARD</a>'
+        : '<a class="ac-pill" href="' + hrefFor(pack.id, true) + '">PRACTICE</a>');
     main.appendChild(top);
     top.querySelector("#qpacks").onclick = packModal;
 
@@ -186,9 +186,9 @@
 
     var ctl = A.el("div", "ac-row qctl");
     ctl.innerHTML =
-      '<button class="ac-pill" id="qshuf">🔀 SHUFFLE</button>' +
+      '<button class="ac-pill" id="qshuf">SHUFFLE</button>' +
       '<button class="ac-pill" id="qdesel">DESELECT ALL</button>' +
-      '<button class="ac-pill" id="qnudge">💡 NUDGE</button>';
+      '<button class="ac-pill" id="qnudge">NUDGE</button>';
     main.appendChild(ctl);
 
     var ctl2 = A.el("div", "ac-row qctl2");
@@ -315,7 +315,7 @@
     }
     if (nudgeBtn) {
       nudgeBtn.disabled = over || !!nudge || unsolved().length < 2;
-      nudgeBtn.innerHTML = nudge ? "💡 NUDGE USED" : "💡 NUDGE";
+      nudgeBtn.innerHTML = nudge ? "NUDGE USED" : "NUDGE";
     }
     if (hintEl && nudge && !over) {
       hintEl.innerHTML = "Greyed out: neither belongs to the <b>easiest group left</b> when you asked.";
@@ -543,7 +543,7 @@
     }
     html += '<p class="qmeta">' + esc(pack.name) + " · BOARD " + esc(board.id) +
       (board.title ? " · " + esc(board.title.toUpperCase()) : "") +
-      (w && solved[0] === "p" ? " · 💜 PURPLE FIRST" : "") + "</p>";
+      (w && solved[0] === "p" ? " · PURPLE FIRST" : "") + "</p>";
     if (!ranked && !practice) {
       html += '<p class="tiny dim center" style="margin-top:6px">Pack board — kept, but it doesn\'t ' +
         "touch your QUARTETS stats.</p>";

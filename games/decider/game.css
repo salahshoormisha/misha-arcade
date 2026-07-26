@@ -213,7 +213,7 @@ input.dc-range::-moz-range-thumb {
   display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;
   padding: 11px 13px; border: 1px solid var(--line); border-radius: 13px; background: #ffffff06;
 }
-.dc-wrow.win { border-color: var(--who2); background: #ffffff0d; }
+.dc-wrow.win { border-color: var(--who); background: #ffffff0d; }
 .dc-wl { min-width: 0; }
 .dc-wn {
   font-size: 12px; font-weight: 800; letter-spacing: 1.3px; color: var(--ink);
