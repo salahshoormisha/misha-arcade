@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
-"""UNITED pack — 8 Manchester United boards.
+"""UNITED pack — 20 boards. Manchester United and the Premier League at large.
 
-House style and note/epilogue conventions follow the sibling project
-/Users/mishasalahshoor/fourmations/puzzles.js (36 boards, 144 groups).
-gen_connections.py hard-fails if any group here repeats one of those 144
-by tile set or by category name, so the two archives never overlap.
-Deliberately avoided, because FOURMATIONS already owns them: post-Fergie
-managers, United No. 7s, Class of '92, United keepers, the 1999 Treble squad,
-United + City, United + Real, United + Chelsea, United + Juventus, club
-captains, all-time top scorers, the Moscow shootout, FA Cup final winners,
-shirt sponsors, the cursed post-Ronaldo No. 7, born outside Europe, PL
-hat-tricks, left on a free, the new regime, sold-and-flourished, Old Trafford
-fixtures, Ballon d'Or at an English club, and every England/World Cup angle.
+The sibling project /Users/mishasalahshoor/fourmations/puzzles.js (36 boards,
+144 groups) is being RETIRED, so its best football material is rehoused here.
+Boards 9-20 adapt it rather than copy it: where a FOURMATIONS category was
+worth keeping, the framing is reworded and at least one tile is changed, so no
+group in this pack is identical to one of those 144 by tile set or by name
+(gen_connections.py checks both and reports any that are).
+
+Two notes from the players about FOURMATIONS, which boards 9-20 are built to fix:
+
+  1. It was "a little too niche and a little too hard" — pitched at a
+     statistician. So: no group that needs a record book. Every group here is
+     something a fan who watches the football would know or could reason to.
+  2. It was "spiky" — some boards were trivially easy because each group was an
+     obvious four-of-a-kind (four stadiums, four countries, four managers), so
+     the tiles sorted themselves on sight. So: on every board here at least two
+     groups share a surface type — usually two or three sets of surnames, or two
+     sets of club names — and the fourth is wordplay that steals from them. Type
+     never partitions the board; knowledge does.
 """
 
 BOARDS = [

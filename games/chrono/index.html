@@ -149,8 +149,9 @@
 
   /* slider */
   .track { position: relative; margin-top: var(--sp-2); }
+  /* 44px tall so the whole strip is a legal tap target, not just the thumb. */
   #slider {
-    -webkit-appearance: none; appearance: none; width: 100%; height: 34px;
+    -webkit-appearance: none; appearance: none; width: 100%; height: 44px;
     background: transparent; display: block; margin: 0; cursor: pointer;
   }
   #slider::-webkit-slider-runnable-track {
@@ -176,7 +177,7 @@
 
   /* previous guesses, marked on the track. Purely a memory aid — it restates
      what the rows already say and adds no information. */
-  .ticks { position: absolute; left: 12px; right: 12px; top: 12px; height: 10px; pointer-events: none; }
+  .ticks { position: absolute; left: 12px; right: 12px; top: 17px; height: 10px; pointer-events: none; }
   .ticks i {
     position: absolute; top: 0; width: 2px; height: 10px; margin-left: -1px;
     border-radius: 1px; background: var(--ink-4);
