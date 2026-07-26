@@ -407,7 +407,7 @@
     save();
     if (won) { A.sfx("win"); end(true); }
     else if (guesses.length >= TRIES) { A.sfx("lose"); end(false); }
-    else { A.sfx("miss"); }
+    else { A.sfx(nearest(iso).km < 900 ? "near" : "miss"); }
   }
 
   function right(iso) { return S.countries.indexOf(iso) >= 0; }
@@ -505,7 +505,7 @@
           b.setAttribute("aria-label", "Read hint " + (k + 1) + ", costs " + HINT_COST + " points");
           b.onclick = function () { takeHint(k); };
         } else {
-          b.innerHTML = head + '<span class="cost" style="color:var(--ink4)">AFTER ' +
+          b.innerHTML = head + '<span class="cost mute">AFTER ' +
             (k + 1) + " MISS" + (k ? "ES" : "") + "</span>";
           b.disabled = true;
         }

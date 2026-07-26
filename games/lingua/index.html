@@ -9,107 +9,170 @@
 <link rel="stylesheet" href="../../core/style.css?v=11">
 <style>
   /* ── the specimen: the hero element. A museum plate around real text. ──
-     Colours are tokens only; the only literals are translucent white/black
-     veils, which the polish pass can restyle without touching this file. */
+     Design tokens only — the polish pass owns every colour, size and metric. */
   .spec {
-    max-width: 480px; margin: 14px auto 0; padding: 14px 15px 12px;
-    position: relative; overflow: hidden;
+    max-width: 480px; margin: var(--sp-3) auto 0;
+    padding: var(--sp-3) var(--sp-4);
   }
   .spec .plate {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    font-size: 9.5px; letter-spacing: 1.6px; color: var(--ink4);
-    border-bottom: 1px solid #ffffff12; padding-bottom: 9px;
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
+    font-size: var(--t-xs); letter-spacing: .14em; color: var(--ink-4);
+    border-bottom: 1px solid var(--hair); padding-bottom: var(--sp-2);
   }
-  .spec .plate .tries { display: flex; gap: 4px; flex: 0 0 auto; }
-  .spec .plate .tries i { width: 16px; height: 4px; border-radius: 9px; background: #ffffff20; }
+  .spec .plate .id { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spec .plate .tries { display: flex; gap: var(--sp-1); flex: 0 0 auto; }
+  .spec .plate .tries i {
+    width: 18px; height: 4px; border-radius: var(--r-full); background: var(--s3);
+    transition: background var(--fast) var(--ease);
+  }
   .spec .plate .tries i.used { background: var(--bad); }
   .spec .plate .tries i.won { background: var(--ok); }
+
   .spec .body {
     display: flex; align-items: center; justify-content: center;
-    padding: 18px 2px; min-height: 132px;
+    padding: var(--sp-4) 2px; min-height: 132px;
   }
+  /* The passage. It starts transparent and fades in once game.js has chosen a
+     size that fits, so the type never visibly reflows on load. `anywhere` is
+     the guarantee that no script — Greenlandic, Thai, Khmer — can push the
+     page sideways. */
   .spec .txt {
     color: var(--ink); text-align: center; max-width: 30em; margin: 0 auto;
     overflow-wrap: anywhere; word-break: normal; hyphens: none;
-    text-shadow: 0 0 26px var(--glow);
+    opacity: 0; transition: opacity var(--slow) var(--ease);
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   }
+  .spec .txt.in { opacity: 1; }
+  /* Once the round is over, the passage is yours to select and look up. */
+  .spec.done .txt { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
   /* traditional Mongolian is written in vertical columns, left to right */
   .spec .txt.vert {
     writing-mode: vertical-lr; text-orientation: mixed;
-    max-width: 100%; max-height: 300px; text-align: start;
+    max-width: 100%; text-align: start;
   }
+
   .spec .foot {
-    border-top: 1px solid #ffffff12; padding-top: 9px; text-align: center;
-    font-size: 9.5px; letter-spacing: 1.4px; color: var(--ink4); line-height: 1.6;
+    border-top: 1px solid var(--hair); padding-top: var(--sp-2); text-align: center;
+    font-size: var(--t-xs); letter-spacing: .1em; color: var(--ink-4); line-height: 1.65;
   }
   .spec .nofont {
-    text-align: center; font-size: 11px; line-height: 1.6; color: var(--gold);
-    margin: 0 auto 10px; max-width: 32em;
+    text-align: center; font-size: var(--t-sm); line-height: 1.65; color: var(--amber);
+    margin: 0 auto var(--sp-2); max-width: 32em;
   }
   .spec .nofont:empty { display: none; }
-  /* the after-the-round caption, so the page itself tells you the answer */
-  .spec .said { animation: fade .22s ease; border-top: 1px solid #ffffff12; margin-top: 10px; padding-top: 10px; }
-  .spec .said .lg { font-size: 15px; letter-spacing: 2px; font-weight: 900; color: var(--accent); text-align: center; }
-  .spec .said .mt { font-size: 10px; letter-spacing: 1.3px; color: var(--ink4); text-align: center; margin-top: 4px; line-height: 1.7; }
-  .spec .said .gl { font-size: 12.5px; line-height: 1.7; color: var(--ink2); text-align: center; margin-top: 9px; font-style: italic; }
+
+  /* the after-the-round caption, so the page itself keeps teaching */
+  .spec .said {
+    animation: fade var(--slow) var(--ease);
+    border-top: 1px solid var(--hair); margin-top: var(--sp-3); padding-top: var(--sp-3);
+  }
+  .spec .said .lg {
+    font-family: var(--display); font-size: var(--t-lg); letter-spacing: .1em;
+    font-weight: 700; color: var(--accent); text-align: center;
+  }
+  .spec .said .mt {
+    font-size: var(--t-xs); letter-spacing: .08em; color: var(--ink-4);
+    text-align: center; margin-top: var(--sp-1); line-height: 1.7;
+  }
+  .spec .said .gl {
+    font-size: var(--t-sm); line-height: 1.7; color: var(--ink-2);
+    text-align: center; margin-top: var(--sp-2); font-style: italic;
+  }
 
   /* ── hint ladder ───────────────────────────────────────────────────────── */
-  .ladder { max-width: 480px; margin: 12px auto 0; display: grid; gap: 6px; }
+  .ladder { max-width: 480px; margin: var(--sp-3) auto 0; display: grid; gap: var(--sp-1); }
   .rung {
-    display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
-    min-height: 46px; padding: 8px 11px; border: 1px solid var(--line);
-    border-radius: 12px; background: #ffffff05; color: var(--ink2);
-    font-family: inherit; font-size: 13px; cursor: pointer;
-    transition: border-color .2s, background .2s, opacity .2s;
+    display: flex; align-items: center; gap: var(--sp-2); width: 100%; text-align: left;
+    min-height: 46px; padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--hair); border-radius: var(--r-md);
+    background: var(--s1); color: var(--ink-2);
+    font-family: inherit; font-size: var(--t-sm); cursor: pointer;
+    transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease),
+                opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
   }
   .rung .n {
-    flex: 0 0 auto; width: 21px; height: 21px; border-radius: 999px;
-    border: 1px solid var(--line2); display: grid; place-items: center;
-    font-size: 10px; font-weight: 800; color: var(--ink3);
+    flex: 0 0 auto; width: 21px; height: 21px; border-radius: var(--r-full);
+    border: 1px solid var(--hair-2); display: grid; place-items: center;
+    font-size: var(--t-xs); font-weight: 650; color: var(--ink-3);
   }
-  .rung .lb { flex: 1 1 auto; font-size: 10.5px; letter-spacing: 1.5px; color: var(--ink3); }
-  .rung .cost { flex: 0 0 auto; font-size: 10px; letter-spacing: 1.2px; color: var(--gold); }
-  .rung:not([disabled]):hover, .rung:not([disabled]):focus-visible { border-color: var(--gold); background: #ffffff0c; }
+  .rung .lb {
+    flex: 1 1 auto; min-width: 0; font-size: var(--t-xs); letter-spacing: .16em;
+    color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rung .cost {
+    flex: 0 0 auto; font-size: var(--t-xs); letter-spacing: .1em; color: var(--amber);
+  }
+  .rung .cost.mute { color: var(--ink-4); }
+  .rung:not([disabled]):hover, .rung:not([disabled]):focus-visible {
+    border-color: var(--amber); background: var(--s3);
+  }
   .rung:not([disabled]):active { transform: translateY(1px); }
-  .rung[disabled] { cursor: default; opacity: .5; }
-  .rung.done {
-    display: block; opacity: 1; border-color: var(--gold);
-    background: #ffffff0a; cursor: default;
+  .rung[disabled] { cursor: default; opacity: .55; }
+  .rung.done { display: block; opacity: 1; border-color: var(--amber); background: var(--s2); }
+  .rung.done .hd { display: flex; align-items: center; gap: var(--sp-2); }
+  .rung.done .n { border-color: var(--amber); color: var(--amber); }
+  .rung.done .hx {
+    font-size: var(--t-sm); line-height: 1.7; color: var(--amber);
+    margin-top: var(--sp-2); animation: fade var(--slow) var(--ease);
   }
-  .rung.done .hd { display: flex; align-items: center; gap: 9px; }
-  .rung.done .n { border-color: var(--gold); color: var(--gold); }
-  .rung.done .hx { font-size: 12.5px; line-height: 1.75; color: var(--gold); margin-top: 7px; animation: fade .22s ease; }
 
   /* ── guess rows — same markup and metrics as FLAGLE, on purpose ─────────── */
-  .guesses { max-width: 480px; margin: 14px auto 0; }
+  .guesses { max-width: 480px; margin: var(--sp-4) auto 0; }
   .gr {
-    display: flex; align-items: center; gap: 8px; padding: 8px 11px; margin-bottom: 6px;
-    border: 1px solid var(--line); border-radius: 10px; background: #ffffff07;
-    font-size: 13px; animation: fade .2s ease;
+    display: flex; align-items: center; gap: var(--sp-2);
+    padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-1);
+    border: 1px solid var(--hair); border-radius: var(--r-md);
+    background: var(--s1); font-size: var(--t-sm);
+    animation: fade var(--fast) var(--ease);
   }
   .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
-  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .gr .km { color: var(--ink3); font-size: 11.5px; }
-  .gr .ar { font-size: 15px; }
-  .gr .pc { width: 42px; text-align: right; font-weight: 800; }
-  /* the one literal here is deliberate: byte-identical to FLAGLE's win row */
-  .gr.win { border-color: var(--ok); background: rgba(61, 224, 138, .1); }
+  /* min-width:0 is what stops "Central African Republic" from refusing to shrink
+     and squeezing the distance column onto a second line. */
+  .gr .nm { flex: 1 1 auto; min-width: 0; letter-spacing: .04em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gr .km { flex: 0 0 auto; white-space: nowrap; color: var(--ink-3);
+            font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  .gr .ar { flex: 0 0 auto; font-size: var(--t-md); line-height: 1; }
+  .gr .pc { flex: 0 0 auto; width: 42px; text-align: right; font-weight: 650;
+            font-variant-numeric: tabular-nums; }
+  .gr.win { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
   .gr.win .pc { color: var(--ok); }
+  .gr.win .ar { color: var(--ok); font-weight: 650; }
 
   /* ── the reveal panel inside the result sheet ───────────────────────────── */
-  .rv-lang { font-size: 19px; letter-spacing: 2.5px; font-weight: 900; text-align: center; color: #fff; margin-top: 4px; }
-  .rv-meta { font-size: 10.5px; letter-spacing: 1.3px; color: var(--ink3); text-align: center; margin-top: 6px; line-height: 1.8; }
-  .rv-gloss { font-size: 12.5px; line-height: 1.75; color: var(--ink2); text-align: center; margin-top: 10px; font-style: italic; }
-  .rv-where { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 11px; }
-  .rv-where span {
-    display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px;
-    letter-spacing: .8px; border: 1px solid var(--line); border-radius: 999px;
-    padding: 4px 9px; color: var(--ink2); background: #ffffff08;
+  .rv-lang {
+    font-family: var(--display); font-size: var(--t-xl); letter-spacing: .08em;
+    font-weight: 700; text-align: center; color: var(--ink); margin-top: var(--sp-1);
   }
-  .rv-where span.hit { border-color: var(--ok); color: #fff; }
+  .rv-meta {
+    font-size: var(--t-xs); letter-spacing: .08em; color: var(--ink-3);
+    text-align: center; margin-top: var(--sp-1); line-height: 1.8;
+  }
+  .rv-gloss {
+    font-size: var(--t-sm); line-height: 1.7; color: var(--ink-2);
+    text-align: center; margin-top: var(--sp-2); font-style: italic;
+  }
+  .rv-where {
+    display: flex; flex-wrap: wrap; gap: var(--sp-1); justify-content: center;
+    margin-top: var(--sp-3);
+  }
+  .rv-where span {
+    display: inline-flex; align-items: center; gap: 5px; font-size: var(--t-xs);
+    letter-spacing: .04em; border: 1px solid var(--hair); border-radius: var(--r-full);
+    padding: 4px 9px; color: var(--ink-2); background: var(--s1);
+  }
+  .rv-where span.hit { border-color: var(--ok); color: var(--ink); }
   .rv-where img { width: 18px; height: 12px; object-fit: cover; border-radius: 2px; }
-  .rv-src { font-size: 9.5px; line-height: 1.7; color: var(--ink4); text-align: center; margin-top: 12px; }
-  .rv-src a { color: var(--ink3); }
+  .rv-src {
+    font-size: var(--t-xs); line-height: 1.7; color: var(--ink-4);
+    text-align: center; margin-top: var(--sp-3);
+  }
+  .rv-src a { color: var(--ink-3); }
+
+  @media (max-width: 380px) {
+    .spec { padding: var(--sp-3); }
+    .spec .plate { letter-spacing: .06em; }
+  }
 </style>
 </head>
 <body>
