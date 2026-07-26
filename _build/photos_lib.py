@@ -116,9 +116,19 @@ if os.path.exists(_HEAD_CACHE_PATH):
 
 
 def save_head_cache():
-    tmp = _HEAD_CACHE_PATH + ".tmp"
+    """Merge-then-write, so two concurrent harvests don't clobber each other."""
+    merged = {}
+    if os.path.exists(_HEAD_CACHE_PATH):
+        try:
+            with open(_HEAD_CACHE_PATH, "r", encoding="utf-8") as fh:
+                merged = json.load(fh)
+        except Exception:
+            merged = {}
+    merged.update(_head_cache)
+    _head_cache.update(merged)
+    tmp = _HEAD_CACHE_PATH + ".%d.tmp" % os.getpid()
     with open(tmp, "w", encoding="utf-8") as fh:
-        json.dump(_head_cache, fh)
+        json.dump(merged, fh)
     os.replace(tmp, _HEAD_CACHE_PATH)
 
 
@@ -423,6 +433,12 @@ def has_burned_place(title, place):
 def title_of(page):
     t = page.get("title", "")
     return re.sub(r"^File:", "", t)
+
+
+def page_url(title):
+    """Canonical Commons file-page URL (the games render this as a credit link)."""
+    return ("https://commons.wikimedia.org/wiki/" +
+            urllib.parse.quote("File:" + title.replace(" ", "_"), safe=":/"))
 
 
 def slug(s, n=40):

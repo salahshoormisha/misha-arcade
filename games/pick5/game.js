@@ -501,42 +501,42 @@
     var extra = "";
 
     var w = whyLine();
-    if (w) extra += '<p class="tiny" style="color:var(--gold);line-height:1.7;margin:10px 0 0;text-align:center">' +
-      w + "</p>";
+    if (w) extra += '<p class="tiny" style="color:var(--amber);line-height:1.7;' +
+      'margin:var(--sp-3) 0 0;text-align:center">' + w + "</p>";
 
     extra += '<p class="p5head">THE REAL TOP FIVE · ' + A.esc(prod.name.toUpperCase()) + "</p>";
-    extra += '<table class="p5tab"><tr><th></th><th>country</th><th style="text-align:right">exports</th>' +
-      '<th style="text-align:right">share</th></tr>';
+    extra += '<div class="p5wrap"><table class="p5tab"><tr><th></th><th>country</th>' +
+      '<th style="text-align:right">exports</th><th style="text-align:right">share</th></tr>';
     prod.top.forEach(function (tp, k) {
       var got = picks.indexOf(tp[0]) >= 0;
-      extra += '<tr class="' + (got ? "got" : "") + '"><td class="r">' + (k + 1) + "</td><td>" +
+      extra += '<tr class="' + (got ? "got" : "") + '"><td class="r">' + (k + 1) + '</td><td class="c">' +
         flagImg(tp[0]) + A.esc(cname(tp[0])) + (got ? " ✓" : "") + '</td><td class="n">' + usd(tp[1]) +
         '</td><td class="n">' + pc(100 * tp[1] / T5SUM, 1) + "</td></tr>";
     });
-    extra += "</table>";
+    extra += "</table></div>";
 
     extra += '<p class="p5head">YOUR FIVE</p>';
-    extra += '<table class="p5tab"><tr><th></th><th>country</th><th style="text-align:right">exports</th>' +
-      '<th style="text-align:right">scored</th></tr>';
+    extra += '<div class="p5wrap"><table class="p5tab"><tr><th></th><th>country</th>' +
+      '<th style="text-align:right">exports</th><th style="text-align:right">scored</th></tr>';
     picks.forEach(function (iso, k) {
       var r = byIso[iso];
-      extra += '<tr class="' + (r && r.rank <= 5 ? "got" : "") + '"><td class="r">' + (k + 1) + "</td><td>" +
+      extra += '<tr class="' + (r && r.rank <= 5 ? "got" : "") + '"><td class="r">' + (k + 1) + '</td><td class="c">' +
         flagImg(iso) + A.esc(cname(iso)) +
         ' <span class="dim">' + (r ? "#" + r.rank : "unranked") + "</span></td>" +
         '<td class="n">' + (r ? usd(r.v) : "—") + '</td><td class="n">' +
         (r ? pc(100 * r.v / T5SUM, 1) : "0.0%") + "</td></tr>";
     });
-    extra += "</table>";
+    extra += "</table></div>";
 
-    extra += '<p class="tiny dim" style="margin-top:9px;line-height:1.6">' +
+    extra += '<p class="tiny dim" style="margin-top:var(--sp-2);line-height:1.6">' +
       prod.n + " countries exported " + A.esc(prod.name.toLowerCase()) + " in " + YEAR +
       ". Ranks 1–5 here are exact; this build ranks <b>" + table.length +
       "</b> of them, and anything below that scores zero — it is outside our table, " +
       "not necessarily outside the trade.</p>";
 
     var stamped = picks.filter(function (i) { return byIso[i] && byIso[i].rank <= 5; });
-    if (stamped.length) extra += '<p class="center tiny" style="color:var(--mint);margin-top:8px">🛂 ' +
-      stamped.map(function (i) { return A.esc(cname(i)); }).join(", ") +
+    if (stamped.length) extra += '<p class="center tiny" style="color:var(--green);' +
+      'margin-top:var(--sp-2)">' + stamped.map(function (i) { return A.esc(cname(i)); }).join(", ") +
       " stamped in your passport</p>";
 
     A.results(ID, practice ? A.PRACTICE : day, {
