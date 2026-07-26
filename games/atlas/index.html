@@ -16,14 +16,21 @@
     letter-spacing: .04em; color: var(--ink); margin-top: var(--sp-2); line-height: 1.25;
     text-wrap: balance;
   }
-  #qflag { width: min(240px, 62vw); border-radius: var(--r-sm); display: block;
+  /* The box is FIXED and the flag is letterboxed inside it. Shipped flags run
+     from Nepal at 0.82:1 to Qatar at 4.17:1, so sizing by width alone made the
+     picture 293px tall on one question and 58px on the next — which slid the
+     answer buttons out from under a finger already on its way down. */
+  #qflag { width: min(240px, 62vw); height: min(150px, 39vw); object-fit: contain;
+           border-radius: var(--r-sm); display: block;
            margin: var(--sp-3) auto 0; box-shadow: var(--sh-2); background: var(--s1); }
   #qshape { width: min(210px, 54vw); height: min(210px, 54vw); display: block;
             margin: var(--sp-2) auto 0; }
   /* only rendered if the flag SVG fails to load — never a broken-image icon */
-  .qflag-miss { max-width: min(240px, 62vw); margin: var(--sp-3) auto 0;
-                padding: var(--sp-5) var(--sp-4); border: 1px dashed var(--hair-2);
-                border-radius: var(--r-md); background: var(--s1);
+  .qflag-miss { width: min(240px, 62vw); height: min(150px, 39vw);
+                margin: var(--sp-3) auto 0; padding: var(--sp-4);
+                display: grid; place-items: center;
+                border: 1px dashed var(--hair-2);
+                border-radius: var(--r-sm); background: var(--s1);
                 font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase;
                 color: var(--ink-4); text-align: center; }
 
