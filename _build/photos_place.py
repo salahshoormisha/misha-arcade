@@ -482,13 +482,7 @@ def harvest():
         cn = (iso.get(iso2) or {}).get("n") or iso2
         place = "%s, %s" % (label, cn) if not label.endswith(cn) else label
 
-        d = L.api({"action": "query", "generator": "geosearch",
-                   "ggscoord": "%s|%s" % (lat0, lon0), "ggsradius": "10000",
-                   "ggslimit": "100", "ggsnamespace": "6",
-                   "prop": "imageinfo|coordinates|categories",
-                   "iiprop": "url|extmetadata|size", "iiurlwidth": "1000",
-                   "cllimit": "max", "clshow": "!hidden"}, prefix="geo")
-        pages = (d.get("query") or {}).get("pages") or []
+        pages = L.geo_files(lat0, lon0, radius=10000, limit=250)
         picked = 0
         want = 3 if tag == "o" else 2
         scored = []

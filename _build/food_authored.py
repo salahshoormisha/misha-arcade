@@ -1273,7 +1273,7 @@ DISHES = [
           "with egg yolk and soured cream, served with crushed garlic and hot peppers.",
           "The classic morning-after soup, ordered at dawn; the sour agent is bors, a "
           "fermented bran liquid kept going in a jar.",
-          wiki="Ciorbă de burtă"),
+          commons="File:Ciorba de burta 2.jpg"),
         d("Papanași",
           "Fried rings of sweet curd-cheese dough with a small dough ball perched on "
           "top, buried under soured cream and sour cherry jam.",
@@ -1286,7 +1286,7 @@ DISHES = [
           "cornmeal porridge.",
           "The Christmas and wedding dish; the cabbage is whole heads soured in brine "
           "in autumn, and the pot is supposed to be reheated at least twice.",
-          wiki="Sarmale"),
+          commons="File:Sarmale with mamaligă.jpg"),
         d("Mămăligă",
           "A stiff cornmeal porridge boiled thick, turned out as a loaf and cut with a "
           "thread, eaten with soured cream and salty sheep's cheese.",
@@ -1314,7 +1314,7 @@ DISHES = [
           "dill, crushed walnuts and oil, served with ice in it.",
           "Summer food, drunk as much as eaten; the yoghurt's bacterium was first "
           "isolated here in 1905 and named after the country.",
-          wiki="Tarator"),
+          commons="File:Tarator (Bulgarian cold soup).jpg"),
         d("Banitsa",
           "Sheets of thin pastry layered with crumbled brined white cheese beaten into "
           "egg and yoghurt, coiled into a spiral and baked.",
@@ -1364,7 +1364,7 @@ DISHES = [
           "soured cream, then either boiled or baked in more cream.",
           "From the Zagorje hills north of Zagreb, protected as intangible heritage, "
           "and served as a starter, a main or a dessert.",
-          wiki="Štrukli"),
+          wiki="Štrukli", wikias="Zagorski štrukli"),
         d("Pašticada",
           "Beef larded with bacon, marinated for a day in vinegar and wine, then braised "
           "for hours with prunes and dried figs and served with gnocchi.",
@@ -1376,7 +1376,7 @@ DISHES = [
           "parsley and a little red wine.",
           "An Adriatic coastal dish; the ink sac is squeezed in at the end, and it "
           "stains everyone's teeth at the table.",
-          wiki="Black risotto"),
+          commons="File:Black Risotto.jpg"),
         d("Peka",
           "Meat and potatoes cooked under a bell-shaped iron lid heaped with embers, so "
           "the heat comes from above and below at once.",
@@ -1392,19 +1392,19 @@ DISHES = [
           "barely spiced beyond pepper.",
           "The 'bey's soup', from the Ottoman gentry of Sarajevo -- rich, white and "
           "deliberately unspiced to show off the meat.",
-          wiki="Begova čorba"),
+          wiki="Begova čorba", wikias="Bey's soup"),
         d("Bosanski lonac",
           "Layers of meat and whole vegetables stacked upright in a tall earthenware pot "
           "with a little water and cooked for hours without ever being stirred.",
           "The pot's shape does the work; stirring it is considered to ruin it, and it "
           "was traditionally left at the baker's oven all day.",
-          wiki="Bosanski lonac"),
+          wiki="Bosanski lonac", wikias="Bosnian pot"),
         d("Burek",
           "A rope of hand-stretched pastry filled with minced beef and onion, coiled "
           "into a spiral and baked under a metal lid covered in embers.",
           "Here the word means the meat one specifically; with cheese, spinach or "
           "potato it gets a different name entirely.",
-          wiki="Burek"),
+          mdb="Burek"),
         d("Ćevapi",
           "Small skinless fingers of minced beef and lamb grilled over charcoal and "
           "served ten at a time in a soft flatbread with raw onion and soured cream.",
@@ -1420,7 +1420,7 @@ DISHES = [
           "curd cheese, then baked in an earthenware dish until it sets.",
           "A Tirana dish, sometimes made with liver instead of peppers, and served "
           "bubbling in the small clay dish it baked in.",
-          wiki="Fërgesë"),
+          commons="File:Fërgesë me speca dhe gjizë.jpg"),
         d("Tavë kosi",
           "Lamb and rice baked under a thick custard of yoghurt and egg until the top "
           "sets and browns.",
@@ -1432,13 +1432,13 @@ DISHES = [
           "meat, baked in a round tray and cut into wedges.",
           "Sold by the slice from bakeries all day; the dough is stretched over the "
           "backs of the hands until it is translucent.",
-          wiki="Byrek"),
+          commons="File:Byrek me spinaq.jpg"),
         d("Petulla",
           "Small pieces of yeasted dough fried until they puff, eaten hot with jam, "
           "honey or salty white cheese.",
           "Breakfast and street food, and traditionally the first thing cooked in a "
           "new house to bring luck.",
-          wiki="Petulla"),
+          commons="File:Petulla dhe reçel.jpg"),
     ]),
 
     # ══ UKRAINE ═══════════════════════════════════════════════════════════
@@ -1454,7 +1454,7 @@ DISHES = [
           "edges go lacy and crisp, served with soured cream.",
           "Everyday food across the north, with a whole festival devoted to them in "
           "Korosten every autumn.",
-          wiki="Deruny"),
+          commons="File:Deruny.jpg"),
         d("Varenyky",
           "Boiled dumplings of thin dough filled with potato, curd cheese, cabbage or "
           "sour cherries, served with fried onion or soured cream.",
@@ -1505,13 +1505,13 @@ DISHES = [
           "sometimes finished with cream.",
           "The Christmas Eve soup, made from sauerkraut soured at home and eaten before "
           "the fish course.",
-          wiki="Kapustnica"),
+          commons="File:Kapustnica slovakia.jpg"),
         d("Lokše",
           "Thin flatbreads of mashed potato and flour cooked dry on a griddle, then "
           "brushed with goose fat or spread with ground poppy seed.",
           "Autumn goose-feast food from the west; the potato dough makes them soft and "
           "pliable rather than crisp.",
-          wiki="Lokše"),
+          wiki="Lokše", wikias="Lokša"),
         d("Bryndzové halušky",
           "Small soft dumplings of grated potato dough boiled and stirred through a "
           "sharp, salty sheep's-milk cheese, then buried under fried bacon.",
@@ -1573,7 +1573,7 @@ DISHES = [
           "fillets, boiled egg and spring onion.",
           "The sprats come from the Baltic and are cured in a spiced brine; the "
           "sandwich is the standard party snack.",
-          wiki="Kiluvõileib"),
+          commons="File:Kiluvõileib.IMG 4378.JPG"),
     ]),
 
     # ══ LATVIA ════════════════════════════════════════════════════════════
@@ -1589,13 +1589,13 @@ DISHES = [
           "onion, with soured milk to drink.",
           "The winter solstice and Christmas dish; every pea on the plate is supposed "
           "to be eaten or you carry the tears into the new year.",
-          wiki="Grey peas with bacon"),
+          commons="File:Grey peas at restaurant Milda in Riga.jpg"),
         d("Rupjmaizes kārtojums",
           "Grated dark sour rye bread crumbs toasted with sugar and layered in a glass "
           "with whipped cream and cranberry or lingonberry jam.",
           "A dessert built entirely around the country's dense sour rye bread, which is "
           "treated with something close to reverence.",
-          wiki="Rupjmaizes kārtojums"),
+          wiki="Rupjmaizes kārtojums", wikias="Layered rye bread"),
     ]),
 
     # ══ LITHUANIA ═════════════════════════════════════════════════════════
@@ -1623,7 +1623,7 @@ DISHES = [
           "cucumber, dill and boiled egg, served with hot boiled potatoes on the side.",
           "Summer food; the colour is entirely natural, and the hot potatoes served "
           "beside the cold soup are compulsory.",
-          wiki="Šaltibarščiai"),
+          wiki="Šaltibarščiai", wikias="Cold beet soup"),
     ]),
 
     # ══ BELARUS ═══════════════════════════════════════════════════════════
@@ -1632,19 +1632,19 @@ DISHES = [
           "A thick gravy of pork ribs, sausage and onion loosened with soured cream, "
           "served in a bowl for dipping thick pancakes into.",
           "The name comes from the verb 'to dunk' -- the pancakes are the cutlery.",
-          wiki="Machanka"),
+          commons="File:Machanka.jpg"),
         d("Draniki",
           "Pancakes of finely grated raw potato fried in oil until crisp at the edges "
           "and served with soured cream.",
           "Potatoes arrived in the 18th century and took over completely; there are "
           "hundreds of potato dishes and this is the emblem.",
-          wiki="Draniki"),
+          commons="File:Dranik-Biełaruś.jpg"),
         d("Babka",
           "A grated-potato pudding baked slowly with bacon, onion and egg until it sets "
           "under a dark crust.",
           "Baked in a heavy dish in a wood oven; the crust is the point, and it is cut "
           "in wedges like a cake.",
-          wiki="Babka (food)"),
+          commons="File:Babka Potato Dish-1.jpg"),
     ]),
 
     # ══ MALTA ═════════════════════════════════════════════════════════════
@@ -1655,7 +1655,7 @@ DISHES = [
           "Eaten as a communal two-course meal -- the pasta is dressed with the "
           "cooking juices first, the rabbit follows -- and it doubled as a symbol of "
           "defiance against a hunting ban imposed by the Knights.",
-          wiki="Stuffat tal-fenek"),
+          commons="File:The national dish of Malta – Stuffat tal-Fenek (rabbit stew).jpg"),
         d("Ftira",
           "A flat ring of sourdough bread split and packed with tuna, capers, olives, "
           "tomato paste, butter beans and oil.",

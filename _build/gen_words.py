@@ -433,6 +433,7 @@ PERSIAN_ADD = [
     ('ARSENIC', u'zarnīk (Middle Persian), yellow orpiment, from zar, gold'),
 ]
 PERSIAN_REGLOSS = {
+    'SATRAP': u'xšaçapāvan (Old Persian), "protector of the province"',
     'CANDY': u'qand, cane sugar — Persian into Arabic qandī, then French',
     'SUGAR': u'shakar, sugar — Persian into Arabic sukkar, then Old French',
     'ORANGE': u'nārang, orange — Persian into Arabic nāranj, then Old French',
@@ -643,6 +644,10 @@ BOXED = build_boxed()
 #    same recipe.  Nothing enters that is not a lowercase web2 headword or a
 #    regular inflection of one, so proper nouns cannot leak in.
 CROSS_LONG_RANK = 12000        # 6/7-letter fill comes from the top 12k words only
+# xw_words.BLOCK bans these as abbreviations (VAT the tax, RAM the memory, NET
+# the protocol).  As words they are prime Mini fill -- a vat of dye, a ram, an
+# ion, a gnu, a fishing net -- so they are put back.
+CROSS_RECLAIM = set('ion gnu net ram vat'.split())
 
 
 def good3():
@@ -683,7 +688,8 @@ def build_cross():
     for L in cross:
         cross[L] = set(w for w in cross[L]
                        if not hard_blocked(w) and w not in SOFT
-                       and w not in JUNK and w not in JUNK_CROSS_ONLY
+                       and w not in JUNK
+                       and (w not in JUNK_CROSS_ONLY or w in CROSS_RECLAIM)
                        and not is_name(w) and w not in PROPER
                        and sane(w) and len(w) == L)
     return {L: sorted(v) for L, v in cross.items()}

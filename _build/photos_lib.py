@@ -416,6 +416,84 @@ def haversine(a, b):
 
 # ───────────────────────────── file writing ───────────────────────────────
 
+def hydrate(titles, chunk=25, prefix="hyd"):
+    """Fetch imageinfo(+extmetadata) + full category list for File: titles.
+
+    `prop=imageinfo` with extmetadata is an expensive prop: MediaWiki silently
+    drops it for most pages if you ask for 100 at a time behind a generator.
+    So hydrate in small explicit batches instead.
+    """
+    got = {}
+    titles = list(dict.fromkeys(titles))
+    for i in range(0, len(titles), chunk):
+        part = titles[i:i + chunk]
+        d = api({"action": "query", "titles": "|".join(part),
+                 "prop": "imageinfo|categories|coordinates",
+                 "iiprop": "url|extmetadata|size", "iiurlwidth": "1000",
+                 "cllimit": "max", "clshow": "!hidden", "colimit": "max"},
+                prefix=prefix)
+        for p in (d.get("query") or {}).get("pages") or []:
+            got[p.get("title")] = p
+    return got
+
+
+def geo_files(lat, lon, radius=10000, limit=250):
+    """Commons files within `radius` m of (lat,lon), hydrated with metadata.
+
+    Uses list=geosearch, so every page returned carries its OWN recorded
+    coordinates (camera or object location) — never a derived position.
+    """
+    d = api({"action": "query", "list": "geosearch", "gscoord": "%s|%s" % (lat, lon),
+             "gsradius": str(int(radius)), "gslimit": str(int(limit)),
+             "gsnamespace": "6", "gsprop": "type|name|dim|globe"}, prefix="geolist")
+    rows = (d.get("query") or {}).get("geosearch") or []
+    keep = [r for r in rows if re.search(r"\.(jpe?g|png)$", r.get("title", ""), re.I)]
+    pages = hydrate([r["title"] for r in keep], prefix="geohyd")
+    out = []
+    for r in keep:
+        p = pages.get(r["title"])
+        if not p:
+            continue
+        if not p.get("coordinates"):
+            p["coordinates"] = [{"lat": r.get("lat"), "lon": r.get("lon")}]
+        out.append(p)
+    return out
+
+
+def cat_files(category, limit=200, prefix="cat"):
+    """All File: members of a Commons category, hydrated with metadata."""
+    title = category if category.startswith("Category:") else "Category:" + category
+    titles, cont = [], {}
+    while True:
+        p = {"action": "query", "list": "categorymembers", "cmtitle": title,
+             "cmtype": "file", "cmlimit": "500"}
+        p.update(cont)
+        d = api(p, prefix=prefix + "mem")
+        for m in (d.get("query") or {}).get("categorymembers") or []:
+            if re.search(r"\.(jpe?g|png)$", m.get("title", ""), re.I):
+                titles.append(m["title"])
+        cont = d.get("continue") or {}
+        if not cont or len(titles) >= limit:
+            break
+    titles = titles[:limit]
+    pages = hydrate(titles, prefix=prefix + "hyd")
+    return [pages[t] for t in titles if t in pages]
+
+
+def cat_counts(names, prefix="catinfo"):
+    """{category title: file count} for categories that exist. Batches of 50."""
+    out = {}
+    names = list(dict.fromkeys(names))
+    for i in range(0, len(names), 50):
+        d = api({"action": "query", "titles": "|".join(names[i:i + 50]),
+                 "prop": "categoryinfo"}, prefix=prefix)
+        for p in (d.get("query") or {}).get("pages") or []:
+            ci = p.get("categoryinfo") or {}
+            if ci.get("files"):
+                out[p["title"]] = ci["files"]
+    return out
+
+
 def write_json(path, obj):
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as fh:
