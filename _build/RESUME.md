@@ -1,144 +1,180 @@
 # DAILY WING — RESUME SHEET
 
 If a session ended mid-build (usage limit, crash, closed laptop), start here.
-Everything needed to continue is on disk and in git. Nothing lives only in a
-model's head.
+Everything needed to continue is on disk and in git.
 
-**Last updated:** 2026-07-25, during the initial build.
+**Last updated:** 2026-07-26.
 
 ---
 
 ## 1. What this is
 
-A new wing of ~20 daily puzzle games being added to Misha's Midnight Arcade,
-alongside the four existing cabinets. Misha and David play NYT/OEC/geo daily
-games together; this rebuilds their whole lineup with an archive, practice
-modes, a shared daily card, a serverless head-to-head league, and a
-cross-game country passport.
+A wing of ~21 daily puzzle games added to Misha's Midnight Arcade, alongside the
+three original cabinets. Misha and David play NYT/OEC/geo daily games together
+every morning; this rebuilds their whole line-up with archives, practice modes,
+a shared daily card, a serverless head-to-head league, a co-op records board and
+a cross-game country passport.
 
-Binding spec: **`_build/CONTRACT.md`** — read it first, it is the interface
-between the shared core and every game.
-Researched mechanics for all 21 source games: **`_build/RESEARCH.md`**
-(339 KB, one section per game: exact rules, scoring formulas, share formats,
-weaknesses, improvement ideas). Machine-readable: `_build/RESEARCH.json`.
+- **Binding spec:** `_build/CONTRACT.md`. §2 core API, §3 the 0–100 `norm`,
+  §4 design tokens, §5 registration, §6 data shapes,
+  **§7 PERSONAL FLAVOUR — confirmed by the players, follow exactly.**
+- **Researched mechanics** for all 21 source games: `_build/RESEARCH.md` (339 KB,
+  one section per game — exact rules, scoring formulas, share formats, known
+  weaknesses). Machine-readable: `_build/RESEARCH.json`.
+- **Live:** https://salahshoormisha.github.io/misha-arcade/
 
 ---
 
 ## 2. State of play
 
-### DONE and committed
-| Thing | Path | Notes |
-|---|---|---|
-| Core engine | `core/arcade.js` | daily seeding, stats, streaks, 0-100 norm, share, duel links, passport, backup |
-| UI kit | `core/ui.js` | header, modal, toast, keyboard, result sheet, settings, archive |
-| Design system | `core/style.css` | Y2K neon tokens + `.ac-*` components |
-| Sound | `core/audio.js` | WebAudio only, reuses the arcade's note motifs |
-| Map/globe | `core/worldmap.js` | equirect + orthographic, click-to-guess, silhouettes, heat |
-| Flags | `core/flagart.js` | loads + draws the real SVGs |
-| Registry | `core/registry.js` | the 20-cabinet lineup — **single source of truth for game ids** |
-| Daily Run | `daily/index.html` | verified working in browser |
-| League | `league/index.html` | verified working |
-| Passport | `passport/index.html` | verified working, map renders correctly |
-| WORDISHA | `games/wordish/` | **reference implementation — copy its shape** |
+### Core (all done, all committed)
+| Path | What |
+|---|---|
+| `core/arcade.js` | daily seeding, stats, streaks, the 0–100 norm, `A.par()`, records, share, duel links, passport, backup |
+| `core/ui.js` | header, modals, toasts, keyboard, result sheet, settings, archive |
+| `core/style.css` | **the design system** — rebuilt 2026-07-26, see §4 |
+| `core/picker.js` | the country type-ahead used by 8 cabinets |
+| `core/worldmap.js` | equirect + globe renderer, click-to-guess, silhouettes |
+| `core/flagart.js` | real vector flag loading/drawing |
+| `core/audio.js` | WebAudio SFX, no files |
+| `core/registry.js` | **the cabinet list — single source of truth for ids.** An entry with `soon: true` is not built yet and renders as a dead row |
 
-### Data files
+### Data (`core/data/`)
 | File | Status |
 |---|---|
-| `core/data/countries.js` | ✅ 250 countries, pop/GDP/capital coords/borders/languages |
-| `core/data/world.js` | ✅ 246 countries of Natural Earth geometry; all centroids verified inside their country |
-| `core/data/flags.js` + `flags/*.svg` | ✅ 250 real vector flags |
-| `core/data/words.js` | ⏳ in flight |
-| `core/data/crosswords.js` | ⏳ in flight (mini + midi built separately into `_build/crosswords-*.json`, then merged) |
-| `core/data/connections.js` | ⏳ in flight |
-| `core/data/trade.js` | ⏳ in flight |
-| `core/data/food.js` | ⏳ in flight |
-| `core/data/lingua.js` | ⏳ in flight |
-| `core/data/photos.js` | ⏳ in flight (halves land in `_build/photos-time.json` + `_build/photos-place.json`, then merge) |
-| `core/data/geogrid.js` | ⏳ in flight |
+| `countries.js` | ✅ 250 countries — pop, GDP/capita, capital coords, borders, languages |
+| `world.js` | ✅ Natural Earth geometry for 246; every centroid verified inside its country |
+| `flags.js` + `flags/*.svg` | ✅ 250 real vector flags, with colour + feature index |
+| `words.js` | ✅ 1,318 answers / 11,024 valid / 23,568 Letter-Boxed / 56 Persian etymologies |
+| `crosswords.js` | ✅ mini + midi grids with hand-written clues |
+| `connections.js` | ✅ packs (see §5 — packs were corrected after the players' feedback) |
+| `trade.js` | ✅ export composition + per-product top exporters + RCA |
+| `food.js` | ✅ 50 cuisines, 238 dishes, 236 with verified photo URLs |
+| `lingua.js` | ✅ 50+ languages, real sourced text, script-tell hints |
+| `trivia.js` | ✅ question bank for THE DECIDER |
+| `photos.js` | ⏳ Wikimedia harvest for TIMEGUESSR / PLACEGUESSR |
+| `geogrid.js` | ⏳ criteria + pairs matrix + obviousness prior |
 
-### Games still to build
-Everything in `core/registry.js` except `wordish`. See §4.
-
----
-
-## 3. How to resume the data build
-
-**The durable artifact is `_build/*.py`** — every dataset was built by a
-re-runnable, deterministic Python script (stdlib only, no pip). If a data file
-is missing, run its script rather than regenerating data by hand:
+### Cabinets
+Check reality, not this table: a cabinet is built when
+`games/<id>/index.html` > 300 bytes **and** `games/<id>/game.js` > 3 KB.
 
 ```bash
-cd /Users/mishasalahshoor/cbai-ops/misha-arcade && python3 _build/<script>.py
+cd /Users/mishasalahshoor/cbai-ops/misha-arcade
+for g in games/*/; do n=$(basename $g); \
+  h=$(stat -f%z $g/index.html 2>/dev/null||echo 0); \
+  j=$(stat -f%z $g/game.js 2>/dev/null||echo 0); \
+  [ "$h" -gt 300 ] && [ "$j" -gt 3000 ] && echo "$n ok" || echo "$n PENDING"; done
 ```
 
-| Script | Produces |
-|---|---|
-| `gen_countries.py` | `core/data/countries.js` |
-| `gen_world.py` | `core/data/world.js` |
-| `gen_flags.py` / `fetch_flags.py` | `core/data/flags.js` + `flags/*.svg` |
-| `words_authored.py`, `xw_words.py` | word lists |
-| `xw_fill.py`, `xw_mini_build.py`, `xw_midi_fill.py` | crossword grids |
+Built: wordish, thirdle, mini, midi, quartets, boxed, tradle, pick5,
+connectrade, flagle, globle, outline, atlas, foodguessr, lingua, decider.
+Pending: geogrid, timeguessr, placeguessr, chrono, cluedrop.
 
-Raw inputs are gitignored (they are large and re-downloadable):
-`_build/countries-110m.json`, `countries-50m.json` (unpkg world-atlas 2.0.2),
-`countries-full.json` (raw.githubusercontent.com/mledoze/countries).
-
-> **Note on workflow resume:** `Workflow({resumeFromRunId})` is **same-session
-> only**. In a fresh session it will not work — re-invoke the script instead:
-> `Workflow({scriptPath: "<path below>"})`, first deleting the JOBS entries whose
-> output files already exist so they don't redo finished work.
->
-> Data workflow script:
-> `~/.claude/projects/-Users-mishasalahshoor-cbai-ops-misha-arcade/94c0cfc1-e07b-4090-a957-ef69abdd367f/workflows/scripts/arcade-data-foundation-wf_5d8835eb-ef8.js`
-> (run id `wf_5d8835eb-ef8`; per-agent transcripts and returned values are in
-> `~/.claude/projects/-Users-mishasalahshoor/94c0cfc1-e07b-4090-a957-ef69abdd367f/subagents/workflows/wf_5d8835eb-ef8/journal.jsonl`)
+**After building a cabinet, remove its `soon: true` from `core/registry.js`.**
 
 ---
 
-## 4. How to build a remaining game
+## 3. How to build a remaining cabinet
 
-1. Read `_build/CONTRACT.md` (§2 core API, §3 the 0-100 `norm`, §4 design
-   tokens, §5 registration, §6 the data shape you consume).
-2. Read your game's section in `_build/RESEARCH.md` for exact rules/scoring.
-3. Copy the structure of `games/wordish/game.js` — it is commented as the
-   reference implementation.
-4. Files go in `games/<id>/index.html` + `game.js`, where `<id>` matches
-   `core/registry.js` exactly.
-5. Expose a debug hook (`window.__XX`) so the game can be driven headlessly
-   from the browser tools, like `__WD` in wordish and `__MM`/`__TT` in the
-   older cabinets.
-6. Verify in the browser before claiming done (see §5).
+1. Read `_build/CONTRACT.md` (all of it).
+2. Read your game's section in `_build/RESEARCH.md`.
+3. Copy the shape of `games/wordish/game.js` — it is commented as the reference
+   implementation. `games/flagle/game.js` shows `A.picker` + passport stamps;
+   `games/foodguessr/game.js` shows a multi-round game; `games/mini/game.js`
+   shows a complex custom grid with its own keyboard behaviour.
+4. Files at `games/<id>/index.html` + `game.js`, `<id>` matching the registry.
+5. Expose `window.__XX` debug hooks so it can be driven headlessly.
+6. Verify in the browser before claiming done, at 1280px **and** 375px.
 
----
-
-## 5. Local testing
-
-A static server is already running on **http://localhost:4173** serving the
-repo root (`python3 -m http.server 4173`). Launch config `misha-arcade` in
-`~/.claude/launch.json` does the same.
-
-Key pages: `/daily/`, `/league/`, `/passport/`, `/games/wordish/`.
-Useful query params every game supports: `?d=<n>` (archive day), `?practice=1`.
-
-Two traps already hit and fixed — don't reintroduce them:
-- **Never reveal a modal inside `requestAnimationFrame`.** rAF is paused in a
-  backgrounded tab, so the result sheet silently never appears.
-- **Fill map countries as separate paths.** One combined path is evaluated
-  under a single nonzero winding rule and floods the canvas.
-- Bump `?v=N` on script tags after editing a core file, or the browser serves
-  the old one (see the repo's `CLAUDE.md`).
+### Traps this build actually hit — do not reintroduce
+- **`var` initialisers do not hoist.** A function that runs at boot and reads a
+  `var` declared further down the file gets `undefined`. Cost us two cabinets.
+- **Never reveal UI inside `requestAnimationFrame`** — rAF is paused in a
+  background tab, so the result sheet silently never appears.
+- **Fill map countries as separate paths.** One combined path is evaluated under
+  a single nonzero winding rule and floods the canvas.
+- **Bump `?v=N`** on script tags after editing a core file, or the browser
+  serves the old one and your change appears to do nothing.
+- `A.geo` and `A.normName` live in `arcade.js`; `A.picker` in `picker.js`;
+  `A.map`/`A.silhouette` in `worldmap.js`.
+- The browser pane has a **tab cap**. If several agents drive it at once they
+  fight over the active tab. Give browser QA to one agent at a time.
 
 ---
 
-## 6. Repo rules that bite
+## 4. The design system (rebuilt 2026-07-26)
 
-`CLAUDE.md` at the repo root is binding. The important ones:
+The player's verdict on the first version: *"too visually vibecoded"*, *"too many
+visual bugs"*, and that this made her *"doubt the smoothness and flawlessness of
+the gameplay — which is essential"*. So `core/style.css` was rewritten:
 
-- **Several Claude sessions work in this repo at once.** Never `git add -A`,
-  never `git add .`, never `git commit -a`, never force-push. Name your paths.
-  (This build already swept up another session's MISHANAMEH work once and had
-  to rewrite the commit.)
-- Deploy with `./deploy.sh "message" path/ path/` — it rebases, retries a
-  racing push, waits for Pages, and clears a jammed deployment.
-- A background checkpoint loop may be committing `core/data/` every ~100 s
-  while a build is running. Check for it before assuming a commit is yours.
+- One accent per screen. No glowing text, no gradient headlines, no starfield,
+  no emoji as UI chrome. Depth from layered surfaces + hairlines + soft shadows.
+- Type does the work: tight heavy sans for display, tracked small caps for
+  labels, mono **only** where functional (grid letters, timers, scores).
+- A 4px spacing scale, a fixed type scale, one easing curve, tabular numerals.
+- **Every old CSS variable is aliased**, so cabinets written against the old
+  names still work. Use `var(--ink)`, `var(--s1)`, `var(--hair)`, `var(--sp-3)`,
+  `var(--t-sm)`, `var(--r-md)`, `var(--ease)` — never a literal hex outside
+  canvas drawing code.
+- The sticky header's backdrop is a full-bleed pseudo-element; do not put the
+  background back on `.ac-header` itself or it clips to 880px.
+
+---
+
+## 5. Content decisions the players confirmed
+
+- **Difficulty:** between "solid daily players" and "genuinely strong". A good
+  day should score ≈70–75, an excellent one ≈90. Do not patronise them; do not
+  make 100 routine.
+- **QUARTETS packs:** `general`, `persia` (Persian culture broadly — **light on
+  Shāhnāmeh**, they don't know that lore and it has its own cabinet), `united`
+  (grown to ~20 boards; FOURMATIONS is retired and its football folds in here,
+  minus the boards they found too niche or too obviously four-of-a-kind),
+  `places` (**Cambridge/Boston, London, Edinburgh, Houston** — their four
+  cities), `ai` (AI safety/governance/policy), `jewish` (Jewish culture &
+  Israel). **No office/CBAI pack — they declined it.** Never name real colleagues.
+- **FOURMATIONS is retired** and removed from the hub.
+- They play the dailies **together as a team** far more than against each other,
+  but they are competitive and like knowing how a score compares. Hence both
+  `league/` sections: THE SEASON (head-to-head) and THE TEAM (co-op records,
+  week-on-week form, per-game personal bests) — plus `A.par()` on every result
+  sheet, which is honest that it is a computed prior, not a crowd.
+- **THE DECIDER** exists because they asked for a 1v1 general-knowledge game.
+
+---
+
+## 6. Local testing & deploy
+
+A static server runs at **http://localhost:4173** (launch config `misha-arcade`).
+Key pages: `/`, `/daily/`, `/league/`, `/passport/`, `/games/<id>/`.
+Every cabinet supports `?d=<n>` (archive) and `?practice=1`.
+
+Deploy with the script — never by hand:
+
+```bash
+./deploy.sh "message" core/ games/foo/ index.html
+```
+
+`CLAUDE.md` at the repo root is binding. The big one: **several Claude sessions
+work in this repo at once, so never `git add -A`, never `git add .`, never
+force-push.** Name your paths. This build already swept up another session's
+in-progress MISHANAMEH work once and had to rewrite the commit.
+
+A background checkpoint loop may be committing `core/data/` and `games/` every
+~60 s while a build runs. Check `git log` before assuming a commit is yours.
+
+---
+
+## 7. Known open items
+
+- `photos.js` and `geogrid.js` still building; TIMEGUESSR, PLACEGUESSR, GEOGRID,
+  CHRONO and CLUEDROP depend on them.
+- `games/outline/game.js` — a QA pass left the hint reading
+  `"the shape" + size` with no separator ("the shapeenormous"). Fix the string.
+- Cache-buster versions have drifted between `?v=7` and `?v=8` across cabinets.
+  Normalise them in one pass before the next deploy.
+- Raw data inputs are gitignored and re-downloadable: `_build/countries-110m.json`
+  and `countries-50m.json` (unpkg world-atlas 2.0.2), `countries-full.json`
+  (raw.githubusercontent.com/mledoze/countries).

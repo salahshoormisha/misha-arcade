@@ -149,13 +149,14 @@
     return out;
   }
 
+  // Accepts a side as either "ABC" or ["A","B","C"] — both index the same way.
   function sideMapOf(sides) {
     var of = {}, mask = 0;
     sides.forEach(function (s, si) {
       var i;
       for (i = 0; i < s.length; i++) {
-        of[s.charAt ? s.charAt(i) : s[i]] = si;
-        mask |= 1 << ((s.charAt ? s.charCodeAt(i) : s[i].charCodeAt(0)) - 65);
+        of[s[i]] = si;
+        mask |= 1 << (s[i].charCodeAt(0) - 65);
       }
     });
     return { of: of, mask: mask };
@@ -287,10 +288,10 @@
   }
 
   function buildPuzzle(seed) {
-    var i, P;
+    var i, Q;
     for (i = 0; i < 4; i++) {
-      P = generate(A.rng(seed + (i ? ":" + i : "")));
-      if (P) return P;
+      Q = generate(A.rng(seed + (i ? ":" + i : "")));
+      if (Q) return Q;
     }
     // Never leave the cabinet dark: the hand-proved board, run through the
     // very same assertion.

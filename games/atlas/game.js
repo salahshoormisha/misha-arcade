@@ -165,9 +165,20 @@
       (q.shape ? '<canvas id="qshape" role="img" aria-label="The silhouette of a country"></canvas>' : "") +
       '</div><div class="opts"></div>';
 
+    // A missing flag file must not leave a broken-image icon sitting in the
+    // middle of the question. Swap in a labelled placeholder instead.
+    var fim = document.getElementById("qflag");
+    if (fim) {
+      fim.onerror = function () {
+        var ph = A.el("div", "qflag-miss", "flag artwork unavailable");
+        ph.id = "qflag-miss";
+        fim.replaceWith(ph);
+      };
+    }
+
     if (q.shape) {
       A.silhouette(document.getElementById("qshape"), q.shape,
-        { fill: "#ffe3f3", stroke: "#ffffff40", lw: 1.2, pad: 12 });
+        { fill: "#f5f2f8", stroke: "rgba(255,255,255,.22)", lw: 1.2, pad: 12 });
     }
 
     var opts = host.querySelector(".opts");
@@ -189,7 +200,8 @@
   function renderWeak() {
     var w = weakest(4);
     weakBox.innerHTML = w.length
-      ? "🎯 you keep missing: " + w.map(function (i) { return "<b>" + A.esc(byIso[i].n) + "</b>"; }).join(", ") +
+      ? "<em>you keep missing</em><br>" +
+        w.map(function (i) { return "<b>" + A.esc(byIso[i].n) + "</b>"; }).join(", ") +
         " — they'll keep coming back"
       : "";
   }
@@ -218,11 +230,21 @@
 
   /* ── persistence ─────────────────────────────────────────────────────── */
 
-  function save() { if (!practice) A.save(ID, day, { at: at, right: right, answered: answered }); }
+  // `answered` is the single source of truth: it holds one entry per question
+  // asked, in order. `at` and `right` are derived from it on restore, which is
+  // what stops a reload from re-serving the question you just answered (save()
+  // runs before the 460 ms reveal bumps `at`, so the stored `at` is one behind)
+  // and from double-counting it — that could push `right` past the question
+  // count and print "13 of 12 right" on the result sheet.
+  function save() { if (!practice) A.save(ID, day, { at: answered.length, right: right, answered: answered }); }
 
   function restore() {
     var st = practice ? null : A.load(ID, day);
-    if (st && !st.done) { at = st.at || 0; right = st.right || 0; answered = st.answered || []; }
+    if (st && !st.done && st.answered && st.answered.length) {
+      answered = st.answered.slice(0, qs.length).map(Boolean);
+      at = answered.length;
+      right = answered.filter(function (x) { return x; }).length;
+    }
     if (st && st.done) {
       host.innerHTML = "";
       prog.innerHTML = "";
@@ -237,7 +259,10 @@
   /* ── ending ──────────────────────────────────────────────────────────── */
 
   function finish() {
-    var pct = Math.round(100 * right / qs.length);
+    // Count from `answered`, never from the running tally — see save()/restore().
+    right = answered.filter(function (x) { return x; }).length;
+    A.setSub(A.subLine({ dayN: day }));
+    var pct = A.clamp(Math.round(100 * right / qs.length), 0, 100);
     var norm = A.clamp(right === qs.length ? 100 : Math.round(pct * 0.92), 0, 100);
     var grid = [];
     var line = "";
@@ -267,9 +292,9 @@
     A.results(ID, practice ? A.PRACTICE : day, {
       title: right === qs.length ? "FLAWLESS" : right >= 9 ? "SHARP" : right >= 6 ? "PASSABLE" : "BACK TO THE GYM",
       lines: [right + " of " + qs.length + " right"],
-      extraHTML: w.length ? '<p class="center tiny" style="color:var(--gold);margin-top:8px">' +
+      extraHTML: w.length ? '<p class="center tiny" style="color:var(--amber);margin-top:var(--sp-2)">' +
         "next session will drill: " + A.esc(w.map(function (i) { return byIso[i].n; }).join(", ")) + "</p>" : "",
-      state: { norm: norm, shareGrid: grid, won: true },
+      state: { norm: norm, shareGrid: grid, won: right >= Math.ceil(qs.length * 0.6) },
       shareText: "ATLAS GYM (practice) " + right + "/" + qs.length + "\n" + grid.join("\n") + "\n" + A.SITE,
       onReplay: function () { location.reload(); },
     });
