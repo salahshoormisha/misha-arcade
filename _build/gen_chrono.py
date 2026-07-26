@@ -90,11 +90,12 @@ def norm_clue(s):
 YEAR_RE = re.compile(r"\b(1[789]\d\d|20\d\d|21\d\d)\b")
 
 
-def validate(bank):
+def validate(bank, draft=False):
     years = sorted(bank.keys())
 
     if len(years) < MIN_YEARS:
-        fail("only %d years in the bank, need >= %d" % (len(years), MIN_YEARS))
+        (print if draft else fail)(
+            "only %d years in the bank, need >= %d" % (len(years), MIN_YEARS))
 
     for y in years:
         if not isinstance(y, int) or y < YEAR_LO or y > YEAR_HI:
@@ -103,7 +104,7 @@ def validate(bank):
     # 5. decade spread
     for dec in range(1850, 2020, 10):
         if not any(dec <= y < dec + 10 for y in years):
-            fail("no year in the %ds" % dec)
+            (print if draft else fail)("no year in the %ds" % dec)
 
     seen = {}          # normalised clue -> year that used it
     leaks = []
@@ -199,8 +200,9 @@ def emit(bank, years):
 
 
 def main():
+    draft = "--draft" in sys.argv
     bank = load_bank()
-    years = validate(bank)
+    years = validate(bank, draft)
     if ERRORS:
         print("FAILED — %d problem(s):" % len(ERRORS))
         for e in ERRORS[:80]:
