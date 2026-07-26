@@ -111,6 +111,8 @@
   }
   .cab .meter i { display: block; height: 100%; background: var(--a); }
   .netwarn { color: var(--amber); }
+  .cab.soon { opacity: .45; cursor: default; }
+  .cab.soon:hover { transform: none; background: var(--s1); border-color: var(--hair); }
 
   footer {
     margin-top: var(--sp-7); padding-top: var(--sp-4); border-top: 1px solid var(--hair);
@@ -131,8 +133,9 @@
 
   function render() {
     var card = A.card(dayN), rs = A.runStreak();
-    var total = A.registry.length;
-    var left = A.registry.filter(function (g) { return !A.isDone(g.id, dayN); });
+    var playable = A.registry.filter(function (g) { return !g.soon; });
+    var total = playable.length;
+    var left = playable.filter(function (g) { return !A.isDone(g.id, dayN); });
     var mins = Math.round(left.reduce(function (a, g) { return a + (g.parMs || 150000); }, 0) / 60000);
     var C = 2 * Math.PI * 50;
 
@@ -177,17 +180,23 @@
       h += '<div class="set"><h3>' + A.esc(F.name) + " <i>" + A.esc(F.note) + "</i></h3>";
       list.forEach(function (g) {
         var st = A.load(g.id, dayN), done = st && st.done;
-        h += '<a class="cab ' + (done ? "done" : "") + '" href="../games/' + g.id +
-          '/" style="--a:var(' + g.accent + ')">' +
+        // A cabinet that isn't built yet is rendered as a dead row rather than
+        // a link that 404s — a broken link reads as a broken product.
+        var tag = g.soon ? "span" : "a";
+        h += "<" + tag + ' class="cab ' + (done ? "done" : "") + (g.soon ? " soon" : "") + '"' +
+          (g.soon ? "" : ' href="../games/' + g.id + '/"') +
+          ' style="--a:var(' + g.accent + ')">' +
           '<span class="ic">' + g.icon + "</span>" +
           '<span class="txt"><b>' + A.esc(g.name) + "</b><i>" + A.esc(g.tagline) +
           (g.needsNet ? ' <span class="netwarn">· needs wifi</span>' : "") + "</i>" +
           (done ? '<span class="meter"><i style="width:' + pct(st.norm) + '%"></i></span>' : "") +
           "</span>" +
-          '<span class="st">' + (done
-            ? '<span class="n">' + st.norm + '</span><span class="d">' + A.esc(st.detail || "") + "</span>"
-            : '<span class="go">Play →</span>') +
-          "</span></a>";
+          '<span class="st">' + (g.soon
+            ? '<span class="go" style="color:var(--ink-4)">Soon</span>'
+            : done
+              ? '<span class="n">' + st.norm + '</span><span class="d">' + A.esc(st.detail || "") + "</span>"
+              : '<span class="go">Play →</span>') +
+          "</span></" + tag + ">";
       });
       h += "</div>";
     });
