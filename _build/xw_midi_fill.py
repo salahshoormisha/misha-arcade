@@ -88,6 +88,11 @@ lorem ipsum dolor
 alison bridger colley geneva shastri spanky lander orgasms opiates inbred hetero
 heteros bisexual erotica arousal
 hereto herein thereto whereto thereof herewith
+abbas abby brett carey carina cora eddy eyre faro henna malo miro shastri teng
+thar tula abbot abbess cyrus dario enzo fabio garcia gupta hanna ibsen jung
+aft ave cos doe rob rot sew tor trey lien slag snot moo rad lim ing gore
+sutra tantric thong polio moron morons opium opiate
+hiss hisses bra bras eve eves vice vices
 """.split())
 
 # how many words to admit per length, best-first by blended frequency
@@ -166,6 +171,31 @@ def build_vocab():
                 return True
         return False
 
+    # Personal first names.  web2 carries a lot of them as lowercase headwords
+    # (ABBY, CORA, EDDY ...), which is exactly how they sneak into a fill.
+    pnames = set()
+    try:
+        with open("/usr/share/dict/propernames") as fh:
+            for line in fh:
+                s = line.strip().lower()
+                if s.isalpha():
+                    pnames.add(s)
+    except IOError:
+        pass
+    pnames -= set("""rose hope grace mark bill will page dawn faith jack frank sandy
+                     wade amber ruby herb chuck curt penny sunny mercy joy art guy don
+                     pat may june dean rich""".split())
+
+    # Three-letter entries are where crosswordese lives, so they come from the same
+    # hand-picked allowlist the 5x5 minis use rather than from a frequency cut.
+    try:
+        sys.path.insert(0, HERE)
+        import xw_fill
+        good3 = set(w.lower() for w in xw_fill.GOOD3)
+        ban = set(w.lower() for w in xw_fill.BAN)
+    except ImportError:
+        good3, ban = None, set()
+
     scored = []
     for w in rn:
         if w not in rs:
@@ -173,7 +203,11 @@ def build_vocab():
         L = len(w)
         if not (3 <= L <= 7):
             continue
-        if w in BLOCK or w not in dwyl or not legit(w):
+        if w in BLOCK or w in ban or w not in dwyl or not legit(w):
+            continue
+        if L == 3 and good3 is not None and w not in good3:
+            continue
+        if L >= 4 and w in pnames:
             continue
         s = 0.5 * min(rn[w] / 333333.0, 1.0) + 0.5 * min(rs[w] / 50000.0, 1.0)
         scored.append((s, w))

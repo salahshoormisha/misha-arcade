@@ -84,19 +84,33 @@ def http_json(url, tries=5):
     return None, last
 
 
-def http_status(url, timeout=25):
+def http_status(url, timeout=25, tries=4):
+    """HTTP status for url. 429 and network errors are retried with backoff, so a
+    rate limit is never mistaken for a dead image."""
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Range": "bytes=0-64"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            body = r.read(64)
-            code = r.getcode()
-            if code == 206:
-                code = 200
-            return code if body else 0
-    except urllib.error.HTTPError as e:
-        return e.code
-    except Exception:
-        return 0
+    code = 0
+    for k in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                body = r.read(64)
+                code = r.getcode()
+                if code == 206:
+                    code = 200
+                return code if body else 0
+        except urllib.error.HTTPError as e:
+            code = e.code
+            if e.code != 429:
+                return e.code
+            time.sleep(8.0 * (k + 1))
+        except Exception:
+            code = 0
+            time.sleep(1.5 * (k + 1))
+    return code
+
+
+def transient_status(st):
+    """True if `st` means 'ask again later' rather than 'this image is no good'."""
+    return st == 0 or st == 429 or 500 <= st < 600
 
 
 # ────────────────────────────────────────────────────────── country reference
@@ -219,9 +233,14 @@ def commons_image(filetitle, offline=False):
                     info = p["imageinfo"][0]
             if info and info.get("thumburl"):
                 url = info["thumburl"]
-                rec = ({"url": url, "page": info.get("descriptionurl")}
-                       if http_status(url) == 200 else
-                       {"url": None, "status": "commons thumb not 200"})
+                ist = http_status(url)
+                if ist == 200:
+                    rec = {"url": url, "page": info.get("descriptionurl")}
+                elif transient_status(ist):
+                    TRANSIENT.append((filetitle, ist))
+                    return None
+                else:
+                    rec = {"url": None, "status": "commons thumb %s" % ist}
             else:
                 rec = {"url": None, "status": "no such Commons file"}
         else:
@@ -265,6 +284,9 @@ def wiki_image(title, expect=None, lang="en", offline=False):
                 if ist == 200:
                     rec = {"url": url, "title": j.get("title"),
                            "page": (j.get("content_urls") or {}).get("desktop", {}).get("page")}
+                elif transient_status(ist):
+                    TRANSIENT.append((title, ist))
+                    return None
                 else:
                     rec = {"url": None, "status": "image %s" % ist}
             else:

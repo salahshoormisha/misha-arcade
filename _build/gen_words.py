@@ -333,7 +333,7 @@ porch prawn prism prize prong prune quail quart quilt quirk quota rabbi
 ranch rebel relic rhino ridge rinse risky robin rodeo rouge royal rugby
 salsa satin sauna scarf scoop scout scrap shark shawl sheep sheet shelf shine
 shore shrub siren skate skirt slate sleek slice slime slope slush smock snack
-snail snore socks solar spark spice spine spoon sprig squid stack stale
+snail snore solar spark spice spine spoon sprig squid stack stale
 stark stump surge swirl syrup tacky talon tango taper tempo thorn tiara tidal
 tiger toast tonic torch towel trout tulip tunic tutor twine ulcer usher vault
 venue vigil villa vinyl vivid vodka wafer wagon waltz whale wharf wheat whisk
@@ -589,7 +589,13 @@ ANSWERS4 = OPEN4 + [w for w in ANSWERS4 if w not in set(OPEN4)]
 VALID5 |= set(ANSWERS5)
 VALID4 |= set(ANSWERS4)
 
-COMMON5 = [w for w in sorted(ANSWERS5, key=sortkey) if freq(w) > 0][:300]
+# common5 is ordered by the SUBTITLE corpus first (speech-weighted, so it reads
+# like the words people actually say) with the web corpus as the tiebreak; the
+# web list on its own puts EMAIL, FORUM, INDEX and HOTEL near the top.
+PLURAL_ANS = set(w for w in ANSWERS5 if inflected(w))
+ANSWERS5 = [w for w in ANSWERS5 if w not in PLURAL_ANS]
+ANSWERS4 = [w for w in ANSWERS4 if not inflected(w)]
+COMMON5 = sorted(ANSWERS5, key=lambda w: (subrank(w), -freq(w), w))[:300]
 
 
 # ── Letter Boxed.  Two rules make most of the dictionary unusable, so they are
