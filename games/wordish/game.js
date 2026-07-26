@@ -90,10 +90,11 @@
     help: "<p>Six goes at a five-letter word. <b class='ok'>Green</b> = right letter, right place. " +
       "<b>Yellow</b> = right letter, wrong place. Grey = not in the word.</p>" +
       "<p>Everyone gets the same word on the same day — so you and David can argue about it fairly.</p>" +
-      "<ul><li><b>Hard mode</b> (settings ⚙): any hint you've found must be reused.</li>" +
+      "<ul><li><b>Hard mode</b> (in settings): any hint you've found must be reused.</li>" +
       "<li><b>Reveal a letter</b> if you're stuck — it costs you 12 points, not the game.</li>" +
       "<li><b>Persian pack</b>: the whole word list becomes English words borrowed from Farsi. " +
-      "Kiosk, divan, julep, bazaar. You'll be surprised how many there are.</li>" +
+      "Kiosk, divan, julep, bazaar. You'll be surprised how many there are. It has its own " +
+      "word of the day and keeps its own record — it never touches your WORDISHA stats.</li>" +
       "<li><b>Practice</b> is unlimited and never touches your stats.</li></ul>",
   });
 
@@ -110,11 +111,11 @@
 
   var modes = A.el("div", "modes");
   modes.innerHTML =
-    '<button class="ac-pill" id="reveal">💡 REVEAL A LETTER</button>' +
+    '<button class="ac-pill" id="reveal">REVEAL A LETTER</button>' +
     '<a class="ac-pill" id="packlink" href="?' + (pack === "persian" ? "" : "pack=persian") + '">' +
-    (pack === "persian" ? "🔤 BACK TO NORMAL" : "🇮🇷 PERSIAN PACK") + "</a>" +
-    (practice ? '<a class="ac-pill" href="./">← TODAY\'S WORD</a>'
-      : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>');
+    (pack === "persian" ? "BACK TO NORMAL" : "PERSIAN PACK") + "</a>" +
+    (practice ? '<a class="ac-pill" href="./">TODAY\'S WORD</a>'
+      : '<a class="ac-pill" href="?practice=1">PRACTICE</a>');
   main.appendChild(modes);
   if (!PERSIAN.length) { var pl = modes.querySelector("#packlink"); if (pl) pl.style.display = "none"; }
   if (pack === "persian") A.setSub("PERSIAN PACK · DAY " + (practice ? "∞" : day));
@@ -248,11 +249,11 @@
 
   function save() {
     if (practice) return;
-    A.save(ID, day, { guesses: guesses, revealed: revealed, pack: pack, keyState: keyState });
+    A.save(stateId, day, { guesses: guesses, revealed: revealed, pack: pack, keyState: keyState });
   }
 
   function restore() {
-    var st = practice ? null : A.load(ID, day);
+    var st = practice ? null : A.load(stateId, day);
     if (st && st.pack && st.pack !== pack) st = null;   // different pack, different game
     if (st) {
       guesses = st.guesses || [];
@@ -263,7 +264,9 @@
     if (st && st.done) {
       over = true;
       kbd.disable(true);
-      setTimeout(function () { sheet(st.won); }, 240);
+      var rb = main.querySelector("#reveal");
+      if (rb) rb.disabled = true;
+      setTimeout(function () { sheet(st.won, st.shareGrid, st.detail, st.norm); }, 240);
     }
   }
 
@@ -272,6 +275,8 @@
   function end(won) {
     over = true;
     kbd.disable(true);
+    var rb = main.querySelector("#reveal");
+    if (rb) rb.disabled = true;
     var n = guesses.length;
     var norm = won ? Math.max(5, NORM[n] - revealed.length * 12) : 12;
 
@@ -285,10 +290,18 @@
 
     var detail = won ? n + "/" + TRIES : "X/" + TRIES;
 
-    if (!practice) {
+    if (ranked) {
       A.finish(ID, day, {
         score: norm, norm: norm, won: won, detail: detail, bucket: won ? n : "X",
         shareGrid: grid, durationMs: Date.now() - t0,
+      });
+    } else if (!practice) {
+      // Pack word: kept under its own key so a reload restores the sheet, but
+      // it is never written into the day's ranked result or the stats.
+      A.save(stateId, day, {
+        guesses: guesses, revealed: revealed, pack: pack, keyState: keyState,
+        done: true, won: won, norm: norm, score: norm, detail: detail,
+        bucket: won ? n : "X", shareGrid: grid, durationMs: Date.now() - t0,
       });
     }
     if (won) { A.sfx("win"); A.confetti(n <= 2 ? 140 : 80); }
