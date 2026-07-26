@@ -45,8 +45,8 @@ BOARDS = [
  "title": "Strike Anywhere",
  "diff": 4,
  "groups": [
-   {"name": "THINGS YOU STRIKE", "tiles": ["MATCH", "DEAL", "POSE", "BALANCE"],
-    "note": "You strike a match, a deal, a pose and a balance — four completely unrelated verbs wearing the same coat."},
+   {"name": "THINGS YOU STRIKE", "tiles": ["GOLD", "DEAL", "POSE", "BALANCE"],
+    "note": "You strike gold, a deal, a pose and a balance — four unrelated verbs wearing the same coat. MATCH is deliberately absent: with a ___ STICK group on the board, matchstick gave this grid a second legal solution."},
    {"name": "OLYMPIC ATHLETICS EVENTS", "tiles": ["HURDLES", "JAVELIN", "SHOT PUT", "STEEPLECHASE"],
     "note": "The steeplechase has a water jump because it descends from a horse race across country between two church steeples."},
    {"name": "PARTS OF A DRUM KIT", "tiles": ["SNARE", "HI-HAT", "CYMBAL", "TOM"],
@@ -57,8 +57,9 @@ BOARDS = [
  "traps": [
    ["DRUM", 2, "A drum is unambiguously part of a drum kit, and there is a drum kit on this board. It is here to be hit by the last group instead."],
    ["CYMBAL", 0, "You strike a cymbal more literally than you strike a pose, a deal or a balance. It is the most strikable object in the grid."],
+   ["GOLD", 1, "Gold is what every athlete in the green group is chasing, and it is the only one-word tile anywhere near them."],
  ],
- "epilogue": "Two tiles argue about the same kit: DRUM wants to join the drums and CYMBAL wants to join the things you strike, and they cancel out. SNARE, HI-HAT and TOM cannot be anything else, and MATCH, DEAL and POSE cannot be anything else, so the leftovers sort themselves.",
+ "epilogue": "Three tiles are pulling sideways: DRUM wants the drums, CYMBAL wants to be struck, and GOLD wants a medal. They cancel out in a ring — SNARE, HI-HAT and TOM cannot be anything else, HURDLES, JAVELIN, SHOT PUT and STEEPLECHASE are four events already, and CHAP, YARD and LIP are three-quarters of a compound word.",
 },
 
 {
