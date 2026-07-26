@@ -6,43 +6,73 @@
 <title>FOODGUESSR · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍲</text></svg>">
-<link rel="stylesheet" href="../../core/style.css?v=7">
+<link rel="stylesheet" href="../../core/style.css?v=8">
 <style>
-  .round { text-align: center; font-size: 10.5px; letter-spacing: 2.4px; color: var(--ink4); margin-top: 6px; }
-  #dish { width: 100%; max-width: 380px; aspect-ratio: 4/3; object-fit: cover; border-radius: 14px;
-          display: block; margin: 10px auto 0; background: #150b30; box-shadow: 0 10px 34px #0009; }
-  .noimg { display: grid; place-items: center; color: var(--ink4); font-size: 40px; }
-  .dname { text-align: center; font-size: clamp(17px,4.6vw,23px); font-weight: 900; letter-spacing: 1.5px;
-           color: var(--gold); margin-top: 12px; }
-  .dname.hidden { color: var(--ink4); font-style: italic; font-weight: 400; font-size: 13px; letter-spacing: 1px; }
-  .ddesc { text-align: center; font-size: 13px; color: var(--ink2); line-height: 1.8; margin: 8px auto 0;
-           max-width: 420px; }
-  .guesses { max-width: 420px; margin: 12px auto 0; }
-  .gr { display: flex; align-items: center; gap: 8px; padding: 8px 11px; margin-bottom: 6px;
-        border: 1px solid var(--line); border-radius: 10px; background: #ffffff07; font-size: 13px; }
+  .round { text-align: center; font-size: var(--t-xs); letter-spacing: .2em;
+           text-transform: uppercase; color: var(--ink-4); margin-top: var(--sp-2);
+           font-variant-numeric: tabular-nums; }
+
+  #dish { width: 100%; max-width: 380px; aspect-ratio: 4 / 3; object-fit: cover;
+          border-radius: var(--r-lg); display: block; margin: var(--sp-3) auto 0;
+          background: var(--s1); box-shadow: var(--sh-2); }
+  /* The photos come off Wikimedia, so offline (or on a dead URL) is normal, not
+     exceptional. `#dish.noimg` — id + class — is what beats the `#dish` rule
+     above; `.noimg` alone lost to it and left the plate glued to the top-left. */
+  #dish.noimg {
+    display: grid; place-items: center; align-content: center; gap: var(--sp-2);
+    border: 1px dashed var(--hair-2); box-shadow: none; text-align: center;
+    padding: var(--sp-4);
+  }
+  #dish.noimg .glyph { font-size: var(--t-4xl); line-height: 1; opacity: .5; }
+  #dish.noimg .say { font-size: var(--t-xs); letter-spacing: .14em;
+                     text-transform: uppercase; color: var(--ink-4); max-width: 22ch;
+                     line-height: 1.6; }
+
+  .dname { text-align: center; font-family: var(--display);
+           font-size: clamp(17px, 4.6vw, 23px); font-weight: 700; letter-spacing: 0;
+           color: var(--amber); margin-top: var(--sp-3); text-wrap: balance; }
+  .dname.hidden { color: var(--ink-4); font-style: italic; font-weight: 400;
+                  font-size: var(--t-sm); letter-spacing: .04em; }
+  .ddesc { text-align: center; font-size: var(--t-sm); color: var(--ink-2); line-height: 1.8;
+           margin: var(--sp-2) auto 0; max-width: 420px; }
+
+  /* guess rows — shared metrics with FLAGLE / OUTLINE / TRADLE */
+  .guesses { max-width: 420px; margin: var(--sp-3) auto 0; }
+  .gr { display: flex; align-items: center; gap: var(--sp-2);
+        padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-1);
+        border: 1px solid var(--hair); border-radius: var(--r-md);
+        background: var(--s1); font-size: var(--t-sm); }
   .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
-  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; }
-  .gr .warm { font-size: 11px; letter-spacing: .5px; }
-  .gr .ar { font-size: 15px; }
-  .gr.win { border-color: var(--ok); background: rgba(61,224,138,.1); }
-  .pips { display: flex; gap: 5px; justify-content: center; margin-top: 10px; }
-  .pips i { width: 22px; height: 5px; border-radius: 9px; background: #ffffff18; }
+  .gr .nm { flex: 1 1 auto; min-width: 0; letter-spacing: .04em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gr .warm { flex: 0 0 auto; white-space: nowrap; font-size: var(--t-xs); letter-spacing: .02em; }
+  .gr .ar { flex: 0 0 auto; font-size: var(--t-md); line-height: 1; }
+  .gr.win { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .gr.win .warm { color: var(--ok); font-weight: 650; }
+
+  .pips { display: flex; gap: var(--sp-1); justify-content: center; margin-top: var(--sp-3); }
+  .pips i { width: 22px; height: 5px; border-radius: var(--r-full); background: var(--s3); }
   .pips i.used { background: var(--bad); }
   .pips i.won { background: var(--ok); }
-  .why { font-size: 12px; color: var(--gold); text-align: center; line-height: 1.8; margin-top: 10px;
-         max-width: 420px; margin-left: auto; margin-right: auto; }
-  .scoreline { text-align: center; margin-top: 10px; font-size: 12px; letter-spacing: 1.5px; color: var(--ink3); }
-  .scoreline b { color: #fff; font-size: 16px; }
+
+  .why { font-size: var(--t-sm); color: var(--amber); text-align: center; line-height: 1.8;
+         margin: var(--sp-3) auto 0; max-width: 420px; }
+  .scoreline { text-align: center; margin-top: var(--sp-3); font-size: var(--t-sm);
+               letter-spacing: .12em; color: var(--ink-3);
+               font-variant-numeric: tabular-nums; }
+  .scoreline b { color: var(--ink); font-size: var(--t-lg); font-weight: 680; }
+  .verdict { text-align: center; margin-top: var(--sp-3); font-size: var(--t-md);
+             letter-spacing: .1em; }
 </style>
 </head>
 <body>
-<script src="../../core/registry.js?v=7"></script>
-<script src="../../core/arcade.js?v=7"></script>
-<script src="../../core/ui.js?v=7"></script>
-<script src="../../core/audio.js?v=7"></script>
-<script src="../../core/data/countries.js?v=7"></script>
-<script src="../../core/data/food.js?v=7"></script>
-<script src="../../core/picker.js?v=7"></script>
-<script src="game.js?v=7"></script>
+<script src="../../core/registry.js?v=8"></script>
+<script src="../../core/arcade.js?v=8"></script>
+<script src="../../core/ui.js?v=8"></script>
+<script src="../../core/audio.js?v=8"></script>
+<script src="../../core/data/countries.js?v=8"></script>
+<script src="../../core/data/food.js?v=8"></script>
+<script src="../../core/picker.js?v=8"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>

@@ -162,11 +162,14 @@
       (solved || dead ? "" : (MAX_GUESS - gs.length) + " GUESSES LEFT · ") +
       "WORTH " + Math.max(0, PER_ROUND - gs.length * 1000).toLocaleString() + "</div>";
 
+    // Photos live on Wikimedia, so a 404 (or simply being offline) is routine.
+    // Both the no-photo and the failed-photo cases render the SAME placeholder,
+    // which keeps the 4:3 box and centres its contents — see #dish.noimg.
     if (c.dish.img) {
-      h += '<img id="dish" alt="A dish, country hidden" src="' + A.esc(c.dish.img) + '" ' +
-        "onerror=\"this.replaceWith(Object.assign(document.createElement('div'),{className:'noimg',id:'dish',textContent:'🍽️'}))\">";
+      h += '<img id="dish" alt="A dish, country hidden" loading="lazy" src="' +
+        A.esc(c.dish.img) + '">';
     } else {
-      h += '<div id="dish" class="noimg">🍽️</div>';
+      h += noPhoto();
     }
 
     h += nameShown
@@ -176,15 +179,23 @@
 
     if ((solved || dead) && c.dish.why) h += '<div class="why">' + A.esc(c.dish.why) + "</div>";
     if (solved || dead) {
-      h += '<p class="center" style="margin-top:10px;font-size:15px;letter-spacing:2px;color:' +
-        (solved ? "var(--ok)" : "var(--bad)") + '">' +
-        (solved ? "✔ " : "✘ ") + A.esc(byIso[c.iso].n) + "</p>";
+      h += '<p class="verdict" style="color:' + (solved ? "var(--ok)" : "var(--bad)") + '">' +
+        (solved ? "✓ " : "✕ ") + A.esc(byIso[c.iso].n) + "</p>";
       h += '<div class="scoreline"><b>' + (scores[r] || 0).toLocaleString() + "</b> / " +
         PER_ROUND.toLocaleString() + "</div>";
     }
 
     h += '<div class="pips"></div>';
     host.innerHTML = h;
+
+    var dishImg = host.querySelector("img#dish");
+    if (dishImg) {
+      dishImg.onerror = function () {
+        var d = A.el("div");
+        d.innerHTML = noPhoto();
+        dishImg.replaceWith(d.firstChild);
+      };
+    }
 
     var pips = host.querySelector(".pips");
     for (var i = 0; i < MAX_GUESS; i++) {
@@ -217,15 +228,30 @@
 
   function restore() {
     var st = practice ? null : A.load(ID, day);
-    if (st && !st.done) {
-      r = st.r || 0; guesses = st.guesses || []; scores = st.scores || [];
+    // Restore the board whether or not the day is finished. Skipping this on a
+    // finished day left a pristine "ROUND 1 · 5 GUESSES LEFT · WORTH 5,000"
+    // sitting behind the result sheet, with no guess trail and the wrong dish.
+    if (st) {
+      r = A.clamp(st.r || 0, 0, ROUNDS - 1);
+      guesses = st.guesses || [];
+      scores = st.scores || [];
     }
     if (st && st.done) {
-      over = true; render(); picker.disable(true);
+      over = true;
+      render();
+      picker.disable(true);
+      A.setSub(A.subLine({ dayN: day }));
       setTimeout(function () { A.results(ID, day, { title: "ALREADY EATEN", state: st }); }, 240);
       return;
     }
     render();
+  }
+
+  // The one placeholder used for "no photo recorded" and "photo wouldn't load".
+  function noPhoto() {
+    return '<div id="dish" class="noimg" role="img" aria-label="No photograph for this dish">' +
+      '<span class="glyph">\uD83C\uDF7D\uFE0F</span>' +
+      '<span class="say">no photo — go on the description</span></div>';
   }
 
   /* ── ending ──────────────────────────────────────────────────────────── */
@@ -233,6 +259,7 @@
   function end() {
     over = true;
     picker.disable(true);
+    A.setSub(A.subLine({ dayN: practice ? A.PRACTICE : day }));
     var total = scores.reduce(function (a, b) { return a + (b || 0); }, 0);
     var norm = A.clamp(Math.round(100 * total / (PER_ROUND * ROUNDS)), 0, 100);
 

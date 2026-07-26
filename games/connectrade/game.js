@@ -131,9 +131,9 @@
     "<ul><li><b>Six mistakes.</b> Get exactly three of a real four and you'll be told " +
     "<b>“One off!”</b> — but never which three.</li>" +
     "<li>A set you've already tried is <b>blocked, not punished</b>. SHUFFLE and DESELECT are free.</li>" +
-    "<li>The four colours are just the order the countries are listed in. " +
-    "<b>They mean nothing else</b> — there is no easy group and no purple trick here.</li>" +
-    "<li><b>KEY</b> colour-tags every product in the attempts log with its true owner, so the log " +
+    "<li>Each country gets a <b>number and a colour</b> — 1, 2, 3, 4, in the order they're listed. " +
+    "<b>That's all they mean</b>: no easy group, no purple trick, no difficulty order.</li>" +
+    "<li><b>KEY</b> tags every product in the attempts log with its true owner's number, so the log " +
     "fills in as an answer key. It's on by default and we remember what you set it to.</li>" +
     "<li>Solve a group and the band tells you <b>why</b> those four: the size of the basket, what " +
     "dominates it, and how many times the world-average share each product is.</li>" +
@@ -516,7 +516,11 @@
       var done = isSolved(g.i);
       var e = A.el("div", "ctc" + (done ? " done" : ""));
       e.style.setProperty("--ctc", "var(" + GC[k].tok + ")");
-      e.innerHTML = flagImg(g.i) + '<span class="nm">' + esc(cname(g.i)) + "</span>" +
+      /* The number is not decoration: colourblind mode collapses two of the four
+         group colours toward blue, so the owner tag in the attempts log has to
+         read without colour. Same badge in both places. */
+      e.innerHTML = '<span class="ix">' + (k + 1) + "</span>" + flagImg(g.i) +
+        '<span class="nm">' + esc(cname(g.i)) + "</span>" +
         '<span class="tk">' + (done ? "✓" : "×4") + "</span>";
       e.title = cname(g.i) + (done ? " — solved" : " — four of these tiles are its exports");
       stripEl.appendChild(e);
@@ -651,7 +655,7 @@
         '<span class="ps">' + gg.map(function (name) {
           var k = idxOf((groupOf(name) || {}).i);
           var sw = showKey && k >= 0
-            ? '<span class="sw" style="--swc:var(' + GC[k].tok + ')"></span>' : "";
+            ? '<span class="sw" style="--swc:var(' + GC[k].tok + ')">' + (k + 1) + "</span>" : "";
           return sw + esc(dispOf(name));
         }).join(", ") + "</span>" +
         '<span class="mk">' + (hit ? "✅" : "❌") + "</span></li>";

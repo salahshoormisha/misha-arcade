@@ -38,6 +38,18 @@ OUT = os.path.join(L.BUILD, "photos-place.json")
 # Deliberately weighted towards secondary towns and countryside: a landmark is
 # trivia, ordinary ground is geography.
 SEEDS = [
+    # ── the four cities CONTRACT §7 requires by name ──────────────────────
+    # Tagged "o": we want ordinary ground in them too, not just the postcard.
+    ("Tehran", "Tehran", "IR", "o"),
+    ("Tajrish", "Tajrish, Tehran", "IR", "o"),
+    ("Houston", "Houston, Texas", "US", "o"),
+    ("Galveston, Texas", "Galveston, Texas", "US", "o"),
+    ("Edinburgh", "Edinburgh", "GB", "o"),
+    ("Leith", "Leith, Edinburgh", "GB", "o"),
+    ("Camden Town", "Camden, London", "GB", "o"),
+    ("Greenwich", "Greenwich, London", "GB", "o"),
+    ("Cambridge, Massachusetts", "Cambridge, Massachusetts", "US", "o"),
+
     # ── Africa ────────────────────────────────────────────────────────────
     ("Kumasi", "Kumasi", "GH", "o"), ("Cape Coast", "Cape Coast", "GH", "o"),
     ("Tamale, Ghana", "Tamale", "GH", "o"),
@@ -583,8 +595,7 @@ def harvest():
                 "iso2": iso2, "place": place,
                 "caption": cap,
                 "credit": cred, "licence": lic,
-                "page": "https://commons.wikimedia.org/wiki/" +
-                        L.urllib.parse.quote("File:" + title.replace(" ", "_")),
+                "page": L.page_url(title),
                 "clues": clues,
                 "easy": 1 if tag == "L" else 0,
             }))

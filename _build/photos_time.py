@@ -102,6 +102,10 @@ CITIES = [
     ("Antananarivo", "Antananarivo", "MG"), ("Freetown", "Freetown", "SL"),
     ("Bamako", "Bamako", "ML"), ("Asmara", "Asmara", "ER"),
     # Americas
+    # Houston / Edinburgh / London / Tehran are required by CONTRACT §7.
+    ("Houston", "Houston", "US"), ("Dallas", "Dallas", "US"),
+    ("San Antonio", "San Antonio", "US"), ("Austin, Texas", "Austin", "US"),
+    ("Cambridge, Massachusetts", "Cambridge, Massachusetts", "US"),
     ("New York City", "New York City", "US"), ("Chicago", "Chicago", "US"),
     ("San Francisco", "San Francisco", "US"), ("Boston", "Boston", "US"),
     ("Washington, D.C.", "Washington, D.C.", "US"), ("Los Angeles", "Los Angeles", "US"),
@@ -376,8 +380,7 @@ def harvest():
                     "lat": lat, "lon": lon, "gps": gps,
                     "place": place, "iso2": iso2, "caption": cap,
                     "credit": cred, "licence": lic,
-                    "page": "https://commons.wikimedia.org/wiki/" +
-                            L.urllib.parse.quote("File:" + title.replace(" ", "_")),
+                    "page": L.page_url(title),
                 }))
             scored.sort(key=lambda t2: (-t2[0], t2[1]["id"]))
             picked, sigs = 0, set()
