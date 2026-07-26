@@ -352,16 +352,21 @@ def detect(boards, words, declared):
                         tw = words_of(t)
                         if tw and set(tw) <= gwords[gj]:
                             why = "C:tile appears inside category %r" % other["name"]
-                    # B — the dataset files this tile under a similar category elsewhere
+                    # B — the dataset files this tile under a similar category elsewhere.
+                    # Only DISTINCTIVE shared words count: 'united' is in 30 category
+                    # names and would otherwise match a whole pack to itself.
                     if not why:
                         for (otag, oname) in elsewhere.get(tile_key(t), []):
                             if otag == tag:
                                 continue
-                            shared = set(words_of(oname)) & gwords[gj]
+                            shared = {w for w in set(words_of(oname)) & gwords[gj]
+                                      if df.get(w, 99) <= DF_MAX}
                             if shared:
                                 why = ("B:same tile in %s under %r (shares %s)"
                                        % (otag, oname, "/".join(sorted(shared))))
                                 break
+                    if why and gj in fits[tag].get(t, ()):
+                        why = None            # already recorded (declared wins the label)
                     if why:
                         fits[tag].setdefault(t, set()).add(gj)
                         report.append({"board": tag, "title": b.get("title", ""),
@@ -417,7 +422,8 @@ def main():
     words = load_words()
     errs, info = [], {}
     boards = structure(data, raw, errs, info)
-    fits, report = detect(boards, words)
+    declared = load_declared()
+    fits, report = detect(boards, words, declared)
 
     nonunique = []
     for pid, tag, b, gs in boards:
@@ -470,8 +476,16 @@ def main():
           % ok(not has("1..N") and not has("diff")))
     print(" 11  unique solution granting every detected double-fit .... %s  (%d/%d boards)"
           % (ok(not nonunique), nb - len(nonunique), nb))
-    print("     detector A (compound) %s"
-          % ("live, %d words" % len(words) if words else "SKIPPED — no words_alpha.txt"))
+    nd = sum(1 for r in report if r["why"].startswith("D:"))
+    print("     sources: D declared %d · A compound %d · B elsewhere %d · C in-name %d"
+          % (nd,
+             sum(1 for r in report if r["why"].startswith("A:")),
+             sum(1 for r in report if r["why"].startswith("B:")),
+             sum(1 for r in report if r["why"].startswith("C:"))))
+    print("     detector A dictionary %s; %d/%d boards matched to an authored module"
+          % ("live, %d words" % len(words) if words else "SKIPPED — no words_alpha.txt",
+             sum(1 for _, _, _, gs in boards
+                 if frozenset(tile_key(t) for g in gs for t in g["tiles"]) in declared), nb))
 
     if not quiet:
         print("\nDOUBLE-FIT REPORT — %d tiles found by an independent detector to plausibly\n"
