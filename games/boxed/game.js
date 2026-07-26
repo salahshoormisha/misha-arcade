@@ -814,14 +814,18 @@
         day: day, practice: practice, par: P.par, norm: over ? normFor(said.length) : null,
       };
     },
+    // type() replaces the buffer with `s`, keeping the chain letter, exactly as
+    // if the player had cleared and retyped it.
     type: function (s) {
       s = String(s).toUpperCase();
-      var i = 0;
-      if (seedLen() && s.charAt(0) === cur.charAt(0)) i = 1;
+      cur = said.length ? said[said.length - 1].slice(-1) : "";
+      var i = (said.length && s.charAt(0) === cur) ? 1 : 0;
       for (; i < s.length; i++) push(s.charAt(i));
+      render();
       return cur;
     },
     word: function (s) { window.__BX.type(s); submit(); return said.slice(); },
+    key: function (k) { onKey({ key: k, preventDefault: function () {} }); return __BX.state(); },
     solve: function () { window.__BX.word(P.sol[0]); window.__BX.word(P.sol[1]); return said.slice(); },
     giveUp: function () { end(false); },
     back: back,

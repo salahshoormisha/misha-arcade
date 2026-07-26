@@ -350,7 +350,7 @@
     h += '<div class="ac-row" style="margin-top:16px">' +
       '<button class="ac-btn" id="ac-share">Share</button>' +
       (practice ? '<button class="ac-btn ghost" id="ac-again">Play again</button>'
-        : '<a class="ac-btn ghost" href="' + A.rootPath() + 'league/" style="text-decoration:none">⚔️ LEAGUE</a>') +
+        : '<a class="ac-btn ghost" href="' + A.rootPath() + 'league/">Misha v David</a>') +
       "</div>";
 
     if (!practice) {

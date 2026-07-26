@@ -502,7 +502,7 @@
       var e = A.el("div", "ctc" + (done ? " done" : ""));
       e.style.setProperty("--ctc", "var(" + GC[k].tok + ")");
       e.innerHTML = flagImg(g.i) + '<span class="nm">' + esc(cname(g.i)) + "</span>" +
-        '<span class="tk">' + (done ? "✓" : "4") + "</span>";
+        '<span class="tk">' + (done ? "✓" : "×4") + "</span>";
       e.title = cname(g.i) + (done ? " — solved" : " — four of these tiles are its exports");
       stripEl.appendChild(e);
     });
@@ -571,22 +571,26 @@
     tileEl = {};
     grid.classList.toggle("off", over || busy);
     if (!live.length) return;
-    var cols = grid.clientWidth >= 560 ? 4 : 2;
-    var gw = grid.clientWidth || 340;
-    var tw = Math.max(80, (gw - (cols - 1) * 7) / cols);
-    var th = grid.clientWidth >= 620 ? 84 : (window.innerWidth < 360 ? 76 : 70);
+    var shown = [];
     live.forEach(function (name) {
       var d = dispOf(name);
       var b = A.el("button", "ctt", esc(d));
       b.type = "button";
-      b.style.fontSize = fitFont(d, tw, th) + "px";
       if (sel.indexOf(name) >= 0) b.classList.add("sel");
       b.setAttribute("aria-pressed", sel.indexOf(name) >= 0 ? "true" : "false");
       if (d !== name) b.title = name;
       b.onclick = function () { tap(name); };
       tileEl[name] = b;
+      shown.push({ el: b, text: d });
       grid.appendChild(b);
     });
+    /* Measure ONE real tile, then size the type to it. Reading the box beats
+       guessing the column count from a media query we'd have to keep in sync,
+       and it is a single synchronous reflow — never rAF, which a background tab
+       pauses (tiles would be left unsized and unreadable). */
+    var tw = shown[0].el.clientWidth || 160;
+    var th = shown[0].el.clientHeight || 70;
+    shown.forEach(function (s) { s.el.style.fontSize = fitFont(s.text, tw, th) + "px"; });
   }
 
   function renderStatus() {
