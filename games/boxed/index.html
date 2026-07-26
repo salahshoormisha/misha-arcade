@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BOXED IN · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▢</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=6">
+<style>
+  /* ── the run of pills above the square ─────────────────────────────────── */
+  .bx-top { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+
+  /* ── the word being built ──────────────────────────────────────────────── */
+  #wordline {
+    margin: 12px auto 0; min-height: 42px; text-align: center;
+    display: flex; align-items: flex-end; justify-content: center; gap: 1px;
+    border-bottom: 1px solid var(--line); padding-bottom: 7px; max-width: 340px;
+    overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  }
+  #wordline::-webkit-scrollbar { display: none; }
+  #curword { font-size: 25px; font-weight: 900; letter-spacing: 3px; color: #fff; white-space: nowrap; }
+  #curword .seed { color: var(--gold); }
+  #caret { width: 2px; height: 26px; background: var(--gold); animation: bxblink 1s steps(1) infinite; flex: 0 0 auto; }
+  @keyframes bxblink { 50% { opacity: 0 } }
+  body.rm #caret { animation: none; }
+
+  /* ── the square ────────────────────────────────────────────────────────── */
+  #box { position: relative; width: min(340px, 100%); margin: 14px auto 0; touch-action: manipulation; }
+  #cv { position: absolute; left: 0; top: 0; }
+  .lb {
+    position: absolute; width: 44px; height: 44px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 17px; font-weight: 800; letter-spacing: 0;
+    background: var(--panel); border: 1.5px solid var(--line2); color: var(--ink);
+    cursor: pointer; padding: 0; transition: background .12s, border-color .12s, color .12s;
+  }
+  .lb.used { background: #140a2c; border-color: #2b1f4d; color: var(--ink4); }
+  .lb.act { border-color: var(--gold); color: #fff; box-shadow: 0 0 12px var(--glow); }
+  .lb.last { background: var(--gold); border-color: var(--gold); color: #2a1f00; }
+  .lb:focus-visible { outline: 2px solid var(--cool); outline-offset: 2px; }
+  body.rm .lb { transition: none; }
+
+  /* ── what's left ───────────────────────────────────────────────────────── */
+  #left { text-align: center; margin-top: 12px; font-size: 11px; letter-spacing: 1.4px; color: var(--ink4); }
+  #left b { color: var(--gold); font-size: 13px; letter-spacing: 3px; }
+  #left.done { color: var(--ok); }
+
+  /* ── submitted words ───────────────────────────────────────────────────── */
+  #words { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; min-height: 4px; }
+  #words span {
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px;
+    font-size: 12px; letter-spacing: 1.5px; color: var(--ink2); background: #ffffff08;
+  }
+  #words b { color: var(--gold); }
+
+  #ctl { margin-top: 14px; }
+  #ctl .ac-btn { min-width: 96px; }
+  .modes { display: flex; justify-content: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .sol { font-size: 13px; letter-spacing: 2px; color: var(--gold); text-align: center; line-height: 1.9; margin: 6px 0; }
+  .sol i { color: var(--ink4); font-style: normal; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=6"></script>
+<script src="../../core/arcade.js?v=6"></script>
+<script src="../../core/ui.js?v=6"></script>
+<script src="../../core/audio.js?v=6"></script>
+<script src="../../core/data/words.js?v=6"></script>
+<script src="game.js?v=6"></script>
+</body>
+</html>

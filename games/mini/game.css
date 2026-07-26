@@ -1,0 +1,117 @@
+/* ============================================================================
+   MINI — game-specific CSS only. Shared components (.ac-*) come from
+   core/style.css and are not restyled here, except for a tap-target bump on
+   the pills inside this game's own toolbar (the 44 px rule).
+   ========================================================================== */
+
+/* ── toolbar: clock, pause, tools ───────────────────────────────────────── */
+
+#mtop {
+  display: flex; align-items: center; justify-content: center;
+  gap: 7px; flex-wrap: wrap; margin-top: 8px;
+}
+#mtop .ac-pill { min-height: 44px; padding: 6px 15px; }
+#mtop .clk { cursor: pointer; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: #fff; }
+#mtop .clk.off { color: var(--ink4); letter-spacing: 3px; }
+#mtop .clk.beat { color: var(--mint); }
+#mtop button.ac-pill { cursor: pointer; }
+
+/* ── the grid ───────────────────────────────────────────────────────────── */
+
+#gwrap { position: relative; width: min(348px, 88vw); margin: 12px auto 0; }
+#grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+  background: var(--line2); border: 2px solid var(--line2);
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, .45);
+}
+.sq {
+  position: relative; aspect-ratio: 1; background: #150a33;
+  display: grid; place-items: center; cursor: pointer;
+  font-weight: 800; font-size: clamp(21px, 7.6vw, 31px); line-height: 1;
+  color: var(--ink); text-transform: uppercase;
+  user-select: none; -webkit-user-select: none;
+  transition: background .12s;
+}
+.sq.block { background: #08041a; cursor: default; }
+.sq .n {
+  position: absolute; top: 2px; left: 4px; font-style: normal; font-weight: 700;
+  font-size: 9px; line-height: 1; letter-spacing: 0; color: var(--ink4);
+}
+.sq .l { pointer-events: none; }
+
+.sq.ent { background: #14344f; }                                   /* active entry  */
+.sq.ent .n { color: #7fb6d8; }
+.sq.cur { background: #4d3b0e; box-shadow: inset 0 0 0 2px var(--gold); }  /* active square */
+.sq.cur .n { color: var(--gold); }
+
+.sq.good .l { color: var(--ok); }                                  /* confirmed by CHECK */
+.sq.wrong::after {                                                 /* confirmed wrong — a shape, not just a colour */
+  content: ""; position: absolute; inset: 8%;
+  background: linear-gradient(to bottom right,
+    transparent calc(50% - 1.4px), var(--bad) calc(50% - 1.4px),
+    var(--bad) calc(50% + 1.4px), transparent calc(50% + 1.4px));
+}
+.sq.rev::before {                                                  /* took a reveal here */
+  content: ""; position: absolute; top: 0; right: 0;
+  border-style: solid; border-width: 0 10px 10px 0;
+  border-color: transparent var(--bad) transparent transparent;
+}
+.sq.done { background: #0e3826; }
+.sq.done .l { color: var(--ok); }
+
+#pz {
+  position: absolute; inset: 0; z-index: 5; display: none; place-items: center;
+  background: rgba(7, 3, 18, .95); border-radius: 10px; text-align: center;
+}
+#pz.on { display: grid; }
+#pz b { display: block; font-size: 13px; letter-spacing: 3px; color: var(--cool); margin-bottom: 12px; }
+
+/* ── clue bar (lives directly above the keyboard) ───────────────────────── */
+
+#cbar {
+  display: flex; align-items: stretch; width: min(500px, 100%);
+  margin: 12px auto 0; border: 1px solid var(--line);
+  border-radius: 12px; background: #ffffff08; overflow: hidden;
+  touch-action: pan-y;
+}
+#cbar button {
+  flex: 0 0 46px; min-height: 56px; background: none; border: none;
+  color: var(--ink3); font-size: 18px; cursor: pointer;
+}
+#cbar button:active { background: #ffffff14; }
+#cbar .txt {
+  flex: 1 1 auto; min-width: 0; min-height: 56px; padding: 7px 6px; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: center; gap: 3px;
+}
+#cbar .lab { font-size: 9.5px; letter-spacing: 1.8px; color: var(--cool); }
+#cbar .cl { font-size: 13.5px; line-height: 1.35; color: var(--ink); }
+
+/* ── clue lists (inline on desktop, in a modal on phones) ───────────────── */
+
+.cluelist { grid-template-columns: 1fr 1fr; gap: 16px; }
+#clues { display: none; margin: 18px auto 0; }
+@media (min-width: 720px) { #clues { display: grid; } }
+.cluelist h3 { font-size: 10px; letter-spacing: 2.4px; color: var(--ink4); margin-bottom: 6px; }
+.cluelist .ci {
+  display: flex; gap: 7px; padding: 6px 7px; border-radius: 7px; cursor: pointer;
+  font-size: 12.5px; line-height: 1.4; color: var(--ink2);
+}
+.cluelist .ci b { color: var(--ink4); min-width: 15px; text-align: right; }
+.cluelist .ci.on { background: #14344f; color: #fff; }
+.cluelist .ci.on b { color: var(--cool); }
+.cluelist .ci.filled { color: var(--ink4); }
+.cluelist .ci.filled b { color: var(--ink4); }
+
+/* the modal version wants two columns even on a phone-sized modal */
+.ac-modal .cluelist { display: grid; }
+@media (max-width: 420px) { .ac-modal .cluelist { grid-template-columns: 1fr; } }
+
+/* ── tools sheet ────────────────────────────────────────────────────────── */
+
+.tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 4px 0 14px; }
+.tools-grid button { width: 100%; }
+.tools-lab { font-size: 10px; letter-spacing: 2px; color: var(--ink4); margin-bottom: 6px; }
+
+.mbadge { font-size: 11.5px; letter-spacing: 1px; color: var(--gold); text-align: center; margin-top: 8px; }
+.mpar { font-size: 12px; letter-spacing: 1px; color: var(--ink3); text-align: center; margin-top: 2px; }

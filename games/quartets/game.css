@@ -1,0 +1,118 @@
+/* ============================================================================
+   QUARTETS — game-specific CSS only. Everything else comes from core/style.css.
+   Group colours map onto the shared tokens: y=--gold g=--mint b=--cool p=--violet
+   ========================================================================== */
+
+.qtop { margin-top: 10px; }
+.qtop .ac-pill { text-decoration: none; }
+.qtop button.ac-pill, .qtop a.ac-pill { cursor: pointer; min-height: 32px; }
+
+/* ── solved bands ───────────────────────────────────────────────────────── */
+
+#qbands { display: grid; gap: 6px; margin-top: 12px; }
+#qbands:empty { margin-top: 0; }
+
+.qband {
+  background: var(--qc);
+  border-radius: 10px;
+  padding: 9px 12px 10px;
+  color: #14032a;
+  text-align: center;
+  animation: qrise .28s cubic-bezier(.2, .9, .3, 1);
+}
+.qband .qbn {
+  font-weight: 900; font-size: 12px; letter-spacing: 1.6px; line-height: 1.3;
+  display: block;
+}
+.qband .qbp { opacity: .55; font-size: 9px; letter-spacing: 1px; vertical-align: 2px; }
+.qband .qbt {
+  display: block; font-size: 11.5px; letter-spacing: .6px; margin-top: 2px;
+  opacity: .82; font-weight: 700; word-break: break-word;
+}
+.qband .qbz {
+  display: block; font-size: 10.5px; line-height: 1.5; margin-top: 6px;
+  opacity: .78; font-style: italic; letter-spacing: 0;
+}
+.qband.rev { box-shadow: inset 0 0 0 2px #14032a55; opacity: .82; }
+@keyframes qrise { from { transform: translateY(9px) scale(.98); opacity: 0 } }
+
+/* ── the grid ───────────────────────────────────────────────────────────── */
+
+#qgrid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  margin: 10px auto 0; max-width: 460px;
+}
+#qgrid.off { pointer-events: none; opacity: .72; }
+#qgrid:empty { display: none; }
+
+.qt {
+  height: clamp(60px, 17.6vw, 82px);
+  display: grid; place-items: center; text-align: center;
+  padding: 3px 3px; border: 2px solid var(--line2); border-radius: 8px;
+  background: #ffffff08; color: var(--ink);
+  font-family: var(--mono); font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0; line-height: 1.12; cursor: pointer;
+  overflow: hidden; overflow-wrap: anywhere; word-break: break-word;
+  transition: transform .1s, background .16s, border-color .16s, opacity .2s;
+}
+.qt:hover { border-color: var(--ink4); }
+.qt.sel {
+  background: var(--accent); border-color: var(--accent); color: #0b0320;
+  box-shadow: 0 0 14px var(--glow); transform: scale(.97);
+}
+.qt.out { opacity: .3; border-style: dashed; }
+.qt.out.sel { opacity: .7; }
+
+/* ── status + controls ──────────────────────────────────────────────────── */
+
+.qmist {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: 14px; font-size: 10px; letter-spacing: 1.8px; color: var(--ink4);
+}
+.qmist i {
+  width: 11px; height: 11px; border-radius: 999px; background: var(--bad);
+  box-shadow: 0 0 8px #ff5c7a66; transition: transform .3s, opacity .3s;
+}
+.qmist i.gone { background: #ffffff14; box-shadow: none; transform: scale(.62); }
+
+.qctl { margin-top: 12px; }
+.qctl2 { margin-top: 8px; }
+.qctl .ac-pill, .qctl2 .ac-pill { cursor: pointer; min-height: 38px; }
+.qctl .ac-pill[disabled] { opacity: .4; cursor: default; }
+#qsubmit { min-width: 168px; }
+
+.qhint {
+  text-align: center; font-size: 11px; color: var(--gold);
+  margin-top: 10px; line-height: 1.6; min-height: 1px;
+}
+
+/* ── pack picker ────────────────────────────────────────────────────────── */
+
+.qpack {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: #ffffff08; border: 1px solid var(--line); border-radius: 12px;
+  padding: 11px 13px; margin-bottom: 7px; color: var(--ink2);
+}
+.qpack:hover { border-color: var(--accent); }
+.qpack.on { border-color: var(--accent); background: var(--glow); }
+.qpack b { display: block; font-size: 12.5px; letter-spacing: 1.6px; color: #fff; }
+.qpack span { display: block; font-size: 11px; color: var(--ink3); line-height: 1.5; margin-top: 3px; }
+.qpack i { display: block; font-size: 9.5px; letter-spacing: 1.2px; color: var(--ink4); margin-top: 5px; font-style: normal; }
+
+/* ── end-of-game summary (inside the shared result sheet) ───────────────── */
+
+.qsum { display: grid; gap: 6px; margin: 12px 0 4px; text-align: left; }
+.qsrow { border-left: 3px solid var(--qc); border-radius: 5px; background: #ffffff08; padding: 7px 10px; }
+.qsrow b { display: block; font-size: 11px; letter-spacing: 1.4px; color: var(--qc); }
+.qsrow span { display: block; font-size: 10.5px; color: var(--ink2); margin-top: 2px; word-break: break-word; }
+.qsrow i { display: block; font-size: 10.5px; color: var(--ink3); line-height: 1.55; margin-top: 4px; font-style: italic; }
+
+.qepi { border: 1px solid var(--line2); border-radius: 12px; padding: 11px 13px; margin-top: 10px; }
+.qepi h3 { font-size: 10.5px; letter-spacing: 2px; color: var(--accent); margin-bottom: 5px; }
+.qepi p { font-size: 11.5px !important; color: var(--ink2); line-height: 1.65; margin: 0 !important; }
+.qmeta { text-align: center; font-size: 10px; letter-spacing: 1.6px; color: var(--ink4); margin-top: 10px; }
+
+@media (max-width: 380px) {
+  .qband .qbn { font-size: 11px; letter-spacing: 1.2px; }
+  .qband .qbt { font-size: 10.5px; }
+}
