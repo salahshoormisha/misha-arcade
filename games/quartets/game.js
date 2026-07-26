@@ -139,7 +139,7 @@
     main = A.mount({ id: ID, dayN: day, help: HELP });
 
     if (!PACKS.length) {
-      main.innerHTML = '<p class="center muted" style="padding:44px 0;line-height:1.8">' +
+      main.innerHTML = '<p class="center muted" style="padding:var(--sp-7) 0;line-height:1.8">' +
         "No boards loaded.<br>Check <b>core/data/connections.js</b> — it should set " +
         "<code>window.AD_CONNECTIONS.packs</code>.</p>";
       return;
@@ -547,7 +547,7 @@
       (board.title ? " · " + esc(board.title.toUpperCase()) : "") +
       (w && solved[0] === "p" ? " · PURPLE FIRST" : "") + "</p>";
     if (!ranked && !practice) {
-      html += '<p class="tiny dim center" style="margin-top:6px">Pack board — kept, but it doesn\'t ' +
+      html += '<p class="tiny dim center" style="margin-top:var(--sp-2)">Pack board — kept, but it doesn\'t ' +
         "touch your QUARTETS stats.</p>";
     }
 
@@ -583,7 +583,7 @@
   }
 
   function packModal() {
-    var h = '<p class="tiny muted center" style="margin-bottom:12px">The daily board comes from ' +
+    var h = '<p class="tiny muted center" style="margin-bottom:var(--sp-3)">The daily board comes from ' +
       esc((packById(DAILY_PACK) || {}).name || "the archive") +
       ". Every other pack has its own board of the day — same rules, no effect on your stats.</p>";
     PACKS.forEach(function (p) {
