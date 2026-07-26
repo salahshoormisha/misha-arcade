@@ -308,89 +308,108 @@ SEEDS = [
 # ── clue vocabulary: regex over (title + description + categories) → clue ──
 # Every clue here names something the source metadata literally says is there.
 CLUE_RULES = [
-    (r"\btram(way|s|car)?\b|straßenbahn", "tram tracks in the road"),
-    (r"\btrolleybus|trolleybuses\b", "trolleybus wires overhead"),
-    (r"\brickshaw|tuk[- ]?tuk|tricycle taxi", "auto-rickshaws"),
-    (r"\bmatatu\b", "minibus taxis"),
-    (r"\bjeepney", "jeepneys"),
-    (r"\bdhow\b", "lateen-rigged dhows"),
-    (r"\bpirogue|dugout canoe", "dugout canoes"),
-    (r"\bgondola\b", "gondolas"),
-    (r"\bsampan|junk boat", "wooden sampans"),
-    (r"\bfishing (boat|vessel|village)|trawler", "fishing boats"),
-    (r"\brailway|railroad|train station|locomotive\b", "railway track"),
-    (r"\bbicycl|cycling|bike\b", "bicycles"),
-    (r"\bmotorcycl|scooter|moped", "motorcycles"),
-    (r"\bbus(es|station|stop)\b|\bbuses\b", "public buses"),
-    (r"\bminaret|mosque|masjid|jami\b", "a minaret"),
-    (r"\bpagoda\b", "a pagoda roofline"),
-    (r"\bstupa|chorten\b", "a Buddhist stupa"),
-    (r"\bonion dome", "onion domes"),
-    (r"\bchurch(es)?|cathedral|basilica|chapel|kirche|iglesia\b", "a church tower"),
-    (r"\btemple(s)?\b|\bwat\b|\bshrine\b|torii", "temple architecture"),
-    (r"\bsynagogue\b", "a synagogue"),
-    (r"\bthatch", "thatched roofs"),
-    (r"\bcorrugated|tin roof|zinc roof", "corrugated-iron roofs"),
-    (r"\badobe|mud[- ]brick|mudbrick|pisé|rammed earth", "earth-brick walls"),
-    (r"\bwhitewash|whitewashed", "whitewashed walls"),
-    (r"\bhalf[- ]timber|fachwerk", "half-timbered houses"),
-    (r"\blog (cabin|house)|wooden hous|timber hous|izba\b", "timber houses"),
-    (r"\bpanelák|khrushchyovka|plattenbau|panel building|prefabricated hous", "prefab concrete blocks"),
-    (r"\bskyscraper|high[- ]rise", "high-rise towers"),
-    (r"\bcobble(stone)?|setts\b|pavé", "cobbled paving"),
-    (r"\bterracotta roof|red[- ]tiled|tiled roof|roof tiles", "terracotta roof tiles"),
-    (r"\bbalcon(y|ies)\b", "balconies"),
-    (r"\barcade(s)?\b|colonnade|portico", "arcaded shopfronts"),
-    (r"\bmarket|bazaar|bazar|souk|stall", "open-air market stalls"),
-    (r"\bcafé|cafe\b|restaurant|teahouse|chaikhana", "street cafés"),
-    (r"\brice (paddy|paddies|field|terrace)|paddy field", "rice paddies"),
-    (r"\bterrac(ed|es) (field|farm|agricultur)", "terraced fields"),
-    (r"\bvineyard|wine region", "vineyards"),
-    (r"\bolive (grove|tree)", "olive groves"),
-    (r"\btea (plantation|estate|garden)", "tea plantations"),
-    (r"\bbanana|plantain plantation", "banana plants"),
-    (r"\bcoconut|palm (tree|grove)|palmier|palmen", "palm trees"),
-    (r"\bbaobab", "baobab trees"),
-    (r"\beucalyptus|gum tree", "eucalyptus"),
-    (r"\bbirch\b", "birch trees"),
-    (r"\bconifer|spruce|pine forest|taiga|fir forest", "conifer forest"),
-    (r"\bcact(us|i)|saguaro", "cactus"),
-    (r"\bbamboo", "bamboo"),
-    (r"\bsavanna|savannah|bushveld", "savanna grassland"),
-    (r"\bsteppe|prairie|pampas", "open grassland"),
-    (r"\bdesert|dune|erg\b|sahara|sand sea", "desert sand"),
-    (r"\brainforest|jungle|tropical forest", "dense tropical forest"),
-    (r"\btundra|permafrost", "treeless tundra"),
-    (r"\bglacier|icecap|ice cap|iceberg", "glacial ice"),
-    (r"\bfjord", "a fjord"),
-    (r"\bvolcano|volcanic|caldera|crater lake", "a volcanic cone"),
-    (r"\bsnow(y|-covered)?\b|schnee|neige", "snow on the ground"),
-    (r"\bmountain|alps|andes|himalaya|highland|sierra\b|massif", "mountains on the skyline"),
-    (r"\bbeach|seaside|coastline|shoreline|seafront|playa", "a coastline"),
-    (r"\bharbou?r|port of|quay|wharf|jetty|marina", "a working harbour"),
-    (r"\bcanal\b|gracht", "a canal"),
-    (r"\briver|riverbank|rivière|rio\b", "a river"),
-    (r"\blake\b|lac\b|lago\b|see\b", "a lake"),
-    (r"\bwaterfall|falls\b|cascade", "a waterfall"),
-    (r"\bbridge\b|brücke|pont\b|puente", "a bridge"),
-    (r"\bcamel|dromedary", "camels"),
-    (r"\bcattle|cows\b|zebu|oxen|bullock", "cattle"),
-    (r"\bsheep|goats?\b|llama|alpaca|yak\b", "grazing livestock"),
-    (r"\bhors(e|es)|donkey|mule|ox[- ]?cart|horse[- ]?cart", "working animals"),
-    (r"\bwindmill|molen", "a windmill"),
-    (r"\bwind turbine|wind farm", "wind turbines"),
-    (r"\bpower line|pylon|utility pole|telephone pole", "overhead power lines"),
-    (r"\bmural|street art", "painted wall murals"),
-    (r"\bflag\b", "a national flag flying"),
-    (r"\bfestival|parade|procession|carnival|fair\b", "a street celebration"),
-    (r"\bstadium|football pitch|sports ground", "a sports ground"),
-    (r"\bschool\b|university|campus", "school buildings"),
-    (r"\bfort(ress)?|castle|citadel|kremlin|kasbah|qasr", "a fortified wall"),
-    (r"\bruins?\b|archaeological", "stone ruins"),
-    (r"\blighthouse", "a lighthouse"),
-    (r"\bmonsoon|rainy season|flood", "wet-season conditions"),
+    (r"\b(?:trams?|tramway|tramcar|streetcar|straßenbahn)\b", "tram tracks in the road"),
+    (r"\b(?:trolleybus|trolleybuses|trolejbus)\b", "trolleybus wires overhead"),
+    (r"\b(?:rickshaws?|tuk[- ]?tuks?|autorickshaw)\b", "auto-rickshaws"),
+    (r"\b(?:matatus?)\b", "minibus taxis"),
+    (r"\b(?:jeepneys?)\b", "jeepneys"),
+    (r"\b(?:dhows?)\b", "lateen-rigged dhows"),
+    (r"\b(?:pirogues?|dugout canoes?)\b", "dugout canoes"),
+    (r"\b(?:gondolas?)\b", "gondolas"),
+    (r"\b(?:sampans?|junk boats?)\b", "wooden sampans"),
+    (r"\b(?:fishing (?:boats?|vessels?|village)|trawlers?)\b", "fishing boats"),
+    (r"\b(?:railways?|railroads?|railway stations?|locomotives?|trains?)\b", "railway track"),
+    (r"\b(?:bicycles?|bicycling|cycling|cyclists?)\b", "bicycles"),
+    (r"\b(?:motorcycles?|scooters?|mopeds?)\b", "motorcycles"),
+    (r"\b(?:buses|bus stations?|bus stops?|autobus)\b", "public buses"),
+    (r"\b(?:minarets?|mosques?|masjid|madrasa)\b", "a minaret"),
+    (r"\b(?:pagodas?)\b", "a pagoda roofline"),
+    (r"\b(?:stupas?|chortens?)\b", "a Buddhist stupa"),
+    (r"\b(?:onion domes?)\b", "onion domes"),
+    (r"\b(?:churches?|cathedrals?|basilicas?|chapels?|kirche|iglesia)\b", "a church tower"),
+    (r"\b(?:temples?|shrines?|torii|pagoda)\b", "temple architecture"),
+    (r"\b(?:synagogues?)\b", "a synagogue"),
+    (r"\b(?:thatch|thatched)\b", "thatched roofs"),
+    (r"\b(?:corrugated iron|corrugated metal|tin roofs?|zinc roofs?)\b", "corrugated-iron roofs"),
+    (r"\b(?:adobe|mud[- ]?brick|mudbrick|rammed earth|banco)\b", "earth-brick walls"),
+    (r"\b(?:whitewashed?)\b", "whitewashed walls"),
+    (r"\b(?:half[- ]timbered|fachwerk|colombage)\b", "half-timbered houses"),
+    (r"\b(?:log cabins?|log houses?|wooden houses?|timber houses?|izba)\b", "timber houses"),
+    (r"\b(?:panelák|khrushchyovka|plattenbau|panel buildings?|prefabricated housing)\b",
+     "prefab concrete blocks"),
+    (r"\b(?:skyscrapers?|high[- ]rise)\b", "high-rise towers"),
+    (r"\b(?:cobblestone|cobbled|cobbles|kopfsteinpflaster)\b", "cobbled paving"),
+    (r"\b(?:terracotta roofs?|red[- ]tiled|tiled roofs?|roof tiles)\b", "terracotta roof tiles"),
+    (r"\b(?:balconies|balcony)\b", "balconies"),
+    (r"\b(?:arcades?|colonnades?|porticos?)\b", "arcaded shopfronts"),
+    (r"\b(?:markets?|marketplace|bazaars?|bazars?|souks?|market stalls?)\b",
+     "open-air market stalls"),
+    (r"\b(?:cafés?|cafes|coffeehouses?|teahouses?|chaikhana)\b", "street cafés"),
+    (r"\b(?:rice paddy|rice paddies|rice fields?|paddy fields?|rice terraces?)\b", "rice paddies"),
+    (r"\b(?:terraced fields?|terraced farming|agricultural terraces?)\b", "terraced fields"),
+    (r"\b(?:vineyards?)\b", "vineyards"),
+    (r"\b(?:olive groves?|olive trees?)\b", "olive groves"),
+    (r"\b(?:tea plantations?|tea estates?|tea gardens?)\b", "tea plantations"),
+    (r"\b(?:banana plants?|banana trees?|banana plantations?|plantain)\b", "banana plants"),
+    (r"\b(?:coconut palms?|palm trees?|palm groves?|palmiers|palmen|coconuts? tree)\b",
+     "palm trees"),
+    (r"\b(?:baobabs?)\b", "baobab trees"),
+    (r"\b(?:eucalyptus|gum trees?)\b", "eucalyptus"),
+    (r"\b(?:birch|birches)\b", "birch trees"),
+    (r"\b(?:conifers?|spruce|pine forests?|taiga|fir forests?)\b", "conifer forest"),
+    (r"\b(?:cactus|cacti|saguaro)\b", "cactus"),
+    (r"\b(?:bamboo)\b", "bamboo"),
+    (r"\b(?:savanna|savannah|bushveld)\b", "savanna grassland"),
+    (r"\b(?:steppe|prairie|pampas)\b", "open grassland"),
+    (r"\b(?:deserts?|sand dunes?|dunes?|sahara|sand sea)\b", "desert sand"),
+    (r"\b(?:rainforests?|jungle|tropical forests?)\b", "dense tropical forest"),
+    (r"\b(?:tundra|permafrost)\b", "treeless tundra"),
+    (r"\b(?:glaciers?|ice cap|icecap|icebergs?)\b", "glacial ice"),
+    (r"\b(?:fjords?)\b", "a fjord"),
+    (r"\b(?:volcanoes?|volcano|volcanic|caldera|crater lake)\b", "a volcanic cone"),
+    (r"\b(?:snow|snowy|snow[- ]covered|schnee|neige)\b", "snow on the ground"),
+    (r"\b(?:mountains?|alps|andes|himalaya|highlands?|sierra|massif)\b",
+     "mountains on the skyline"),
+    (r"\b(?:beaches?|seaside|coastline|shoreline|seafront|playa|coast)\b", "a coastline"),
+    (r"\b(?:harbours?|harbors?|port of|quays?|wharfs?|wharves|jetty|jetties)\b",
+     "a working harbour"),
+    (r"\b(?:canals?|gracht|grachten)\b", "a canal"),
+    (r"\b(?:rivers?|riverbank|rivière|riverside)\b", "a river"),
+    (r"\b(?:lakes?|lagoons?)\b", "a lake"),
+    (r"\b(?:waterfalls?|cascades?)\b", "a waterfall"),
+    (r"\b(?:bridges?|brücke|puente|ponte)\b", "a bridge"),
+    (r"\b(?:camels?|dromedary|dromedaries)\b", "camels"),
+    (r"\b(?:cattle|cows|zebu|oxen|bullock)\b", "cattle"),
+    (r"\b(?:sheep|goats?|llamas?|alpacas?|yaks?)\b", "grazing livestock"),
+    (r"\b(?:horses?|donkeys?|mules?|ox[- ]?carts?|horse[- ]?carts?)\b", "working animals"),
+    (r"\b(?:windmills?|molen)\b", "a windmill"),
+    (r"\b(?:wind turbines?|wind farms?)\b", "wind turbines"),
+    (r"\b(?:power lines?|pylons?|utility poles?|telephone poles?)\b", "overhead power lines"),
+    (r"\b(?:murals?|street art)\b", "painted wall murals"),
+    (r"\b(?:festivals?|parades?|processions?|carnival)\b", "a street celebration"),
+    (r"\b(?:stadiums?|football pitch|sports ground|sportsground)\b", "a sports ground"),
+    (r"\b(?:forts?|fortress|citadel|kremlin|kasbah|city walls?|castle)\b", "a fortified wall"),
+    (r"\b(?:ruins|archaeological site)\b", "stone ruins"),
+    (r"\b(?:lighthouses?)\b", "a lighthouse"),
 ]
 CLUE_RULES = [(re.compile(p, re.I), c) for p, c in CLUE_RULES]
+
+# Boilerplate that Flickr/500px/Panoramio importers leave in ImageDescription.
+CAP_JUNK = [
+    r"500px provided description[:\s]*", r"\[#[^\]]*\]", r"#\w+", r"<[^>]*>",
+    r"https?://\S+", r"www\.\S+", r"Attribution to[:\s]*\S*",
+    r"\bAll rights reserved\b.*$", r"\bLicen[cs]e[:\s].*$",
+    r"\bphotographer[:\s]*", r"\bCamera[:\s].*$", r"\bTaken with\b.*$",
+    r"\bUploaded (by|from)\b.*$", r"\bOriginal caption[:\s]*",
+]
+CAP_JUNK = [re.compile(p, re.I) for p in CAP_JUNK]
+
+
+def clean_caption(s):
+    for rx in CAP_JUNK:
+        s = rx.sub(" ", s)
+    s = re.sub(r"\s+", " ", s).strip(" .,;:-|")
+    return s
 
 # Country-level cues, added ONLY when the metadata shows the relevant context
 # (a road/vehicle for driving side; a sign/shop/market for script).
@@ -513,8 +532,9 @@ def harvest():
                 continue
             cats = " | ".join(c.get("title", "").replace("Category:", "")
                               for c in (p.get("categories") or []))
-            desc = L.clean(L.em(ii, "ImageDescription"), 200)
-            blob = " ".join([title.replace("_", " "), desc, cats])
+            desc = clean_caption(L.clean(L.em(ii, "ImageDescription"), 220))
+            near = title.replace("_", " ").rsplit(".", 1)[0] + " . " + desc
+            blob = " ".join([near, cats])
             r = L.rejected(blob)
             if r:
                 bump("scene:" + r)
@@ -522,7 +542,7 @@ def harvest():
             if L.has_burned_place(title, place):
                 bump("place-name-in-frame")
                 continue
-            if not L.SCENE_RE.search(blob):
+            if not L.STRONG_RE.search(blob):
                 bump("no-outdoor-scene-word")
                 continue
             co = (p.get("coordinates") or [{}])[0]
@@ -537,21 +557,26 @@ def harvest():
             if len(clues) < 2:
                 bump("under-2-clues")
                 continue
-            # prefer wide, well-described, ordinary scenes
+            # prefer wide, well-described, ORDINARY ground-level scenes
             sc = 0
-            sc += 3 * len(L.SCENE_RE.findall(blob)[:6])
+            sc += 3 * min(6, len(set(m.lower() for m in L.STRONG_RE.findall(blob))))
             sc += 2 * len(clues)
             sc += 2 if w >= 1000 else 0
             sc += 2 if (h and w and 1.2 <= w / float(h) <= 2.0) else 0
-            sc += 3 if re.search(r"\b(street|road|village|market|countryside|"
-                                 r"town|view of|panorama|houses)\b", blob, re.I) else 0
-            sc -= 4 if re.search(r"\b(museum|monument|memorial|statue|tower of|"
-                                 r"palace|cathedral)\b", blob, re.I) else 0
+            sc += 5 if L.STRONG_RE.search(near) else 0          # said so up front
+            sc += 4 if re.search(r"\b(street|road|village|countryside|rural|"
+                                 r"town|market|view of|panorama|houses|"
+                                 r"streetscape|everyday)\b", blob, re.I) else 0
+            sc += 2 if len(desc) >= 25 else 0
+            sc -= 5 if re.search(r"\b(museum|monument|memorial|statue|sculpture|"
+                                 r"palace|cathedral|basilica|mausoleum)\b", blob, re.I) else 0
+            sc -= 3 if re.search(r"\b(aerial|from the air|satellite|drone)\b", blob, re.I) else 0
+            cap = desc[:150] if len(desc) >= 12 else title.replace("_", " ").rsplit(".", 1)[0]
             scored.append((sc, {
                 "id": "p_" + L.slug(title.rsplit(".", 1)[0], 46),
                 "url": url, "w": w, "h": h, "lat": lat, "lon": lon,
                 "iso2": iso2, "place": place,
-                "caption": desc[:150] if desc else title.replace("_", " ").rsplit(".", 1)[0],
+                "caption": cap,
                 "credit": cred, "licence": lic,
                 "page": "https://commons.wikimedia.org/wiki/" +
                         L.urllib.parse.quote("File:" + title.replace(" ", "_")),
