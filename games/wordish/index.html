@@ -4,23 +4,56 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WORDISHA · Midnight Arcade</title>
-<meta name="theme-color" content="#070312">
+<meta name="theme-color" content="#06050b">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
-<link rel="stylesheet" href="../../core/style.css?v=7">
+<link rel="stylesheet" href="../../core/style.css?v=8">
 <style>
-  #board { display: grid; gap: 6px; margin: 14px auto 0; width: min(330px, 82vw); }
-  #board .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  #board .ac-tile { aspect-ratio: 1; }
-  .modes { display: flex; justify-content: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .etym { font-size: 12px; color: var(--gold); text-align: center; line-height: 1.7; margin-top: 8px; }
+  /* ==========================================================================
+     WORDISHA — game-specific CSS only. Shared .ac-* components come from
+     core/style.css and are not restyled, apart from the 44 px tap-target bump
+     on the pills this game puts in its own mode row. Tokens only.
+     ========================================================================== */
+
+  /* The usable viewport height. svh is the SMALL viewport (mobile URL bar
+     showing), so a board sized against it never grows into the chrome. */
+  :root { --vh: 100vh; }
+  @supports (height: 100svh) { :root { --vh: 100svh; } }
+
+  /* ── the board ───────────────────────────────────────────────────────────
+     One tile edge, bounded three ways: a desktop cap, the width of the wrap,
+     and the vertical space left once the header, mode row and keyboard have
+     taken theirs. That last bound is what keeps the ENTER key on screen on a
+     short phone instead of pushing the bottom keyboard row past the fold.
+     402px = header 61 + sub 29 + margins 40 + modes 92 + keyboard 144 + 36. */
+  #board {
+    --tile: min(58px, calc((100vw - 48px) / 5), calc((var(--vh) - 402px) / 6));
+    display: grid; gap: var(--sp-1); margin: var(--sp-3) auto 0;
+    width: calc(var(--tile) * 5 + var(--sp-1) * 4);
+  }
+  #board .row { display: grid; grid-template-columns: repeat(5, var(--tile)); gap: var(--sp-1); }
+  /* Explicit square, and a letter sized off the tile — so a tile can never
+     change size between empty, filled and scored. */
+  #board .ac-tile { width: var(--tile); height: var(--tile); font-size: calc(var(--tile) * .52); }
+
+  /* ── mode row ────────────────────────────────────────────────────────────── */
+  .modes { display: flex; justify-content: center; gap: var(--sp-1); margin-top: var(--sp-3); flex-wrap: wrap; }
+  .modes .ac-pill { min-height: 44px; text-decoration: none; cursor: pointer; }
+
+  /* ── result sheet extras ─────────────────────────────────────────────────── */
+  .wd-answer {
+    margin: var(--sp-2) 0; font-family: var(--mono); font-size: var(--t-2xl);
+    font-weight: 600; letter-spacing: .18em; color: var(--amber);
+  }
+  .etym { font-size: var(--t-sm); color: var(--ink-2); text-align: center; line-height: 1.7; margin-top: var(--sp-2); }
+  .etym b { color: var(--amber); }
 </style>
 </head>
 <body>
-<script src="../../core/registry.js?v=7"></script>
-<script src="../../core/arcade.js?v=7"></script>
-<script src="../../core/ui.js?v=7"></script>
-<script src="../../core/audio.js?v=7"></script>
-<script src="../../core/data/words.js?v=7" onerror="window.__noWords=1"></script>
-<script src="game.js?v=7"></script>
+<script src="../../core/registry.js?v=8"></script>
+<script src="../../core/arcade.js?v=8"></script>
+<script src="../../core/ui.js?v=8"></script>
+<script src="../../core/audio.js?v=8"></script>
+<script src="../../core/data/words.js?v=8" onerror="window.__noWords=1"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>

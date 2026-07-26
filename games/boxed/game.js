@@ -311,7 +311,7 @@
   var used = {};             // board letters covered by submitted words
   var over = false, finished = false, lastOK = false, t0 = Date.now();
   var genMs = 0;
-  var topEl, wordEl, curEl, boxEl, cv, ctx, leftEl, listEl, usedPill;
+  var topEl, wordEl, curEl, caretEl, boxEl, cv, ctx, leftEl, listEl, usedPill;
   var btn = {}, pts = [], geo = { size: 0, lo: 0, hi: 0 };
   var PALETTE = { line: "#635c73", ink: "#f5f2f8", accent: "#efbe5a" };
 
@@ -374,9 +374,9 @@
     curEl = A.el("span");
     curEl.id = "curword";
     wordEl.appendChild(curEl);
-    var caret = A.el("i");
-    caret.id = "caret";
-    wordEl.appendChild(caret);
+    caretEl = A.el("i");
+    caretEl.id = "caret";
+    wordEl.appendChild(caretEl);
     wordEl.setAttribute("aria-live", "polite");
     main.appendChild(wordEl);
 
@@ -499,13 +499,14 @@
     ctx.strokeRect(lo, lo, span, span);
     ctx.globalAlpha = 1;
 
-    if (cur.length > 1) {
+    var buf = over ? "" : cur;
+    if (buf.length > 1) {
       ctx.strokeStyle = PALETTE.accent;
       ctx.lineWidth = 2.5;
       ctx.globalAlpha = 0.9;
       ctx.beginPath();
-      for (i = 0; i < cur.length; i++) {
-        p = ptOf(cur.charAt(i));
+      for (i = 0; i < buf.length; i++) {
+        p = ptOf(buf.charAt(i));
         if (!p) continue;
         if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
       }
@@ -627,13 +628,16 @@
   /* ── render ───────────────────────────────────────────────────────────── */
 
   function render() {
-    var sl = seedLen(), i, L, cls;
+    // Once the square is finished there is nothing to type, so the buffer and
+    // its caret go quiet rather than sitting there blinking at a dead board.
+    var buf = over ? "" : cur, sl = seedLen(), i, L, cls;
 
-    curEl.innerHTML = sl && cur.length
-      ? '<span class="seed">' + A.esc(cur.charAt(0)) + "</span>" + A.esc(cur.slice(1))
-      : A.esc(cur);
+    curEl.innerHTML = sl && buf.length
+      ? '<span class="seed">' + A.esc(buf.charAt(0)) + "</span>" + A.esc(buf.slice(1))
+      : A.esc(buf);
+    caretEl.style.visibility = over ? "hidden" : "";
 
-    var lastCh = cur.charAt(cur.length - 1);
+    var lastCh = buf.charAt(buf.length - 1);
     for (i = 0; i < P.letters.length; i++) {
       L = P.letters.charAt(i);
       cls = "lb";

@@ -70,6 +70,12 @@
   var answer, guesses = [], cur = "", over = false, revealed = [], t0 = Date.now();
   var board, kbd, keyState = {};
 
+  // The Persian pack is a variant, not the daily: it gets its own save slot so
+  // it can never overwrite the day's real result, and it is not ranked. Same
+  // convention as QUARTETS' packs (see games/quartets/game.js).
+  var ranked = pack === "main" && !practice;
+  var stateId = pack === "main" ? ID : ID + ":" + pack;
+
   function pickAnswer() {
     if (practice) {
       var r = A.rng(String(Date.now()) + Math.random());
