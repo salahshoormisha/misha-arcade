@@ -6,16 +6,24 @@
    it cannot drift out of date. This file holds the three things that dataset
    does not know:
 
-     left    ISO2 codes with LEFT-HAND traffic (UN members). Everything not in
-             this list drives on the right.
-     scripts language name (exactly as spelt in countries.js `lang`) -> the
-             writing system you would actually see on a sign. Absent = Latin.
-     money   overrides for `cur` where countries.js is stale or clumsy once the
-             national adjective is stripped off (e.g. Cuba's convertible peso,
-             abolished 2021).
-     notes   2-3 concrete, checkable details per country: the plug in the wall,
-             what is printed on the banknotes, the trees by the road, the shop
-             on the corner, the shape of the number plates, the national sport.
+     left     ISO2 codes with LEFT-HAND traffic (UN members). Everything not in
+              this list drives on the right.
+     scripts  language name (exactly as spelt in countries.js `lang`) -> the
+              writing system you would actually see on a sign. Absent = Latin.
+     scriptBy ISO2 -> script phrase, for the handful where walking the language
+              list gives the wrong answer (Azerbaijan reads as Cyrillic because
+              Russian is listed second; Israel reads as Arabic because Arabic
+              sorts first; Singapore reads as Tamil).
+     langs    ISO2 -> official-language list, where countries.js is thin or
+              carries an odd label (Bolivia omits Spanish; Austria is labelled
+              "Austro-Bavarian German"; New Zealand lists a sign language,
+              which cannot be on a road sign).
+     money    overrides for `cur` where countries.js is stale or clumsy once the
+              national adjective is stripped off (e.g. Cuba's convertible peso,
+              abolished 2021).
+     notes    2-3 concrete, checkable details per country: the plug in the wall,
+              what is printed on the banknotes, the trees by the road, the shop
+              on the corner, the shape of the number plates, the national sport.
 
    RULES FOLLOWED WHILE AUTHORING `notes`
      · Only facts the author is confident of. Where a detail was uncertain,
@@ -73,16 +81,38 @@ window.AD_CLUEDROP = {
     "Berber": "Tifinagh, alongside Arabic"
   },
 
+  /* ── script overrides, keyed by country ───────────────────────────────── */
+  scriptBy: {
+    AZ: "the Latin alphabet, swapped in for Cyrillic in the 1990s",
+    IL: "the Hebrew alphabet",
+    SG: "the Latin alphabet, with Chinese characters and Tamil beside it",
+    UZ: "Latin and Cyrillic both, often on the same street",
+    MA: "the Arabic alphabet, with Tifinagh beside it on official signs"
+  },
+
+  /* ── official-language overrides ──────────────────────────────────────── */
+  langs: {
+    AT: ["German"],
+    NO: ["Norwegian"],
+    NZ: ["English", "M\u0101ori"],
+    BO: ["Spanish", "Quechua", "Aymara", "Guaran\u00ed"]
+  },
+
   /* ── currency wording overrides ───────────────────────────────────────── */
   money: {
     CU: "peso",
     VE: "bolivar",
     PA: "balboa -- though the notes in your hand are US dollars",
+    EC: "US dollar; it has no currency of its own",
     BT: "ngultrum",
     NA: "dollar, pegged to a bigger neighbour's",
     NO: "krone",
     CH: "franc",
     GE: "lari",
+    IS: "kr\u00f3na",
+    PH: "peso",
+    SA: "riyal",
+    TJ: "somoni",
     UZ: "so'm",
     MN: "togrog"
   },
@@ -97,7 +127,7 @@ window.AD_CLUEDROP = {
       ["SHOPS", "A Greggs on the high street, a Boots next door, a Tesco Express between them."]
     ],
     IE: [
-      ["PLATES", "Plates open with the year and a county letter: 24-D is a 2024 car from the capital."],
+      ["PLATES", "Plates open with the year and a county letter, so a 2024 car from the capital reads 241-D."],
       ["SPORT", "The biggest crowds of the year are for two amateur games: hurling and Gaelic football."],
       ["SHOPS", "A Centra or a SuperValu in every small town, usually with a deli counter."]
     ],
@@ -215,7 +245,7 @@ window.AD_CLUEDROP = {
       ["CLOTHES", "The necktie is named after this country's soldiers."]
     ],
     BG: [
-      ["CUSTOM", "A nod of the head can mean no, and a shake can mean yes."],
+      ["ALPHABET", "The alphabet used here was developed here, and there is a public holiday for it in May."],
       ["FIELDS", "Fields of roses grown for the oil, picked before the sun is properly up."]
     ],
     LT: [
@@ -280,7 +310,7 @@ window.AD_CLUEDROP = {
     ],
     OM: [
       ["TREES", "Frankincense trees in the south, and date palms in the wadis."],
-      ["BUILDINGS", "A restored fort on nearly every hill, and low white buildings by decree."]
+      ["BUILDINGS", "A restored fort on nearly every hill, and building rules that keep the towns low and white."]
     ],
 
     /* ── Sub-Saharan Africa ─────────────────────────────────────────── */
@@ -326,7 +356,7 @@ window.AD_CLUEDROP = {
       ["TREES", "Baobabs on flat scrub, and horse carts sharing the road out of the capital."]
     ],
     TZ: [
-      ["LANGUAGE", "Swahili on every sign and in every school, not the colonial language."],
+      ["LANGUAGE", "Swahili does the work of the colonial language: the signs, the radio, the primary school."],
       ["ROADSIDE", "Minibuses called dala dala, and a snow-capped volcano on the northern border."]
     ],
 
@@ -403,7 +433,7 @@ window.AD_CLUEDROP = {
     ],
     KZ: [
       ["ROADSIDE", "Steppe with nothing on it for hours, and camels beside the railway."],
-      ["SPACE", "The world's busiest rocket launch site sits on its steppe, rented out to a neighbour."]
+      ["SPACE", "The oldest and largest rocket launch site on earth sits on its steppe, leased to a neighbour."]
     ],
     UZ: [
       ["BUILDINGS", "Blue-tiled domes and madrasas in the old cities, cotton fields between them."],
