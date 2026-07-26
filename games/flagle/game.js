@@ -104,7 +104,7 @@
     else { A.sfx("miss"); }
   }
 
-  function doHint() {
+  function doHint(quiet) {
     if (over || hinted) return;
     hinted = true;
     var m = A.flagMeta(answer) || {};
@@ -117,6 +117,7 @@
       ? "<b>on the flag</b>" + A.esc(bits.join(" · ")) + ' <span class="dim">(−8 pts)</span>'
       : "<b>on the flag</b>no extra detail recorded for this one — no charge";
     if (!bits.length) hinted = false;
+    if (quiet) return;              // replaying it on restore would re-chime
     A.sfx("reveal");
     save();
   }
@@ -203,7 +204,7 @@
       setTimeout(function () { sheet(st.won, st.shareGrid, st.norm); }, 240);
     }
   }
-  function doHintSilent() { hinted = false; doHint(); }
+  function doHintSilent() { hinted = false; doHint(true); }
 
   /* ── ending ──────────────────────────────────────────────────────────── */
 

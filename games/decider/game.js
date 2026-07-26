@@ -861,11 +861,19 @@
 
   /* ── persistence ─────────────────────────────────────────────────────── */
 
+  /**
+   * A.save MERGES into the day's slot, and A.finish writes its result envelope
+   * into that same slot. So our own keys must not collide with the core's, or we
+   * silently corrupt the league's copy of the result. The one that did collide
+   * was `score`: the core defines it as a single number (CONTRACT §2) and reads
+   * it back in A.card, whereas ours is the pair [mine, theirs] — so the pair
+   * lives under `sc` and `score` is left to the core.
+   */
   function save() {
     if (practice) return;
     A.save(ID, day, {
       v: 1, sig: plan.sig, plan: plan, screen: S.screen, si: S.si, stage: S.stage,
-      ans: S.ans, score: S.score, w: S.w, over: S.over, t0: S.t0,
+      ans: S.ans, sc: S.score, w: S.w, over: S.over, t0: S.t0,
     });
   }
 
@@ -878,7 +886,11 @@
       S.si = A.clamp(+st.si || 0, 0, NQ);
       S.stage = st.stage === "steal" ? "steal" : "q";
       S.ans = st.ans || [];
-      S.score = [+(st.score || [])[0] || 0, +(st.score || [])[1] || 0];
+      // `sc` is ours; the array form of `score` is only there for a slot saved
+      // by a build before the two were separated.
+      var pair = st.sc || (Object.prototype.toString.call(st.score) === "[object Array]"
+        ? st.score : []);
+      S.score = [+pair[0] || 0, +pair[1] || 0];
       S.w = st.w || S.w;
       S.t0 = +st.t0 || Date.now();
       S.over = !!(st.over || st.done);

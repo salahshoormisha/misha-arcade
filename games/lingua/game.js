@@ -154,6 +154,10 @@
   var guesses = [], taken = [], free = -1, over = false, t0 = Date.now();
   var picker = null, specTxt = null, specBody = null, plateTries = null;
   var noFontBox = null, saidBox = null, ladder = null, list = null, fitTimer = null;
+  // Typesetting state. Declared HERE, above the boot block: `var` initialisers
+  // do not hoist, so a copy further down the file would run *after* boot and
+  // quietly undo the first fit.
+  var fitting = false, lastW = 0, lastH = 0, shown = false;
 
   /* ── boot ──────────────────────────────────────────────────────────────── */
 
@@ -229,11 +233,7 @@
 
   paintSpecimen();
   restore();
-
-  window.addEventListener("resize", function () {
-    clearTimeout(fitTimer);
-    fitTimer = setTimeout(fit, 140);
-  });
+  watchSize();
 
   /* ── the day's specimen ────────────────────────────────────────────────── */
 
@@ -258,8 +258,8 @@
     specTxt.style.fontFamily = fontFor(S);
     specTxt.setAttribute("lang", bcp47(S));
     specTxt.setAttribute("dir", RTL[S.sc] ? "rtl" : "ltr");
-    specTxt.className = "txt" + (vert ? " vert" : "");
-    fit();
+    specTxt.className = "txt" + (vert ? " vert" : "") + (shown ? " in" : "");
+    fit(true);
 
     // If this device has no font for the script the passage is unreadable, so
     // the script hint stops being a hint and becomes an accessibility fix.
@@ -274,23 +274,80 @@
 
   /* Fit the passage to the card: pick the largest size that does not overflow,
      never clip. Reading scrollHeight forces layout, so this walks down in
-     single steps from a per-script ceiling and stops at the first fit. */
-  function fit() {
-    if (!specTxt) return;
-    var vert = !!VERT[S.sc];
-    var mul = SCALE[S.key] || SCALE[S.sc] || 1;
-    // Vertical text is measured across, horizontal text down. The height must
-    // be cleared for horizontal scripts or a switch of specimen inherits it.
-    var maxH = vert ? A.clamp(Math.round(window.innerHeight * 0.45), 220, 300)
-      : A.clamp(Math.round(window.innerHeight * 0.44), 240, 340);
-    specTxt.style.lineHeight = String(LEAD[S.key] || LEAD[S.sc] || 1.65);
-    specTxt.style.height = vert ? maxH + "px" : "";
-    for (var px = 31; px >= 14; px--) {
-      specTxt.style.fontSize = Math.round(px * mul) + "px";
-      if (vert ? specTxt.scrollWidth <= specTxt.clientWidth + 1
-        : specTxt.scrollHeight <= maxH) break;
+     single steps from a per-script ceiling and stops at the first fit.
+
+     It must survive being laid out at no size at all — a background tab, a
+     hidden pane, a page restored from the back/forward cache all report a
+     zero-width box, and a font size chosen from that measurement would be
+     wrong and would never be corrected by a window `resize` event. So: bail
+     while the box is unmeasurable, and let the ResizeObserver below call back
+     the moment it has real dimensions. (State for it is declared at the top.) */
+
+  function fit(force) {
+    if (!specTxt || fitting) return;
+    var avail = specBody.clientWidth;
+    if (avail < 80) return;                    // not laid out yet — try again later
+    var vh = window.innerHeight || 0;
+    if (!force && avail === lastW && vh === lastH && shown) return;
+    lastW = avail; lastH = vh;
+    fitting = true;
+    try {
+      var vert = !!VERT[S.sc];
+      var mul = SCALE[S.key] || SCALE[S.sc] || 1;
+      // Vertical text is measured across, horizontal text down. The height must
+      // be cleared for horizontal scripts or a switch of specimen inherits it.
+      var maxH = vert ? A.clamp(Math.round((vh || 700) * 0.45), 220, 300)
+        : A.clamp(Math.round((vh || 700) * 0.44), 240, 340);
+      specTxt.style.lineHeight = String(LEAD[S.key] || LEAD[S.sc] || 1.65);
+      specTxt.style.height = vert ? maxH + "px" : "";
+      var ok = false;
+      for (var px = 31; px >= 14; px--) {
+        specTxt.style.fontSize = Math.round(px * mul) + "px";
+        ok = vert ? specTxt.scrollWidth <= specTxt.clientWidth + 1
+          : specTxt.scrollHeight <= maxH;
+        if (ok) break;
+      }
+      // Nothing may ever be clipped. Only the vertical case caps its height, so
+      // if even the smallest size overflows, the cap comes off and the card grows.
+      if (vert && !ok) specTxt.style.height = "";
+      specBody.style.minHeight = vert ? "" : "132px";
+    } finally { fitting = false; }
+    reveal();
+  }
+
+  // The passage starts invisible so the fitting pass never shows as a jump in
+  // type size. Revealed synchronously — never inside requestAnimationFrame,
+  // which a background tab pauses — and force-revealed shortly after boot in
+  // case this device never gives us a measurable box.
+  function reveal() {
+    if (shown) return;
+    shown = true;
+    specTxt.classList.add("in");
+  }
+
+  function watchSize() {
+    if (window.ResizeObserver) {
+      try {
+        new ResizeObserver(function () { fit(); }).observe(specBody);
+      } catch (e) {}
     }
-    specBody.style.minHeight = vert ? "" : "132px";
+    window.addEventListener("resize", function () {
+      clearTimeout(fitTimer);
+      fitTimer = setTimeout(fit, 140);
+    });
+    window.addEventListener("orientationchange", function () {
+      clearTimeout(fitTimer);
+      fitTimer = setTimeout(function () { fit(true); }, 220);
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) fit();
+    });
+    // A webfont is never used here, but asking for the system stack to settle
+    // costs nothing and catches the one frame where metrics can still change.
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(function () { fit(true); })["catch"](function () {});
+    }
+    setTimeout(reveal, 700);
   }
 
   /* Tofu check. Three or more DIFFERENT characters of a script that all render

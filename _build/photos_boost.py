@@ -120,6 +120,7 @@ def img_probe(url, retries=3):
         v = _dims[url]
         return v[0], v[1], v[2], v[3]
     res = (0, "", 0, 0)
+    time.sleep(0.12)                       # be polite to upload.wikimedia.org
     for attempt in range(retries):
         try:
             req = urllib.request.Request(
@@ -144,7 +145,10 @@ def img_probe(url, retries=3):
         except Exception:
             time.sleep(1.0 * (attempt + 1))
             res = (0, "", 0, 0)
-    _dims[url] = list(res)
+    # NEVER cache a transient failure: a cached 429 would permanently blacklist a
+    # perfectly good photo (this already cost the first run three entries).
+    if res[0] not in (0, 429, 503, 500, 502, 504):
+        _dims[url] = list(res)
     return res
 
 

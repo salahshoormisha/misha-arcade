@@ -97,9 +97,17 @@
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 15px; padding: 28px 22px calc(28px + var(--safe));
   background: radial-gradient(760px 560px at 50% 32%, var(--panel), var(--bg) 74%);
-  text-align: center; opacity: 0; transition: opacity .22s ease;
+  text-align: center;
 }
-.dc-curtain.in { opacity: 1; }
+/* The cover is fully opaque from the very first frame, deliberately. It is the
+   only thing stopping one player reading the other's question, so its opacity
+   must never depend on a transition having been painted — a backgrounded tab
+   produces no frames and would leave it see-through (the same trap as a paused
+   requestAnimationFrame). A fade would also show the board underneath for the
+   length of the fade. Only the inner block moves, and if that never runs the
+   content is still perfectly legible, just 6px out of place. */
+.dc-curtain > * { transform: translateY(6px); transition: transform .22s var(--ease); }
+.dc-curtain.in > * { transform: none; }
 .dc-cstep { font-size: 10px; letter-spacing: 2.6px; color: var(--ink4); }
 .dc-cto { font-size: 11px; letter-spacing: 3px; color: var(--ink3); }
 .dc-cname {
