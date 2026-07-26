@@ -872,7 +872,7 @@
   function restore() {
     var st = practice ? null : A.load(ID, day);
     S = blank();
-    if (st && st.plan && st.sig === ALL.length && st.plan.r1 && st.plan.r1.length === R1_N) {
+    if (st && st.sig === ALL.length && usablePlan(st.plan)) {
       plan = st.plan;
       makeSteps();
       S.si = A.clamp(+st.si || 0, 0, NQ);
@@ -882,17 +882,46 @@
       S.w = st.w || S.w;
       S.t0 = +st.t0 || Date.now();
       S.over = !!(st.over || st.done);
-      // Never restore straight onto a live question: hand it back through the
-      // curtain, so a reload can't show the wrong person somebody's question.
-      if (S.over) S.screen = "done";
-      else if (st.screen === "title") S.screen = "title";
-      else if (String(st.screen).charAt(0) === "w") {
-        S.screen = st.screen === "wreveal" ? "wreveal" : "wpass";
-      } else S.screen = "pass";
+      S.screen = safeScreen(st.screen);
       if (S.screen === "wreveal" && !S.w.out) S.w.out = wagerOutcome();
     }
     paint();
     if (S.over) setTimeout(sheet, 480);
+  }
+
+  function usablePlan(p) {
+    if (!p || !p.r1 || p.r1.length !== R1_N || !p.r2 || p.r2.length !== R2_N) return false;
+    var all = p.r1.concat(p.r2, [p.w]), i;
+    for (i = 0; i < all.length; i++) {
+      if (!ALL[all[i]]) return false;
+      if ((i === all.length - 1) !== !!ALL[all[i]].numeric) return false;
+    }
+    return p.first === 0 || p.first === 1;
+  }
+
+  /**
+   * Which screen is it safe to come back to after a reload?
+   * Never a live question somebody else's finger is about to land on — hand it
+   * back through the curtain instead. But if the current turn HAS been answered
+   * we must land on its reveal, not the curtain: the curtain would lead to a
+   * question that is already spent and cannot be answered again.
+   */
+  function safeScreen(saved) {
+    if (S.over) return "done";
+    if (saved === "title") return "title";
+    if (S.si >= NQ) {
+      if (S.w.val[0] !== null && S.w.val[1] !== null) return "wreveal";
+      return "wpass";
+    }
+    if (String(saved).charAt(0) === "w") return "wpass";     // stale: back to the board
+    return answered() ? "reveal" : "pass";
+  }
+
+  // Has the person whose turn it is already committed an answer?
+  function answered() {
+    var a = S.ans[S.si];
+    if (!a) return false;
+    return stealing() ? !!a.s : (a.pick !== null && a.pick !== undefined);
   }
 
   /* ── the share grid: the round-by-round swing ────────────────────────── */
