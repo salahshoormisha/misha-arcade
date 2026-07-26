@@ -135,6 +135,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   max-width: 880px; margin: 0 auto;
   padding: var(--sp-3) var(--sp-4);
   position: sticky; top: 0; z-index: 40;
+}
+/* The header content is centred at 880px, but its backdrop must bleed the full
+   width of the viewport — otherwise it floats as a dark bar on a wide screen. */
+.ac-header::before {
+  content: ""; position: absolute; inset: 0 calc(50% - 50vw); z-index: -1;
   background: color-mix(in srgb, var(--bg-far) 82%, transparent);
   backdrop-filter: saturate(1.4) blur(14px);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);

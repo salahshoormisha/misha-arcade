@@ -43,7 +43,7 @@
     help: "<p>A flag, hidden behind six tiles. Every guess uncovers another one — and tells you " +
       "<b>how far away</b> you are, and <b>which way</b> to go.</p>" +
       "<ul><li>Six guesses. The whole flag is showing by the last one.</li>" +
-      "<li><b>💡 Hint</b> describes what's actually on the flag — costs 8 points, not a guess.</li>" +
+      "<li><b>What's on it?</b> describes what's actually on the flag — costs 8 points, not a guess.</li>" +
       "<li>Every country you get right is <b>stamped in your passport</b>.</li>" +
       "<li>Type freely — <i>USA</i>, <i>Holland</i>, <i>Persia</i> and <i>Burma</i> all work.</li></ul>",
   });
@@ -71,7 +71,7 @@
   picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "which country?" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
-  row.innerHTML = '<button class="ac-pill" id="hint">💡 WHAT\'S ON IT?</button>' +
+  row.innerHTML = '<button class="ac-pill" id="hint">WHAT\'S ON IT?</button>' +
     (practice ? '<a class="ac-pill" href="./">← TODAY\'S FLAG</a>'
       : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>');
   main.appendChild(row);
@@ -114,8 +114,8 @@
       bits.push(m.features.slice(0, 3).map(A.flagFeatureLabel).join(", "));
     }
     hintBox.innerHTML = bits.length
-      ? "💡 " + A.esc(bits.join(" · ")) + ' <span class="dim">(−8 pts)</span>'
-      : "💡 no extra detail recorded for this one — no charge";
+      ? "<b>on the flag</b>" + A.esc(bits.join(" · ")) + ' <span class="dim">(−8 pts)</span>'
+      : "<b>on the flag</b>no extra detail recorded for this one — no charge";
     if (!bits.length) hinted = false;
     A.sfx("reveal");
     save();
@@ -143,9 +143,11 @@
       var idx = order.indexOf(k);
       if (idx < shown) continue;
       var cx = (k % COLS) * tw, cy = Math.floor(k / COLS) * th;
-      g.fillStyle = "#0d0722";
+      // A plain raised surface, so an unrevealed tile reads as a lid over the
+      // flag rather than as a dark part of the flag itself. (--s2 / --hair.)
+      g.fillStyle = "#1b1829";
       g.fillRect(cx, cy, tw, th);
-      g.strokeStyle = "#ffffff10"; g.lineWidth = 1;
+      g.strokeStyle = "rgba(255,255,255,.075)"; g.lineWidth = 1;
       g.strokeRect(cx + .5, cy + .5, tw - 1, th - 1);
     }
     g.restore();
@@ -169,7 +171,7 @@
       el.innerHTML =
         '<img alt="" src="' + A.rootPath() + "core/data/flags/" + iso + '.svg" onerror="this.style.visibility=\'hidden\'">' +
         '<span class="nm">' + A.esc(c.n) + "</span>" +
-        (won ? '<span class="ar">🎉</span><span class="pc">100%</span>'
+        (won ? '<span class="ar">✓</span><span class="pc">100%</span>'
           : '<span class="km">' + A.geo.km(d) + '</span><span class="ar">' + A.arrow(b) +
             '</span><span class="pc">' + pc + "%</span>");
       list.appendChild(el);
@@ -196,7 +198,9 @@
       over = true;
       picker.disable(true);
       draw();
-      setTimeout(function () { sheet(st.won); }, 240);
+      // pass the stored grid/score through — the sheet must look identical on a
+      // reload, not fall back to an empty share block.
+      setTimeout(function () { sheet(st.won, st.shareGrid, st.norm); }, 240);
     }
   }
   function doHintSilent() { hinted = false; doHint(); }
@@ -235,11 +239,11 @@
 
   function sheet(won, grid, norm) {
     var c = byIso[answer];
-    var extra = '<p class="center" style="margin:6px 0 2px"><b style="font-size:17px;letter-spacing:2px">' +
-      A.esc(c.n) + "</b></p>" +
+    var extra = '<p class="center" style="margin:var(--sp-2) 0 2px">' +
+      '<b style="font-size:var(--t-lg);letter-spacing:.08em">' + A.esc(c.n) + "</b></p>" +
       '<p class="center tiny muted">' + A.esc([c.cap, c.sub || c.reg].filter(Boolean).join(" · ")) + "</p>" +
-      '<p class="center" style="margin-top:8px">' + A.flagSwatches(answer) + "</p>";
-    if (won) extra += '<p class="center tiny" style="color:var(--mint);margin-top:8px">🛂 ' +
+      '<p class="center" style="margin-top:var(--sp-2)">' + A.flagSwatches(answer) + "</p>";
+    if (won) extra += '<p class="center tiny" style="color:var(--green);margin-top:var(--sp-2)">' +
       A.esc(c.n) + " stamped in your passport</p>";
 
     A.results(ID, practice ? A.PRACTICE : day, {
