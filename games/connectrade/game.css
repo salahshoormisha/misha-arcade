@@ -1,0 +1,166 @@
+/* ============================================================================
+   CONNECTRADE — game-specific CSS only. Every colour is a core token.
+   Group colour = the country's index in the day's list:
+     0 --cool   1 --gold   2 --mint   3 --violet
+   Selection uses --hot so it can never be mistaken for group 0's blue.
+   ========================================================================== */
+
+#ctboard { max-width: 720px; margin: 0 auto; }
+
+.cttop { margin-top: 10px; }
+.cttop .ac-pill { text-decoration: none; }
+.cttop button.ac-pill, .cttop a.ac-pill { cursor: pointer; min-height: 34px; }
+.cttop button.ac-pill:hover, .cttop a.ac-pill:hover { border-color: var(--accent); color: #fff; }
+
+/* ── the four economies of the day ──────────────────────────────────────── */
+
+#ctstrip {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+  margin-top: 12px;
+}
+.ctc {
+  display: flex; align-items: center; gap: 7px; min-width: 0;
+  border: 1px solid var(--line); border-left: 3px solid var(--line2);
+  border-radius: 10px; background: #ffffff08; padding: 8px 10px;
+  transition: opacity .25s, border-color .25s;
+}
+.ctc img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
+.ctc .nm {
+  flex: 1 1 auto; min-width: 0; font-size: 11.5px; font-weight: 800; letter-spacing: .6px;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ctc .tk { flex: 0 0 auto; font-size: 11px; color: var(--ink4); font-weight: 800; }
+.ctc.done { border-left-color: var(--ctc); opacity: .58; }
+.ctc.done .nm { color: var(--ink3); }
+.ctc.done .tk { color: var(--ctc); }
+
+/* ── solved bands ───────────────────────────────────────────────────────── */
+
+#ctbands { display: grid; gap: 6px; margin-top: 10px; }
+#ctbands:empty { display: none; }
+
+.ctband {
+  background: var(--ctc); border-radius: 10px; padding: 9px 12px 10px;
+  color: #14032a; text-align: center; animation: ctrise .3s cubic-bezier(.2, .9, .3, 1);
+}
+.ctband .bn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  font-weight: 900; font-size: 12px; letter-spacing: 1.6px; line-height: 1.3;
+}
+.ctband .bn img { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; }
+.ctband .bt {
+  display: block; font-size: 11px; letter-spacing: .5px; margin-top: 3px;
+  opacity: .84; font-weight: 700; line-height: 1.45; word-break: break-word;
+}
+.ctband .bz {
+  display: block; font-size: 10.5px; line-height: 1.5; margin-top: 5px;
+  opacity: .8; font-style: italic; letter-spacing: 0; word-break: break-word;
+}
+.ctband.rev { box-shadow: inset 0 0 0 2px #14032a55; opacity: .84; }
+@keyframes ctrise { from { transform: translateY(9px) scale(.985); opacity: 0 } }
+
+/* ── the grid ───────────────────────────────────────────────────────────── */
+
+#ctgrid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px;
+  margin-top: 10px;
+}
+#ctgrid:empty { display: none; }
+#ctgrid.off { pointer-events: none; opacity: .7; }
+
+.ctt {
+  position: relative; height: 70px; min-width: 0;
+  display: grid; place-items: center; text-align: center;
+  padding: 4px 5px; border: 2px solid var(--line2); border-radius: 9px;
+  background: #ffffff08; color: var(--ink);
+  font-family: var(--mono); font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0; line-height: 1.16; cursor: pointer;
+  overflow: hidden; overflow-wrap: anywhere; word-break: break-word;
+  transition: transform .1s, background .16s, border-color .16s, color .16s;
+}
+.ctt:hover { border-color: var(--ink4); background: #ffffff12; }
+.ctt.sel {
+  background: var(--hot); border-color: var(--hot); color: #14032a;
+  transform: scale(.972); box-shadow: 0 4px 16px #0007;
+}
+.ctt.sel:hover { border-color: var(--hot); background: var(--hot); }
+
+/* ── hearts + controls ──────────────────────────────────────────────────── */
+
+.cthearts {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 14px; font-size: 10px; letter-spacing: 1.8px; color: var(--ink4);
+}
+.cthearts .hh { display: flex; gap: 4px; }
+.cthearts i {
+  font-style: normal; font-size: 15px; line-height: 1; color: var(--bad);
+  transition: transform .3s, color .3s, opacity .3s;
+}
+.cthearts i.gone { color: var(--no); opacity: .55; transform: scale(.8); }
+
+.ctctl { margin-top: 12px; }
+.ctctl2 { margin-top: 8px; }
+.ctctl .ac-pill { cursor: pointer; min-height: 44px; }
+.ctctl .ac-pill:hover { border-color: var(--accent); color: #fff; }
+.ctctl .ac-pill[disabled] { opacity: .4; cursor: default; }
+.ctctl .ac-pill[disabled]:hover { border-color: var(--line); color: var(--ink2); }
+#ctsubmit { min-width: 200px; }
+
+.cthint {
+  text-align: center; font-size: 11px; color: var(--ink4);
+  margin-top: 9px; line-height: 1.6; min-height: 1px;
+}
+
+/* ── attempts log ───────────────────────────────────────────────────────── */
+
+.ctlog { margin-top: 18px; }
+.ctlog h3 {
+  font-size: 10px; letter-spacing: 2.2px; color: var(--ink4);
+  text-align: center; font-weight: 800; margin-bottom: 8px;
+}
+.ctlog ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px; }
+.ctlog li {
+  display: flex; align-items: flex-start; gap: 8px;
+  border: 1px solid var(--line); border-radius: 9px; background: #ffffff06;
+  padding: 7px 10px; font-size: 10.5px; line-height: 1.55;
+}
+.ctlog .n { flex: 0 0 auto; color: var(--ink4); font-weight: 800; }
+.ctlog .ps { flex: 1 1 auto; min-width: 0; color: var(--ink2); word-break: break-word; }
+.ctlog .ps s { text-decoration: none; }
+.ctlog .mk { flex: 0 0 auto; font-size: 11px; }
+.ctlog li.hit { border-color: var(--ok); background: rgba(61, 224, 138, .09); }
+.ctlog li.hit .ps { color: var(--ink); }
+.ctlog .sw {
+  display: inline-block; width: 7px; height: 7px; border-radius: 2px;
+  background: var(--swc); margin-right: 4px; vertical-align: 1px;
+}
+
+/* ── result sheet extras ────────────────────────────────────────────────── */
+
+.ctsum { display: grid; gap: 6px; margin: 12px 0 4px; text-align: left; }
+.ctsrow {
+  border-left: 3px solid var(--ctc); border-radius: 5px;
+  background: #ffffff08; padding: 8px 10px;
+}
+.ctsrow b {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; letter-spacing: 1.4px; color: var(--ctc);
+}
+.ctsrow b img { width: 18px; height: 12px; object-fit: cover; border-radius: 2px; }
+.ctsrow .pl { display: block; font-size: 10.5px; color: var(--ink2); margin-top: 3px; line-height: 1.6; }
+.ctsrow i { display: block; font-size: 10.5px; color: var(--ink3); line-height: 1.6; margin-top: 4px; font-style: italic; }
+.ctsrow u { display: block; font-size: 10px; color: var(--gold); line-height: 1.55; margin-top: 4px; text-decoration: none; }
+
+/* ── wide: the canonical 4x4 ────────────────────────────────────────────── */
+
+@media (min-width: 620px) {
+  #ctgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #ctstrip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ctt { height: 84px; }
+  .ctlog li { font-size: 11px; }
+}
+
+@media (max-width: 359px) {
+  .ctt { height: 76px; }
+  .ctc .nm { font-size: 11px; }
+}
