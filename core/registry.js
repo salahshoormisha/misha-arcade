@@ -43,7 +43,7 @@ window.AD_REGISTRY = [
     id: "quartets", name: "QUARTETS", icon: "🟪", accent: "--mint", family: "word",
     tagline: "sixteen tiles, four groups, four mistakes",
     blurb: "Connections with packs: a general archive plus Persian, United, " +
-      "Cambridge and office boards. Purple is always the trick.",
+      "AI, Jewish and four-cities boards. Purple is always the trick.",
     parMs: 200000, hasArchive: true, hasPractice: true,
     distLabel: "mistakes made", stamps: false,
   },
@@ -92,7 +92,7 @@ window.AD_REGISTRY = [
     distLabel: "guesses used", stamps: true,
   },
   {
-    id: "geogrid", name: "GEOGRID", icon: "⌗", accent: "--violet", family: "geo",
+    id: "geogrid", soon: true, name: "GEOGRID", icon: "⌗", accent: "--violet", family: "geo",
     tagline: "nine cells, ten guesses, no repeats",
     blurb: "Three criteria across, three down. Fill all nine — and score better " +
       "for picking the countries nobody thinks of.",
@@ -126,7 +126,7 @@ window.AD_REGISTRY = [
 
   /* ── PHOTO WING (needs a connection) ──────────────────────────────────── */
   {
-    id: "timeguessr", name: "TIMEGUESSR", icon: "📷", accent: "--gold", family: "photo",
+    id: "timeguessr", soon: true, name: "TIMEGUESSR", icon: "📷", accent: "--gold", family: "photo",
     tagline: "five photographs — when, and where?",
     blurb: "Real archive photography. Drop a pin, drag the year. Points for both, " +
       "and a caption afterwards telling you what you were looking at.",
@@ -134,7 +134,7 @@ window.AD_REGISTRY = [
     distLabel: "score band", stamps: true,
   },
   {
-    id: "placeguessr", name: "PLACEGUESSR", icon: "🛣️", accent: "--cool", family: "photo",
+    id: "placeguessr", soon: true, name: "PLACEGUESSR", icon: "🛣️", accent: "--cool", family: "photo",
     tagline: "one photo, one pin, five rounds",
     blurb: "Not the monuments — the roadsides. Read the script on the signs, the " +
       "plants, the traffic side. Hints cost you points.",
@@ -152,7 +152,7 @@ window.AD_REGISTRY = [
 
   /* ── THE ONE YOU PLAY AGAINST EACH OTHER ──────────────────────────────── */
   {
-    id: "decider", name: "THE DECIDER", icon: "🥊", accent: "--hot", family: "versus",
+    id: "decider", soon: true, name: "THE DECIDER", icon: "🥊", accent: "--hot", family: "versus",
     tagline: "one device, two people, settle it",
     blurb: "General knowledge, head to head. Alternating questions, a steal round where a " +
       "miss hands it to the other one, and a final wager you can lose everything on. " +
@@ -163,7 +163,7 @@ window.AD_REGISTRY = [
 
   /* ── OFFLINE REINVENTIONS (work on a plane) ───────────────────────────── */
   {
-    id: "chrono", name: "CHRONO", icon: "⏳", accent: "--violet", family: "offline",
+    id: "chrono", soon: true, name: "CHRONO", icon: "⏳", accent: "--violet", family: "offline",
     tagline: "five clues, falling in value — what year?",
     blurb: "TimeGuessr with no photographs. Five facts about one year, revealed one " +
       "at a time, each cheaper than the last. Guess early for the points.",
@@ -171,7 +171,7 @@ window.AD_REGISTRY = [
     distLabel: "clues used", stamps: false,
   },
   {
-    id: "cluedrop", name: "CLUEDROP", icon: "🔎", accent: "--mint", family: "offline",
+    id: "cluedrop", soon: true, name: "CLUEDROP", icon: "🔎", accent: "--mint", family: "offline",
     tagline: "a country, described one detail at a time",
     blurb: "GeoGuessr's reasoning without the street view: traffic side, alphabet, " +
       "plug socket, what's on the money. Guess as soon as you dare.",

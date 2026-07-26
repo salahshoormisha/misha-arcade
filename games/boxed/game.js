@@ -414,23 +414,25 @@
     listEl.id = "words";
     main.appendChild(listEl);
 
+    // Two big controls only: three of them overflow one row at 375px and wrap,
+    // which looks like a bug. Restart and give-up live in the quiet row below.
     var ctl = A.el("div", "ac-row");
     ctl.id = "ctl";
     ctl.innerHTML =
       '<button class="ac-btn" id="bx-enter" type="button">ENTER</button>' +
-      '<button class="ac-btn ghost" id="bx-del" type="button">⌫ DELETE</button>' +
-      '<button class="ac-btn ghost" id="bx-restart" type="button">RESTART</button>';
+      '<button class="ac-btn ghost" id="bx-del" type="button">⌫ DELETE</button>';
     main.appendChild(ctl);
     ctl.querySelector("#bx-enter").onclick = submit;
     ctl.querySelector("#bx-del").onclick = back;
-    ctl.querySelector("#bx-restart").onclick = askRestart;
 
     var modes = A.el("div", "modes");
     modes.innerHTML =
-      '<button class="ac-btn ghost sm" id="bx-give" type="button">SHOW A SOLUTION</button>' +
-      (practice ? '<a class="ac-btn ghost sm" href="./">← TODAY\'S SQUARE</a>'
+      '<button class="ac-btn ghost sm" id="bx-restart" type="button">↺ RESTART</button>' +
+      '<button class="ac-btn ghost sm" id="bx-give" type="button">GIVE UP</button>' +
+      (practice ? '<a class="ac-btn ghost sm" href="./">← TODAY\'S</a>'
         : '<a class="ac-btn ghost sm" href="?practice=1">∞ PRACTICE</a>');
     main.appendChild(modes);
+    modes.querySelector("#bx-restart").onclick = askRestart;
     modes.querySelector("#bx-give").onclick = askGiveUp;
 
     document.addEventListener("keydown", onKey);
