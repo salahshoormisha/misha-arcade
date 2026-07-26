@@ -566,7 +566,7 @@ def themed_fills(f, pats, caps, rankof, seen_grid, want, verbose=True):
         for pi, base in enumerate(pats):
             if done:
                 break
-            for t in (0, 3):
+            for t in (0, 3, 1, 2):
                 blocks = orient(base, t)
                 if t and canon(blocks) != canon(base):
                     continue
@@ -587,7 +587,7 @@ def themed_fills(f, pats, caps, rankof, seen_grid, want, verbose=True):
                                 if wb == wa or len(wb) != lb:
                                     continue
                                 letters, _n = f.fill(blocks, seed=7 * pi + t,
-                                                     caps=caps, node_budget=30000,
+                                                     caps=caps, node_budget=40000,
                                                      force={si_a: wa, si_b: wb})
                                 if not letters:
                                     continue
@@ -702,10 +702,10 @@ def main():
         sys.stdout.flush()
 
     have_titles = set(r.get("title") for r in out if r.get("title"))
-    if len(have_titles) < 5:
+    if len(have_titles) < 6:
         global THEMES
         THEMES = [t for t in THEMES if t[0] not in have_titles]
-        themed = themed_fills(f, pats, caps, rankof, seen_grid, want=5 - len(have_titles))
+        themed = themed_fills(f, pats, caps, rankof, seen_grid, want=6 - len(have_titles))
         for rec in themed:
             out.append(rec)
             kept_shapes[canon(frozenset(rec["pattern"]))] = per_shape

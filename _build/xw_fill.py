@@ -45,6 +45,10 @@ ran rap rat raw ray red rid rim rip rod row rug run
 sad sap sat saw say sea see set she shy sin sir sit six ski sky son spa spy sub sum sun
 tab tag tan tap tar tax tea tee ten the tie tin tip toe ton too top toy try tub two
 use van wax way web wed wet who why win wow yes yet you zip zoo
+ale ape are awe bed cot cub cue den dim dub ebb eel elf elk elm err fir
+hay hem hen hue hug hut ivy jab jaw jog jug keg lid lie mob mop mud mug
+nap net nod nun oar oat owl pea peg pod pun ram rib rub sob sty tow tug
+urn vat vet via vow wag wig woe yak yam yen was ago
 """.split()
 
 # ---------------------------------------------------------------------------

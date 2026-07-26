@@ -302,6 +302,18 @@ REJECT = [
     r"\b(gravestone|tombstone|headstone|inscription|plaque|memorial[ _]tablet|"
     r"coats[ _]of[ _]arms|heraldry|chandelier|altar|pulpit|stained[ _]glass|"
     r"fresco|mosaic[ _]of|icon[ _]of|statue[ _]of[ _]liberty[ _]replica)\b",
+    # merchandise / food / product shots (very common on Commons, useless here)
+    r"\b(displayed[ _]for[ _]sale|for[ _]sale[ _]in|food[ _]and[ _]drink|"
+    r"cuisine[ _]of|dishes[ _]of|menu|packaging|bottles[ _]of|cans[ _]of|"
+    r"souvenirs?|merchandise|price[ _]tag|vending[ _]machine|"
+    r"licence[ _]plates[ _]of|number[ _]plates|"
+    r"clothing[ _]of|costumes[ _]of|textiles[ _]of|jewell?ery)\b",
+    # heavy subject matter — this is a light daily game
+    r"\b(slave|slavery|apartheid[ _]museum|genocide|prison|jail|"
+    r"detention|deportation|riot|protest[ _]against|demolition|ruins[ _]after|"
+    r"earthquake[ _]damage|after[ _]the[ _]bombing|air[ _]raid|shelling|"
+    r"destroyed[ _]by|burnt[ _]out|wreck(age)?[ _]of|crash[ _]site|"
+    r"military[ _]cemetery|war[ _]memorial)\b",
 ]
 REJECT_RE = [re.compile(p, re.I) for p in REJECT]
 
@@ -332,6 +344,32 @@ SCENE_WORDS = [
     "cattle", "sheep", "goats", "camels", "livestock", "herd",
 ]
 SCENE_RE = re.compile(r"(%s)" % "|".join(re.escape(w) for w in SCENE_WORDS), re.I)
+
+# A *strong* scene word means the metadata is describing an outdoor VIEW, not an
+# object that merely happens to live outdoors. At least one of these is required.
+STRONG_SCENE = [
+    "street", "streets", "straat", "rue ", "calle", "strasse", "straße", "road",
+    "roads", "highway", "avenue", "boulevard", "lane", "alley", "crossroads",
+    "village", "villages", "hamlet", "town", "township", "settlement", "suburb",
+    "old town", "downtown", "city centre", "city center", "main street",
+    "high street", "market", "marketplace", "bazaar", "souk",
+    "square", "plaza", "piazza", "platz", "promenade", "waterfront",
+    "quay", "wharf", "pier", "harbour", "harbor", "port of", "seafront",
+    "beach", "coast", "coastline", "shore", "cliff", "bay",
+    "countryside", "landscape", "landscapes", "farmland", "farm", "fields",
+    "pasture", "meadow", "orchard", "vineyard", "plantation", "rice terrace",
+    "valley", "hills", "hillside", "mountains", "mountain", "plateau", "steppe",
+    "desert", "dunes", "savanna", "forest", "woodland", "jungle", "river",
+    "riverbank", "lake", "canal", "waterfall", "gorge", "canyon", "glacier",
+    "fjord", "railway", "railroad", "railway station", "tram", "tramway",
+    "bridge", "traffic", "roadside", "level crossing",
+    "houses", "housing", "buildings", "rooftops", "skyline", "panorama",
+    "view of", "view from", "views of", "general view", "overview",
+    "aerial view", "streetscape", "cityscape", "parade", "procession",
+    "festival", "market stall", "park", "gardens", "farmhouse", "barn",
+    "field", "harvest", "fishing", "boats", "island",
+]
+STRONG_RE = re.compile(r"(?:%s)" % "|".join(re.escape(w) for w in STRONG_SCENE), re.I)
 
 
 def rejected(text):
