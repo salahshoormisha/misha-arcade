@@ -270,12 +270,12 @@
   });
   mtop.appendChild(clockEl);
 
-  var cluesBtn = A.el("button", "ac-pill", "☰ CLUES");
+  var cluesBtn = A.el("button", "ac-pill", "CLUES");
   cluesBtn.type = "button";
   cluesBtn.onclick = cluesModal;
   mtop.appendChild(cluesBtn);
 
-  var toolsBtn = A.el("button", "ac-pill", "⚒ TOOLS");
+  var toolsBtn = A.el("button", "ac-pill", "TOOLS");
   toolsBtn.type = "button";
   toolsBtn.onclick = toolsModal;
   mtop.appendChild(toolsBtn);
@@ -738,10 +738,10 @@
   }
 
   function sheet(sec, norm, rows, detail) {
-    var extra = '<div class="mpar">⏱ <b>' + A.esc(fmt(sec)) + "</b> · PAR " + A.esc(fmt(P.par)) +
+    var extra = '<div class="mpar">YOUR TIME <b>' + A.esc(fmt(sec)) + "</b> · PAR " + A.esc(fmt(P.par)) +
       " · " + (sec <= P.par ? "UNDER PAR" : "+" + A.esc(fmt(sec - P.par)) + " OVER") + "</div>";
     if (reveals) {
-      extra += '<div class="mbadge">🚩 ' + reveals + (reveals === 1 ? " REVEAL" : " REVEALS") +
+      extra += '<div class="mbadge">' + reveals + (reveals === 1 ? " REVEAL" : " REVEALS") +
         " — SCORE CAPPED AT " + capFor() + "</div>";
     }
     if (checks) {
@@ -872,13 +872,13 @@
       '<button class="ac-btn ghost sm" data-rv="word">WORD</button>' +
       '<button class="ac-btn ghost sm" data-rv="puzzle">PUZZLE</button></div>' +
       '<p class="tiny dim center">' +
-      (reveals ? "🚩 " + reveals + " revealed · capped at " + capFor()
+      (reveals ? reveals + " revealed · capped at " + capFor()
         : "No reveals yet — full marks still on the table") +
       (checks ? " · " + checks + (checks === 1 ? " check" : " checks") : "") + "</p>" +
       '<div class="ac-row" style="margin-top:12px">' +
-      '<button class="ac-btn ghost" id="tl-pause">' + (paused ? "▶ RESUME" : "⏸ PAUSE") + "</button>" +
+      '<button class="ac-btn ghost" id="tl-pause">' + (paused ? "RESUME" : "PAUSE") + "</button>" +
       '<a class="ac-btn ghost" href="' + (practice ? "./" : "?practice=1") +
-      '" style="text-decoration:none">' + (practice ? "← TODAY'S MINI" : "∞ PRACTICE") + "</a></div>";
+      '" style="text-decoration:none">' + (practice ? "← TODAY'S MINI" : "PRACTICE") + "</a></div>";
     var m = A.modal("TOOLS", h);
     A.$$("[data-ck]", m.body).forEach(function (b) {
       b.onclick = function () { m.close(); doCheck(b.getAttribute("data-ck")); };

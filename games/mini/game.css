@@ -132,21 +132,26 @@
 
 /* ── clue lists (inline on desktop, in a modal on phones) ───────────────── */
 
-.cluelist { grid-template-columns: 1fr 1fr; gap: 16px; }
-#clues { display: none; margin: 18px auto 0; }
+.cluelist { grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+#clues { display: none; margin: var(--sp-5) auto 0; }
 @media (min-width: 720px) { #clues { display: grid; } }
-.cluelist h3 { font-size: 10px; letter-spacing: 2.4px; color: var(--ink4); margin-bottom: 6px; }
-.cluelist .ci {
-  display: flex; align-items: center; gap: 7px; padding: 6px 7px; border-radius: 7px;
-  cursor: pointer; min-height: 34px;
-  font-size: 12.5px; line-height: 1.4; color: var(--ink2);
+.cluelist h3 {
+  font-size: var(--t-xs); font-weight: 550; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--sp-2);
 }
-.cluelist .ci:hover { background: #ffffff10; color: #fff; }
-.cluelist .ci b { color: var(--ink4); min-width: 15px; text-align: right; }
-.cluelist .ci.on { background: #14344f; color: #fff; }
-.cluelist .ci.on b { color: var(--cool); }
-.cluelist .ci.filled { color: var(--ink4); }
-.cluelist .ci.filled b { color: var(--ink4); }
+.cluelist .ci {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 7px; border-radius: var(--r-sm);
+  cursor: pointer; min-height: 34px;
+  font-size: var(--t-sm); line-height: 1.4; color: var(--ink-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.cluelist .ci:hover { background: var(--s2); color: var(--ink); }
+.cluelist .ci b { color: var(--ink-4); min-width: 15px; text-align: right; font-variant-numeric: tabular-nums; }
+.cluelist .ci.on { background: color-mix(in srgb, var(--accent) 20%, var(--s1)); color: var(--ink); }
+.cluelist .ci.on b { color: var(--accent); }
+.cluelist .ci.filled { color: var(--ink-4); }
+.cluelist .ci.filled b { color: var(--ink-4); }
 
 /* the modal version wants two columns even on a phone-sized modal, and a full
    44 px tap target — it is the phone way in to the clue list */
@@ -156,11 +161,23 @@
 
 /* ── tools sheet ────────────────────────────────────────────────────────── */
 
-.tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 4px 0 14px; }
+.tools-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-4);
+}
 /* .ac-btn.sm caps out at 38px; these are the primary controls of the sheet, so
    they get the full 44px tap target (specificity has to beat .ac-btn.sm) */
 .tools-grid button.ac-btn.sm { width: 100%; min-height: 44px; padding-left: 4px; padding-right: 4px; }
-.tools-lab { font-size: 10px; letter-spacing: 2px; color: var(--ink4); margin-bottom: 6px; }
+.tools-lab {
+  font-size: var(--t-xs); font-weight: 550; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--sp-2);
+}
 
-.mbadge { font-size: 11.5px; letter-spacing: 1px; color: var(--gold); text-align: center; margin-top: 8px; }
-.mpar { font-size: 12px; letter-spacing: 1px; color: var(--ink3); text-align: center; margin-top: 2px; }
+.mbadge {
+  font-size: var(--t-xs); font-weight: 550; letter-spacing: .1em;
+  color: var(--amber); text-align: center; margin-top: var(--sp-2);
+}
+.mpar {
+  font-size: var(--t-sm); letter-spacing: .06em; color: var(--ink-3);
+  text-align: center; margin-top: 2px; font-variant-numeric: tabular-nums;
+}
