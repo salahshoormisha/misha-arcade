@@ -1,0 +1,366 @@
+# -*- coding: utf-8 -*-
+"""
+chrono_bank_a.py — CHRONO clue bank, part A: 1850–1899.
+
+One entry per year:  YEAR: (note, [clue1 ... clue5])
+Clues run HARDEST FIRST to MOST OBVIOUS LAST. Never name the year, never name
+a four-digit year at all (gen_chrono.py enforces it). Domains are deliberately
+mixed: science, world events, culture, sport, technology, everyday life.
+
+Everything here is a dated, checkable event. Where the exact year of a thing is
+argued over (an invention "built" one year and "patented" the next), the clue is
+worded to match the year it is filed under, or the fact was dropped.
+"""
+
+BANK = {
+
+    1851: (
+        "The Great Exhibition year — Crystal Palace, Moby-Dick, and a telegraph "
+        "cable under the Channel.",
+        [
+            "A pendulum hung under the dome of the Panthéon in Paris swung slowly off course all day, showing the Earth turning beneath it.",
+            "A telegraph cable was laid on the seabed between Dover and Calais, and this time it worked.",
+            "A schooner from New York beat the British fleet in a race round the Isle of Wight and took home a silver cup nobody expected to lose.",
+            "A long American novel about a captain, a crew and a white whale was published, and sold badly.",
+            "A palace of glass and iron went up in Hyde Park to hold the first great international exhibition.",
+        ],
+    ),
+
+    1853: (
+        "American warships in Edo Bay, La traviata in Venice, and war in the "
+        "Black Sea.",
+        [
+            "Parliament made smallpox vaccination compulsory for infants in England and Wales.",
+            "A German piano maker set up his workshop in New York under an anglicised version of his name.",
+            "A Russian squadron destroyed an Ottoman fleet at Sinop, and Britain and France began preparing to fight for the Sultan.",
+            "Verdi had two premieres in the same season: a doomed courtesan in Venice, a gypsy and a stolen baby in Rome.",
+            "Four American warships anchored uninvited in Edo Bay and demanded that Japan open itself to trade.",
+        ],
+    ),
+
+    1854: (
+        "Balaclava, the Broad Street pump, and Japan's ports forced open.",
+        [
+            "The rebuilt Crystal Palace reopened on a hill in south London, far bigger than the one in Hyde Park.",
+            "A doctor persuaded a London parish to remove the handle from a water pump, and the cholera deaths around it stopped.",
+            "An American writer published an account of two years living in a hut he built beside a pond.",
+            "A nurse arrived at the army hospital at Scutari with thirty-eight volunteers and found the wounded lying in filth.",
+            "A British cavalry brigade charged the wrong guns down the wrong valley, and a poet made them immortal.",
+        ],
+    ),
+
+    1856: (
+        "Mauve, cheap steel, and the first Neanderthal — the Crimean War ends "
+        "in Paris.",
+        [
+            "An eighteen-year-old chemistry student trying to synthesise quinine got a purple sludge instead, and invented the first synthetic dye.",
+            "An English engineer told the British Association how blowing air through molten iron could make steel cheaply.",
+            "Quarrymen in a limestone cave in the Neander valley dug out a thick-browed skull that did not look modern.",
+            "A Scottish missionary reached the Indian Ocean coast, becoming the first European known to have crossed Africa from one side to the other.",
+            "The Crimean War ended with a treaty signed in Paris, and a second war with China began over a boarded ship.",
+        ],
+    ),
+
+    1858: (
+        "The Great Stink, the first Atlantic cable, and the paper that "
+        "announced natural selection.",
+        [
+            "A letter from a naturalist in the Malay Archipelago forced a nervous Englishman to present his theory at last, jointly, to the Linnean Society.",
+            "A new great bell was cast at a Whitechapel foundry for the clock tower at Westminster.",
+            "The Thames smelled so foul that Parliament hung lime-soaked curtains at the windows and voted the money for a proper sewer system.",
+            "A cable across the Atlantic carried greetings between a queen and a president, then went dead within weeks.",
+            "After the rebellion in India, Parliament abolished the East India Company's rule and handed the country to the Crown.",
+        ],
+    ),
+
+    1859: (
+        "On the Origin of Species — plus the first oil well, and rabbits let "
+        "loose in Australia.",
+        [
+            "A landowner in Victoria released two dozen wild rabbits on his estate for sport, and a continent has been paying for it since.",
+            "The largest solar storm on record lit up auroras over the tropics and set telegraph paper alight in the offices.",
+            "Digging began at the Mediterranean end of a canal across the Egyptian desert, and a drilling rig struck oil in a Pennsylvania creek valley.",
+            "Dickens opened a novel of the French Revolution with a line about the best and worst of times.",
+            "A naturalist published a book on the origin of species by means of natural selection, and the first printing sold out at once.",
+        ],
+    ),
+
+    1861: (
+        "Italy becomes a kingdom, Russia frees the serfs, and the American "
+        "Civil War begins.",
+        [
+            "A quarry in Bavaria gave up the skeleton of a feathered animal with teeth and claws — a bird and a reptile at once.",
+            "A Scottish physicist projected the first colour photograph, a tartan ribbon shot three times through red, green and blue filters.",
+            "The Prince Consort died of a fever at Windsor, and the Queen went into mourning she never really left.",
+            "A tsar signed away serfdom, freeing more than twenty million people on paper.",
+            "Italy was proclaimed a kingdom under Victor Emmanuel, and in America the guns opened on Fort Sumter.",
+        ],
+    ),
+
+    1863: (
+        "Trains under London, football's first rulebook, and Gettysburg.",
+        [
+            "Sixteen men met in Geneva and formed the committee that grew into the Red Cross.",
+            "Paris put on a show of the pictures its official Salon had rejected, and the crowds came to laugh at a nude picnicking with clothed men.",
+            "Delegates from a dozen clubs met at a London tavern and wrote the first Football Association rules — handling out, hacking banned.",
+            "Steam trains began carrying passengers through tunnels under London, the first underground railway anywhere.",
+            "Lincoln's proclamation freeing the slaves in rebel states took effect in January; in November he spoke for two minutes at Gettysburg.",
+        ],
+    ),
+
+    1865: (
+        "Antiseptic surgery, Mendel's peas, the Matterhorn, and Lincoln shot.",
+        [
+            "A monk read a paper on the inheritance of pea plants to a natural-history society in Brno, and almost nobody understood it.",
+            "A Glasgow surgeon began soaking dressings in carbolic acid, and compound fractures stopped going gangrenous.",
+            "A party led by an English illustrator reached the top of the Matterhorn; a rope broke on the way down and four of them fell.",
+            "An Oxford mathematician published the story of a girl who follows a rabbit down a hole.",
+            "The American Civil War ended at a Virginia courthouse, and five days later the president was shot in a theatre.",
+        ],
+    ),
+
+    1867: (
+        "Dynamite, Das Kapital, and the Dominion of Canada.",
+        [
+            "A boy on a farm by the Orange River picked up a shiny pebble that turned out to be a twenty-one carat diamond.",
+            "A Swedish chemist found that soaking nitroglycerine into porous earth made it safe to carry, and patented the result.",
+            "A Viennese choral society premiered a waltz about a river that is not actually blue.",
+            "The first volume of a long critique of political economy was published in Hamburg, in an edition of a thousand.",
+            "Britain's North American colonies federated into a new dominion, and Russia sold Alaska to the United States for a couple of cents an acre.",
+        ],
+    ),
+
+    1868: (
+        "The shogun falls, helium is found in the sun, and London gets a "
+        "traffic light.",
+        [
+            "Astronomers watching an eclipse from India saw a yellow line in the sun's spectrum that matched no known element.",
+            "A gas-lit signal with revolving red and green lenses was put up outside Parliament to stop MPs being run over.",
+            "Trade unionists held their first national congress in Manchester.",
+            "An American writer published a novel about four sisters and their mother while their father was away at war.",
+            "The last shogun gave up power in Japan and a teenage emperor moved into the castle at Edo, renaming it the eastern capital.",
+        ],
+    ),
+
+    1869: (
+        "The Suez Canal opens, the periodic table appears, and America is "
+        "spanned by rail.",
+        [
+            "A French chemist won a competition to invent a cheap butter substitute for the navy and the poor, using beef fat.",
+            "A Russian chemist arranged the known elements by weight in a table with gaps for ones nobody had found yet.",
+            "Tolstoy finished the last instalment of a novel that had grown to include the burning of Moscow.",
+            "Two railroads met in the Utah desert and drove a ceremonial spike, joining the American coasts by rail.",
+            "A canal from the Mediterranean to the Red Sea opened with fireworks, an opera house and a royal flotilla.",
+        ],
+    ),
+
+    1871: (
+        "A German Empire at Versailles, the Paris Commune, and Stanley finds "
+        "Livingstone.",
+        [
+            "Darwin published the book that finally applied his theory to human beings, sex and all.",
+            "Verdi's opera about an Ethiopian princess in Egypt opened at the new opera house in Cairo.",
+            "Twenty-one clubs founded the Rugby Football Union, and Scotland beat England in the first international, played in Edinburgh.",
+            "A newspaper's expedition found a sick Scottish missionary at a village on Lake Tanganyika and reported an absurdly polite greeting.",
+            "The German Empire was proclaimed in the Hall of Mirrors at Versailles; that spring, Parisians held their city for ten weeks as a commune.",
+        ],
+    ),
+
+    1872: (
+        "The first football international, the first national park, and the "
+        "Mary Celeste.",
+        [
+            "Japan opened its first railway, eighteen miles from the capital to the port at Yokohama.",
+            "Britain made voting secret, ending the show of hands and the bribe at the hustings.",
+            "A brigantine was found sailing the Atlantic in good order with her cargo intact and nobody aboard.",
+            "England and Scotland played the first official international football match, in Glasgow, and drew nil-nil.",
+            "The United States set aside a plateau of geysers and hot springs as the world's first national park.",
+        ],
+    ),
+
+    1874: (
+        "The Impressionists' first show, barbed wire, and lawn tennis.",
+        [
+            "A retired major patented a portable court game he insisted on calling Sphairistikè; everyone else called it lawn tennis.",
+            "An Illinois farmer patented a twisted double wire with barbs, and the open range began to disappear behind fences.",
+            "The first commercial typewriters went on sale from a gun maker in New York state, with the keys in an awkward order that stuck.",
+            "Verdi's requiem for a dead novelist was first sung in a Milan church on the anniversary of his death.",
+            "Painters shut out of the official Salon hung their own show in a photographer's studio in Paris, and a critic sneered at one canvas as mere impressionism.",
+        ],
+    ),
+
+    1876: (
+        "The telephone patent, the first Bayreuth Ring, and Little Bighorn.",
+        [
+            "A German engineer built the first practical engine to work on four strokes of the piston — intake, compression, power, exhaust.",
+            "Japanese gunboats forced Korea to sign a treaty opening its ports, borrowing the tactic used on Japan a generation earlier.",
+            "Wagner's four-opera cycle was performed complete for the first time, in a theatre he had built for it in a Bavarian market town.",
+            "Parliament voted Queen Victoria the additional title of Empress of India.",
+            "A telephone patent was granted in Boston and its owner shouted for his assistant through the wire; that summer, Custer's cavalry was wiped out in Montana.",
+        ],
+    ),
+
+    1877: (
+        "The first Wimbledon, the first cricket Test, and a voice recorded on "
+        "tinfoil.",
+        [
+            "Japan's last samurai revolt was crushed in the south, and its leader died on a hillside outside Kagoshima.",
+            "A ballet about a swan maiden and a wicked sorcerer premiered at the Bolshoi and was judged a disappointment.",
+            "England lost the first cricket Test match to Australia in Melbourne by forty-five runs.",
+            "A croquet club in a London suburb held the first lawn tennis championship, and twenty-two men entered.",
+            "An American inventor recited a nursery rhyme into a machine and heard his own voice come back out of it.",
+        ],
+    ),
+
+    1879: (
+        "Zulu spears at Isandlwana, a bridge into the Tay, and a lamp that "
+        "kept burning.",
+        [
+            "Two chemists in Baltimore noticed that a compound on their hands tasted intensely sweet, and named it saccharin.",
+            "A Norwegian play ended with a wife walking out on her husband and slamming the door, and Europe argued about it for years.",
+            "A British army camped in Zululand was overrun in the morning; a hundred and fifty men held a mission station that night.",
+            "A gale took down the middle of the new railway bridge over the Tay with a train on it, and seventy-five people died.",
+            "In a New Jersey laboratory a carbonised filament in a glass bulb glowed for more than thirteen hours without burning out.",
+        ],
+    ),
+
+    1881: (
+        "A tsar bombed in St Petersburg, sheep vaccinated in France, and a "
+        "gunfight in Arizona.",
+        [
+            "A French chemist vaccinated twenty-five sheep against anthrax, left twenty-five alone, then infected them all in front of an audience.",
+            "The first electric tramway carried fare-paying passengers along a suburban street in Berlin.",
+            "London's natural history collection moved out of the British Museum into its own cathedral of a building in South Kensington.",
+            "A tsar who had freed the serfs was killed by a bomb thrown at his carriage on a St Petersburg canal.",
+            "A thirty-second gunfight near a corral in Tombstone, Arizona became the most retold shoot-out of the American West.",
+        ],
+    ),
+
+    1883: (
+        "Krakatoa erupts, the Brooklyn Bridge opens, and the Orient Express "
+        "sets off.",
+        [
+            "A luxury express left Paris for the lower Danube for the first time, with a sleeping car and a smoking saloon.",
+            "Wagner died of a heart attack in a palazzo in Venice, and his body was taken home by train.",
+            "A serial about a boy, a map and a one-legged sea cook was published as a book by a young Edinburgh writer.",
+            "A bridge of steel wire opened between Manhattan and Brooklyn, the longest suspension span in the world.",
+            "An island volcano in the Sunda Strait blew itself apart with a bang heard nearly three thousand miles away.",
+        ],
+    ),
+
+    1885: (
+        "A rabies vaccine, a petrol-driven tricycle, and Africa carved up in "
+        "Berlin.",
+        [
+            "A Coventry works built a bicycle with equal wheels, a chain to the back one and a low seat — the shape bicycles have kept ever since.",
+            "A French chemist injected a nine-year-old boy bitten by a rabid dog, thirteen times, and the boy lived.",
+            "European powers finished a conference in Berlin that set the rules for claiming African territory, with no Africans present.",
+            "A Canadian railway drove its last spike in the mountains of British Columbia, and a British general was killed at Khartoum days before relief arrived.",
+            "In Mannheim, an engineer drove a three-wheeled carriage powered by a small petrol engine — the first true motor car.",
+        ],
+    ),
+
+    1886: (
+        "Gold on the Witwatersrand, Coca-Cola in Atlanta, and Jekyll and Hyde "
+        "in the shops.",
+        [
+            "A prospector found a gold-bearing reef on a farm in the Transvaal, and a mining camp on the veld became a city within a decade.",
+            "A young painter showed a huge canvas of Parisians on a riverbank, built entirely from dots of pure colour.",
+            "An Edinburgh writer published a shilling shocker about a respectable doctor and the man he becomes at night.",
+            "A copper statue given by France was dedicated on an island in New York harbour.",
+            "An Atlanta pharmacist mixed a caramel-coloured syrup with soda water and sold it at a chemist's counter for five cents a glass.",
+        ],
+    ),
+
+    1888: (
+        "Pneumatic tyres, the first football league, and the Whitechapel "
+        "murders.",
+        [
+            "A Belfast vet wrapped an inflated rubber tube around his son's tricycle wheels and patented the idea.",
+            "Brazil abolished slavery, the last country in the Americas to do so.",
+            "Twelve English clubs agreed to play each other home and away on fixed dates, inventing the league season.",
+            "In Arles a Dutch painter filled a room with pictures of sunflowers, quarrelled with his house guest, and cut off part of his own ear.",
+            "A series of murders in Whitechapel and a set of taunting letters gave the world its most famous unidentified killer.",
+        ],
+    ),
+
+    1889: (
+        "The Eiffel Tower, a Japanese constitution, and a Kyoto card shop "
+        "called Nintendo.",
+        [
+            "A shop in Kyoto began making hand-painted flower cards for gambling dens; the same company would later sell video games.",
+            "Japan promulgated its first modern constitution, with an elected lower house and a sacred emperor.",
+            "Brazil's army deposed its emperor and declared a republic, and he sailed for Europe without much fuss.",
+            "A dance hall with a red windmill on the roof opened at the foot of Montmartre.",
+            "A three-hundred-metre iron tower opened as the gateway to a Paris world's fair, to the disgust of the city's writers.",
+        ],
+    ),
+
+    1890: (
+        "The Forth Bridge opens, Bismarck is sacked, and Van Gogh dies.",
+        [
+            "London opened the first deep-level electric railway, running small padded carriages with no windows worth looking out of.",
+            "Two cantilevered steel diamonds carried the railway across the Firth of Forth, north out of Edinburgh, after seven years of building.",
+            "A Dutch painter shot himself in a field near Auvers and died two days later, having sold almost nothing.",
+            "A young Kaiser dismissed the chancellor who had made Germany, and dropped the pilot.",
+            "American cavalry killed some two hundred and fifty Lakota at a creek in South Dakota, ending the wars on the plains.",
+        ],
+    ),
+
+    1893: (
+        "Votes for women in New Zealand, The Scream, and the White City in "
+        "Chicago.",
+        [
+            "A Chicago engineer patented a 'clasp locker' of interlocking hooks, the awkward ancestor of the zip.",
+            "New Zealand became the first self-governing country to let women vote in national elections.",
+            "A Norwegian painter finished a picture of a figure on a fjord bridge, hands to its head, mouth open.",
+            "A Czech composer's symphony subtitled 'From the New World' was premiered at Carnegie Hall.",
+            "Chicago put on a vast neoclassical world's fair beside Lake Michigan, with the first Ferris wheel turning over it.",
+        ],
+    ),
+
+    1895: (
+        "X-rays, the first film show, and the northern clubs walk out of "
+        "rugby.",
+        [
+            "Twenty-two clubs from Lancashire and Yorkshire resigned from the Rugby Football Union in a Huddersfield hotel over paying working men for lost wages.",
+            "A young English writer published a novella about a machine that travels through time to a world of Eloi and Morlocks.",
+            "A German physicist noticed a screen glowing near a covered discharge tube and photographed the bones in his wife's hand.",
+            "A comedy about two men both pretending to be called Ernest opened in London weeks before its author was ruined in court.",
+            "Two brothers charged an audience in a Paris basement to watch moving pictures of workers leaving their factory.",
+        ],
+    ),
+
+    1896: (
+        "The first modern Olympics, radioactivity, and gold on the Klondike.",
+        [
+            "A French physicist left uranium salts on a wrapped photographic plate in a drawer and found the plate fogged anyway.",
+            "An Ethiopian army destroyed an invading Italian force at Adwa, and Europe had to recognise an independent African empire.",
+            "Prospectors found coarse gold on a creek off the Klondike River, and a stampede began that took a year to arrive.",
+            "Puccini's opera about poor artists in a Paris garret premiered in Turin under a young conductor called Toscanini.",
+            "Athletes from a handful of countries gathered in a marble stadium in Athens for the first modern Olympic Games.",
+        ],
+    ),
+
+    1898: (
+        "J'Accuse, radium, and the war that made America an empire.",
+        [
+            "A novelist filled the front page of a Paris paper with an open letter accusing the army of framing a Jewish officer.",
+            "Two physicists in a Paris shed announced that pitchblende contained two new elements, one of which glowed.",
+            "An English novel about Martian war machines landing in Surrey appeared in book form.",
+            "An Anglo-Egyptian army with machine guns destroyed the Mahdist forces at Omdurman in a morning.",
+            "An American battleship blew up in Havana harbour, and by the autumn Spain had lost Cuba, Puerto Rico and the Philippines.",
+        ],
+    ),
+
+    1899: (
+        "Aspirin, the Maple Leaf Rag, and the outbreak of the Boer War.",
+        [
+            "A car company was founded in Turin with a name that was an abbreviation of its own long-winded description.",
+            "A German dye firm registered a trademark for acetylsalicylic acid, a painkiller kinder to the stomach than salicylic acid.",
+            "A ragtime piano piece named after a black social club in Missouri was published and became the first sheet-music million-seller.",
+            "Delegates at The Hague signed conventions on the laws of war and set up a permanent court of arbitration.",
+            "Boer commandos crossed into British territory in South Africa and laid siege to Ladysmith, Kimberley and Mafeking.",
+        ],
+    ),
+}
