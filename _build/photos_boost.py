@@ -542,6 +542,9 @@ def harvest_time_cat(cand, city, out, per_country, per_city, rej):
         if not L.STRONG_RE.search(blob) and not T.ERA_BONUS.search(blob):
             rej["no-scene-word"] += 1
             continue
+        if OBJECT.search(near):
+            rej["object-not-a-view"] += 1
+            continue
         # the file's own coordinate wins, if it is plausibly in the same city
         lat, lon, gps = clat, clon, 0
         co = (p.get("coordinates") or [{}])[0]

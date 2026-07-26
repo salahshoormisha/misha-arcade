@@ -1028,23 +1028,35 @@ for (var p = 0; p < probe.length; p++) {
 rep.obvSample = s;
 
 /* ── CALIBRATION ─────────────────────────────────────────────────────────────
-   Four reference players over the same boards, each filling all nine cells:
-     first : always names the most salient valid country  (the lazy answer)
-     third : names the 3rd most salient                   (a solid daily player)
-     mid   : names the median-salience valid country       (a strong player)
-     deep  : names the least salient valid country         (perfect play)
-   Reported as raw points out of 900 and as norm under norm = 100*(pts/900)^E,
-   so the exponent can be chosen against real boards rather than by feel. */
-var EXP = %f;
-function normOf(pts) { return Math.round(100 * Math.pow(pts / 900, EXP)); }
-var players = { first: 0, third: 0, mid: 0, deep: 0, eight: 0 };
-var pcount = 0;
+   Reference players over the same boards, each filling all nine cells unless
+   noted:
+     first : always names the most obvious valid country   (the lazy fill)
+     third : names the 3rd most obvious
+     mid   : names the median-obviousness answer
+     deep  : names the least obvious answer                (perfect play)
+     mid8/mid7/mid5 : the median player, short of the full grid
+   norm is the cabinet's real formula, so this table IS the difficulty curve:
+     norm = 100 * (FILLW*filled/9 + (1-FILLW)*creditEarned/creditAvailable)
+   where credit is points above the %d-point floor every filled cell pays. */
+var FILLW = %f, FLOOR = g.FILL;
+function normOf(filled, credit, avail) {
+  var r = avail > 0 ? credit / avail : 0;
+  return Math.round(100 * (FILLW * (filled / 9) + (1 - FILLW) * Math.min(1, r)));
+}
+var WHO = ['first', 'third', 'mid', 'deep'];
+var acc = {}, nacc = {}, kk;
+for (kk = 0; kk < WHO.length; kk++) { acc[WHO[kk]] = 0; nacc[WHO[kk]] = 0; }
+var shortN = { mid8: 8, mid7: 7, mid5: 5 };
+for (kk in shortN) { nacc[kk] = 0; }
+var pcount = 0, ceilSum = 0;
 for (var s2 = 0; s2 < %d; s2++) {
-  var gg = g.buildGrid(rngFactory('seed-' + s2));
+  var gg = g.buildGrid(rngFactory('seed-' + s2), %s);
   if (!gg) { continue; }
   pcount++;
-  var tot = { first: 0, third: 0, mid: 0, deep: 0 };
-  var cellPts = [];
+  var ceil = g.ceiling(gg);
+  ceilSum += ceil.total;
+  var avail = ceil.total - 9 * FLOOR;
+  var tot = { first: 0, third: 0, mid: 0, deep: 0 }, midCells = [];
   for (var r3 = 0; r3 < 3; r3++) {
     for (var c3 = 0; c3 < 3; c3++) {
       var a3 = gg.rows[r3], b3 = gg.cols[c3];
@@ -1057,25 +1069,32 @@ for (var s2 = 0; s2 < %d; s2++) {
         mid: Math.floor((list3.length - 1) / 2),
         deep: list3.length - 1
       };
-      for (var kk in idx) { tot[kk] += g.points(a3, b3, list3[idx[kk]]); }
-      cellPts.push(g.points(a3, b3, list3[idx.third]));
+      for (var k4 in idx) { tot[k4] += g.points(a3, b3, list3[idx[k4]]); }
+      midCells.push(g.points(a3, b3, list3[idx.mid]));
     }
   }
-  for (var k2 in tot) { players[k2] += tot[k2]; }
-  /* the same solid player, but one cell short */
-  cellPts.sort(function (x, y) { return x - y; });
-  players.eight += tot.third - cellPts[0];
+  for (kk = 0; kk < WHO.length; kk++) {
+    acc[WHO[kk]] += tot[WHO[kk]];
+    nacc[WHO[kk]] += normOf(9, tot[WHO[kk]] - 9 * FLOOR, avail);
+  }
+  /* the median player, but short: drop their weakest cells */
+  midCells.sort(function (x, y) { return y - x; });
+  for (kk in shortN) {
+    var n2 = shortN[kk], sub = 0;
+    for (var q2 = 0; q2 < n2; q2++) { sub += midCells[q2]; }
+    nacc[kk] += normOf(n2, sub - n2 * FLOOR, avail);
+  }
 }
-rep.calibration = { boards: pcount, exponent: EXP, mean: {}, norm: {} };
-for (var k3 in players) {
-  var mp = players[k3] / pcount;
-  rep.calibration.mean[k3] = Math.round(mp * 10) / 10;
-  rep.calibration.norm[k3] = normOf(mp);
+rep.calibration = { boards: pcount, fillWeight: FILLW, mean: {}, norm: {},
+                    meanCeiling: Math.round(ceilSum / pcount) };
+for (kk = 0; kk < WHO.length; kk++) {
+  rep.calibration.mean[WHO[kk]] = Math.round(acc[WHO[kk]] / pcount * 10) / 10;
 }
+for (kk in nacc) { rep.calibration.norm[kk] = Math.round(nacc[kk] / pcount); }
 
 __write(__outPath(), JSON.stringify(rep));
 'ok'
-""" % (seeds, NORM_EXP, seeds)
+""" % (seeds, int(10), FILL_WEIGHT, seeds, json.dumps(grid_opts or {}))
     shim = "var window = this;\n"
     tmp = tempfile.mkdtemp(prefix="geogrid_st_")
     shim_path = os.path.join(tmp, "shim.js")

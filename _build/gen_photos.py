@@ -292,6 +292,16 @@ def main():
     place_rows = json.load(open(PLACE_IN, encoding="utf-8")) if os.path.exists(PLACE_IN) else []
     print("harvest input: time=%d place=%d" % (len(time_rows), len(place_rows)))
 
+    # An early harvest built file-page URLs with the colon percent-encoded
+    # ("/wiki/File%3AFoo.jpg"). That still resolves, but it is not the canonical
+    # form the validator (and the games' credit link) expect, so canonicalise
+    # every page URL BEFORE validating rather than after selection.
+    for lst in (time_rows, place_rows):
+        for e in lst:
+            if e.get("page"):
+                e["page"] = L.page_url(re.sub(r"^.*/wiki/File:", "",
+                                              L.urllib.parse.unquote(e["page"])))
+
     problems = []
     time_rows = [e for e in time_rows if valid(e, "time", problems)]
     place_rows = [e for e in place_rows if valid(e, "place", problems)]
