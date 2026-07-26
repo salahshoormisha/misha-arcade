@@ -67,17 +67,20 @@ PACKS = [
      "The main archive. Wordplay, general knowledge, and a purple that bites.",
      ["conn_general1", "conn_general2", "conn_general3", "conn_general4"]),
     ("persia", "PERSIAN BLUE",
-     "Shahnameh, Nowruz, poets, food, and the words English quietly borrowed.",
+     "Nowruz, poets, food, carpets, and the words English quietly borrowed.",
      ["conn_persia"]),
     ("united", "RED DEVILS",
-     "Old Trafford lore. Sibling to FOURMATIONS — no group is repeated from it.",
+     "Old Trafford and the Premier League. The FOURMATIONS archive, rehoused.",
      ["conn_united"]),
-    ("office", "OFFICE HOURS",
-     "Meetings, calendars, Slack, and the vocabulary of getting things shipped.",
-     ["conn_office"]),
-    ("cambridge", "CAMBRIDGE MA",
-     "Harvard Square, the Red Line, and the 02138 way of life.",
-     ["conn_cambridge"]),
+    ("places", "FOUR CITIES",
+     "Cambridge, London, Edinburgh, Houston. Squares, closes, bayous, feeder roads.",
+     ["conn_places"]),
+    ("ai", "THE ALIGNMENT",
+     "Alignment, evals, compute governance, the labs, the papers, the acronyms.",
+     ["conn_ai"]),
+    ("jewish", "DIASPORA",
+     "Holidays, food, Yiddish and Hebrew in English, texts, music, and Israel.",
+     ["conn_jewish"]),
 ]
 
 # ---------------------------------------------------------------------------
@@ -294,18 +297,27 @@ def validate(packs, flat):
     if fm_sets is None:
         info["fourmations"] = "NOT FOUND — could not check for duplicated groups"
     else:
-        clashes = []
+        # FOURMATIONS is being retired and its best football content now lives in
+        # the `united` pack, so an identical group is ADAPTED, not a bug. Outside
+        # `united` an overlap is still suspicious, so it stays an error there.
+        adapted = []
         for pid, bid, raw, ob in flat:
             for g in ob["groups"]:
                 s = frozenset(norm_name(t) for t in g["tiles"])
-                if s in fm_sets:
-                    clashes.append("%s#%d %r — identical tile set to a FOURMATIONS group"
-                                   % (pid, bid, g["name"]))
-                elif norm_name(g["name"]) in fm_names:
-                    clashes.append("%s#%d %r — identical category name to a FOURMATIONS group"
-                                   % (pid, bid, g["name"]))
-        errs.extend(clashes)
-        info["fourmations"] = "checked against %d groups from /Users/mishasalahshoor/fourmations/puzzles.js" % len(fm_sets)
+                same_set = s in fm_sets
+                same_name = norm_name(g["name"]) in fm_names
+                if not (same_set or same_name):
+                    continue
+                how = "tile set" if same_set else "category name"
+                msg = "%s#%d %r — identical %s to a FOURMATIONS group" % (pid, bid, g["name"], how)
+                if pid == "united":
+                    adapted.append(msg + " (adapted on purpose)")
+                else:
+                    errs.append(msg)
+        info["adapted"] = adapted
+        info["fourmations"] = ("checked against %d groups from "
+                              "/Users/mishasalahshoor/fourmations/puzzles.js; %d adapted into "
+                              "`united` on purpose" % (len(fm_sets), len(adapted)))
 
     info["reuse_hist"] = {}
     for t, v in seen_global.items():
@@ -393,9 +405,11 @@ def main():
     print("  unique solution per board ................ %s" % (
         "PASS (%d boards, exact-cover count == 1)" % nb
         if not any("UNIQUELY" in e for e in errs) else "FAIL"))
-    print("  no group duplicated from FOURMATIONS ..... %s" % (
+    print("  no FOURMATIONS group outside `united` .... %s" % (
         "PASS" if not any("FOURMATIONS" in e for e in errs) else "FAIL"))
     print("     %s" % info["fourmations"])
+    for a in info.get("adapted", []):
+        print("     ~ " + a)
     print("  strict-JSON payload parses ............... PASS")
 
     print("\nDECLARED DOUBLE-FITS (%d) — each verified still uniquely solvable"

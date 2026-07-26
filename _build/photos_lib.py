@@ -38,7 +38,7 @@ def _ckey(prefix, s):
     return os.path.join(CACHE, "%s_%s.json" % (prefix, hashlib.sha1(s.encode("utf-8")).hexdigest()[:20]))
 
 
-def api(params, prefix="api", ttl=None, retries=3, endpoint=API):
+def api(params, prefix="api", ttl=None, retries=5, endpoint=API):
     """GET a MediaWiki API with an on-disk cache keyed by the query string."""
     p = dict(params)
     p.setdefault("format", "json")
@@ -52,16 +52,34 @@ def api(params, prefix="api", ttl=None, retries=3, endpoint=API):
         except Exception:
             pass
     url = endpoint + "?" + qs
+    # A 25-title hydrate can blow past the server's URL limit (HTTP 414). MediaWiki
+    # accepts read queries over POST, and the cache key is the query string either
+    # way, so switching transport costs nothing.
+    long_q = len(url) > 1700
     last = None
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+            if long_q:
+                req = urllib.request.Request(
+                    endpoint, data=qs.encode("utf-8"),
+                    headers={"User-Agent": UA, "Accept": "application/json",
+                             "Content-Type": "application/x-www-form-urlencoded"})
+            else:
+                req = urllib.request.Request(
+                    url, headers={"User-Agent": UA, "Accept": "application/json"})
             with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
                 data = json.loads(r.read().decode("utf-8"))
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump(data, fh)
             time.sleep(0.08)
             return data
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code == 414 and not long_q:
+                long_q = True          # retry the same query as a POST
+                continue
+            # Wikimedia throttling wants a real pause, not a 1-second nap.
+            time.sleep((6.0 if e.code in (429, 503) else 1.2) * (attempt + 1))
         except Exception as e:  # noqa
             last = e
             time.sleep(1.2 * (attempt + 1))

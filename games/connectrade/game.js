@@ -10,7 +10,9 @@
      · six mistakes, not four. "One off!" on a 3-of-4 guess.
      · a duplicate guess is BLOCKED (Submit refuses it), never punished.
      · group colour = the country's index in the day's list. It carries no
-       difficulty signal at all — unlike Connections' yellow→purple.
+       difficulty signal at all — unlike Connections' yellow→purple. We number
+       the four 1-4 as well, because colourblind mode collapses two of the
+       tokens toward the same blue and the log's owner tags must still read.
      · a solved group becomes a full-width coloured band: country + its four.
      · every attempt is logged at the bottom with ✅/❌.
 
@@ -18,10 +20,10 @@
      · it never reveals the answers when you lose. We always do.
      · every solved band says what that basket means, from the data: the
        basket's size, its dominant HS section, and each product's Balassa RCA.
-     · the KEY toggle (colour-tag every product in the log) is remembered
-       instead of silently resetting to "on" every single load.
-     · a partial basket (Comtrade under-reporting, e.g. Iran) is flagged rather
-       than presented as the whole truth.
+     · the KEY toggle (tag every product in the log with its owner) is
+       remembered instead of silently resetting to "on" every single load.
+     · a basket trade.js marks as partial (Comtrade under-reporting, e.g. Iran)
+       or re-export inflated is flagged rather than shown as the whole truth.
 
    WHERE THE BOARD COMES FROM — core/data/trade.js, `rca{ISO2}` = 6-9 products
    by revealed comparative advantage (Balassa), already filtered to ≥0.5% of
