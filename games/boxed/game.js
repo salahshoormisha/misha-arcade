@@ -200,9 +200,13 @@
     return { n: list.length, n2: n2 };
   }
 
-  function qualityOf(sides, pf) {
+  function qualityOf(sides, pf, a, b) {
     if (pf.n < 220 || pf.n2 < 3) return -1;             // too tight to be fun
     var q = (1 - Math.abs(pf.n - 430) / 430) * 0.7 + Math.min(pf.n2, 24) / 24 * 0.3;
+    // Nine-distinct-letter words pair with almost anything, so left alone they
+    // turn up as the revealed answer far too often. Nudge them down.
+    if (popcount(wmask(a)) > 8) q -= 0.07;
+    if (popcount(wmask(b)) > 8) q -= 0.07;
     var worst = 0;
     sides.forEach(function (s) {
       var v = 0, i;
@@ -260,7 +264,7 @@
     for (i = 0; i < cands.length; i++) {
       var c = cands[i], sm = sideMapOf(c.sides);
       if (!proves(c.a, c.b, sm.of, sm.mask)) continue;    // silently drop a bad one
-      var pf = profile(sm.of, sm.mask), q = qualityOf(c.sides, pf);
+      var pf = profile(sm.of, sm.mask), q = qualityOf(c.sides, pf, c.a, c.b);
       if (q > bestQ) { bestQ = q; best = { a: c.a, b: c.b, sides: c.sides, pf: pf }; }
     }
     if (!best) return null;
@@ -853,5 +857,22 @@
     solve: function () { window.__BX.word(P.sol[0]); window.__BX.word(P.sol[1]); return said.slice(); },
     giveUp: function () { end(false); },
     back: back,
+    /** Build every board from day 0..n and re-prove each one. This is the
+     *  invariant that matters: no square ships without a legal two-word solve. */
+    probe: function (n) {
+      var out = [], i, Q, sm;
+      for (i = 0; i <= (n === undefined ? 30 : n); i++) {
+        Q = buildPuzzle(ID + ":" + i);
+        if (!Q) { out.push({ d: i, ok: false }); continue; }
+        sm = sideMapOf(Q.sides);
+        out.push({
+          d: i, sides: Q.sides.join("|"), sol: Q.sol.join("+"), par: Q.par,
+          words: Q.words, s2: Q.sols2,
+          ok: !!(proves(Q.sol[0], Q.sol[1], sm.of, sm.mask) && Q.letters.length === NLET &&
+            Q.sides.length === 4 && Q.sides.join("").length === NLET),
+        });
+      }
+      return out;
+    },
   };
 })();

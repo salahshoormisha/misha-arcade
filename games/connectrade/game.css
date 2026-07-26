@@ -126,7 +126,6 @@
 }
 .ctlog .n { flex: 0 0 auto; color: var(--ink4); font-weight: 800; }
 .ctlog .ps { flex: 1 1 auto; min-width: 0; color: var(--ink2); word-break: break-word; }
-.ctlog .ps s { text-decoration: none; }
 .ctlog .mk { flex: 0 0 auto; font-size: 11px; }
 .ctlog li.hit { border-color: var(--ok); background: rgba(61, 224, 138, .09); }
 .ctlog li.hit .ps { color: var(--ink); }
@@ -160,7 +159,12 @@
   .ctlog li { font-size: 11px; }
 }
 
-@media (max-width: 359px) {
-  .ctt { height: 76px; }
-  .ctc .nm { font-size: 11px; }
+/* Narrow phones: let a long country name wrap rather than clip, and drop the
+   decorative ×4 (the caption above the strip already says it). */
+@media (max-width: 400px) {
+  .ctc { padding: 7px 9px; }
+  .ctc .nm { white-space: normal; font-size: 11px; line-height: 1.25; }
+  .ctc .tk { display: none; }
+  .ctc.done .nm { text-decoration: line-through; }
 }
+@media (max-width: 359px) { .ctt { height: 76px; } }

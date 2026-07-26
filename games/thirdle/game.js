@@ -103,12 +103,13 @@
     id: ID, dayN: day,
     help: "<p>Three five-letter words, joined where they share a letter. Every guess must be " +
       "<b>three real words at once</b>, and you only get six.</p>" +
-      "<ul><li><b style='color:#3de08a'>Green</b> — right letter, right place, right word.</li>" +
-      "<li><b style='color:#ffd84f'>Yellow</b> — in this word, wrong place.</li>" +
-      "<li><b style='color:#b06ee0'>Purple</b> — not in this word, but it <i>is</i> in one of " +
+      "<ul><li><b style='color:var(--ok)'>Green</b> — right letter, right place, right word.</li>" +
+      "<li><b style='color:var(--near)'>Yellow</b> — in this word, wrong place.</li>" +
+      "<li><b style='color:var(--purple)'>Purple</b> — not in this word, but it <i>is</i> in one of " +
       "the other two. This is the one that wins you the puzzle.</li>" +
       "<li>Grey — nowhere, or you've already found every copy of it.</li></ul>" +
-      "<p>The two crossing letters are given to you and can't be changed.</p>",
+      "<p>The two crossing letters are given to you and can't be changed. Your attempt stays on " +
+      "the board — <b>tap any square</b> to move there and edit it into your next guess.</p>",
   });
 
   if (ANS.length < 200) {
@@ -139,16 +140,19 @@
   gridEl = A.el("div"); gridEl.id = "grid"; main.appendChild(gridEl);
   triesEl = A.el("div", "tries"); main.appendChild(triesEl);
 
+  // The swatches are classed, not inline-styled, so they resolve to the very
+  // same tokens the tiles use. Inline hexes had drifted off the palette and the
+  // key was describing colours the board no longer painted.
   var key = A.el("div", "key");
-  key.innerHTML = "<span><i style='background:#3de08a'></i>RIGHT SPOT</span>" +
-    "<span><i style='background:#ffd84f'></i>WRONG SPOT</span>" +
-    "<span><i style='background:#8b3ecb'></i>ANOTHER WORD</span>" +
-    "<span><i style='background:#4a3a7d'></i>NOWHERE</span>";
+  key.innerHTML = "<span><i class='k-ok'></i>RIGHT SPOT</span>" +
+    "<span><i class='k-near'></i>WRONG SPOT</span>" +
+    "<span><i class='k-else'></i>ANOTHER WORD</span>" +
+    "<span><i class='k-miss'></i>NOWHERE</span>";
   main.appendChild(key);
 
-  var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
-  row.innerHTML = practice ? '<a class="ac-pill" href="./">← TODAY\'S THREE</a>'
-    : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>';
+  var row = A.el("div", "ac-row th-modes");
+  row.innerHTML = practice ? '<a class="ac-pill" href="./">TODAY\'S THREE</a>'
+    : '<a class="ac-pill" href="?practice=1">PRACTICE</a>';
   main.appendChild(row);
 
   kbd = A.keyboard({ onKey: type, onEnter: submit, onBack: back, host: main });
@@ -257,7 +261,12 @@
 
   function render() {
     var cols = P.maxC - P.minC + 1;
-    var size = Math.min(46, Math.floor((Math.min(360, innerWidth - 40)) / cols) - 5);
+    // Bounded by the width AND by the height left once the tries bar, the key,
+    // the mode pill and the on-screen keyboard have taken theirs — otherwise a
+    // 667px phone loses the bottom keyboard row below the fold.
+    var byW = Math.floor((Math.min(360, innerWidth - 40)) / cols) - 4;
+    var byH = Math.floor(((window.innerHeight || 667) - 400) / LEN);
+    var size = Math.max(22, Math.min(46, byW, byH));
     gridEl.style.gridTemplateColumns = "repeat(" + cols + ", " + size + "px)";
     gridEl.style.setProperty("--cs", size + "px");
     gridEl.innerHTML = "";
@@ -279,8 +288,10 @@
         if (ch) cls += " filled";
         // Colour from the most recent submission — but only while the cell
         // still holds the letter that was scored, and only if it isn't empty.
+        // A finished grid shows the three answers: green ONLY if you actually
+        // won it. Painting a loss all-green read as a win you never had.
         if (over) {
-          cls += " ok";
+          cls += won ? " ok" : " reveal";
         } else if (last && lastWords && ch && !dirty[idx]) {
           var best = null;
           cell.slots.forEach(function (sl) {
