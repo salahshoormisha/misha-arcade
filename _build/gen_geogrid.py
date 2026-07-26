@@ -444,11 +444,12 @@ __write(__outPath(), JSON.stringify({hits: out, errors: errs}));
 GDP_WEIGHT = 0.5
 SOFTMAX_K = 6.0
 
-# The exponent the cabinet uses to turn 0-900 points into the arcade's 0-100
-# `norm` (CONTRACT §3). Chosen against the calibration table the self-test
-# prints, not by feel: it has to put a solid all-nine board near 70 and leave
-# 100 genuinely hard. games/geogrid/game.js must use the same number.
-NORM_EXP = 1.25
+# How much of the 0-100 `norm` (CONTRACT §3) is paid for simply filling a cell,
+# with the rest earned on obviousness. Chosen against the calibration table the
+# self-test prints, not by feel: filling all nine with the most obvious country
+# every time has to land well short of a solid day, and 100 has to stay hard.
+# games/geogrid/game.js MUST use the same number.
+FILL_WEIGHT = 0.40
 
 
 def compute_salience(pool):
@@ -878,10 +879,10 @@ RUNTIME = r"""
   };
 
   /* run buildGrid over n seeds and report; used by _build/gen_geogrid.py */
-  D.selfTest = function (rngFactory, n) {
+  D.selfTest = function (rngFactory, n, opts) {
     var fails = 0, tot = 0, lo = 1e9, used = {}, mix = [0, 0, 0], j, r, c;
     for (var s = 0; s < n; s++) {
-      var g = D.buildGrid(rngFactory('seed-' + s));
+      var g = D.buildGrid(rngFactory('seed-' + s), opts);
       if (!g) { fails++; continue; }
       for (r = 0; r < 3; r++) {
         for (c = 0; c < 3; c++) {
@@ -993,7 +994,7 @@ def verify_json(path):
     return obj
 
 
-def selftest(path, seeds=500):
+def selftest(path, seeds=500, grid_opts=None):
     """Load the emitted file for real and hammer buildGrid."""
     body = """
 var rngFactory = function (seedStr) {
@@ -1010,7 +1011,7 @@ var rngFactory = function (seedStr) {
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 };
-var rep = window.AD_GEOGRID.selfTest(rngFactory, %d);
+var rep = window.AD_GEOGRID.selfTest(rngFactory, %d, __OPTS__);
 var g = window.AD_GEOGRID;
 var s = [];
 var probe = [['reg_africa','landlocked'], ['reg_europe','org_eu'], ['island','lang_en']];
@@ -1095,6 +1096,7 @@ for (kk in nacc) { rep.calibration.norm[kk] = Math.round(nacc[kk] / pcount); }
 __write(__outPath(), JSON.stringify(rep));
 'ok'
 """ % (seeds, int(10), FILL_WEIGHT, seeds, json.dumps(grid_opts or {}))
+    body = body.replace("__OPTS__", json.dumps(grid_opts or {}))
     shim = "var window = this;\n"
     tmp = tempfile.mkdtemp(prefix="geogrid_st_")
     shim_path = os.path.join(tmp, "shim.js")
