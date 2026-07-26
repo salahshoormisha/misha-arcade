@@ -35,6 +35,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import photos_lib as L  # noqa: E402
+import photos_boost as B  # noqa: E402  (img_probe: verify + TRUE pixel size)
 
 TIME_IN = os.path.join(L.BUILD, "photos-time.json")
 PLACE_IN = os.path.join(L.BUILD, "photos-place.json")
@@ -342,15 +343,23 @@ def main():
         for kind, lst in (("time", time_out), ("place", place_out)):
             keep = []
             for e in lst:
-                st, ct = L.verify_url(e["url"])
-                if st == 200 and ct.startswith("image/"):
+                # One ranged GET verifies status + content-type AND re-measures the
+                # real pixel size, so w/h in the shipped file cannot disagree with
+                # the bytes. (imageinfo's thumbwidth/thumbheight do disagree: it
+                # reports the width you asked for while serving the next bucket up.)
+                st, ct, w, h = B.img_probe(e["url"])
+                if st == 200 and ct.startswith("image/") and w and h:
+                    if (w, h) != (e["w"], e["h"]):
+                        problems.append("%s %s: w/h corrected %dx%d -> %dx%d"
+                                        % (kind, e["id"], e["w"], e["h"], w, h))
+                        e["w"], e["h"] = w, h
                     verified += 1
                     keep.append(e)
                 else:
                     problems.append("%s %s: verify failed http=%s ct=%s"
                                     % (kind, e["id"], st, ct))
             lst[:] = keep
-        L.save_head_cache()
+        B.save_dims()
     else:
         verified = len(time_out) + len(place_out)
 

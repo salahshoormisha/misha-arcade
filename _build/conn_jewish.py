@@ -192,7 +192,6 @@ BOARDS = [
  ],
  "traps": [
    ["ROMANIOTE", 1, "Romaniote names both the community and its language, Yevanic — Judeo-Greek — so it satisfies the green category on its own terms."],
-   ["LADINO", 0, "Ladino is so bound to Sephardi identity that the two words are used almost interchangeably in conversation."],
  ],
  "epilogue": "A community, a language, a port, a quarter — four ways of answering 'where are you from?' ROMANIOTE genuinely is both a people and a tongue, and the only thing that pins it is counting: YIDDISH, LADINO, JUDEO-ARABIC and JUDEO-PERSIAN are four languages, and ASHKENAZI, SEPHARDI and MIZRAHI are three labels short of a set.",
 },
