@@ -214,12 +214,64 @@ MONUMENT = re.compile(r"\b(museum|monument|memorial|statue|sculpture|palace|"
                       r"cathedral|basilica|mausoleum|temple of|shrine)\b", re.I)
 CHATTER = re.compile(r"\b(I |I'|my |we |our |me\b|don't|didn't|forgot)")
 
+# Objects that slip past the scene filter because their description happens to
+# mention a place word ("Manual typewriter used in Railway Offices" matched
+# "railway"). A geography round needs the OUTDOORS, not a museum piece.
+OBJECT = re.compile(r"\b(typewriter|sewing machine|cash register|telephone|"
+                    r"gramophone|radio set|television set|refrigerator|"
+                    r"furniture|cutlery|crockery|pottery|basketry|"
+                    r"banknote|coin|ticket|timetable|noticeboard|"
+                    r"press conference|exhibition stand|trade fair booth|"
+                    r"portrait of|bust of|award|trophy|certificate)\b", re.I)
+
+# A caption in a non-Latin script is unreadable to the players AND gives the
+# answer away on sight (a Cyrillic caption means Russia and nowhere else).
+_LATIN = re.compile(r"[A-Za-z]")
+_LETTER = re.compile(r"[^\W\d_]", re.U)
+# Flickr / 500px / Panoramio bulk-import titles carry a numeric id and no meaning.
+IMPORT_JUNK = re.compile(r"\(?\b\d{6,}\b\)?|\b(500px|panoramio|flickr|geograph)\b"
+                         r"|\bphoto(graph)? \(?\d+\)?", re.I)
+
 
 def make_caption(desc, title):
+    """A short, readable, Latin-script caption -- or '' to let gen_photos supply
+    a neutral fallback built from the clues."""
     cap = "" if CHATTER.search(desc) else desc
     if len(cap) < 12:
         cap = title.replace("_", " ").rsplit(".", 1)[0]
-    return re.sub(r"\s+", " ", cap).strip(" .,;:-|\"'")[:150]
+    cap = IMPORT_JUNK.sub(" ", cap)
+    cap = re.sub(r"[\[\]{}|]+", " ", cap)
+    cap = re.sub(r"\s+", " ", cap).strip(" .,;:-|\"'")[:150]
+    letters = _LETTER.findall(cap)
+    if len(letters) < 8:
+        return ""
+    # majority-Latin, or it is not a caption these players can read
+    if len(_LATIN.findall(cap)) < 0.7 * len(letters):
+        return ""
+    return cap
+
+
+def build_clues_strict(iso2, near, blob, tag):
+    """`clues` name things ACTUALLY VISIBLE, so their evidence matters.
+
+    photos_place.build_clues matched the whole blob, categories included, which
+    let a broad city category invent a clue: a photo of a hotel seen from the
+    water sat in "Carnival in Belize City" and came out claiming "a street
+    celebration". So: at least ONE clue must be justified by the file's own
+    title/description, and categories may only top the list up (they are decent
+    evidence -- a file in "Category:Markets in Harar" does show a market -- just
+    not decent enough to stand alone).
+    """
+    own = P.build_clues(iso2, near, tag)
+    if not own:
+        return []
+    clues = list(own)
+    for c in P.build_clues(iso2, blob, tag):
+        if len(clues) >= 4:
+            break
+        if c not in clues:
+            clues.append(c)
+    return clues[:4]
 
 
 # ────────────────────────────── place harvest ────────────────────────────────
@@ -296,7 +348,10 @@ def harvest_place():
             if L.haversine((lat, lon), (lat0, lon0)) > 12:
                 rej["outside-seed"] += 1
                 continue
-            clues = P.build_clues(iso2, blob, tag)
+            if OBJECT.search(near):
+                rej["object-not-a-view"] += 1
+                continue
+            clues = build_clues_strict(iso2, near, blob, tag)
             if len(clues) < 2:
                 rej["under-2-clues"] += 1
                 continue

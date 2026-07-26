@@ -84,7 +84,7 @@ BOARDS = [
     "note": "'On the Dangers of Stochastic Parrots' (2021) got its lead author fired from Google; Chinchilla (2022) rewrote how everyone allocates compute; 'Sparks of AGI' (2023) started an argument that has not finished."},
    {"name": "AI THOUGHT EXPERIMENTS", "tiles": ["PAPERCLIPS", "CHINESE ROOM", "TURING TEST", "STOP BUTTON"],
     "note": "The paperclip maximiser is Bostrom's, the Chinese Room is Searle's objection to the whole project, and the stop-button problem is why 'just switch it off' is not a plan."},
-   {"name": "LLAMA FINE-TUNES NAMED AFTER CAMELIDS", "tiles": ["LLAMA", "ALPACA", "VICUNA", "GUANACO"],
+   {"name": "FINE-TUNES NAMED AFTER A SOUTH AMERICAN CAMELID", "tiles": ["LLAMA", "ALPACA", "VICUNA", "GUANACO"],
     "note": "Stanford's Alpaca, LMSYS's Vicuna and QLoRA's Guanaco all came out within months of Llama in 2023. There are exactly four camelids in South America and the field used all of them."},
  ],
  "traps": [
@@ -144,7 +144,7 @@ BOARDS = [
     "note": "Bletchley Park in November 2023 produced a declaration signed by both the US and China; Seoul added commitments; Paris renamed the whole series an Action Summit; India took the fourth."},
    {"name": "WHAT A LAB PUBLISHES BEFORE IT SCALES", "tiles": ["RSP", "PREPAREDNESS", "FSF", "MODEL CARD"],
     "note": "Anthropic's Responsible Scaling Policy, OpenAI's Preparedness Framework, Google DeepMind's Frontier Safety Framework — three documents that promise what a lab will do at a capability level it has not reached yet."},
-   {"name": "RED ___", "tiles": ["TEAM", "LINE", "FLAG", "TAPE"],
+   {"name": "PRECEDED BY RED", "tiles": ["TEAM", "LINE", "FLAG", "TAPE"],
     "note": "Red team, red line, red flag, red tape. Four things this entire field argues about, and the only group on the board that a lawyer and an engineer would read identically."},
  ],
  "traps": [

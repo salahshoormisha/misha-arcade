@@ -303,8 +303,11 @@
   // count and print "13 of 12 right" on the result sheet.
   function save() {
     if (practice) return;
+    // No `at` key here: A.finish() writes its own `at` (a timestamp) into the
+    // same record, so a question index stored under that name is overwritten
+    // the moment the day ends. `answered.length` is the index anyway.
     A.save(ID, day, {
-      at: answered.length, right: right, answered: answered,
+      right: right, answered: answered,
       subjects: qs.map(function (q) { return q.iso; }),   // pins the day's twelve
     });
   }
