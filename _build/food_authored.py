@@ -1265,4 +1265,436 @@ DISHES = [
           "Age -- portable clay firedogs and all.",
           wiki="Souvlaki"),
     ]),
+
+    # ══ ROMANIA ═══════════════════════════════════════════════════════════
+    ("RO", [
+        d("Ciorbă de burtă",
+          "A sour tripe soup soured with fermented wheat bran and thickened at the end "
+          "with egg yolk and soured cream, served with crushed garlic and hot peppers.",
+          "The classic morning-after soup, ordered at dawn; the sour agent is bors, a "
+          "fermented bran liquid kept going in a jar.",
+          wiki="Ciorbă de burtă"),
+        d("Papanași",
+          "Fried rings of sweet curd-cheese dough with a small dough ball perched on "
+          "top, buried under soured cream and sour cherry jam.",
+          "Every restaurant's dessert, and the small ball on top is what tells you it "
+          "was made properly rather than bought in.",
+          wiki="Papanași"),
+        d("Sarmale",
+          "Pickled cabbage leaves rolled around minced pork and rice and stewed for "
+          "hours with smoked pork and tomato, eaten with soured cream and a stiff "
+          "cornmeal porridge.",
+          "The Christmas and wedding dish; the cabbage is whole heads soured in brine "
+          "in autumn, and the pot is supposed to be reheated at least twice.",
+          wiki="Sarmale"),
+        d("Mămăligă",
+          "A stiff cornmeal porridge boiled thick, turned out as a loaf and cut with a "
+          "thread, eaten with soured cream and salty sheep's cheese.",
+          "Corn arrived in the 17th century and displaced millet; this was the peasant "
+          "staple that replaced bread for centuries.",
+          wiki="Mămăligă"),
+        d("Mititei",
+          "Skinless grilled sausages of minced beef and lamb with garlic, stock and "
+          "bicarbonate, grilled over coals and eaten with mustard and bread.",
+          "The name means 'little ones'; the bicarbonate and the stock are what make "
+          "them springy rather than dense.",
+          wiki="Mititei"),
+    ]),
+
+    # ══ BULGARIA ══════════════════════════════════════════════════════════
+    ("BG", [
+        d("Lyutenitsa",
+          "A thick relish of roasted red peppers and tomato cooked down for hours with "
+          "aubergine, carrot and garlic, then jarred for the winter and spread on bread.",
+          "Made outdoors in huge copper pans every autumn; every family swears their "
+          "grandmother's ratio of pepper to tomato is the correct one.",
+          wiki="Lyutenitsa"),
+        d("Tarator",
+          "A cold soup of yoghurt let down with water, with diced cucumber, garlic, "
+          "dill, crushed walnuts and oil, served with ice in it.",
+          "Summer food, drunk as much as eaten; the yoghurt's bacterium was first "
+          "isolated here in 1905 and named after the country.",
+          wiki="Tarator"),
+        d("Banitsa",
+          "Sheets of thin pastry layered with crumbled brined white cheese beaten into "
+          "egg and yoghurt, coiled into a spiral and baked.",
+          "For New Year, fortunes on slips of paper are baked inside, along with a "
+          "coin for whoever gets the lucky slice.",
+          wiki="Banitsa"),
+        d("Shopska salad",
+          "Chopped tomato, cucumber, raw onion and roasted pepper under a heavy blanket "
+          "of grated white brined cheese.",
+          "Devised in the 1960s by the state tourism agency, in the colours of the "
+          "national flag -- and now genuinely ubiquitous.",
+          wiki="Shopska salad"),
+    ]),
+
+    # ══ SERBIA ════════════════════════════════════════════════════════════
+    ("RS", [
+        d("Karađorđeva šnicla",
+          "A veal or pork escalope beaten flat, rolled around thick soured cream "
+          "cheese, breaded and deep-fried, served with tartare sauce.",
+          "Invented in a Belgrade hotel in 1956 for a visiting delegation, and "
+          "nicknamed the maidens' dream for reasons of shape.",
+          wiki="Karađorđeva šnicla"),
+        d("Gibanica",
+          "A pie of many thin pastry sheets soaked in beaten egg, soured cream and "
+          "salty fresh cheese, baked until it puffs and sets.",
+          "The festive pie, and the standard test of a cook: too little egg and it is "
+          "dry, too much and it never sets.",
+          wiki="Gibanica"),
+        d("Ajvar",
+          "A relish of roasted red peppers peeled by hand and cooked down slowly in oil "
+          "until it darkens and thickens enough to stand on a spoon.",
+          "Made communally in autumn from the long red pepper harvest and jarred for "
+          "the year; the whole street smells of roasting peppers.",
+          wiki="Ajvar"),
+        d("Pljeskavica",
+          "A large, flat patty of mixed minced meats grilled over coals and served in a "
+          "soft flatbread with raw onion, soured cream cheese and pepper relish.",
+          "The grill-house standard, sized up to a dinner plate in Leskovac, which "
+          "holds a festival for it every autumn.",
+          wiki="Pljeskavica"),
+    ]),
+
+    # ══ CROATIA ═══════════════════════════════════════════════════════════
+    ("HR", [
+        d("Štrukli",
+          "Sheets of thin stretched dough rolled or folded around fresh curd cheese and "
+          "soured cream, then either boiled or baked in more cream.",
+          "From the Zagorje hills north of Zagreb, protected as intangible heritage, "
+          "and served as a starter, a main or a dessert.",
+          wiki="Štrukli"),
+        d("Pašticada",
+          "Beef larded with bacon, marinated for a day in vinegar and wine, then braised "
+          "for hours with prunes and dried figs and served with gnocchi.",
+          "Dalmatia's wedding dish; the sweetness comes from dried fruit and prošek "
+          "wine, and it takes two days from start to table.",
+          wiki="Pašticada"),
+        d("Crni rižot",
+          "A risotto stained black with cuttlefish ink, cooked with squid, garlic, "
+          "parsley and a little red wine.",
+          "An Adriatic coastal dish; the ink sac is squeezed in at the end, and it "
+          "stains everyone's teeth at the table.",
+          wiki="Black risotto"),
+        d("Peka",
+          "Meat and potatoes cooked under a bell-shaped iron lid heaped with embers, so "
+          "the heat comes from above and below at once.",
+          "The lid is the dish: a cast-iron bell buried in the coals of a stone "
+          "hearth, ordered hours ahead at coastal restaurants.",
+          mdb="Croatian lamb peka"),
+    ]),
+
+    # ══ BOSNIA AND HERZEGOVINA ════════════════════════════════════════════
+    ("BA", [
+        d("Begova čorba",
+          "A thick, pale soup of chicken and okra bound with a roux and soured cream, "
+          "barely spiced beyond pepper.",
+          "The 'bey's soup', from the Ottoman gentry of Sarajevo -- rich, white and "
+          "deliberately unspiced to show off the meat.",
+          wiki="Begova čorba"),
+        d("Bosanski lonac",
+          "Layers of meat and whole vegetables stacked upright in a tall earthenware pot "
+          "with a little water and cooked for hours without ever being stirred.",
+          "The pot's shape does the work; stirring it is considered to ruin it, and it "
+          "was traditionally left at the baker's oven all day.",
+          wiki="Bosanski lonac"),
+        d("Burek",
+          "A rope of hand-stretched pastry filled with minced beef and onion, coiled "
+          "into a spiral and baked under a metal lid covered in embers.",
+          "Here the word means the meat one specifically; with cheese, spinach or "
+          "potato it gets a different name entirely.",
+          wiki="Burek"),
+        d("Ćevapi",
+          "Small skinless fingers of minced beef and lamb grilled over charcoal and "
+          "served ten at a time in a soft flatbread with raw onion and soured cream.",
+          "Sarajevo serves them in a puffy somun bread with kajmak; the count and the "
+          "bread are both regional signatures.",
+          wiki="Ćevapi"),
+    ]),
+
+    # ══ ALBANIA ═══════════════════════════════════════════════════════════
+    ("AL", [
+        d("Fërgesë",
+          "Peppers and tomato cooked down with garlic and folded through crumbled fresh "
+          "curd cheese, then baked in an earthenware dish until it sets.",
+          "A Tirana dish, sometimes made with liver instead of peppers, and served "
+          "bubbling in the small clay dish it baked in.",
+          wiki="Fërgesë"),
+        d("Tavë kosi",
+          "Lamb and rice baked under a thick custard of yoghurt and egg until the top "
+          "sets and browns.",
+          "Associated with Elbasan, and effectively the national dish -- yoghurt used "
+          "as a baking custard rather than a sauce.",
+          wiki="Tavë kosi"),
+        d("Byrek",
+          "A pie of hand-stretched pastry layered with spinach, curd cheese or minced "
+          "meat, baked in a round tray and cut into wedges.",
+          "Sold by the slice from bakeries all day; the dough is stretched over the "
+          "backs of the hands until it is translucent.",
+          wiki="Byrek"),
+        d("Petulla",
+          "Small pieces of yeasted dough fried until they puff, eaten hot with jam, "
+          "honey or salty white cheese.",
+          "Breakfast and street food, and traditionally the first thing cooked in a "
+          "new house to bring luck.",
+          wiki="Petulla"),
+    ]),
+
+    # ══ UKRAINE ═══════════════════════════════════════════════════════════
+    ("UA", [
+        d("Salo",
+          "Slabs of cured pork back fat, salted with garlic and pepper, sliced thin and "
+          "eaten cold on dark bread with a shot of spirits.",
+          "A national symbol and a running joke about itself; it is also whipped with "
+          "garlic into a spread, and occasionally dipped in chocolate.",
+          wiki="Salo (food)"),
+        d("Deruny",
+          "Pancakes of finely grated raw potato with onion and egg, fried until the "
+          "edges go lacy and crisp, served with soured cream.",
+          "Everyday food across the north, with a whole festival devoted to them in "
+          "Korosten every autumn.",
+          wiki="Deruny"),
+        d("Varenyky",
+          "Boiled dumplings of thin dough filled with potato, curd cheese, cabbage or "
+          "sour cherries, served with fried onion or soured cream.",
+          "The sour cherry filling in summer is the one that marks them out; they are "
+          "pinched shut with a rope-like edge.",
+          wiki="Varenyky"),
+        d("Borsch",
+          "A deep red beetroot soup with cabbage, root vegetables and meat, soured and "
+          "served with soured cream and small garlic rolls.",
+          "Listed by UNESCO in 2022 as intangible cultural heritage in need of urgent "
+          "safeguarding; the garlic rolls alongside are pampushky.",
+          wiki="Borscht"),
+    ]),
+
+    # ══ RUSSIA ════════════════════════════════════════════════════════════
+    ("RU", [
+        d("Okroshka",
+          "A cold summer soup of chopped raw cucumber, radish, boiled egg, potato and "
+          "sausage, flooded with a fizzy fermented bread drink or with soured milk.",
+          "The bread-drink version divides people from the soured-milk version about as "
+          "sharply as anything in the cuisine.",
+          wiki="Okroshka"),
+        d("Blini",
+          "Thin yeast-raised pancakes served in stacks with soured cream, melted butter, "
+          "cured fish or caviar.",
+          "Eaten by the dozen during Maslenitsa, the pancake week before Lent; the "
+          "round golden shape stands for the returning sun.",
+          wiki="Blini"),
+        d("Pelmeni",
+          "Small dumplings of thin unleavened dough around raw minced meat, made in "
+          "batches, frozen outdoors and boiled as needed, eaten with soured cream and "
+          "vinegar.",
+          "A Siberian and Urals invention -- frozen in sacks on the porch and taken on "
+          "journeys as a kind of instant meal.",
+          wiki="Pelmeni"),
+        d("Beef Stroganoff",
+          "Strips of beef seared fast and finished in a sauce of soured cream, mustard "
+          "and onion, served with fried potato straws.",
+          "Named for the Stroganov family in the 19th century; the potato straws, not "
+          "rice or pasta, are the original accompaniment.",
+          wiki="Beef Stroganoff"),
+    ]),
+
+    # ══ SLOVAKIA ══════════════════════════════════════════════════════════
+    ("SK", [
+        d("Kapustnica",
+          "A sour cabbage soup with smoked sausage, dried wild mushrooms and prunes, "
+          "sometimes finished with cream.",
+          "The Christmas Eve soup, made from sauerkraut soured at home and eaten before "
+          "the fish course.",
+          wiki="Kapustnica"),
+        d("Lokše",
+          "Thin flatbreads of mashed potato and flour cooked dry on a griddle, then "
+          "brushed with goose fat or spread with ground poppy seed.",
+          "Autumn goose-feast food from the west; the potato dough makes them soft and "
+          "pliable rather than crisp.",
+          wiki="Lokše"),
+        d("Bryndzové halušky",
+          "Small soft dumplings of grated potato dough boiled and stirred through a "
+          "sharp, salty sheep's-milk cheese, then buried under fried bacon.",
+          "The national dish, built on bryndza, a soft ewe's cheese with protected "
+          "status; there is an annual eating competition for it.",
+          wiki="Bryndzové halušky"),
+    ]),
+
+    # ══ SLOVENIA ══════════════════════════════════════════════════════════
+    ("SI", [
+        d("Jota",
+          "A thick soup of sauerkraut or soured turnip with beans, potato and smoked "
+          "pork, cooked until everything falls apart.",
+          "A Karst and coastal dish shared with the neighbouring Italian border towns; "
+          "the soured turnip version is the older one.",
+          wiki="Jota (food)"),
+        d("Štruklji",
+          "Rolled parcels of thin dough filled with curd cheese, tarragon or walnuts, "
+          "boiled or baked and served either savoury or sweet.",
+          "Over a hundred recorded fillings; the tarragon-and-curd version is the one "
+          "that says most about where you are.",
+          wiki="Štruklji"),
+        d("Kranjska klobasa",
+          "A coarse pork sausage with bacon and garlic, lightly smoked, poached rather "
+          "than fried, and eaten with mustard and grated soured turnip.",
+          "Protected by EU designation and defined by law down to the permitted "
+          "percentage of bacon and the wooden pin holding the pair together.",
+          wiki="Carniolan sausage"),
+        d("Potica",
+          "A yeasted dough rolled out thin, spread with a ground walnut and honey "
+          "filling, coiled up and baked in a fluted ring mould.",
+          "The Easter and Christmas cake; the dough has to be rolled thin enough that "
+          "the finished spiral shows many distinct turns.",
+          wiki="Potica"),
+    ]),
+
+    # ══ ESTONIA ═══════════════════════════════════════════════════════════
+    ("EE", [
+        d("Mulgipuder",
+          "Barley and potato boiled and mashed together into a coarse porridge, served "
+          "with fried pork belly and onion.",
+          "From the Mulgi region in the south, where barley grew better than rye; it "
+          "has protected regional status.",
+          wiki="Mulgipuder"),
+        d("Kama",
+          "A ready-milled flour of roasted barley, rye, oats and peas, stirred into "
+          "buttermilk or yoghurt until thick and eaten with a spoon.",
+          "A pre-industrial travel food -- roasted grain keeps for months and needs "
+          "only liquid -- now sold in every supermarket as a dessert base.",
+          wiki="Kama (food)"),
+        d("Verivorst",
+          "Blood sausage stuffed with pearl barley and onion, baked until the skin "
+          "splits, and eaten with lingonberry jam.",
+          "The Christmas dish, made at the winter slaughter so nothing from the pig "
+          "was wasted.",
+          wiki="Verivorst"),
+        d("Kiluvõileib",
+          "An open sandwich of dark sour rye bread with butter, salt-cured sprat "
+          "fillets, boiled egg and spring onion.",
+          "The sprats come from the Baltic and are cured in a spiced brine; the "
+          "sandwich is the standard party snack.",
+          wiki="Kiluvõileib"),
+    ]),
+
+    # ══ LATVIA ════════════════════════════════════════════════════════════
+    ("LV", [
+        d("Sklandrausis",
+          "An open tart with a rye crust filled with a layer of mashed potato and a "
+          "layer of sweetened carrot, spiced with caraway.",
+          "A Livonian speciality from the Courland coast, and the country's first food "
+          "with EU protected status.",
+          wiki="Sklandrausis"),
+        d("Pelēkie zirņi ar speķi",
+          "Grey field peas boiled until soft and served with fried fatty bacon and "
+          "onion, with soured milk to drink.",
+          "The winter solstice and Christmas dish; every pea on the plate is supposed "
+          "to be eaten or you carry the tears into the new year.",
+          wiki="Grey peas with bacon"),
+        d("Rupjmaizes kārtojums",
+          "Grated dark sour rye bread crumbs toasted with sugar and layered in a glass "
+          "with whipped cream and cranberry or lingonberry jam.",
+          "A dessert built entirely around the country's dense sour rye bread, which is "
+          "treated with something close to reverence.",
+          wiki="Rupjmaizes kārtojums"),
+    ]),
+
+    # ══ LITHUANIA ═════════════════════════════════════════════════════════
+    ("LT", [
+        d("Kibinai",
+          "Half-moon pastries with a short, flaky crust filled with chopped mutton and "
+          "onion, baked until the pastry lifts away from the filling.",
+          "Brought by the Karaim community settled in Trakai since the 14th century, "
+          "and now sold along the lakeside there by the bagful.",
+          wiki="Kibinai"),
+        d("Šakotis",
+          "A hollow, spiked, tree-shaped cake built up layer by layer by dripping "
+          "batter onto a spit rotating over an open fire.",
+          "Baked on a horizontal spit for hours; the spikes are drips of batter frozen "
+          "in place by the heat.",
+          wiki="Šakotis"),
+        d("Cepelinai",
+          "Large zeppelin-shaped dumplings of grated raw and boiled potato moulded "
+          "around minced meat, boiled, and served under bacon, onion and soured cream.",
+          "Named after the airships they resemble; the raw potato has to be squeezed "
+          "nearly dry or they disintegrate in the pot.",
+          wiki="Cepelinai"),
+        d("Šaltibarščiai",
+          "A shocking pink cold soup of soured milk and grated cooked beetroot with "
+          "cucumber, dill and boiled egg, served with hot boiled potatoes on the side.",
+          "Summer food; the colour is entirely natural, and the hot potatoes served "
+          "beside the cold soup are compulsory.",
+          wiki="Šaltibarščiai"),
+    ]),
+
+    # ══ BELARUS ═══════════════════════════════════════════════════════════
+    ("BY", [
+        d("Machanka",
+          "A thick gravy of pork ribs, sausage and onion loosened with soured cream, "
+          "served in a bowl for dipping thick pancakes into.",
+          "The name comes from the verb 'to dunk' -- the pancakes are the cutlery.",
+          wiki="Machanka"),
+        d("Draniki",
+          "Pancakes of finely grated raw potato fried in oil until crisp at the edges "
+          "and served with soured cream.",
+          "Potatoes arrived in the 18th century and took over completely; there are "
+          "hundreds of potato dishes and this is the emblem.",
+          wiki="Draniki"),
+        d("Babka",
+          "A grated-potato pudding baked slowly with bacon, onion and egg until it sets "
+          "under a dark crust.",
+          "Baked in a heavy dish in a wood oven; the crust is the point, and it is cut "
+          "in wedges like a cake.",
+          wiki="Babka (food)"),
+    ]),
+
+    # ══ MALTA ═════════════════════════════════════════════════════════════
+    ("MT", [
+        d("Stuffat tal-fenek",
+          "Rabbit marinated overnight in red wine and bay, then browned and stewed "
+          "slowly with garlic, tomato and peas.",
+          "Eaten as a communal two-course meal -- the pasta is dressed with the "
+          "cooking juices first, the rabbit follows -- and it doubled as a symbol of "
+          "defiance against a hunting ban imposed by the Knights.",
+          wiki="Stuffat tal-fenek"),
+        d("Ftira",
+          "A flat ring of sourdough bread split and packed with tuna, capers, olives, "
+          "tomato paste, butter beans and oil.",
+          "The bread itself is UNESCO-listed; the filled version is the standard "
+          "workman's lunch, wrapped in paper.",
+          wiki="Ftira"),
+        d("Pastizzi",
+          "Diamond-shaped parcels of very flaky pastry filled with ricotta or a mushy "
+          "pea paste, eaten scalding from a hole-in-the-wall shop.",
+          "Sold for small change from pastizzerias; the two fillings are so fixed that "
+          "you order simply by saying which.",
+          wiki="Pastizz"),
+    ]),
+
+    # ══ CYPRUS ════════════════════════════════════════════════════════════
+    ("CY", [
+        d("Sheftalia",
+          "Minced pork and lamb with onion and parsley wrapped in caul fat into small "
+          "parcels and grilled over coals until the fat melts away.",
+          "The caul membrane bastes the meat as it renders, then crisps -- there is no "
+          "skin or casing involved.",
+          wiki="Sheftalia"),
+        d("Souvla",
+          "Large chunks of pork or lamb threaded onto a long metal skewer and turned "
+          "slowly over charcoal in an open rotisserie box for hours.",
+          "The Sunday and Easter cook-out; the point is the size of the chunks and the "
+          "slowness, which separates it from small kebab skewers.",
+          wiki="Souvla"),
+        d("Kleftiko",
+          "Lamb rubbed with lemon, garlic and herbs, sealed into a clay oven and cooked "
+          "overnight until it falls off the bone.",
+          "The name means 'stolen' -- bandits are said to have sealed the pit so no "
+          "smoke escaped to give them away.",
+          wiki="Kleftiko"),
+        d("Halloumi",
+          "A firm, salty cheese of sheep and goat milk folded around mint, which squeaks "
+          "against the teeth and holds its shape on a grill.",
+          "Cooked in its own whey and folded in half with mint before brining; it has "
+          "protected designation of origin status.",
+          wiki="Halloumi"),
+    ]),
 ]

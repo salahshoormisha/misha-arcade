@@ -217,6 +217,14 @@ jihad abort aborted
 """
 
 SOFT = _expand(WA.BLOCK_SOFT) | _expand(EXTRA_SOFT)
+# ...and their regular inflections (TUMORS, CANCERS, BOMBER, KILLERS): the soft
+# list is checked by exact match, so without this the plural walks straight in.
+# All 26 collisions with ordinary words were read; only the SUCK- family is
+# reclaimed (it is only on the list at all as mild profanity).
+for w in list(SOFT):
+    for suf in ('s', 'es', 'ed', 'ing', 'er', 'ers'):
+        SOFT.add(w + suf)
+SOFT -= HARD_RECLAIM
 # JUNK: lowercased proper nouns, foreign words, abbreviations -- not words.
 # XW.BLOCK is the CROSSWORD-specific blocklist (crosswordese, abbreviations,
 # and grid-unfriendly vocabulary); it also contains ordinary words like BLOOD,
@@ -355,6 +363,7 @@ tibet tokyo tunis turk turkish tuscan uganda ukraine urdu utah vegas venice
 verde vienna vietnam viking wales warsaw welsh yahoo yemen yiddish yoruba yukon
 zaire zambia zionist zulu buick clive dante franz claus mardi trump satan
 nigeria mongolia pakistan siberia bavaria bohemia arabia persia anatolia
+punta boing reits bayer huron wigan argos ching weezer qantas
 abbr admin advil aspx blvd ceos cfos cgi ciao cmos corp crm ctrl dhcp dsl eval
 exec faq faqs ffff fyi gnu gpa gui href html http https iirc imho inet ipo irc
 iso isp jpeg jpg lan lcd lite mailto mfg mhz mpeg mph msg mysql nbsp nntp nsw

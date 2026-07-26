@@ -288,17 +288,42 @@ computable purely from `countries.js` (+ `trade.js` if needed). Provide a self-t
 prints, for every criterion pair, how many countries satisfy both — used to reject impossible
 grids.
 
-## 7. Personal flavour (the user asked for this, "laced through")
+## 7. Personal flavour — CONFIRMED BY THE PLAYERS, follow exactly
 
-Misha (she/her) is Persian-American, works at CBAI/AIxBio (Harvard, 20 Brattle St), Man United
-fan, plays these games daily with her boyfriend David. Neutral content is the default; add
-*discoverable* signature packs, never mandatory:
-- Connections packs: United lore, Persian culture/Shāhnāmeh, office life, Harvard/Cambridge MA.
-- A Persian-loanword pack for the word games (real English words from Farsi: KIOSK, DIVAN,
-  JULEP, TULIP, SHAWL, CANDY, LILAC, MUSK, PYJAMA, BAZAAR…).
-- Tradle/Globle/Flagle: make sure Iran, the UK, the USA and Tajikistan are in the pool.
-- FoodGuessr: include Persian dishes done properly (ghormeh sabzi, tahchin, fesenjan…).
-- Keep it warm and funny, never cloying. No romance clichés.
+The two players are **Misha** (she/her, Persian-American, from **Houston**) and **David**
+(from **London**). They met and lived together for **six years in Edinburgh**; they now live in
+**Cambridge, Massachusetts**; they plan to live in London eventually. Both are Man United fans.
+They play these games together every morning.
+
+Neutral content is the default. Signature packs are discoverable, never mandatory.
+
+**Difficulty (confirmed): between "solid daily players" and "genuinely strong."**
+Calibrate so a good day scores ≈70–75 and an excellent one ≈90. Answer pools may include
+moderately obscure entries but should not be perverse; crossword par times should be brisk but
+not punishing. Do not patronise them, and do not make 100 routine.
+
+**Connections / QUARTETS packs — the confirmed list:**
+| Pack | Content |
+|---|---|
+| `general` | 40 boards, general knowledge |
+| `persia` | Iran and Persian culture: food, cities, poetry, loanwords, history, diaspora life. **Go LIGHT on Shāhnāmeh lore** — they told us they don't know it well and it already has its own cabinet (MISHANAMEH). Persian culture ≠ Shāhnāmeh trivia. |
+| `united` | 8 boards, Man United / Premier League. Must NOT duplicate any group in `/Users/mishasalahshoor/fourmations/puzzles.js` (36 existing boards). |
+| `places` | **Their four cities: Cambridge/Boston, London, Edinburgh, Houston.** Squares, T stops, tube lines, Edinburgh closes and hills, Texan food and sprawl, New England things. This is the in-joke pack. |
+| `ai` | **AI, AI safety, AI governance and policy.** Alignment, evals, compute governance, the labs, the papers, the acronyms, the policy vocabulary. |
+| `jewish` | **Jewish culture and Israel** — holidays, food, Yiddish/Hebrew loanwords, history, diaspora. For David (and increasingly Misha). Warm and knowledgeable, never a politics-as-punchline board. |
+
+**DO NOT build an office/CBAI/work pack.** They explicitly declined it. Do not name real
+colleagues anywhere.
+
+**Elsewhere:**
+- A Persian-loanword pack for the word games (real, documented English words from Farsi: KIOSK,
+  DIVAN, JULEP, TULIP, SHAWL, CANDY, LILAC, MUSK, PYJAMA, BAZAAR…).
+- Tradle/Globle/Flagle/Cluedrop: make sure Iran, the UK, the USA, Israel and Tajikistan are in
+  the pool.
+- FoodGuessr: Persian dishes done properly (ghormeh sabzi, tahchin, fesenjan, ash reshteh…),
+  plus good British, Texan/Tex-Mex, Scottish and Jewish/Israeli food.
+- TimeGuessr/Placeguessr: include Tehran, Houston, Edinburgh and London among the locations.
+- Keep it warm and funny, never cloying. No romance clichés, no "aww you two" voice.
 
 ## 8. Definition of done for any agent
 
