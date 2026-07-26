@@ -167,7 +167,10 @@
       var c = byIso[iso], won = iso === answer;
       var d = A.haversine(at(c)[0], at(c)[1], at(byIso[answer])[0], at(byIso[answer])[1]);
       var b = A.bearing(at(c)[0], at(c)[1], at(byIso[answer])[0], at(byIso[answer])[1]);
-      var pc = Math.round(A.geo.prox(d) * 100);
+      // A miss must never print 100%. Syria→Lebanon is 84 km and Congo→DR Congo
+      // is 7 km, both of which round to 100 on the proximity curve — a red row
+      // reading "100%" looks like the game got the answer wrong.
+      var pc = won ? 100 : Math.min(99, Math.round(A.geo.prox(d) * 100));
       var el = A.el("div", "gr" + (won ? " win" : ""));
       el.innerHTML =
         '<img alt="" src="' + A.rootPath() + "core/data/flags/" + iso + '.svg" onerror="this.style.visibility=\'hidden\'">' +

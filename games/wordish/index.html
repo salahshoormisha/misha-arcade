@@ -52,13 +52,16 @@
     .modes .ac-pill { padding: 6px var(--sp-2); letter-spacing: .05em; }
   }
 
-  /* ── result sheet extras ─────────────────────────────────────────────────── */
-  .wd-answer {
+  /* ── result sheet extras ───────────────────────────────────────────────────
+     Scoped as `.ac-modal p.x`, NOT `.x`: core/style.css styles `.ac-modal p`
+     with two selectors, so a bare single-class rule loses on specificity and
+     the answer silently renders as 12.5px body text. */
+  .ac-modal p.wd-answer {
     margin: var(--sp-2) 0; font-family: var(--mono); font-size: var(--t-2xl);
-    font-weight: 600; letter-spacing: .18em; color: var(--amber);
+    font-weight: 600; letter-spacing: .18em; color: var(--amber); line-height: 1.2;
   }
-  .etym { font-size: var(--t-sm); color: var(--ink-2); text-align: center; line-height: 1.7; margin-top: var(--sp-2); }
-  .etym b { color: var(--amber); }
+  .ac-modal p.etym { font-size: var(--t-sm); color: var(--ink-2); text-align: center; line-height: 1.7; margin-top: var(--sp-2); }
+  .ac-modal p.etym b { color: var(--amber); }
 </style>
 </head>
 <body>

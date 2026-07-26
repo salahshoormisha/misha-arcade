@@ -9,8 +9,11 @@
 <link rel="stylesheet" href="../../core/style.css?v=11">
 <style>
   #flagwrap { position: relative; width: min(400px, 88vw); margin: var(--sp-3) auto 0; }
-  #flag { width: 100%; display: block; border-radius: var(--r-sm); background: var(--s1);
-          box-shadow: var(--sh-2); }
+  /* aspect-ratio only holds until draw() sets an explicit height from the flag's
+     real ratio — it stops the canvas flashing at its default 150px and shoving
+     the whole page down when the SVG finishes decoding. */
+  #flag { width: 100%; aspect-ratio: 3 / 2; display: block; border-radius: var(--r-sm);
+          background: var(--s1); box-shadow: var(--sh-2); }
 
   /* guess rows — shared metrics with OUTLINE / TRADLE / FOODGUESSR */
   .guesses { max-width: 400px; margin: var(--sp-4) auto 0; }
