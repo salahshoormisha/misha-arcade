@@ -314,14 +314,22 @@ def harvest_place():
             out = {}
     print("resuming with %d entries" % len(out))
 
-    per_country = collections.Counter(e["iso2"] for e in out.values())
+    # Two budgets, because the landmark seeds ("L") sit in countries the ordinary
+    # seeds have already filled -- Paris, Rome, London, Giza, Agra, Sydney. Under a
+    # single per-country cap every single one is skipped and `easy:1` stays at ~0,
+    # so the 15% landmark share is unreachable. Count them separately.
+    per_country = collections.Counter(e["iso2"] for e in out.values()
+                                     if not e.get("easy"))
+    per_lm = collections.Counter(e["iso2"] for e in out.values() if e.get("easy"))
     rej = collections.Counter()
     n_seed = 0
 
     for wp, label, iso2, tag in seeds:
         if wp not in coords:
             continue
-        if per_country[iso2] >= 4:            # spread wide, not deep
+        room = (per_lm if tag == "L" else per_country)
+        cap_n = 2 if tag == "L" else 4        # spread wide, not deep
+        if room[iso2] >= cap_n:
             continue
         n_seed += 1
         lat0, lon0, _t = coords[wp]
@@ -396,7 +404,7 @@ def harvest_place():
         want = 3 if tag == "o" else 2
         picked, sigs = 0, set()
         for sc, e in scored:
-            if picked >= want or per_country[iso2] >= 4:
+            if picked >= want or room[iso2] >= cap_n:
                 break
             if e["id"] in out:
                 continue
