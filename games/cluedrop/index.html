@@ -30,9 +30,15 @@
 
   .pickhost { margin-top: var(--sp-4); }
   .pillrow  { margin-top: var(--sp-3); }
-  /* the shared pill is 31px tall as a link; this cabinet's only nav control
-     gets a proper 44px thumb target without restyling .ac-pill itself */
+  /* The shared pill is 31px tall and stateless as a LINK — style.css only gives
+     hover to button.ac-pill. This cabinet's one nav control gets a proper 44px
+     thumb target and the same states, without restyling .ac-pill itself. */
   .pillrow .ac-pill { min-height: 44px; padding: 0 var(--sp-4); }
+  .pillrow .ac-pill:hover {
+    border-color: var(--hair-2); color: var(--ink); background: var(--s2);
+    text-decoration: none;
+  }
+  .pillrow .ac-pill:active { transform: translateY(1px); }
 
   /* ── the tape: clue, guess, clue, guess… appended in play order ─────────
      Append-only, and it lives BELOW the picker, so revealing a clue never
