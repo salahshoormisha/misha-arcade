@@ -244,7 +244,7 @@
   }
 
   function allocate(four) {
-    var seq = allocOrder(four), claimed = {}, disp = {}, groups = [], i, j;
+    var seq = allocOrder(four), claimed = {}, disp = {}, out = [], i, j;
     for (i = 0; i < seq.length; i++) {
       var list = RCA[seq[i]], got = [];
       for (j = 0; j < list.length && got.length < PICK; j++) {
@@ -256,11 +256,9 @@
         got.push({ name: p.name, disp: d, rca: p.rca });
       }
       if (got.length < PICK) return null;            // this draw cannot field 16
-      groups.push({ i: seq[i], items: got });
+      out.push({ i: seq[i], items: got });
     }
-    var n = 0;
-    for (i = 0; i < groups.length; i++) n += groups[i].items.length;
-    return n === PICK * groups.length ? groups : null;
+    return out.length === four.length ? out : null;
   }
 
   function drawTwo(rand, tier, used) {
@@ -317,12 +315,12 @@
 
   function parFor(b) {
     if (!b) return null;
-    var outside = 0, long = 0;
+    var outside = 0, wordy = 0;
     b.groups.forEach(function (g) {
       if (!TOP40[g.i]) outside++;
-      g.items.forEach(function (p) { if (p.name.length > 24) long++; });
+      g.items.forEach(function (p) { if (p.name.length > 24) wordy++; });
     });
-    return A.clamp(Math.round(86 - 4 * outside - 1.2 * long), 58, 90);
+    return A.clamp(Math.round(86 - 4 * outside - 1.2 * wordy), 58, 90);
   }
   A.setPar(ID, function (dayN) {
     if (dayN === A.PRACTICE) return parFor(board);

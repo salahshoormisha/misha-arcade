@@ -396,15 +396,18 @@
     P.sides.forEach(function (s, si) {
       var i;
       for (i = 0; i < s.length; i++) {
-        var L = s.charAt(i);
-        var b = A.el("button", "lb", L);
-        b.type = "button";
-        b.setAttribute("aria-label", L + ", " + SIDENAME[si] + " side");
-        b.setAttribute("data-l", L);
-        b.addEventListener("click", function (e) { e.preventDefault(); push(L); b.blur(); });
-        btn[L] = b;
-        boxEl.appendChild(b);
-        pts.push({ L: L, side: si, i: i, x: 0, y: 0 });
+        // Each handler needs its OWN L: `var` is function-scoped, so declaring it
+        // in the loop would give all three buttons on a side the last letter.
+        (function (L, idx) {
+          var b = A.el("button", "lb", L);
+          b.type = "button";
+          b.setAttribute("aria-label", L + ", " + SIDENAME[si] + " side");
+          b.setAttribute("data-l", L);
+          b.addEventListener("click", function (e) { e.preventDefault(); push(L); b.blur(); });
+          btn[L] = b;
+          boxEl.appendChild(b);
+          pts.push({ L: L, side: si, i: idx, x: 0, y: 0 });
+        })(s.charAt(i), i);
       }
     });
     main.appendChild(boxEl);
