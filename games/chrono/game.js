@@ -443,6 +443,17 @@
     });
   }
 
+  /* ── register (CONTRACT §5) ────────────────────────────────────────────── */
+  // core/registry.js already lists CHRONO; this is the self-description the
+  // contract asks every cabinet for, and it clears the `soon` flag for anyone
+  // who reaches the page directly while the hub still has it behind glass.
+  A.register({
+    id: ID, name: "CHRONO", tagline: "five clues, falling in value — what year?",
+    icon: "⏳", accent: "--violet", family: "offline", parMs: 180000,
+    hasArchive: true, hasPractice: true, distLabel: "clues used", stamps: false,
+    soon: false,
+  });
+
   /* ── debug hook — drives a whole game headlessly ───────────────────────── */
   window.__CH = {
     answer: answer,

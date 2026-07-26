@@ -444,6 +444,12 @@ __write(__outPath(), JSON.stringify({hits: out, errors: errs}));
 GDP_WEIGHT = 0.5
 SOFTMAX_K = 6.0
 
+# The exponent the cabinet uses to turn 0-900 points into the arcade's 0-100
+# `norm` (CONTRACT §3). Chosen against the calibration table the self-test
+# prints, not by feel: it has to put a solid all-nine board near 70 and leave
+# 100 genuinely hard. games/geogrid/game.js must use the same number.
+NORM_EXP = 1.25
+
 
 def compute_salience(pool):
     gdps = sorted(c["gdppc"] for c in pool if c.get("gdppc"))
@@ -690,16 +696,34 @@ RUNTIME = r"""
     var W = weights(list);
     return W.sum > 0 ? W.w[at] / W.sum : 0;
   };
+  /* obviousness = this country's softmax weight divided by the LARGEST weight in
+     the cell, so the country a player thinks of first scores exactly 1 and
+     everything else falls away from it. Dividing by the max rather than by the
+     sum is what makes a 3-answer cell and a 60-answer cell comparable: a pure
+     share collapses towards zero as a cell gets broad, which is precisely the
+     flaw that makes the original's rarity a lottery on its widest boards. */
   D.obviousness = function (a, b, iso) {
     var list = (b === null || b === undefined || b === a) ? (ANS[a] || []) : D.cell(a, b);
     var j, ok = false;
     for (j = 0; j < list.length; j++) { if (list[j] === iso) { ok = true; break; } }
     if (!ok) { return 1; }
-    var W = weights(list), mx = 0;
-    for (j = 0; j < W.w.length; j++) { if (W.w[j] > mx) { mx = W.w[j]; } }
-    return mx > 0 ? W.w[j >= 0 ? 0 : 0] * 0 + Math.exp(D.softmaxK * (salOf(iso) - W.top)) : 1;
+    var top = -1e9;
+    for (j = 0; j < list.length; j++) { if (salOf(list[j]) > top) { top = salOf(list[j]); } }
+    return Math.min(1, Math.exp(D.softmaxK * (salOf(iso) - top)));
   };
   D.cellScore = function (a, b, iso) { return Math.round(1000 * D.share(a, b, iso)) / 10; };
+
+  /* POINTS -- what the cabinet actually scores.
+       points = round(FILL + (100 - FILL) * (1 - obviousness))
+     100 for a country nobody would think of, FILL(=10) for the single most
+     obvious valid answer, 0 for an empty cell. Nine cells, so 900 is the
+     ceiling -- the same shape as the original's 900, mirrored so that higher is
+     better, which is the direction the rest of this arcade scores in. The 10
+     point floor exists so that filling a cell is always strictly better than
+     leaving it blank, even when the only country you could think of was France. */
+  D.FILL = 10;
+  D.pointsFor = function (obv) { return Math.round(D.FILL + (100 - D.FILL) * (1 - obv)); };
+  D.points = function (a, b, iso) { return D.pointsFor(D.obviousness(a, b, iso)); };
 
   var TIERS = [
     { min: 25, key: 'common',    label: 'Common',    emoji: '🟩' },
@@ -945,9 +969,56 @@ for (var p = 0; p < probe.length; p++) {
   });
 }
 rep.obvSample = s;
+
+/* ── CALIBRATION ─────────────────────────────────────────────────────────────
+   Four reference players over the same boards, each filling all nine cells:
+     first : always names the most salient valid country  (the lazy answer)
+     third : names the 3rd most salient                   (a solid daily player)
+     mid   : names the median-salience valid country       (a strong player)
+     deep  : names the least salient valid country         (perfect play)
+   Reported as raw points out of 900 and as norm under norm = 100*(pts/900)^E,
+   so the exponent can be chosen against real boards rather than by feel. */
+var EXP = %f;
+function normOf(pts) { return Math.round(100 * Math.pow(pts / 900, EXP)); }
+var players = { first: 0, third: 0, mid: 0, deep: 0, eight: 0 };
+var pcount = 0;
+for (var s2 = 0; s2 < %d; s2++) {
+  var gg = g.buildGrid(rngFactory('seed-' + s2));
+  if (!gg) { continue; }
+  pcount++;
+  var tot = { first: 0, third: 0, mid: 0, deep: 0 };
+  var cellPts = [];
+  for (var r3 = 0; r3 < 3; r3++) {
+    for (var c3 = 0; c3 < 3; c3++) {
+      var a3 = gg.rows[r3], b3 = gg.cols[c3];
+      var list3 = g.cell(a3, b3).slice().sort(function (x, y) {
+        return g.salienceOf(y) - g.salienceOf(x);
+      });
+      var idx = {
+        first: 0,
+        third: Math.min(2, list3.length - 1),
+        mid: Math.floor((list3.length - 1) / 2),
+        deep: list3.length - 1
+      };
+      for (var kk in idx) { tot[kk] += g.points(a3, b3, list3[idx[kk]]); }
+      cellPts.push(g.points(a3, b3, list3[idx.third]));
+    }
+  }
+  for (var k2 in tot) { players[k2] += tot[k2]; }
+  /* the same solid player, but one cell short */
+  cellPts.sort(function (x, y) { return x - y; });
+  players.eight += tot.third - cellPts[0];
+}
+rep.calibration = { boards: pcount, exponent: EXP, mean: {}, norm: {} };
+for (var k3 in players) {
+  var mp = players[k3] / pcount;
+  rep.calibration.mean[k3] = Math.round(mp * 10) / 10;
+  rep.calibration.norm[k3] = normOf(mp);
+}
+
 __write(__outPath(), JSON.stringify(rep));
 'ok'
-""" % seeds
+""" % (seeds, NORM_EXP, seeds)
     shim = "var window = this;\n"
     tmp = tempfile.mkdtemp(prefix="geogrid_st_")
     shim_path = os.path.join(tmp, "shim.js")

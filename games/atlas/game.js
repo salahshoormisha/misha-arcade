@@ -177,7 +177,7 @@
     }
 
     if (q.shape) {
-      A.silhouette(document.getElementById("qshape"), q.shape,
+      silhouette(document.getElementById("qshape"), q.shape,
         { fill: "#f5f2f8", stroke: "rgba(255,255,255,.22)", lw: 1.2, pad: 12 });
     }
 

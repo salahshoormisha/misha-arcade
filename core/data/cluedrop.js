@@ -92,10 +92,21 @@ window.AD_CLUEDROP = {
 
   /* ── official-language overrides ──────────────────────────────────────── */
   langs: {
+    AR: ["Spanish"],
     AT: ["German"],
+    BE: ["Dutch", "French", "German"],
+    BO: ["Spanish", "Quechua", "Aymara", "Guaran\u00ed"],
+    CH: ["German", "French", "Italian"],
+    CZ: ["Czech"],
+    JM: ["English"],
+    MU: ["English", "French"],
+    MY: ["Malay", "English"],
+    NA: ["English", "Afrikaans", "German"],
     NO: ["Norwegian"],
     NZ: ["English", "M\u0101ori"],
-    BO: ["Spanish", "Quechua", "Aymara", "Guaran\u00ed"]
+    PE: ["Spanish", "Quechua"],
+    PY: ["Spanish", "Guaran\u00ed"],
+    ZA: ["Afrikaans", "English", "isiZulu"]
   },
 
   /* ── currency wording overrides ───────────────────────────────────────── */

@@ -195,10 +195,13 @@
       if (SCRIPTS[langs[k]]) return "The writing on the signs is " + SCRIPTS[langs[k]] + ".";
     }
     if (!langs.length) return "The signs are in the Latin alphabet.";
+    // "on the signs" rather than "official", deliberately: several countries in
+    // the pool have a de facto language of government that is not written into
+    // any constitution, and a clue must not overclaim.
     if (langs.length === 1) {
-      return "Latin alphabet, and the official language is " + langs[0] + ".";
+      return "Latin alphabet, and the language on the signs is " + langs[0] + ".";
     }
-    return "Latin alphabet. Official languages: " + listOf(langs.slice(0, 3)) + ".";
+    return "Latin alphabet. The languages on the signs: " + listOf(langs.slice(0, 3)) + ".";
   }
 
   // countries.js stores currencies with the national adjective attached

@@ -110,7 +110,7 @@
     else A.sfx("miss");
   }
 
-  function doHint() {
+  function doHint(quiet) {
     if (over || hinted) return;
     hinted = true;
     var c = byIso[answer];
@@ -119,13 +119,84 @@
     hintBox.innerHTML = "<b>The shape is</b> " + size + " — " + A.fmtNum(c.area) + " km², " +
       (n ? "bordering " + n + " countr" + (n === 1 ? "y" : "ies") : "bordering no one") +
       ' <span class="dim">(−8 pts)</span>';
+    if (quiet) return;               // replaying it on restore would re-chime
     A.sfx("reveal"); save();
   }
 
-  /* ── drawing ─────────────────────────────────────────────────────────── */
+  /* ── drawing ───────────────────────────────────────────────────────────
+     This draws the silhouette itself rather than calling A.silhouette, which
+     gets two things wrong for this game:
+
+       · AD_WORLD.bbox() reports longitudes UNWRAPPED across the antimeridian
+         (Russia is 19.6 → 190.3) while AD_WORLD.rings() reports them wrapped
+         into ±180. Measured against the raw bbox, Russia's Chukotka lobe lands
+         ~200° to the left of the box: it drags a white bar clean across the
+         shape and the visible landmass is scaled off a 170°-wide box. Same for
+         New Zealand, Fiji and Kiribati. Fixed by lifting every ring longitude
+         into the bbox's own frame first.
+       · it fits the shape and THEN rotates it, so any country with a roughly
+         square bounding box gets its corners cut off by the canvas edge. On the
+         shipped pool that is 58 of 130 countries, and it lands on real days
+         (day 8 Netherlands, day 22 Russia, day 32 France). Fixed by fitting the
+         ROTATED extent.
+
+     Both belong in core/worldmap.js; they are reported, not patched there. */
+
+  function shapeOf(iso) {
+    var W = window.AD_WORLD, bb = W.bbox(iso), rings = W.rings(iso);
+    if (!bb || !rings || !rings.length) return null;
+    // Mercator-ish horizontal squeeze so high-latitude shapes aren't stretched.
+    var kx = Math.cos((bb[1] + bb[3]) / 2 * Math.PI / 180) || 1;
+    var out = [];
+    rings.forEach(function (r) {
+      var pts = [];
+      for (var i = 0; i < r.length; i++) {
+        var lon = r[i][0];
+        while (lon < bb[0]) lon += 360;
+        while (lon > bb[2]) lon -= 360;
+        pts.push([(lon - bb[0]) * kx, bb[3] - r[i][1]]);
+      }
+      out.push(pts);
+    });
+    return { rings: out, w: (bb[2] - bb[0]) * kx, h: bb[3] - bb[1] };
+  }
+
+  function silhouette(canvas, iso, o) {
+    var sh = shapeOf(iso);
+    if (!sh) return false;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var box = canvas.getBoundingClientRect();
+    var cw = Math.round(box.width || 300), ch = Math.round(box.height || 300);
+    canvas.width = cw * dpr; canvas.height = ch * dpr;
+    var g = canvas.getContext("2d");
+    g.save(); g.scale(dpr, dpr); g.clearRect(0, 0, cw, ch);
+
+    var pad = o.pad === undefined ? 14 : o.pad;
+    var t = (o.rotate || 0) * Math.PI / 180, co = Math.cos(t), si = Math.sin(t);
+    var ew = Math.abs(sh.w * co) + Math.abs(sh.h * si);
+    var eh = Math.abs(sh.w * si) + Math.abs(sh.h * co);
+    var s = Math.min((cw - pad * 2) / (ew || 1), (ch - pad * 2) / (eh || 1));
+
+    g.translate(cw / 2, ch / 2);
+    g.rotate(t);
+    g.translate(-sh.w * s / 2, -sh.h * s / 2);
+    g.beginPath();
+    sh.rings.forEach(function (ring) {
+      for (var i = 0; i < ring.length; i++) {
+        var x = ring[i][0] * s, y = ring[i][1] * s;
+        i ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.closePath();
+    });
+    g.fillStyle = o.fill || "#f5f2f8";
+    g.fill();
+    if (o.stroke) { g.strokeStyle = o.stroke; g.lineWidth = o.lw || 1; g.stroke(); }
+    g.restore();
+    return true;
+  }
 
   function draw() {
-    A.silhouette(cvs, answer, {
+    silhouette(cvs, answer, {
       rotate: over ? 0 : rot,
       fill: over ? "#4ecb8f" : "#f5f2f8",
       stroke: "rgba(255,255,255,.22)", lw: 1.2, pad: 18,
@@ -149,8 +220,11 @@
         '.svg" onerror="this.style.visibility=\'hidden\'">' +
         '<span class="nm">' + A.esc(c.n) + "</span>" +
         (won ? '<span class="ar">✓</span><span class="pc">100%</span>'
+          // A miss must never print 100%. Syria→Lebanon is 84 km and Congo→DR
+          // Congo is 7 km, both of which round to 100 on the proximity curve —
+          // a red row reading "100%" looks like the game marked it wrong.
           : '<span class="km">' + A.geo.km(d) + '</span><span class="ar">' + A.arrow(b) +
-            '</span><span class="pc">' + Math.round(A.geo.prox(d) * 100) + "%</span>");
+            '</span><span class="pc">' + Math.min(99, Math.round(A.geo.prox(d) * 100)) + "%</span>");
       list.appendChild(el);
     });
   }
@@ -163,7 +237,7 @@
     var st = practice ? null : A.load(ID, day);
     if (st) {
       guesses = st.guesses || [];
-      if (st.hinted) doHint();
+      if (st.hinted) doHint(true);
     }
     renderGuesses();
     if (st && st.done) {
