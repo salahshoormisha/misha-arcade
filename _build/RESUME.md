@@ -51,9 +51,9 @@ a cross-game country passport.
 | `trade.js` | ✅ export composition + per-product top exporters + RCA |
 | `food.js` | ✅ 50 cuisines, 238 dishes, 236 with verified photo URLs |
 | `lingua.js` | ✅ 50+ languages, real sourced text, script-tell hints |
-| `trivia.js` | ✅ question bank for THE DECIDER |
-| `photos.js` | ⏳ Wikimedia harvest for TIMEGUESSR / PLACEGUESSR |
-| `geogrid.js` | ⏳ criteria + pairs matrix + obviousness prior |
+| `trivia.js` | ✅ question bank for THE DECIDER (149 KB, validated) |
+| `photos.js` | ⚠️ `place` done (185 photos, 84 countries, real coords + clues); `time` only 1850–1899 (48) — see §7.2 |
+| `geogrid.js` | ✅ criteria + rarity + pairs matrix + obviousness prior + buildGrid() |
 
 ### Cabinets
 Check reality, not this table: a cabinet is built when
@@ -67,9 +67,10 @@ for g in games/*/; do n=$(basename $g); \
   [ "$h" -gt 300 ] && [ "$j" -gt 3000 ] && echo "$n ok" || echo "$n PENDING"; done
 ```
 
-Built: wordish, thirdle, mini, midi, quartets, boxed, tradle, pick5,
-connectrade, flagle, globle, outline, atlas, foodguessr, lingua, decider.
-Pending: geogrid, timeguessr, placeguessr, chrono, cluedrop.
+Built and live (18): wordish, thirdle, mini, midi, quartets, boxed, tradle,
+pick5, connectrade, flagle, globle, outline, atlas, foodguessr, lingua, chrono,
+cluedrop, decider.
+Not yet built (3): geogrid, timeguessr, placeguessr.
 
 **After building a cabinet, remove its `soon: true` from `core/registry.js`.**
 
