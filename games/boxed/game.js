@@ -656,7 +656,9 @@
       if (used[L]) cls += " used";
       if (buf.indexOf(L) >= 0) cls += " act";
       if (lastCh && L === lastCh) cls += " last";
-      else if (lastCh && P.of[L] === P.of[lastCh]) cls += " off";
+      // Dim what you cannot legally play next — but never fade a letter that is
+      // part of the word on screen, or the line you're drawing goes murky.
+      else if (lastCh && P.of[L] === P.of[lastCh] && buf.indexOf(L) < 0) cls += " off";
       btn[L].className = cls;
     }
 
