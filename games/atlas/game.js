@@ -70,21 +70,43 @@
   main.appendChild(row);
   var weakBox = A.el("div", "weak"); main.appendChild(weakBox);
 
-  build();
-  restore();
+  // The saved state has to be read BEFORE the questions are built: the twelve
+  // depend on the weak-spot ledger, and the ledger changes while you play.
+  var saved = practice ? null : A.load(ID, day);
+  build(saved && saved.subjects);
+  restore(saved);
 
   /* ── question construction ───────────────────────────────────────────── */
 
-  function build() {
+  /**
+   * build(fixed) — `fixed` is the twelve ISO codes this day already committed to.
+   * Without it a mid-game reload re-derived the twelve from a weak-spot ledger
+   * that your own wrong answers had just changed: the set came back in a
+   * different order, so the answers already recorded landed on countries you had
+   * never been asked (scoring Senegal wrong sight unseen, asking Austria twice,
+   * and stamping the passport for both).
+   */
+  function build(fixed) {
+    var inPool = {};
+    POOL.forEach(function (c) { inPool[c.i] = 1; });
     var rand = practice ? A.rng(String(Date.now()) + Math.random()) : A.rngFor(ID, day);
-    // Half the questions are drawn from your weak spots (once you have any).
-    var focus = weakest(Math.floor(N / 2));
-    var rest = A.shuffle(rand, POOL.map(function (c) { return c.i; }))
-      .filter(function (i) { return focus.indexOf(i) < 0; });
-    var subjects = focus.concat(rest).slice(0, N);
-    subjects = A.shuffle(rand, subjects);
+    var subjects;
+    if (fixed && fixed.length === N && fixed.every(function (i) { return inPool[i]; })) {
+      subjects = fixed.slice();
+    } else {
+      // Half the questions are drawn from your weak spots (once you have any).
+      var focus = weakest(Math.floor(N / 2));
+      var rest = A.shuffle(rand, POOL.map(function (c) { return c.i; }))
+        .filter(function (i) { return focus.indexOf(i) < 0; });
+      subjects = A.shuffle(rand, focus.concat(rest).slice(0, N));
+    }
 
-    qs = subjects.map(function (iso, k) {
+    // Seed the question construction off the SUBJECTS rather than off however
+    // many draws the selection above happened to consume, so the same twelve
+    // always get the same kinds and the same decoys.
+    var qrand = A.rng((practice ? "p" + Math.random() : ID + ":q:" + day) + ":" + subjects.join(""));
+
+    qs = subjects.map(function (iso) {
       var c0 = byIso[iso];
       // City-states give themselves away: "which country's capital is
       // Singapore?" is not a question. Same for Monaco, Vatican City, Djibouti…
@@ -98,8 +120,8 @@
         return true;
       });
       if (!kinds.length) kinds = ["flag"];
-      var kind = kinds[Math.floor(rand() * kinds.length)];
-      return makeQ(kind, iso, rand);
+      var kind = kinds[Math.floor(qrand() * kinds.length)];
+      return makeQ(kind, iso, qrand);
     });
   }
 

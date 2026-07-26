@@ -412,10 +412,9 @@ BOARDS = [
     "note": "Full time, full English, full moon, full house. One of them is how this pack ends and one of them is what you eat before an eleven o'clock kick-off."},
  ],
  "traps": [
-   ["HOUNSLOW", 0, "Hounslow is a real London borough with a real football pitch in it, sitting on a board that opens with four real cities."],
-   ["BOSTON", 1, "Boston United are an actual English club, from Lincolnshire, which puts BOSTON one letter away from the fictional group and one flight from the World Cup."],
+   ["HOUNSLOW", 0, "Hounslow is a real London borough with real football played in it, sitting on a board that opens with four real cities — and Boston United, from Lincolnshire, are a real club with a fictional-sounding name two squares away."],
  ],
- "epilogue": "The last board, and it is built out of places that may or may not exist. HOUNSLOW and BOSTON both have a foot in two groups, and the fix is that HOUSTON, TORONTO and MONTERREY are unarguably hosting matches in 2026 — which leaves Boston with them and Hounslow with the Harriers. Two of those host cities are the players' own, which is the only reason this board exists.",
+ "epilogue": "The last board, and it is built out of places that may or may not exist. HOUNSLOW has a foot in both halves of it, and the fix is that HOUSTON, BOSTON, TORONTO and MONTERREY are unarguably hosting matches in 2026 — which leaves Hounslow with the Harriers. Two of those host cities are the players' own, which is the only reason this board exists.",
 },
 
 ]

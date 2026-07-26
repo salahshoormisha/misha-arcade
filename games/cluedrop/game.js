@@ -151,6 +151,10 @@
 
   restore();
 
+  // Announce each new rung to a screen reader, but only AFTER the reload replay
+  // has finished — otherwise restoring a half-played day reads the whole tape out.
+  tape.setAttribute("aria-live", "polite");
+
   /* ── the day's country ─────────────────────────────────────────────────── */
 
   function pickAnswer(dayN) {
