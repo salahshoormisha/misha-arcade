@@ -1,0 +1,287 @@
+/* ============================================================================
+   TIMEGUESSR — game-specific layout only.
+   Every colour, space, radius, easing and size is a core/style.css token, so a
+   restyle of the design system carries this cabinet with it. Nothing is
+   hard-coded except the canvas colours, which live in game.js.
+   ========================================================================== */
+
+/* ── round strip: where you are, what you've banked ───────────────────── */
+.strip {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-3); margin-top: var(--sp-2);
+  font-size: var(--t-xs); letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-4); font-variant-numeric: tabular-nums;
+}
+.strip b { color: var(--ink); font-weight: 650; }
+
+.pips { display: flex; gap: 4px; margin-top: var(--sp-2); }
+.pips i {
+  flex: 1 1 0; height: 5px; border-radius: var(--r-full);
+  background: var(--no); overflow: hidden;
+}
+.pips i.live { box-shadow: inset 0 0 0 1px var(--hair-2); }
+.pips i b { display: block; height: 100%; width: 0; background: var(--accent); }
+
+/* ── the photograph ───────────────────────────────────────────────────── */
+/* A fixed 3:2 box with the image CONTAINED, never cropped: a crop can throw
+   away the one shop sign that dates the picture. Letterbox bars are just the
+   surface behind it, and the fixed box means no layout jump on load. */
+.pwrap {
+  position: relative; width: 100%; aspect-ratio: 3 / 2;
+  margin-top: var(--sp-3); overflow: hidden;
+  display: grid; place-items: center;
+  background: var(--s1); border: 1px solid var(--hair);
+  border-radius: var(--r-md); box-shadow: var(--sh-1);
+}
+.pwrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pwrap.tap { cursor: zoom-in; }
+.pwrap .zoomtag {
+  position: absolute; right: var(--sp-2); bottom: var(--sp-2);
+  padding: 5px var(--sp-2); border-radius: var(--r-full);
+  background: var(--s2); border: 1px solid var(--hair-2);
+  font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3); pointer-events: none;
+}
+
+/* offline / dead URL — the round still plays, on the caption alone */
+.pwrap.dead { border-style: dashed; box-shadow: none; }
+.pwrap .miss {
+  display: grid; place-items: center; gap: var(--sp-2);
+  padding: var(--sp-4); text-align: center;
+}
+.pwrap .miss span {
+  font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-4); max-width: 26ch; line-height: 1.7;
+}
+.pwrap .miss em {
+  font-style: normal; font-family: var(--mono); font-size: var(--t-2xl);
+  color: var(--ink-4); letter-spacing: .1em;
+}
+
+.cap {
+  font-size: var(--t-sm); color: var(--ink-2); line-height: 1.75;
+  margin: var(--sp-3) auto 0; max-width: 44ch; text-align: center;
+}
+.cap.none { color: var(--ink-4); font-style: italic; }
+
+/* ── the map ──────────────────────────────────────────────────────────── */
+.mapbox {
+  position: relative; width: 100%; aspect-ratio: 2.1 / 1;
+  margin-top: var(--sp-4); overflow: hidden;
+  border: 1px solid var(--hair); border-radius: var(--r-md);
+  background: var(--bg-far);
+}
+.mapbox canvas { display: block; width: 100%; height: 100%; }
+
+.maprow {
+  display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2);
+}
+.zbtn {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: var(--r-md);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+  background: var(--s1); border: 1px solid var(--hair-2); color: var(--ink-2);
+  font-family: var(--mono); font-size: var(--t-lg); line-height: 1;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.zbtn.wide { width: auto; padding: 0 var(--sp-3); font-size: var(--t-xs);
+             letter-spacing: .12em; text-transform: uppercase; }
+.zbtn:hover { background: var(--s3); color: var(--ink); }
+.zbtn:active { transform: scale(.96); }
+
+.pinread {
+  flex: 1 1 auto; min-width: 0; text-align: right;
+  font-size: var(--t-xs); letter-spacing: .04em; color: var(--ink-3);
+  font-variant-numeric: tabular-nums; line-height: 1.5;
+}
+.pinread b { color: var(--ink); font-weight: 600; }
+.pinread.empty { color: var(--ink-4); letter-spacing: .12em; text-transform: uppercase; }
+
+/* ── the round result ─────────────────────────────────────────────────── */
+.rv {
+  margin-top: var(--sp-4); padding: var(--sp-4);
+  background: var(--s1); border: 1px solid var(--hair);
+  border-radius: var(--r-lg); box-shadow: var(--sh-1);
+}
+.rv.hide { display: none; }
+
+.rline {
+  display: grid; grid-template-columns: 46px 1fr auto; gap: var(--sp-3);
+  align-items: baseline; padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--hair);
+}
+.rline:last-of-type { border-bottom: none; }
+.rline .k {
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-4);
+}
+.rline .v { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.6; min-width: 0; }
+.rline .v b { color: var(--ink); font-weight: 650; }
+.rline .p {
+  font-family: var(--mono); font-size: var(--t-md); font-weight: 700;
+  color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.rline.tot { border-top: 1px solid var(--hair-2); margin-top: var(--sp-1); }
+.rline.tot .k, .rline.tot .v { color: var(--ink-3); }
+.rline.tot .p { color: var(--accent); font-size: var(--t-xl); }
+.rline .yr { color: var(--cyan); }
+.rline .pl { color: var(--pink); }
+
+.legend {
+  display: flex; gap: var(--sp-4); justify-content: center; flex-wrap: wrap;
+  margin-top: var(--sp-3); font-size: 9.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-4);
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: var(--r-full); }
+.legend i.you { background: var(--cyan); }
+.legend i.act { background: var(--pink); }
+
+.stamped {
+  margin-top: var(--sp-3); text-align: center;
+  font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--green);
+}
+.stamped.no { color: var(--ink-4); }
+
+.full {
+  margin-top: var(--sp-3); font-size: var(--t-sm); color: var(--ink-2);
+  line-height: 1.75;
+}
+.full b { color: var(--amber); font-weight: 620; }
+
+/* ── the guess console — sticky, so it never moves out from under a thumb ─ */
+.bar {
+  position: sticky; bottom: 0; z-index: 20;
+  margin: var(--sp-4) calc(var(--sp-4) * -1) 0;
+  padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + var(--safe));
+}
+/* The backdrop stays inside the column: a full-bleed calc(50% - 50vw) panel is
+   a horizontal-scrollbar bug waiting to happen on desktop. */
+.bar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--bg-far);
+  background: color-mix(in srgb, var(--bg-far) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  border-top: 1px solid var(--hair);
+}
+
+.brow { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); }
+
+.nudge {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: var(--r-full);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+  background: var(--s1); border: 1px solid var(--hair-2); color: var(--ink-2);
+  font-family: var(--mono); font-size: var(--t-lg); line-height: 1;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease),
+              transform var(--fast) var(--ease);
+}
+.nudge:hover { background: var(--s3); color: var(--ink); }
+.nudge:active { transform: scale(.94); }
+
+#year {
+  flex: 1 1 auto; min-width: 0; max-width: 160px; height: 44px; text-align: center;
+  background: var(--s1); border: 1px solid var(--hair-2); border-radius: var(--r-md);
+  font-family: var(--mono); font-size: var(--t-2xl); font-weight: 700;
+  letter-spacing: .04em; color: var(--ink); font-variant-numeric: tabular-nums;
+  padding: 0 2px; -moz-appearance: textfield; appearance: textfield;
+  transition: border-color var(--fast) var(--ease);
+}
+#year::-webkit-outer-spin-button, #year::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+#year:focus { outline: none; border-color: var(--accent); }
+#year:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#year:disabled { color: var(--ink-3); }
+
+#go { flex: 0 0 auto; padding: 0 var(--sp-4); }
+
+/* the slider: 44px tall so the whole strip is a legal tap target */
+.track { position: relative; margin-top: var(--sp-1); }
+#slider {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 44px;
+  background: transparent; display: block; margin: 0; cursor: pointer;
+}
+#slider::-webkit-slider-runnable-track {
+  height: 6px; border-radius: var(--r-full);
+  background: var(--s3); border: 1px solid var(--hair);
+}
+#slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 24px; height: 24px; margin-top: -10px; border-radius: var(--r-full);
+  background: var(--accent); border: 2px solid var(--bg-far);
+  box-shadow: var(--sh-2); cursor: grab;
+}
+#slider:active::-webkit-slider-thumb { cursor: grabbing; }
+#slider::-moz-range-track {
+  height: 6px; border-radius: var(--r-full); background: var(--s3);
+  border: 1px solid var(--hair);
+}
+#slider::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: var(--r-full);
+  border: 2px solid var(--bg-far); background: var(--accent);
+  box-shadow: var(--sh-2); cursor: grab;
+}
+#slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px;
+                        border-radius: var(--r-full); }
+#slider:disabled::-webkit-slider-thumb { background: var(--ink-4); }
+#slider:disabled::-moz-range-thumb { background: var(--ink-4); }
+
+.ends {
+  display: flex; justify-content: space-between; margin-top: -4px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink-4);
+  font-variant-numeric: tabular-nums; letter-spacing: .04em;
+}
+
+/* ── enlarge the photograph ───────────────────────────────────────────── */
+.lightbox {
+  position: fixed; inset: 0; z-index: 80; display: none;
+  align-items: center; justify-content: center; padding: var(--sp-3);
+  background: var(--bg-far);
+  background: color-mix(in srgb, var(--bg-far) 94%, transparent);
+}
+.lightbox.show { display: flex; animation: lbin 160ms var(--ease); }
+@keyframes lbin { from { opacity: 0 } }
+.lightbox img {
+  max-width: 96vw; max-height: 86vh; width: auto; height: auto;
+  object-fit: contain; border-radius: var(--r-sm);
+}
+.lightbox .shut {
+  position: absolute; top: calc(var(--sp-3) + var(--safe)); right: var(--sp-3);
+  width: 44px; height: 44px; border-radius: var(--r-full);
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--s2); border: 1px solid var(--hair-2); color: var(--ink-2);
+  font-size: var(--t-md); line-height: 1;
+}
+.lightbox .shut:hover { background: var(--s3); color: var(--ink); }
+.lightbox .note {
+  position: absolute; left: 0; right: 0; bottom: calc(var(--sp-4) + var(--safe));
+  text-align: center; font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-4); pointer-events: none;
+}
+
+/* ── result sheet extras ──────────────────────────────────────────────── */
+.sumrow {
+  display: grid; grid-template-columns: 18px 1fr auto; gap: var(--sp-2);
+  align-items: baseline; font-size: var(--t-xs); line-height: 1.7;
+  color: var(--ink-3); padding: 3px 0; border-bottom: 1px solid var(--hair);
+}
+.sumrow:last-child { border-bottom: none; }
+.sumrow b { font-family: var(--mono); color: var(--ink-4); font-weight: 700; }
+.sumrow span { min-width: 0; overflow: hidden; text-overflow: ellipsis;
+               white-space: nowrap; color: var(--ink-2); }
+.sumrow u { text-decoration: none; font-family: var(--mono); color: var(--ink);
+            font-variant-numeric: tabular-nums; }
+.sumhead { margin-top: var(--sp-4); }
+
+@media (max-width: 380px) {
+  /* .ac-wrap drops to --sp-3 of padding here, so the bar's bleed has to match
+     it exactly or the page gains 8px of horizontal scroll. */
+  .bar {
+    margin-left: calc(var(--sp-3) * -1); margin-right: calc(var(--sp-3) * -1);
+    padding-left: var(--sp-3); padding-right: var(--sp-3);
+  }
+  #year { font-size: var(--t-xl); max-width: 120px; }
+  #go { padding: 0 var(--sp-3); }
+  .rline { grid-template-columns: 40px 1fr auto; gap: var(--sp-2); }
+}
