@@ -251,5 +251,145 @@ function clone(src){
   return cv;
 }
 
-return { node, MARKS, dish, star8 };
+
+/* ═══════════════  THE TALISMANS  ═══════════════
+   There are forty-eight of them and they were all emoji — "Holy Devotion, who
+   is the earth" was illustrated with the photographic Earth emoji, next to a
+   hand-drawn Sasanian plate. Drawing forty-eight amulets by hand is not the
+   answer either; the answer is the one Persian craftsmen already used.
+
+   Girih is a construction, not a picture: a rosette of n points, struck by
+   compass and straightedge, with the strapwork woven through it. Change the
+   point count, the ring depth, the strap rhythm and the palette and you get an
+   unlimited family of devices that are all unmistakably from the same
+   workshop. So each talisman's id is hashed into one of those constructions.
+   Forty-eight distinct amulets, no two alike, all correct.                  */
+
+function hash32(s){
+  let h = 2166136261>>>0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619)>>>0; }
+  return h>>>0;
+}
+
+const RARITY_PAL = {
+  common:   { rim:'#5fd0cc', ink:'#9fe8e4', field:'#0d2b34', field2:'#16414c', accent:'#d9fffb' },
+  uncommon: { rim:'#e0a92e', ink:'#f7d97a', field:'#2a2008', field2:'#453313', accent:'#fff4cf' },
+  rare:     { rim:'#e8734f', ink:'#ffb9a2', field:'#33100c', field2:'#521c14', accent:'#ffd0c4' },
+  boss:     { rim:'#f3e6cd', ink:'#ffffff', field:'#241d3f', field2:'#3a2f66', accent:'#ffffff' },
+};
+
+/* one girih rosette, struck at n points */
+function rosette(g, cx, cy, R, n, phase, pal, depth){
+  // the outer polygon
+  const poly = (rad, off, k)=>{
+    const pts=[];
+    for(let i=0;i<k;i++){
+      const a = phase + off + i/k*6.2832;
+      pts.push([cx+Math.cos(a)*rad, cy+Math.sin(a)*rad]);
+    }
+    return pts;
+  };
+  // interlaced strapwork: two rotated polygons plus the star that joins them
+  line(g, poly(R, 0, n), Math.max(1.1, R*0.055), pal.ink, true);
+  line(g, poly(R*0.78, 3.1416/n, n), Math.max(1, R*0.045), pal.rim, true);
+
+  // the star itself
+  const st=[];
+  for(let i=0;i<n*2;i++){
+    const a = phase + i/(n*2)*6.2832;
+    const rad = i%2 ? R*depth : R*0.97;
+    st.push([cx+Math.cos(a)*rad, cy+Math.sin(a)*rad]);
+  }
+  g.fillStyle = 'rgba(255,255,255,.07)';
+  g.beginPath(); st.forEach((p,i)=> i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.closePath(); g.fill();
+  line(g, st, Math.max(1, R*0.05), pal.accent, true);
+
+  // spokes out to the rim, the way strapwork leaves a rosette
+  for(let i=0;i<n;i++){
+    const a = phase + i/n*6.2832;
+    line(g, [[cx+Math.cos(a)*R*0.97, cy+Math.sin(a)*R*0.97],
+             [cx+Math.cos(a)*R*1.30, cy+Math.sin(a)*R*1.30]], Math.max(0.9, R*0.038), pal.rim);
+  }
+}
+
+function talismanArt(id, size, rarity){
+  size = size || 82;
+  const key = 'tal:'+id+'@'+size;
+  if(cache.has(key)) return clone(cache.get(key));
+
+  const h = hash32(id);
+  const pal = RARITY_PAL[rarity] || RARITY_PAL.common;
+  const n     = [6,8,8,10,12,5][h % 6];
+  const phase = ((h>>>3) % 360) * Math.PI/180;
+  const depth = 0.34 + ((h>>>9) % 5) * 0.06;
+  const rings = 1 + ((h>>>13) % 3);
+
+  const dpr = Math.min(2, devicePixelRatio||1);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(size*dpr); cv.height = Math.round(size*dpr);
+  cv.style.width = size+'px'; cv.style.height = size+'px';
+  const g = cv.getContext('2d');
+  g.setTransform(dpr,0,0,dpr,0,0);
+
+  dish(g, size, { rim:pal.rim, field:pal.field, field2:pal.field2 });
+
+  const c = size/2;
+  rosette(g, c, c, size*0.20, n, phase, pal, depth);
+
+  // concentric struck rings, the number of them another dimension of variation
+  for(let r=0;r<rings;r++){
+    g.strokeStyle = pal.rim;
+    g.globalAlpha = 0.30 - r*0.07;
+    g.lineWidth = Math.max(0.8, size*0.010);
+    g.beginPath(); g.arc(c, c, size*(0.335 + r*0.032), 0, 6.2832); g.stroke();
+    g.globalAlpha = 1;
+  }
+
+  // and a small counter-rosette at the top, so they are not radially symmetric
+  if((h>>>17)&1) rosette(g, c, c - size*0.30, size*0.055, n>8?6:8, -phase, pal, 0.4);
+
+  cache.set(key, cv);
+  return clone(cv);
+}
+
+
+
+return { node, MARKS, dish, star8, talisman: talismanArt, hash32 };
 })();
+
+/* small marks for the intent chips — the last OS emoji in the fight */
+SIGIL.mark = function(kind, size){
+  size = size || 15;
+  const key = 'mark:'+kind+'@'+size;
+  const dpr = Math.min(2, devicePixelRatio||1);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(size*dpr); cv.height = Math.round(size*dpr);
+  cv.style.width = size+'px'; cv.style.height = size+'px';
+  const g = cv.getContext('2d');
+  g.setTransform(dpr,0,0,dpr,0,0);
+  const S = size, c = S/2;
+  const ln = (pts,w,col)=>{ g.strokeStyle=col; g.lineWidth=w; g.lineCap='round'; g.lineJoin='round';
+    g.beginPath(); pts.forEach((p,i)=> i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.stroke(); };
+  const fl = (pts,col)=>{ g.fillStyle=col; g.beginPath();
+    pts.forEach((p,i)=> i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.closePath(); g.fill(); };
+
+  if(kind==='atk'){                       // a sword, point down — grip, guard, blade
+    ln([[c, S*0.04],[c, S*0.22]], S*0.13, '#ffe8c4');
+    ln([[c-S*0.28, S*0.24],[c+S*0.28, S*0.24]], S*0.12, '#ffe8c4');
+    fl([[c-S*0.17, S*0.28],[c+S*0.17, S*0.28],[c, S*0.96]], '#ffd4c2');
+  } else if(kind==='def'){                // a shield
+    fl([[c,S*0.10],[c+S*0.30,S*0.26],[c+S*0.24,S*0.66],[c,S*0.90],[c-S*0.24,S*0.66],[c-S*0.30,S*0.26]], 'rgba(185,236,234,.9)');
+  } else if(kind==='buf'){                // an ascending chevron
+    ln([[c-S*0.26,S*0.60],[c,S*0.26],[c+S*0.26,S*0.60]], S*0.13, '#ffe6a8');
+    ln([[c-S*0.26,S*0.86],[c,S*0.52],[c+S*0.26,S*0.86]], S*0.11, 'rgba(255,230,168,.55)');
+  } else if(kind==='deb'){                // a descending chevron
+    ln([[c-S*0.26,S*0.34],[c,S*0.68],[c+S*0.26,S*0.34]], S*0.13, '#dfc4ff');
+    ln([[c-S*0.26,S*0.14],[c,S*0.48],[c+S*0.26,S*0.14]], S*0.11, 'rgba(223,196,255,.5)');
+  } else {                                // unknown — a small eight-point star
+    for(let i=0;i<8;i++){
+      const a=i/8*6.2832;
+      ln([[c,c],[c+Math.cos(a)*S*0.36, c+Math.sin(a)*S*0.36]], S*0.09, '#f3e6cd');
+    }
+  }
+  return cv;
+};

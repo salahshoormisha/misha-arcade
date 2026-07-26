@@ -78,32 +78,45 @@ paintHand = function(){
   _paintHand_gfx();
   const host = document.querySelector('#hand'); if(!host) return;
   const n = G.hand.length; if(!n) return;
+  // below 700 px the stylesheet turns the hand into a horizontal scroll-snap
+  // strip, which is the better design on a phone — leave it entirely alone
+  if((innerWidth||900) < 700){ dealIn(host); return; }
   const cardW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 136;
-  const avail = Math.max(240, host.clientWidth - 10);
-  // how wide would the fan be at full size with a civilised 14px overlap?
-  const want = n*cardW - (n-1)*14;
-  const scale = Math.max(0.62, Math.min(1, avail/want));
-  const overlap = 14;
+  // measure the track we are actually allowed, not the one the cards claim
+  const track = Math.min(host.clientWidth || 0, (innerWidth||900)) ;
+  const avail = Math.max(220, track - 12);
+  // on a phone the fan has to give more, or five cards simply will not fit
+  const tight = (innerWidth||900) < 700;
+  const overlap = tight ? 24 : 14;
+  const want = n*cardW - (n-1)*overlap;
+  const scale = Math.max(tight ? 0.46 : 0.62, Math.min(1, avail/want));
   host.style.setProperty('--fan-scale', scale.toFixed(3));
   [...host.children].forEach((e,i)=>{
     const off = i-(n-1)/2;
     const stepDeg = Math.min(2.6, 13/Math.max(1,n));
     const lift = Math.min(13, 54/Math.max(1,n));
     const y = (Math.abs(off)-(n-1)/2)*lift*0.5;
-    e.style.margin = `0 -${overlap/2}px`;
+    // scale() is visual only — the card still occupies its full width in the
+    // layout, so the margin has to swallow both the overlap AND the shrinkage,
+    // or the fan lays out 576 px wide on a 375 px phone and runs off both edges
+    const eat = (cardW*(1-scale) + overlap) / 2;
+    e.style.margin = `0 -${eat.toFixed(2)}px`;
     e.style.setProperty('--base-tf', `rotate(${(off*stepDeg).toFixed(2)}deg) translateY(${y.toFixed(1)}px) scale(${scale.toFixed(3)})`);
     e.style.transform = e.style.getPropertyValue('--base-tf');
   });
-  // stagger the cards in, so a new hand deals rather than appears
-  if(host.dataset.turn !== String(G.turn)){
-    host.dataset.turn = String(G.turn);
-    [...host.children].forEach((e,i)=>{
-      e.classList.add('dealing');
-      e.style.animationDelay = (i*52)+'ms';
-      setTimeout(()=>e.classList.remove('dealing'), 700+i*52);
-    });
-  }
+  dealIn(host);
 };
+
+/* a new hand should deal, not appear */
+function dealIn(host){
+  if(host.dataset.turn === String(G.turn)) return;
+  host.dataset.turn = String(G.turn);
+  [...host.children].forEach((e,i)=>{
+    e.classList.add('dealing');
+    e.style.animationDelay = (i*52)+'ms';
+    setTimeout(()=>e.classList.remove('dealing'), 700+i*52);
+  });
+}
 
 /* ═══════════ 5. LIVING BACKGROUND ═══════════
    A still screen reads as a mockup. */
