@@ -549,7 +549,13 @@
     var c = A.card(dayN), rs = A.runStreak();
     var played = (A.registry || []).filter(function (g) { return c.results[g.id]; });
 
-    var W = 1080, H = 1080, PAD = 84;
+    // Height follows the content: a six-game day should not ship with 400px of
+    // empty canvas under it.
+    var W = 1080, PAD = 84, rowH = 62, maxRows = 9;
+    var nRows = Math.min(played.length, maxRows);
+    var H = PAD + 356 + nRows * rowH + (played.length > maxRows ? 44 : 0) + 40 + 52 + PAD;
+    if (!played.length) H = PAD + 356 + 80 + 52 + PAD;
+    H = Math.max(720, Math.round(H));
     var cv = document.createElement("canvas");
     cv.width = W; cv.height = H;
     var g = cv.getContext("2d");
@@ -595,7 +601,7 @@
     g.fillText(sub, PAD, PAD + 300);
 
     // rows
-    var y = PAD + 356, rowH = 62, maxRows = 9;
+    var y = PAD + 356;
     var show = played.slice(0, maxRows);
     show.forEach(function (gm) {
       var r = c.results[gm.id];
