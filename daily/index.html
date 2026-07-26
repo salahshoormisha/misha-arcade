@@ -160,6 +160,7 @@
       "</div>" +
       '<div class="actions">' +
       '<button class="ac-btn sm" id="shareCard">Share card</button>' +
+      '<button class="ac-btn ghost sm" id="shareImg">Share as image</button>' +
       '<a class="ac-btn ghost sm" href="../league/">Misha v David</a>' +
       '<a class="ac-btn ghost sm" href="../passport/">Passport</a>' +
       "</div></div></div>";
@@ -210,6 +211,13 @@
     if (sc) sc.onclick = function () {
       if (!card.played) return A.toast("Play something first", true);
       A.share(A.runCard(dayN));
+    };
+    var si = document.getElementById("shareImg");
+    if (si) si.onclick = function () {
+      if (!card.played) return A.toast("Play something first", true);
+      si.disabled = true;
+      A.shareCardImage(dayN).then(function () { si.disabled = false; },
+                                  function () { si.disabled = false; });
     };
   }
 
