@@ -422,10 +422,12 @@ def harvest_place():
                 rej[why] += 1
                 continue
             out[e["id"]] = e
-            per_country[iso2] += 1
+            room[iso2] += 1
             picked += 1
-        print("  %-28s %-3s cand=%-3d kept=%d  (total %d, %d countries)" %
-              (label[:28], iso2, len(pages), picked, len(out), len(per_country)))
+        print("  %-28s %-3s %s cand=%-3d kept=%d  (total %d, %d countries, %d landmarks)" %
+              (label[:28], iso2, tag, len(pages), picked, len(out),
+               len({e["iso2"] for e in out.values()}),
+               sum(1 for e in out.values() if e.get("easy"))))
         L.write_json(PLACE_OUT, sorted(out.values(), key=lambda e: e["id"]))
         save_dims()
         L.save_head_cache()
