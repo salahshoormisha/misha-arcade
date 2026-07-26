@@ -1056,3 +1056,110 @@ body.tutoring .rb-menu, body.tutoring .helpbtn{ opacity:.25; pointer-events:none
   color:var(--parch-2); margin-bottom:10px; }
 .ar-end .dim{ font-size:12.5px; color:rgba(243,230,205,.5); }
 @media (max-width:560px){ .ar-lifebar{ width:110px } .ar-big{ font-size:46px } .ar-open h2{ font-size:23px } }
+
+/* ═══════════════════════════════════════════════════════════════
+   THE ROAD — v3 map screen
+   ═══════════════════════════════════════════════════════════════ */
+.roadstrip{ position:relative; margin:14px auto 22px; width:fit-content; }
+.roadcv{ display:block; }
+.station{ position:absolute; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center; gap:4px; }
+.station canvas{ display:block; filter:drop-shadow(0 3px 9px rgba(0,0,0,.55)); }
+.stdot{ width:11px; height:11px; border-radius:50%; background:rgba(224,169,46,.28);
+  border:1px solid rgba(224,169,46,.5); }
+.stdone{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(224,169,46,.16); border:1px solid rgba(224,169,46,.45);
+  color:var(--gold); font-size:13px; }
+.stlab{ font-family:var(--ui); font-size:8.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(243,230,205,.42); white-space:nowrap; }
+.station.now .stlab{ color:var(--gold-l); }
+.station.now canvas{ filter:drop-shadow(0 0 14px rgba(224,169,46,.7)); animation:youare 2.4s ease-in-out infinite; }
+@keyframes youare{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-4px) } }
+.station.bossst canvas{ filter:drop-shadow(0 0 12px rgba(201,65,43,.5)); }
+.station.done{ opacity:.55; }
+
+.nhint{ margin-top:9px; font-family:var(--ui); font-size:11px; letter-spacing:.02em;
+  color:rgba(224,169,46,.8); }
+.ttext.clipped{ }
+.ttmore{ display:block; margin:6px auto 0; background:none; border:none; cursor:pointer;
+  font-family:var(--ui); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:rgba(224,169,46,.65); }
+.ttmore:hover{ color:var(--gold-l); text-decoration:underline; }
+.rb-sig{ display:inline-flex; align-items:center; gap:5px; }
+.rb-sig canvas{ display:block; }
+.rbnum{ font-variant-numeric:tabular-nums; }
+
+/* ═══════════ COMPOSITION — stop everything hugging the top ═══════════ */
+.scr{ min-height:calc(100vh - 4px); display:flex; flex-direction:column; }
+.scr.map, .scr.node-scr, .scr.select, .scr.end{ justify-content:flex-start; }
+.scr.map > .nodes, .scr.node-scr > .choices{ margin-top:auto; margin-bottom:auto; }
+.scr.title{ justify-content:center; }
+
+/* road v2 refinements */
+.roadstrip{ margin:8px auto 20px; }
+.stme{ width:58px; height:58px; border-radius:50%; display:grid; place-items:center;
+  background:radial-gradient(circle at 40% 34%, rgba(29,37,80,.95), rgba(20,26,60,.95));
+  border:2px solid var(--gold); box-shadow:0 0 0 3px rgba(224,169,46,.16), 0 0 20px rgba(224,169,46,.5); }
+.stme canvas{ border-radius:6px; }
+.station.now .stme{ animation:youare 2.4s ease-in-out infinite; }
+.station.now canvas{ filter:none; animation:none; }
+.station .stlab{ max-width:120px; text-align:center; white-space:normal; }
+.station:not(.now):not(.bossst) .stlab{ opacity:.5; }
+.nhint{ margin-top:10px; padding-top:9px; border-top:1px solid rgba(224,169,46,.16);
+  font-family:var(--ui); font-size:11.5px; letter-spacing:.01em; color:rgba(243,230,205,.6); }
+.nhint b{ color:var(--gold-l); font-weight:600; }
+.trialhead{ padding-top:14px !important; padding-bottom:14px !important; }
+.ttext{ max-width:66ch; margin-left:auto; margin-right:auto; }
+
+/* run bar, de-emojified */
+.rb-talsig{ display:inline-flex; align-items:center; gap:5px; cursor:help;
+  padding:3px 9px; border-radius:20px; background:rgba(46,156,156,.12);
+  border:1px solid rgba(95,208,204,.3); }
+.rb-talsig:hover{ background:rgba(46,156,156,.24); }
+.rbdeck{ display:inline-block; width:11px; height:15px; border-radius:2px;
+  background:linear-gradient(160deg,#f3e6cd,#c9b48a); border:1px solid #9a6f14;
+  box-shadow:2px -2px 0 -1px #c9b48a, 4px -4px 0 -2px #9a8256; margin-right:6px; }
+#tip hr{ border:none; border-top:1px solid rgba(224,169,46,.22); margin:7px 0; }
+
+/* the map, tightened so the two choices are on screen */
+.trialhead{ padding-top:10px !important; padding-bottom:10px !important; }
+.trialhead .ttext{ margin-top:6px; font-size:13.5px; line-height:1.55; }
+.trialhead .tname{ margin:2px 0; }
+.roadstrip{ margin:2px auto 14px; }
+.scr.map .nodes{ margin-top:0; }
+
+/* ═══════════ THE CREATURE DOOR — gist, mechanics, then the story ═══════════ */
+.lore-modal.creature{ max-width:min(560px, 93vw); }
+.lore-modal.creature canvas{ display:block; margin:0 auto 6px; }
+.gist{ font-family:var(--serif); font-size:15.5px; line-height:1.55; color:var(--parch);
+  text-align:center; max-width:44ch; margin:8px auto 16px; }
+
+.dossier{ text-align:left; border-radius:10px; padding:13px 16px 12px; margin:0 0 14px;
+  background:rgba(4,7,26,.5); border:1px solid rgba(224,169,46,.2); }
+.dosslab{ font-family:var(--ui); font-size:9.5px; letter-spacing:.2em; color:rgba(224,169,46,.75);
+  margin-bottom:9px; }
+.dosshp{ display:inline-flex; align-items:baseline; gap:6px; margin-bottom:9px; }
+.dosshp b{ font-family:var(--serif); font-size:23px; color:var(--pom); line-height:1; }
+.dosshp span{ font-family:var(--ui); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:rgba(243,230,205,.5); }
+.dosslist{ display:flex; flex-direction:column; gap:6px; }
+.dossrow{ display:flex; gap:10px; align-items:baseline; font-size:13px; line-height:1.45; }
+.dossrow b{ flex:0 0 38%; font-family:var(--ui); font-size:11px; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--gold-l); font-weight:600; }
+.dossrow span{ flex:1; color:var(--parch-2); font-family:var(--serif); }
+.dossrow span b{ all:unset; color:var(--gold-l); font-weight:700; }
+.dossmech{ margin-top:10px; padding-top:9px; border-top:1px solid rgba(224,169,46,.18);
+  font-family:var(--serif); font-size:13px; line-height:1.5; color:#ffd6c8; }
+.dossnote{ margin-top:9px; font-family:var(--ui); font-size:10.5px; line-height:1.4;
+  color:rgba(243,230,205,.4); }
+
+.storyfold{ text-align:left; margin:0 0 16px; }
+.storybtn{ background:none; border:none; cursor:pointer; padding:4px 0;
+  font-family:var(--ui); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(224,169,46,.72); }
+.storybtn i{ font-style:normal; font-size:9px; }
+.storybtn:hover{ color:var(--gold-l); }
+.storybody{ max-height:0; overflow:hidden; opacity:0;
+  transition:max-height .45s cubic-bezier(.22,.9,.3,1), opacity .35s, margin .35s;
+  font-family:var(--serif); font-size:13.5px; line-height:1.66; color:var(--parch-2); margin:0; }
+.storyfold.open .storybody{ max-height:520px; opacity:1; margin-top:9px; }

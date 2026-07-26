@@ -101,7 +101,7 @@ void main(){
   vec3 L = normalize(vec3(0.42, 0.78, 0.32));       // low dawn sun, from behind the shot
   vLight = max(dot(normalize(aNorm), L), 0.0);
   float d = length(aPos - uEye);
-  vFog = clamp((d - 420.0) / 1250.0, 0.0, 1.0);
+  vFog = clamp((d - 180.0) / 780.0, 0.0, 1.0);
   vH = aPos.y;
 }`;
 
@@ -117,10 +117,41 @@ void main(){
   vec3 lit   = mix(rock, vec3(0.88,0.68,0.30), vLight*vLight*0.75);
   float snow = smoothstep(78.0, 132.0, vH) * smoothstep(0.24, 0.8, vLight);
   vec3 col   = mix(lit, vec3(0.95,0.93,0.86), snow);
+  // rim: the grazing edge of a crest against a low sun goes white-hot
+  float rim  = pow(smoothstep(0.55, 1.0, vLight), 3.0);
+  col += vec3(1.0, 0.86, 0.58) * rim * 0.42;
   // a faint contour banding, like a hand-drawn map
   float band = smoothstep(0.42, 0.5, fract(vH*0.09));
   col *= 1.0 - band*0.06;
   gl_FragColor = vec4(mix(col, uFog, vFog), 1.0);
+}`;
+
+/* the sky is a full-screen quad drawn first, with depth writing off */
+const SKYVS = `
+attribute vec2 aXY;
+varying vec2 vUV;
+void main(){ vUV = aXY*0.5 + 0.5; gl_Position = vec4(aXY, 0.999, 1.0); }`;
+const SKYFS = `
+precision mediump float;
+varying vec2 vUV;
+uniform float uSunX;
+void main(){
+  float y = vUV.y;
+  // dawn over the Alborz: deep lapis at the top, saffron at the horizon
+  vec3 top  = vec3(0.045, 0.045, 0.185);
+  vec3 mid  = vec3(0.21, 0.14, 0.36);
+  vec3 low  = vec3(0.78, 0.44, 0.28);
+  vec3 col = mix(mid, top, smoothstep(0.52, 1.0, y));
+  col = mix(low, col, smoothstep(0.30, 0.72, y));
+  // the sun, clear of the ridgeline, low and enormous the way a dawn sun is
+  vec2 sun = vec2(uSunX, 0.545);
+  float d = length((vUV - sun) * vec2(1.75, 1.0));
+  col += vec3(1.0, 0.78, 0.42) * smoothstep(0.42, 0.0, d) * 0.62;
+  col += vec3(1.0, 0.93, 0.74) * smoothstep(0.062, 0.0, d) * 1.7;
+  // a few stars still out at the top
+  float st = step(0.9993, fract(sin(dot(floor(vUV*vec2(420.0,260.0)), vec2(12.99,78.23)))*43758.55));
+  col += vec3(0.9,0.92,1.0) * st * smoothstep(0.62, 1.0, y) * 0.5;
+  gl_FragColor = vec4(col, 1.0);
 }`;
 
 const LVS = `
@@ -154,7 +185,7 @@ function program(gl, vs, fs){
 }
 
 /* ═══════════ the game ═══════════ */
-let gl, cv, prog, lprog, host, raf = 0, running = false;
+let gl, cv, prog, lprog, skyprog, skyVBO, host, raf = 0, running = false;
 let terrainVBO, terrainNBO, terrainIBO, terrainCount = 0, tileZ = 0;
 let trailVBO, trailABO;
 const TILE = 760;          // world units per generated strip
@@ -262,9 +293,19 @@ function frame(now){
   if(!cv.width || !cv.height) size();
   const w = cv.width, h = cv.height;
   gl.viewport(0,0,w,h);
-  const dawn = [0.13, 0.10, 0.30];
+  const dawn = [0.44, 0.26, 0.31];          // what the fog fades into, matched to the sky at the ridgeline
   gl.clearColor(dawn[0], dawn[1], dawn[2], 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // sky first, behind everything, with depth off
+  gl.disable(gl.DEPTH_TEST);
+  gl.useProgram(skyprog);
+  gl.uniform1f(gl.getUniformLocation(skyprog,'uSunX'), 0.5 - A.x/900);
+  const sxy = gl.getAttribLocation(skyprog,'aXY');
+  gl.bindBuffer(gl.ARRAY_BUFFER, skyVBO);
+  gl.enableVertexAttribArray(sxy); gl.vertexAttribPointer(sxy,2,gl.FLOAT,false,0,0);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.disableVertexAttribArray(sxy);
   gl.enable(gl.DEPTH_TEST);
 
   const eye = [A.x*0.70, A.y + 26, A.z - 132];
@@ -418,8 +459,9 @@ function play(khan, done){
   }
 
   try{
-    prog  = program(gl, VS, FS);
-    lprog = program(gl, LVS, LFS);
+    prog    = program(gl, VS, FS);
+    lprog   = program(gl, LVS, LFS);
+    skyprog = program(gl, SKYVS, SKYFS);
   }catch(e){
     host.remove();
     if(typeof toast!=='undefined') toast('3D failed to start. Skipping.');
@@ -428,6 +470,9 @@ function play(khan, done){
 
   terrainVBO = gl.createBuffer(); terrainNBO = gl.createBuffer(); terrainIBO = gl.createBuffer();
   trailVBO = gl.createBuffer(); trailABO = gl.createBuffer();
+  skyVBO = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, skyVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
 
   noise = mkNoise((R && R.seed) ? (R.seed & 0xffff) : 1387);
   reset(khan);
