@@ -271,12 +271,36 @@ def wildcard_parts(name):
     return pre, post
 
 
-def detect(boards, words):
+def load_declared():
+    """Authored `traps` from _build/conn_*.py, keyed by the board's 16-tile
+    signature so no pack/board mapping has to be trusted. Missing modules are
+    fine — the detectors carry the check on their own."""
+    out = {}
+    for fn in sorted(os.listdir(HERE)):
+        if not (fn.startswith("conn_") and fn.endswith(".py")):
+            continue
+        ns = {}
+        try:
+            exec(compile(open(os.path.join(HERE, fn), encoding="utf-8").read(),
+                         fn, "exec"), ns)                      # noqa: S102 — our own data
+        except Exception as e:                                  # pragma: no cover
+            print("  ! could not read %s (%s)" % (fn, e))
+            continue
+        for b in ns.get("BOARDS", []):
+            sig = frozenset(tile_key(t) for g in b["groups"] for t in g["tiles"])
+            out[sig] = (fn, b.get("traps", []))
+    return out
+
+
+def detect(boards, words, declared):
     """-> {board_tag: {tile: set(alt_group_index)}}, plus a flat report list."""
     # index for detector B: tile key -> list of (tag, group name)
     elsewhere = {}
+    df = {}
     for pid, tag, b, gs in boards:
         for g in gs:
+            for w in set(words_of(g["name"])):
+                df[w] = df.get(w, 0) + 1
             for t in g["tiles"]:
                 elsewhere.setdefault(tile_key(t), []).append((tag, g["name"]))
 
@@ -285,10 +309,23 @@ def detect(boards, words):
         fits[tag] = {}
         gnames = [g["name"] for g in gs]
         gwords = [set(words_of(n)) for n in gnames]
-        truth = {}
+
+        # D — what the author declared
+        sig = frozenset(tile_key(t) for g in gs for t in g["tiles"])
+        src, traps = declared.get(sig, (None, []))
+        by_key = {}
         for gi, g in enumerate(gs):
             for t in g["tiles"]:
-                truth[t] = gi
+                by_key[tile_key(t)] = (t, gi)
+        for tr in traps:
+            t, alt = tr[0], tr[1]
+            hit = by_key.get(tile_key(t))
+            if hit and 0 <= alt <= 3 and hit[1] != alt:
+                fits[tag].setdefault(hit[0], set()).add(alt)
+                report.append({"board": tag, "title": b.get("title", ""),
+                               "tile": hit[0], "true": gnames[hit[1]],
+                               "true_colour": COLOURS[hit[1]], "also": gnames[alt],
+                               "why": "D:declared in %s — %s" % (src, tr[2] if len(tr) > 2 else "")})
 
         for gi, g in enumerate(gs):
             for gj, other in enumerate(gs):
