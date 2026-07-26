@@ -439,7 +439,7 @@
     var title = won
       ? (guesses.length === 1 ? "ORACLE" : guesses.length === 2 ? "SHARP"
         : guesses.length <= 4 ? "GOT IT" : "JUST IN TIME")
-      : (off !== null && off <= CLOSE ? "SO NEAR" : "TOMORROW, THEN");
+      : (off !== null && off <= CLOSE ? "SO NEAR" : practice ? "MISSED IT" : "TOMORROW, THEN");
 
     return A.results(ID, practice ? A.PRACTICE : day, {
       title: title,
