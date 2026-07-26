@@ -113,7 +113,7 @@
       var oppName = incoming.name || "David";
       var iWin = mine.total > incoming.total, draw = mine.total === incoming.total;
 
-      h += '<h3 class="sec">📬 ' + A.esc(oppName.toUpperCase()) + " SENT DAY " + incoming.day + "</h3>";
+      h += '<h3 class="sec">' + A.esc(oppName.toUpperCase()) + " SENT DAY " + incoming.day + "</h3>";
       h += '<div class="vs">' +
         '<div class="side ' + (iWin ? "win" : draw ? "" : "lose") + '"><b>' + mine.total +
         "</b><span>" + A.esc(myName().toUpperCase()) + "</span></div>" +
@@ -125,7 +125,7 @@
       h += '<p class="center" style="font-size:13px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">' +
         banner + "</p>";
 
-      h += '<h3 class="sec">GAME BY GAME</h3>';
+      h += '<h3 class="sec">Game by game</h3>';
       var both = 0;
       A.registry.forEach(function (g) {
         var a = mine.results[g.id], b = incoming.results[g.id];
@@ -147,15 +147,15 @@
       }
 
       h += '<div class="ac-row" style="margin-top:16px">' +
-        '<button class="ac-btn" id="reply">↩︎ SEND MINE BACK</button>' +
-        '<button class="ac-btn ghost" id="save">💾 SAVE TO SEASON</button></div>';
+        '<button class="ac-btn" id="reply">Send mine back</button>' +
+        '<button class="ac-btn ghost" id="save">Save to season</button></div>';
       h += '<p class="tiny dim center" style="margin-top:8px">Saving records it in the table below. ' +
         "Do it once per day, or you'll double-count yourselves.</p>";
     }
 
     /* ── the season table ──────────────────────────────────────────────── */
     var played = T.days.length;
-    h += '<h3 class="sec">🏆 THE SEASON</h3>';
+    h += '<h3 class="sec">The season</h3>';
     if (!played) {
       h += '<div class="ac-card"><p class="empty">No fixtures yet. Here\'s how it works:</p>' +
         '<ol class="steps"><li>Both of you play some of <a href="../daily/">today\'s games</a> ' +
@@ -193,7 +193,7 @@
       /* ── who's better at what ────────────────────────────────────────── */
       var keys = Object.keys(T.byGame);
       if (keys.length) {
-        h += '<h3 class="sec">⚔️ RIVALRY BY GAME</h3>';
+        h += '<h3 class="sec">Rivalry by game</h3>';
         keys.map(function (k) { return { k: k, v: T.byGame[k] }; })
           .sort(function (a, b) { return (b.v.me + b.v.them + b.v.draw) - (a.v.me + a.v.them + a.v.draw); })
           .forEach(function (row) {
@@ -217,15 +217,15 @@
 
     /* ── the team: you two against your own records ────────────────────── */
     var rec = A.records(), form = A.weekForm(), rs = A.runStreak();
-    h += '<h3 class="sec">🤝 THE TEAM</h3>';
+    h += '<h3 class="sec">The team</h3>';
     h += '<p class="tiny muted" style="margin-bottom:10px">When you play the dailies together — ' +
       "which is most of the time — this is the scoreboard. No opponent, just the two of you " +
       "against the best you've managed.</p>";
     h += '<div class="ac-row">' +
-      '<span class="ac-pill">🔥 RUN <b>' + rs.current + "</b></span>" +
-      '<span class="ac-pill">BEST RUN <b>' + rs.max + "</b></span>" +
+      '<span class="ac-pill">Run <b>' + rs.current + "</b></span>" +
+      '<span class="ac-pill">Best run <b>' + rs.max + "</b></span>" +
       (rec.bestCard !== null
-        ? '<span class="ac-pill">🏅 BEST CARD <b>' + rec.bestCard + "</b> · day " + rec.bestDay + "</span>"
+        ? '<span class="ac-pill">Best card <b>' + rec.bestCard + "</b> · day " + rec.bestDay + "</span>"
         : "") +
       "</div>";
 
@@ -249,7 +249,7 @@
     }).filter(Boolean);
 
     if (chase.length) {
-      h += '<h3 class="sec">🎯 RECORDS TO BEAT</h3>';
+      h += '<h3 class="sec">Records to beat</h3>';
       chase.sort(function (a, b) { return (b.today !== null) - (a.today !== null) || b.best - a.best; });
       chase.forEach(function (r) {
         var beat = r.today !== null && r.today >= r.best;
@@ -270,12 +270,12 @@
 
     /* ── send your card ────────────────────────────────────────────────── */
     var todayCard = A.card(A.dayNumber());
-    h += '<h3 class="sec">📤 TODAY</h3>';
+    h += '<h3 class="sec">Today</h3>';
     h += '<div class="ac-card center"><p class="tiny muted">You\'ve played <b>' + todayCard.played +
       "</b> game" + (todayCard.played === 1 ? "" : "s") + " today for a card of <b>" + todayCard.total +
       '</b>.</p><div class="ac-row" style="margin-top:10px">' +
-      '<button class="ac-btn" id="send">🔗 SEND MY CARD</button>' +
-      '<a class="ac-btn ghost sm" href="../daily/" style="text-decoration:none">PLAY MORE →</a></div></div>';
+      '<button class="ac-btn" id="send">Send my card</button>' +
+      '<a class="ac-btn ghost sm" href="../daily/" style="text-decoration:none">Play more →</a></div></div>';
 
     h += '<footer>the link carries your scores inside it — nothing is uploaded anywhere.<br>' +
       '<a href="../">← back to the arcade</a> · <a href="../daily/">the daily run</a></footer>';

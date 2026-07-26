@@ -64,7 +64,7 @@
 <script src="../core/data/world.js?v=7" onerror="window.__noWorld=1"></script>
 <script>
 (function () {
-  var main = A.mount({ title: "ARCADE PASSPORT", sub: null, wide: true, accent: "--mint",
+  var main = A.mount({ title: "ARCADE PASSPORT", sub: null, wide: true, accent: "--violet",
     help: "<p>Every country you correctly name in <b>FLAGLE</b>, <b>TRADLE</b>, <b>GLOBLE</b>, " +
       "<b>OUTLINE</b>, <b>GEOGRID</b>, <b>FOODGUESSR</b>, <b>CLUEDROP</b>, <b>LINGUAGUESSR</b>, " +
       "<b>PICK 5</b> or the <b>PICTURE HOUSE</b> gets stamped in here — once, forever.</p>" +
@@ -93,7 +93,7 @@
       "map: Natural Earth (public domain)</p>";
 
     // continent progress
-    h += '<h3 class="sec">🌍 BY REGION</h3><div class="cont">';
+    h += '<h3 class="sec">By region</h3><div class="cont">';
     var regions = {};
     sovereign.forEach(function (c) {
       var r = c.reg || "Other";
@@ -109,7 +109,7 @@
     h += "</div>";
 
     // the wall
-    h += '<h3 class="sec">🏳️ THE WALL</h3>' +
+    h += '<h3 class="sec">The wall</h3>' +
       '<div class="seg"><span class="ac-seg">' +
       '<button class="' + (mode === "have" ? "on" : "") + '" data-m="have">COLLECTED</button>' +
       '<button class="' + (mode === "missing" ? "on" : "") + '" data-m="missing">MISSING</button>' +
@@ -117,7 +117,7 @@
       '<div class="wall" id="wall"></div>';
 
     // most wanted — with a route to getting them
-    h += '<h3 class="sec">🎯 MOST WANTED</h3>';
+    h += '<h3 class="sec">Most wanted</h3>';
     var missing = sovereign.filter(function (c) { return !pass[c.i]; });
     if (!missing.length) {
       h += '<p class="center" style="color:var(--gold);font-size:13px">Every single one. ' +
