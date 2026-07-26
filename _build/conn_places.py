@@ -181,4 +181,168 @@ BOARDS = [
  "epilogue": "The hardest board in the pack: three tiles are pointing at the punishment group and the punishment group is full. FLEET and TYBURN are water before they are gallows, and NEWGATE is a prison before it is a postcode — the rivers only resolve because a river group of two is not a group.",
 },
 
+# ────────────────────────────────── EDINBURGH ────────────────────────────────
+
+{
+ "title": "Auld Reekie",
+ "diff": 2,
+ "groups": [
+   {"name": "HILLS IN EDINBURGH", "tiles": ["ARTHUR'S SEAT", "CALTON HILL", "BLACKFORD HILL", "CORSTORPHINE"],
+    "note": "Arthur's Seat is the plug of a volcano that stopped erupting about 340 million years ago and is now climbed by people in office shoes on their lunch break."},
+   {"name": "CLOSES OFF THE ROYAL MILE", "tiles": ["MARY KING'S", "ADVOCATE'S", "ANCHOR", "WORLD'S END"],
+    "note": "Mary King's Close was built over, not demolished, so it is still down there under the City Chambers. World's End sat at the old city wall — beyond it you were nobody's problem."},
+   {"name": "EDINBURGH FESTIVALS", "tiles": ["FRINGE", "HOGMANAY", "BELTANE", "THE TATTOO"],
+    "note": "The Fringe began in 1947 as eight companies who were not invited to the official festival and turned up anyway. Beltane is a fire ceremony revived in 1988 on Calton Hill."},
+   {"name": "SCOTS WORDS FOR A LANE", "tiles": ["WYND", "BRAE", "PEND", "VENNEL"],
+    "note": "A wynd is a narrow through-route, a brae is a slope, a pend is an arched passage under a building, and a vennel runs between two buildings."},
+ ],
+ "traps": [
+   ["CALTON HILL", 2, "Beltane happens on Calton Hill and the Hogmanay torchlight procession ends there — two of the festivals in the blue group are literally held on this tile."],
+ ],
+ "epilogue": "CLOSE is deliberately not on this board: it is both a Royal Mile close and the fifth Scots word for a lane, and one tile cannot sit in two groups. FRINGE, HOGMANAY, BELTANE and THE TATTOO are already four festivals, so Calton Hill stays geology.",
+},
+
+{
+ "title": "The Shore",
+ "diff": 3,
+ "groups": [
+   {"name": "LEITH LANDMARKS", "tiles": ["THE SHORE", "LEITH WALK", "OCEAN TERMINAL", "BRITANNIA"],
+    "note": "The royal yacht has been moored at Ocean Terminal since 1998, which means Leith's biggest tourist attraction is a decommissioned boat with the Queen's writing desk on it."},
+   {"name": "WATER IN EDINBURGH", "tiles": ["WATER OF LEITH", "UNION CANAL", "THE FORTH", "DUDDINGSTON"],
+    "note": "The Water of Leith runs 35 km from the Pentlands to the docks; the Union Canal ends in the middle of Fountainbridge and once carried coal to Glasgow."},
+   {"name": "TRAINSPOTTING CHARACTERS", "tiles": ["RENTON", "SICK BOY", "SPUD", "BEGBIE"],
+    "note": "Irvine Welsh set it in Leith when Leith was the poorest part of the city. The opening monologue was filmed on Princes Street and the rest mostly in Glasgow."},
+   {"name": "SCOTS WEATHER WORDS", "tiles": ["DREICH", "HAAR", "SMIRR", "SNELL"],
+    "note": "Dreich is grey and endless, haar is the cold sea fog that swallows the city from the east, smirr is rain too fine to bother with a hood for, and snell is a wind with an edge."},
+ ],
+ "traps": [
+   ["WATER OF LEITH", 0, "The Water of Leith gives Leith its name and runs through everything in the yellow group. It is a Leith landmark by any reasonable reading."],
+   ["HAAR", 1, "The haar comes off the Forth and is made of it — sea fog is water, and this board has a water group."],
+ ],
+ "epilogue": "Both double-fits lose to the same arithmetic: THE SHORE, LEITH WALK, OCEAN TERMINAL and BRITANNIA are four Leith landmarks with no vacancy, and DREICH, SMIRR and SNELL need a fourth kind of weather. The haar is the most Edinburgh thing on the board and it still has to stay in its box.",
+},
+
+{
+ "title": "Marchmont",
+ "diff": 3,
+ "groups": [
+   {"name": "EDINBURGH STUDENT DISTRICTS", "tiles": ["MARCHMONT", "TOLLCROSS", "NEWINGTON", "BRUNTSFIELD"],
+    "note": "Marchmont is four storeys of Victorian tenement flats let almost entirely to twenty-two-year-olds, and its bins are a reliable September indicator of the academic calendar."},
+   {"name": "FEATURES OF A TENEMENT FLAT", "tiles": ["THE STAIR", "DRYING GREEN", "BOX ROOM", "BAY WINDOW"],
+    "note": "The stair is the shared stone staircase and also the social unit — a stair has a rota, a smell, and opinions. The drying green is the communal grass nobody's washing ever dries on."},
+   {"name": "EDINBURGH PUBS AND VENUES", "tiles": ["SANDY BELL'S", "THE PEAR TREE", "SNEAKY PETE'S", "BONGO CLUB"],
+    "note": "Sandy Bell's has had live traditional music nightly since the 1940s; Sneaky Pete's holds about a hundred people and books bands two years before anyone has heard of them."},
+   {"name": "SCOTS FOR EVERYDAY THINGS", "tiles": ["MESSAGES", "BAIRN", "KEN", "GREET"],
+    "note": "Messages are the groceries, a bairn is a child, ken is know, and to greet is to cry — which is why 'the bairn's greeting' is a sentence and not a riddle."},
+ ],
+ "traps": [
+   ["TOLLCROSS", 2, "Tollcross is the theatre district — the King's, the Cameo, the Traverse round the corner — so on a board with venues it reads as somewhere you go out rather than somewhere you live."],
+   ["THE PEAR TREE", 1, "The Pear Tree's whole reputation is its beer garden, which is the closest thing central Edinburgh has to a drying green with a licence."],
+ ],
+ "epilogue": "This is the six-years board: a flat, a bin rota, a walk to the pub and four words you only started using because everyone around you did. SANDY BELL'S, SNEAKY PETE'S and BONGO CLUB are three venues that need a fourth, and MARCHMONT, NEWINGTON and BRUNTSFIELD are three addresses that need one too — TOLLCROSS is an address, and the Pear Tree pours pints.",
+},
+
+{
+ "title": "The Athens of the North",
+ "diff": 5,
+ "groups": [
+   {"name": "WRITERS FROM EDINBURGH", "tiles": ["STEVENSON", "MURIEL SPARK", "IAN RANKIN", "CONAN DOYLE"],
+    "note": "Conan Doyle built Sherlock Holmes out of Joseph Bell, an Edinburgh surgeon who diagnosed strangers for teaching purposes. Rankin's Rebus drinks in the Oxford Bar, which is a real pub."},
+   {"name": "THE SCOTTISH ENLIGHTENMENT", "tiles": ["HUME", "ADAM SMITH", "JOSEPH BLACK", "HUTTON"],
+    "note": "Hume, Smith, Black and Hutton all knew each other, drank in the same Old Town taverns, and between them produced modern philosophy, economics, chemistry and geology in about forty years."},
+   {"name": "MONUMENTS ON THE SKYLINE", "tiles": ["NELSON", "DUGALD STEWART", "THE DISGRACE", "SCOTT MONUMENT"],
+    "note": "The Dugald Stewart is the little colonnade in every photograph of the city. The National Monument was left unfinished for lack of money and has been called Edinburgh's Disgrace ever since."},
+   {"name": "WORDS FROM SCOTS LAW", "tiles": ["PROCURATOR", "SHERIFF", "ADVOCATE", "NOT PROVEN"],
+    "note": "Scotland kept its own legal system in 1707. It has three verdicts, not two, and 'not proven' has the same effect as an acquittal and a completely different flavour."},
+ ],
+ "traps": [
+   ["DUGALD STEWART", 1, "Dugald Stewart was a professor of moral philosophy and the man who taught the Enlightenment to the next century. The monument is on Calton Hill; the philosopher belongs in the group above."],
+   ["SCOTT MONUMENT", 0, "It is a two-hundred-foot Gothic rocket built for a novelist, on a board with a group of Edinburgh novelists. It is still a monument."],
+   ["HUME", 2, "There is a statue of Hume on the Royal Mile with a shiny toe, and a tower named after him. The man came first."],
+ ],
+ "epilogue": "The hardest board in the pack, and every trap points the same way: three tiles are monuments to the people in another group. STEVENSON, MURIEL SPARK, IAN RANKIN and CONAN DOYLE are four writers with no room for a spire, and PROCURATOR, SHERIFF, ADVOCATE and NOT PROVEN are four legal words that cannot be anything else — so start at the law and work backwards.",
+},
+
+# ─────────────────────────────────── HOUSTON ─────────────────────────────────
+
+{
+ "title": "Inside the Loop",
+ "diff": 2,
+ "groups": [
+   {"name": "HOUSTON BAYOUS", "tiles": ["BUFFALO", "BRAYS", "WHITE OAK", "SIMS"],
+    "note": "The city was founded at the head of navigation on Buffalo Bayou, which is the only reason it is where it is. There are about 2,500 miles of the things inside the county."},
+   {"name": "HOUSTON NEIGHBOURHOODS", "tiles": ["MONTROSE", "THE HEIGHTS", "THIRD WARD", "RIVER OAKS"],
+    "note": "The wards were the original political divisions and the Third Ward is the historic heart of Black Houston. The Heights was a separate city until 1918 and is still dry in places."},
+   {"name": "HOUSTON FREEWAYS", "tiles": ["KATY FREEWAY", "BELTWAY 8", "THE 610 LOOP", "GULF FREEWAY"],
+    "note": "The Katy Freeway is up to 26 lanes wide, which makes it the widest motorway in the world and, according to every study of it, no faster than before."},
+   {"name": "NICKNAMES FOR HOUSTON", "tiles": ["SPACE CITY", "H-TOWN", "CLUTCH CITY", "BAYOU CITY"],
+    "note": "Clutch City was a newspaper's apology: the paper had run 'Choke City' during the 1994 play-offs and the Rockets went on to win the title."},
+ ],
+ "traps": [
+   ["BAYOU CITY", 0, "The nickname is built out of the yellow group. Buffalo, Brays, White Oak and Sims are why anybody calls it that."],
+   ["THE 610 LOOP", 3, "'Inside the Loop' and 'outside the Loop' are how Houstonians describe people, not roads — the 610 is a piece of identity with a number on it."],
+ ],
+ "epilogue": "Every group here is a way of saying where you are from. BUFFALO, BRAYS, WHITE OAK and SIMS are four bayous and cannot spare one for the nickname, and SPACE CITY, H-TOWN and CLUTCH CITY need a fourth — so the Loop stays tarmac and Bayou City stays a nickname.",
+},
+
+{
+ "title": "Y'all Means All",
+ "diff": 3,
+ "groups": [
+   {"name": "TEX-MEX ON THE TABLE", "tiles": ["QUESO", "FAJITAS", "MIGAS", "BREAKFAST TACO"],
+    "note": "Fajitas were popularised at Ninfa's on Navigation in 1973 from a cut nobody wanted, and the breakfast taco is a load-bearing part of the Houston working day."},
+   {"name": "HOUSTON FOOD INSTITUTIONS", "tiles": ["WHATABURGER", "SHIPLEY'S", "FRENCHY'S", "NINFA'S"],
+    "note": "Frenchy's Creole fried chicken has fed the Third Ward since 1969 and the Astros' clubhouse for most of that; Shipley's does not glaze a doughnut, it lacquers one."},
+   {"name": "THE VOCABULARY OF BRISKET", "tiles": ["THE BARK", "SMOKE RING", "MOIST OR LEAN", "BUTCHER PAPER"],
+    "note": "You are asked moist or lean, never fatty or dry. The pink smoke ring is a chemical reaction about a centimetre deep and proves nothing, which does not stop anyone measuring it."},
+   {"name": "BOUGHT AT A TEXAS GAS STATION", "tiles": ["KOLACHE", "BUC-EE'S", "BIG RED", "BEEF JERKY"],
+    "note": "The kolache is Czech, brought by 19th-century settlers to central Texas, and has been quietly filled with sausage. Big Red tastes like liquid bubblegum and is beloved without apology."},
+ ],
+ "traps": [
+   ["BUC-EE'S", 1, "Buc-ee's is as Texan an institution as anything in the green group and people plan drives around it. It is still, technically, a petrol station."],
+   ["KOLACHE", 0, "A sausage kolache is a breakfast handheld sold three feet from the breakfast tacos, and half of Houston treats the two as interchangeable."],
+ ],
+ "epilogue": "Two tiles are trying to get into the institutions group and it is full: WHATABURGER, SHIPLEY'S, FRENCHY'S and NINFA'S are four places with names on the door. The Viet-Cajun crawfish boil is the one great Houston hybrid this board could not fit, which is what an epilogue is for.",
+},
+
+{
+ "title": "Mission Control",
+ "diff": 3,
+ "groups": [
+   {"name": "HOUSTON SPORTING LEGENDS", "tiles": ["HAKEEM", "BIGGIO", "EARL CAMPBELL", "SIMONE BILES"],
+    "note": "Hakeem Olajuwon arrived from Lagos via the University of Houston and never left; Biles trains north of the city and is the most decorated gymnast in history."},
+   {"name": "HOUSTON RAP", "tiles": ["DJ SCREW", "UGK", "GETO BOYS", "PAUL WALL"],
+    "note": "DJ Screw slowed records to a crawl on mixtapes sold out of a house in South Park, and thirty years later half of American rap is still moving at his tempo."},
+   {"name": "MISSION CONTROL VOCABULARY", "tiles": ["NOMINAL", "GO/NO-GO", "THE TRENCH", "CAPCOM"],
+    "note": "'Nominal' means exactly as predicted. The Trench is the front row of consoles that flies the vehicle, and CAPCOM is the one astronaut allowed to talk to the crew."},
+   {"name": "HOUSTON CAR CULTURE", "tiles": ["SLAB", "SWANGAS", "CANDY PAINT", "CHOPPED"],
+    "note": "SLAB is Slow, Loud And Bangin'. Swangas are the wire rims that stick out a foot, candy paint is the deep lacquer, and the boot is open so you can hear what is in it."},
+ ],
+ "traps": [
+   ["THE TRENCH", 0, "American football calls the line of scrimmage the trench, and this board opens with a Houston sports group. In Building 30 it means the front row of flight controllers."],
+   ["CHOPPED", 1, "'Chopped and screwed' is DJ Screw's technique and his name is in the phrase — the word belongs to the music as much as to the cars it is played in."],
+ ],
+ "epilogue": "Four completely different Houstons on one board — the arena, the mixtape, the console and the parking lot — and they overlap because the city does. HAKEEM, BIGGIO, EARL CAMPBELL and SIMONE BILES are four people, DJ SCREW, UGK, GETO BOYS and PAUL WALL are four acts, and that closes both doors.",
+},
+
+{
+ "title": "No Zoning",
+ "diff": 4,
+ "groups": [
+   {"name": "HOUSTON ART AND ODDITIES", "tiles": ["THE MENIL", "ROTHKO CHAPEL", "BEER CAN HOUSE", "ORANGE SHOW"],
+    "note": "The Menil is free, always has been, and Renzo Piano lit it with the roof. The Beer Can House is clad in about 50,000 flattened cans by a retired upholsterer with time on his hands."},
+   {"name": "HURRICANES AND STORMS THAT HIT", "tiles": ["HARVEY", "IKE", "ALLISON", "RITA"],
+    "note": "Harvey dropped more than 60 inches of rain in 2017, the most from any storm in US history. Allison was only a tropical storm and still flooded the Medical Center's basements."},
+   {"name": "HOUSTON SUBURBS", "tiles": ["KATY", "SUGAR LAND", "PEARLAND", "THE WOODLANDS"],
+    "note": "Sugar Land was a company town for Imperial Sugar and The Woodlands is a master-planned forest with 120,000 people in it. Katy is where the freeway got its name."},
+   {"name": "SAID ONLY IN HOUSTON", "tiles": ["FEEDER ROAD", "THE LOOP", "ICEHOUSE", "OZONE DAY"],
+    "note": "A feeder road is the frontage road, an icehouse is an open-air bar that started as somewhere selling cold beer, and an ozone action day is the city asking you not to mow the lawn."},
+ ],
+ "traps": [
+   ["ORANGE SHOW", 3, "The Orange Show is a folk-art monument built over 25 years by a postman who wanted people to eat more oranges. It also sounds exactly like a phrase you would only hear here."],
+   ["KATY", 3, "Nobody in Houston says Katy without meaning the freeway, and 'the Katy' is as local a piece of speech as the feeder road that runs beside it."],
+ ],
+ "epilogue": "A city with no zoning code puts a chapel next to a car park and a suburb inside a hurricane track, which is why this board refuses to sort by type. FEEDER ROAD, THE LOOP, ICEHOUSE and OZONE DAY are already four things nobody says anywhere else, so the Orange Show stays art and Katy stays a suburb.",
+},
+
 ]

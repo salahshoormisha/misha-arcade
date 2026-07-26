@@ -349,10 +349,12 @@
     answer: function () { return answer; },
     guess: function (w) { cur = up(w); submit(); },
     reveal: doReveal,
+    // Copies, not the live arrays — returning `guesses` itself meant a snapshot
+    // taken early kept mutating and read as if moves had already been played.
     state: function () {
       return {
-        guesses: guesses, over: over, day: day, pack: pack, revealed: revealed.slice(),
-        ranked: ranked, stateId: stateId,
+        guesses: guesses.slice(), over: over, day: day, pack: pack,
+        revealed: revealed.slice(), ranked: ranked, stateId: stateId,
       };
     },
   };

@@ -414,6 +414,13 @@
       });
       submit();
     },
-    state: function () { return { guesses: guesses, over: over }; },
+    // A copy: handing back the live `guesses` array made an early snapshot keep
+    // mutating, so a reading looked like moves had already been played.
+    state: function () {
+      return {
+        guesses: guesses.map(function (g) { return g.slice(); }),
+        over: over, won: won, day: day, focus: focus,
+      };
+    },
   };
 })();

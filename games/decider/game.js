@@ -571,7 +571,7 @@
     var bet = A.el("div", "dc-bet");
     bet.innerHTML =
       '<div class="dc-betval" id="dc-bv">' + betVal + "</div>" +
-      '<div class="dc-betof">' + esc(names[p]).toUpperCase() + " — STAKED OF " + max + "</div>" +
+      '<div class="dc-betof">' + esc(names[p]).toUpperCase() + " — OUT OF " + max + "</div>" +
       (max > 0
         ? '<div class="dc-slider">' +
             '<button class="dc-step" id="dc-minus" aria-label="Lower the stake">−</button>' +
