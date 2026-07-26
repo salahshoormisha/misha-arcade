@@ -15,7 +15,7 @@ const VOICE = (()=>{
 
 let ok = typeof speechSynthesis !== 'undefined';
 let picked = null, warmed = false;
-let on = true;
+let on = false;    // off by default — the pardeh carries the performance now
 
 /* Preference order: a warm, unhurried English voice. Different machines have
    wildly different lists, so we score rather than demand. */
@@ -34,7 +34,7 @@ function choose(){
     if(/^en(-|_)?(gb|au|ie)/i.test(v.lang)) s += 12;
     else if(/^en/i.test(v.lang)) s += 8;
     else s -= 20;
-    if(/premium|enhanced|natural|neural/.test(n)) s += 14;
+    if(/premium|enhanced|natural|neural|siri/.test(n)) s += 30;   // the good voices are worth a lot more than the preference list
     if(/compact|novelty|whisper|bad news|bells|zarvox|trinoids|albert/.test(n)) s -= 40;
     if(v.localService) s += 3;
     if(s>bestScore){ bestScore=s; best=v; }
@@ -80,7 +80,7 @@ function say(text, opt={}){
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(speakable(text));
     if(picked) u.voice = picked;
-    u.rate  = opt.rate  != null ? opt.rate  : 0.88;   // a storyteller is unhurried
+    u.rate  = opt.rate  != null ? opt.rate  : 1.02;   // "slow" was the first complaint; a naqqāl is not a lift announcement
     u.pitch = opt.pitch != null ? opt.pitch : 0.92;
     u.volume= opt.volume!= null ? opt.volume: 0.95;
     u.onstart = ()=>{ if(typeof MUSIC!=='undefined') MUSIC.duck(1200); };

@@ -679,7 +679,7 @@ menuModal = function(){
     row(v=>v?'🔊 Sound effects ON':'🔇 Sound effects OFF', ()=>!SAVE.mute, v=>{ SAVE.mute=!v; }),
     row(v=>v?'🎼 Music ON':'🎼 Music OFF', ()=>SAVE.music, v=>{ SAVE.music=v;
       if(typeof MUSIC!=='undefined'){ MUSIC.setEnabled(v); if(v) MUSIC.setLevel(UI.screen==='combat'?1:0); } }),
-    row(v=>v?'🗣️ Narration ON':'🗣️ Narration OFF', ()=>SAVE.voice, v=>{ SAVE.voice=v;
+    row(v=>v?'🗣️ Read aloud ON':'🗣️ Read aloud OFF', ()=>SAVE.voice, v=>{ SAVE.voice=v;
       if(typeof VOICE!=='undefined') VOICE.setEnabled(v); }),
     el('button',{class:'btn', onclick:()=>{ closeModal(); screenCodex(); }},'📖 The Codex'),
     el('button',{class:'btn', onclick:closeModal},'↩ Back to the road'),
