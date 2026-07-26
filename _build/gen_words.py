@@ -180,9 +180,9 @@ with rd(os.path.join(B, 'src', 'ldnoobw_en.txt')) as f:
 # TITER).  The reclaim list was built by printing every generated form that is a
 # web2 headword or has real corpus frequency, and reading all 96 of them.
 HARD_RECLAIM = set("""
-assessed assessing butter butting butty dicker dicky dickies spiced spicer
-spicing spicy spica sucker sucked sucking snatched snatcher snatching pricked
-pricking monger taiga titer skeeter spunky beanery
+assess assessed assessing butter butting butty cripes dicker dicky dickies
+spiced spicer spicing spicy spica spices sucker sucked sucking snatched
+snatcher snatching pricked pricking monger taiga titer skeeter spunky beanery
 """.split())
 SUF = ('s', 'es', 'ed', 'd', 'ing', 'er', 'r', 'ers', 'rs', 'est', 'st',
        'y', 'ies', 'a', 'ish')
@@ -863,6 +863,15 @@ def selfcheck(text, tails=False):
     blocked = sorted(set(w for k, v in lists.items() for w in v if hard_blocked(w)))
     checks.append(('profanity screen (all lists)', not blocked,
                    '%d hits' % len(blocked)))
+    # Second, independent screen: anything BUILT ON a slur stem, whatever its
+    # inflection.  Prints for review; fails only on an exact-match slur.
+    # anchored at the start: GRAPE, DRAPE, THERAPEUTIC, PEDAGOGY and SCOON are
+    # not slurs, they just contain the letters.
+    slur = re.compile(r'^(nigg|kike|spick|spics|chink|wetback|dago|gook|coon|'
+                      r'paki|negro|retard|cripple|faggot|tranny|squaw|shemale|'
+                      r'slut|whore|rape|molest|lesbo|homos?$|homosex|homoerot)')
+    stemhits = sorted(set(w for v in lists.values() for w in v if slur.search(w)))
+    checks.append(('slur-stem screen (all lists)', not stemhits, str(stemhits[:10])))
     soft = sorted(set(w for k in ('answers5', 'answers4', 'common5', 'cross.3',
                                   'cross.4', 'cross.5', 'cross.6', 'cross.7')
                       for w in lists[k] if w in SOFT))
