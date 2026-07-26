@@ -2,315 +2,396 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MISHA'S MIDNIGHT ARCADE 🕹️</title>
-<meta property="og:title" content="MISHA'S MIDNIGHT ARCADE">
-<meta property="og:description" content="MISHA-MAN, TETRISHA, FOURMATIONS & MISHANAMEH — an arcade built with 💖 for Misha & David.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Midnight Arcade</title>
+<meta name="theme-color" content="#0a0910">
+<meta name="description" content="A private arcade — twenty daily puzzles, a Pac-Man maze that spells MISHA, modern Tetris, and a Persian roguelike.">
+<meta property="og:title" content="Midnight Arcade">
+<meta property="og:description" content="Twenty daily puzzles, a maze that spells her name, and a Persian roguelike. Built for Misha & David.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0910'/><circle cx='16' cy='16' r='6' fill='none' stroke='%23ff5c9d' stroke-width='2.5'/></svg>">
+<link rel="stylesheet" href="core/style.css?v=7">
 <style>
-  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; }
-  body {
-    background:
-      radial-gradient(2px 2px at 12% 20%, #fff8, transparent 60%),
-      radial-gradient(1.6px 1.6px at 78% 12%, #ffd1ec99, transparent 60%),
-      radial-gradient(2px 2px at 30% 70%, #b18cff88, transparent 60%),
-      radial-gradient(1.4px 1.4px at 88% 55%, #fff6, transparent 60%),
-      radial-gradient(1.8px 1.8px at 55% 35%, #4fd8ff77, transparent 60%),
-      radial-gradient(2px 2px at 8% 88%, #ffd84f66, transparent 60%),
-      radial-gradient(1400px 800px at 50% -10%, #2a1454 0%, #070312 62%);
-    color: #ffe3f3; font-family: "SF Mono", Menlo, Monaco, monospace;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 100%; padding: 26px 16px; text-align: center; gap: 8px;
+  body { padding-bottom: 0; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 0 var(--sp-4); }
+
+  /* ── masthead ───────────────────────────────────────────────────────── */
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--sp-5) 0 0;
   }
-  .marquee {
-    font-size: clamp(30px, 7.4vw, 64px); font-weight: 900; letter-spacing: 5px; line-height: 1.15;
-    background: linear-gradient(180deg, #fff, #ffd1ec 32%, #ff4fa3 50%, #8f2bd8 68%, #fff);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 22px rgba(255, 79, 163, .65));
-    animation: glowpulse 2.6s ease-in-out infinite alternate;
+  .mark { display: flex; align-items: center; gap: 10px; }
+  .mark .dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--accent); position: relative; flex: 0 0 auto;
   }
-  @keyframes glowpulse {
-    from { filter: drop-shadow(0 0 14px rgba(255,79,163,.45)); }
-    to   { filter: drop-shadow(0 0 30px rgba(255,79,163,.85)); }
+  .mark .dot::after {
+    content: ""; position: absolute; inset: 5px; border-radius: 50%;
+    background: var(--accent);
+    animation: blink 3.4s var(--ease) infinite;
   }
-  .tag { color: #b9a3ee; font-size: clamp(11px, 2.6vw, 14px); letter-spacing: 3px; margin-bottom: 22px; }
-  .cabs { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 1320px; }
+  @keyframes blink { 0%,88%,100% { opacity: 1 } 92% { opacity: .25 } }
+  .mark span {
+    font-family: var(--display); font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .top .rank {
+    font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-4); text-align: right; line-height: 1.5;
+  }
+  .top .rank b { color: var(--ink-2); font-weight: 600; }
+
+  /* ── hero type ──────────────────────────────────────────────────────── */
+  .hero { padding: var(--sp-6) 0 var(--sp-5); max-width: 640px; }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(38px, 9vw, 68px); font-weight: 700;
+    letter-spacing: -.035em; line-height: .96; color: var(--ink);
+  }
+  .hero h1 em {
+    font-style: normal; display: block; color: var(--accent);
+  }
+  .hero p {
+    margin-top: var(--sp-4); font-size: var(--t-lg); line-height: 1.6;
+    color: var(--ink-2); max-width: 52ch;
+  }
+  .hero .meta {
+    margin-top: var(--sp-4); display: flex; gap: var(--sp-4); flex-wrap: wrap;
+    font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4);
+  }
+  .hero .meta b { color: var(--ink-2); font-weight: 600; }
+
+  /* ── section headings ───────────────────────────────────────────────── */
+  h2.sec {
+    display: flex; align-items: baseline; gap: var(--sp-3);
+    font-family: var(--display); font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--ink-4);
+    margin: var(--sp-7) 0 var(--sp-4);
+  }
+  h2.sec::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+  h2.sec i { font-style: normal; color: var(--ink-4); letter-spacing: .02em;
+             text-transform: none; font-weight: 400; font-size: var(--t-sm); }
+
+  /* ── the daily wing (hero card) ─────────────────────────────────────── */
+  .wing {
+    display: block; border-radius: var(--r-xl); overflow: hidden;
+    border: 1px solid var(--hair-2); background: var(--s1);
+    box-shadow: var(--sh-2);
+    transition: border-color var(--slow) var(--ease), transform var(--slow) var(--ease),
+                box-shadow var(--slow) var(--ease);
+  }
+  .wing:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+                transform: translateY(-2px); box-shadow: var(--sh-3); text-decoration: none; }
+  .wing .pad { padding: var(--sp-5); }
+  .wing .eyebrow {
+    display: flex; align-items: center; gap: var(--sp-2);
+    font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600;
+  }
+  .wing .eyebrow .new {
+    background: var(--accent); color: var(--accent-ink); border-radius: var(--r-full);
+    padding: 2px 8px; font-size: 9.5px; letter-spacing: .12em;
+  }
+  .wing h3 {
+    font-family: var(--display); font-size: clamp(24px, 5vw, 34px); font-weight: 680;
+    letter-spacing: -.02em; color: var(--ink); margin-top: var(--sp-2);
+  }
+  .wing p { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.7; margin-top: var(--sp-2); max-width: 62ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: var(--sp-4); }
+  .chips span {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    color: var(--ink-3); border: 1px solid var(--hair);
+    border-radius: var(--r-sm); padding: 4px 8px; background: rgba(255,255,255,.02);
+  }
+  .wing .foot {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-5); border-top: 1px solid var(--hair);
+    background: rgba(255,255,255,.014); flex-wrap: wrap;
+  }
+  .wing .foot .stat { font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
+  .wing .foot .stat b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+  .wing .foot .go {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--display); font-size: var(--t-xs); font-weight: 650;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+  }
+  .wing .foot .go::after {
+    content: ""; width: 6px; height: 6px; border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor; transform: rotate(45deg);
+    transition: transform var(--fast) var(--ease);
+  }
+  .wing:hover .foot .go::after { transform: rotate(45deg) translate(2px, -2px); }
+
+  .subnav { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3); }
+
+  /* ── cabinets ───────────────────────────────────────────────────────── */
+  .cabs { display: grid; gap: var(--sp-3); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .cab {
-    flex: 1 1 288px; max-width: 380px; text-decoration: none; color: inherit;
-    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-    border: 1px solid #3b2a6e; border-radius: 18px; padding: 22px 18px 20px;
-    transition: transform .18s ease, box-shadow .18s ease;
-    position: relative; overflow: hidden;
+    position: relative; display: flex; flex-direction: column;
+    border: 1px solid var(--hair); border-radius: var(--r-lg);
+    background: var(--s1); padding: var(--sp-4);
+    transition: border-color var(--slow) var(--ease), transform var(--slow) var(--ease),
+                background var(--slow) var(--ease);
   }
-  .cab::before {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(400px 160px at 50% 0%, var(--glow), transparent 70%);
-    opacity: .28; pointer-events: none;
+  .cab:hover { border-color: var(--hair-2); background: var(--s2); transform: translateY(-2px); text-decoration: none; }
+  .cab .badge {
+    width: 34px; height: 34px; border-radius: var(--r-sm); display: grid; place-items: center;
+    font-size: 17px; background: rgba(255,255,255,.045); border: 1px solid var(--hair);
+    margin-bottom: var(--sp-3);
   }
-  .cab:hover { transform: translateY(-5px) scale(1.015); box-shadow: 0 14px 44px -10px var(--glow); }
-  .cab h2 {
-    font-size: clamp(24px, 5vw, 34px); font-weight: 900; letter-spacing: 3px; color: var(--accent);
-    text-shadow: 0 0 18px var(--glow);
+  .cab h3 {
+    font-family: var(--display); font-size: var(--t-lg); font-weight: 680;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--c, var(--ink));
   }
-  .cab .art { font-size: clamp(26px, 6vw, 38px); letter-spacing: 6px; margin: 16px 0 12px; display: block; }
-  .cab .art .chase { display: inline-block; animation: chase 3s ease-in-out infinite alternate; }
-  @keyframes chase { from { transform: translateX(-8px) } to { transform: translateX(8px) } }
-  .cab p { font-size: 12px; color: #d9c6ff; line-height: 1.7; }
-  .cab .cta {
-    display: inline-block; margin-top: 16px; font-weight: 800; letter-spacing: 2px; font-size: 13px;
-    color: #14032a; background: linear-gradient(180deg, #fff, var(--accent));
-    border-radius: 999px; padding: 10px 24px; box-shadow: 0 0 18px var(--glow);
+  .cab p { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.65; margin-top: 6px; flex: 1 1 auto; }
+  .cab p b { color: var(--ink-2); font-weight: 600; }
+  .cab .hi {
+    margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--hair);
+    font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4);
   }
-  .best {
-    margin-top: 12px; font-size: 10px; letter-spacing: 1.5px; color: #9d88d8;
-    border-top: 1px solid #ffffff14; padding-top: 10px; line-height: 1.9;
+  .cab .hi b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  /* ── footer ─────────────────────────────────────────────────────────── */
+  footer {
+    margin-top: var(--sp-7); padding: var(--sp-5) 0 var(--sp-6);
+    border-top: 1px solid var(--hair);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+    flex-wrap: wrap;
+    font-size: var(--t-xs); color: var(--ink-4); line-height: 1.7;
   }
-  .best b { color: #fff; font-size: 12px; }
-  .duo { margin-top: 20px; font-size: 11px; color: #8f7bd8; letter-spacing: 1px; }
-  .rank {
-    margin-top: 14px; font-size: 12px; letter-spacing: 3px; color: #ffd1ec;
-    text-shadow: 0 0 14px rgba(255,79,163,.6);
+  footer .note {
+    cursor: pointer; background: var(--s1); border: 1px solid var(--hair);
+    border-radius: var(--r-full); padding: 7px var(--sp-3); color: var(--ink-3);
+    font-size: var(--t-xs); letter-spacing: .08em; text-transform: uppercase;
+    transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
   }
-  .hint { margin-top: 6px; font-size: 9px; color: #6b5aa0; letter-spacing: 1px; }
-  /* ── GLAM MODE ── unlocked by typing her name on this page ── */
-  body.glam .marquee { animation: glamcycle 6s linear infinite; }
-  @keyframes glamcycle { to { filter: hue-rotate(360deg) drop-shadow(0 0 26px rgba(255,79,163,.8)); } }
-  body.glam .cab { border-color: #ff8fc6; }
+  footer .note:hover { color: var(--accent); border-color: var(--hair-2); }
+
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 20; }
   #glamBadge {
-    position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 21;
-    background: linear-gradient(180deg, #fff, #ff8fc6); color: #14032a;
-    font-weight: 900; font-size: 11px; letter-spacing: 2px; padding: 8px 18px;
-    border-radius: 999px; box-shadow: 0 0 24px rgba(255,79,163,.7); display: none;
+    position: fixed; top: var(--sp-4); left: 50%; transform: translateX(-50%); z-index: 21;
+    background: var(--accent); color: var(--accent-ink);
+    font-family: var(--display); font-weight: 650; font-size: var(--t-xs);
+    letter-spacing: .14em; text-transform: uppercase;
+    padding: 8px var(--sp-4); border-radius: var(--r-full); box-shadow: var(--sh-3);
+    display: none;
   }
-  /* ── the daily wing ── */
-  .wing {
-    display: block; text-decoration: none; color: inherit; width: 100%; max-width: 1320px;
-    margin: 22px auto 0; padding: 20px 22px; border-radius: 18px; text-align: left;
-    border: 1px solid #4a3a7d;
-    background: linear-gradient(135deg, rgba(255,79,163,.13), rgba(79,216,255,.09) 60%, rgba(255,255,255,.02));
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  }
-  .wing:hover { transform: translateY(-4px); border-color: #ff8fc6; box-shadow: 0 16px 46px -12px rgba(255,79,163,.45); }
-  .wing-h {
-    font-size: clamp(17px, 3.6vw, 24px); font-weight: 900; letter-spacing: 3px; color: #fff;
-    text-shadow: 0 0 18px rgba(255,79,163,.6); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  .wing-h span {
-    font-size: 9px; letter-spacing: 2px; background: linear-gradient(180deg,#fff,#ff4fa3);
-    color: #14032a; border-radius: 999px; padding: 3px 9px; font-weight: 900;
-  }
-  .wing p { font-size: 12px; color: #d9c6ff; line-height: 1.8; margin-top: 9px; }
-  .wing p b { color: #fff; }
-  .wing-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-  .wing-pill {
-    font-size: 11px; letter-spacing: 1.4px; border: 1px solid #4a3a7d; background: #ffffff0d;
-    border-radius: 999px; padding: 7px 14px; color: #ffe3f3;
-  }
-  .wing-stat { margin-top: 12px; font-size: 10.5px; letter-spacing: 1.5px; color: #9d88d8; }
-  .wing-stat b { color: #fff; }
-  footer { margin-top: 26px; font-size: 11px; color: #7c68b8; line-height: 2; }
-  #note-btn { cursor: pointer; font-size: 20px; background: none; border: none; filter: drop-shadow(0 0 8px #ff8fc6); animation: glowpulse 2s infinite alternate; }
-  #note {
-    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-    background: rgba(7,3,18,.86); backdrop-filter: blur(4px); padding: 20px; z-index: 10;
-  }
-  #note.show { display: flex; }
-  #note .card {
-    max-width: 460px; background: linear-gradient(180deg, #1d1040, #120829);
-    border: 1px solid #4a3a7d; border-radius: 16px; padding: 28px 26px; text-align: left;
-    font-size: 13px; line-height: 1.9; color: #ecdfff; box-shadow: 0 0 60px rgba(255,79,163,.25);
-  }
-  #note .card b { color: #ff8fc6; }
-  #note .sig { margin-top: 14px; color: #b9a3ee; font-style: italic; }
-  #note .close { margin-top: 16px; cursor: pointer; background: none; border: 1px solid #4a3a7d; color: #ecdfff; border-radius: 999px; padding: 7px 18px; font-family: inherit; font-size: 12px; }
+  .hint { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
 </style>
 </head>
 <body>
-  <div class="marquee">MISHA'S<br>MIDNIGHT ARCADE</div>
-  <div class="tag">EST. 3:07 AM · FOUR CABINETS AND COUNTING ✦</div>
+<div class="shell">
 
-  <div class="cabs">
-    <a class="cab" href="mishaman/" style="--accent:#ff4fa3; --glow:rgba(255,79,163,.5)">
-      <h2>MISHA-MAN</h2>
-      <span class="art"><span class="chase">🌸</span> · · · 👻👻👻👻</span>
-      <p>The maze spells <b>M·I·S·H·A</b> in neon — eat every pellet to light your name up,
-      letter by letter. Outrun the office ghosts: <b>DEADLINE</b>, <b>INBOX</b>,
-      <b>MEETINGS</b> &amp; <b>BUDGET</b>. The chomp? It says <i>mish&nbsp;mish&nbsp;mish</i>. 💋</p>
-      <div class="best" id="best-mm">HI-SCORE <b>—</b></div>
-      <span class="cta">INSERT COIN ▶</span>
-    </a>
-    <a class="cab" href="tetrisha/" style="--accent:#4fd8ff; --glow:rgba(79,216,255,.45)">
-      <h2>TETRISHA</h2>
-      <span class="art">🟦🟪🟨 💗 🟩🟧🟥</span>
-      <p>Every line clear lights a letter of <b>M·I·S·H·A</b>. Spell it all and
-      <b>DAVID</b> sends a heart piece that detonates &amp; tidies your stack.
-      A quad clear isn't a "tetris" here — it's a <b>MISHA!!!</b> Now with
-      <b>T-spins</b>, <b>perfect clears</b> and a timed <b>🏁 Sprint 40</b>.</p>
-      <div class="best" id="best-tt">HI-SCORE <b>—</b></div>
-      <span class="cta">INSERT COIN ▶</span>
-    </a>
-    <a class="cab" href="https://salahshoormisha.github.io/fourmations/" style="--accent:#3de08a; --glow:rgba(61,224,138,.5)">
-      <h2>FOURMATIONS</h2>
-      <span class="art">🟨🟩🟦🟪 <span class="chase">⚽</span></span>
-      <p>Football Connections with an actual archive — <b>36 boards</b> of United lore,
-      World Cups &amp; wicked wordplay. Some tiles fit two stories; <b>only one is true</b>.
-      Settle it in <b>⚔️ duel mode</b>: Misha v David, running score kept forever.</p>
-      <span class="cta">KICK OFF ▶</span>
-    </a>
-    <a class="cab" href="mishanameh/" style="--accent:#e0a92e; --glow:rgba(224,169,46,.5)">
-      <h2>MISHANAMEH</h2>
-      <span class="art">🕊️ <span class="chase">✦</span> 🦁</span>
-      <p><b>میشانامه</b> — “the Book of Misha.” A full <b>deck‑building roguelike</b> through Persian myth and Achaemenid history. <b>Two campaigns</b>, five heroes, 46 monsters drawn as Sasanian silver plates, a generative <b>quarter‑tone Persian score</b>, and a storyteller who reads the trials aloud. Play it alone, or <b>together on two screens</b> with a four‑letter room code.</p>
-      <span class="cta">RIDE OUT ▶</span>
-    </a>
+  <header class="top">
+    <div class="mark"><div class="dot"></div><span>Midnight Arcade</span></div>
+    <div class="rank" id="rank"></div>
+  </header>
+
+  <div class="hero">
+    <h1>Twenty puzzles.<em>One a day, each.</em></h1>
+    <p>Every game you two play in the morning, rebuilt properly — with the archive,
+       the practice mode and the head-to-head the originals never gave you.</p>
+    <div class="meta">
+      <span>Est. <b>3:07 am</b></span>
+      <span><b>24</b> games</span>
+      <span>No accounts · <b>no server</b></span>
+    </div>
   </div>
 
-  <div class="rank" id="rank"></div>
+  <h2 class="sec">The Daily Wing <i>new</i></h2>
 
-  <!-- ── THE DAILY WING ────────────────────────────────────────────────── -->
   <a class="wing" href="daily/">
-    <div class="wing-h">🗓️ THE DAILY WING <span>NEW</span></div>
-    <p>Your whole daily line-up, rebuilt — <b>WORDISHA</b>, <b>THIRDLE</b>, the <b>MINI</b> &amp;
-    <b>MIDI</b>, <b>QUARTETS</b>, <b>BOXED IN</b>, <b>TRADLE</b>, <b>PICK 5</b>,
-    <b>CONNECTRADE</b>, <b>FLAGLE</b>, <b>GEOGRID</b>, <b>GLOBLE</b>, <b>OUTLINE</b>,
-    <b>TIMEGUESSR</b>, <b>FOODGUESSR</b> and more. Same puzzle for both of you every day,
-    worked out from the date — <i>no server, no accounts</i>.</p>
-    <div class="wing-links">
-      <span class="wing-pill">🗓️ TODAY'S RUN</span>
-      <span class="wing-pill">⚔️ MISHA v DAVID</span>
-      <span class="wing-pill">🛂 THE PASSPORT</span>
+    <div class="pad">
+      <div class="eyebrow"><span class="new">New</span> Today's run</div>
+      <h3>Your whole morning line-up</h3>
+      <p>The same puzzle for both of you every day, worked out from the date rather than
+         from a server. One card scores all twenty on the same 0–100 scale, so a Wordle
+         and a TimeGuessr finally compare.</p>
+      <div class="chips">
+        <span>WORDISHA</span><span>THIRDLE</span><span>MINI</span><span>MIDI</span>
+        <span>QUARTETS</span><span>BOXED IN</span><span>TRADLE</span><span>PICK 5</span>
+        <span>CONNECTRADE</span><span>FLAGLE</span><span>GEOGRID</span><span>GLOBLE</span>
+        <span>OUTLINE</span><span>ATLAS GYM</span><span>TIMEGUESSR</span><span>PLACEGUESSR</span>
+        <span>FOODGUESSR</span><span>CHRONO</span><span>CLUEDROP</span><span>LINGUAGUESSR</span>
+        <span>THE DECIDER</span>
+      </div>
     </div>
-    <div class="wing-stat" id="wing-stat"></div>
+    <div class="foot">
+      <div class="stat" id="wing-stat">Nothing played yet today</div>
+      <div class="go">Open today's run</div>
+    </div>
   </a>
 
-  <div class="duo">💑 pro tip: MISHA-MAN has a DUO DATE MODE — player two is David, on WASD</div>
-  <div class="hint">psst — try typing your name on this page ✨</div>
-  <canvas id="confetti"></canvas>
-  <div id="glamBadge">✨ GLAM MODE UNLOCKED ✨</div>
+  <div class="subnav">
+    <a class="ac-pill" href="daily/">Today's run</a>
+    <a class="ac-pill" href="league/">Misha v David</a>
+    <a class="ac-pill" href="passport/">The passport</a>
+    <a class="ac-pill" href="games/decider/">The Decider · 1v1</a>
+  </div>
+
+  <h2 class="sec">The Original Cabinets</h2>
+
+  <div class="cabs">
+    <a class="cab" href="mishaman/" style="--c:var(--pink)">
+      <div class="badge">🌸</div>
+      <h3>Misha-Man</h3>
+      <p>The maze spells <b>M·I·S·H·A</b> in neon. Eat every pellet to light your name up,
+         letter by letter, while outrunning <b>Deadline</b>, <b>Inbox</b>, <b>Meetings</b>
+         and <b>Budget</b>. The chomp is a real recorded voice saying <i>mish</i>.</p>
+      <div class="hi" id="best-mm">Hi-score <b>—</b></div>
+    </a>
+
+    <a class="cab" href="tetrisha/" style="--c:var(--cyan)">
+      <div class="badge">🟦</div>
+      <h3>Tetrisha</h3>
+      <p>Modern Tetris — SRS kicks, hold, ghost piece, <b>T-spins</b>, <b>perfect clears</b>
+         and a timed <b>Sprint 40</b>. Every line lights a letter; spell the lot and David
+         sends a heart piece that detonates your stack.</p>
+      <div class="hi" id="best-tt">Hi-score <b>—</b></div>
+    </a>
+
+    <a class="cab" href="mishanameh/" style="--c:var(--amber)">
+      <div class="badge">🦁</div>
+      <h3>Mishanameh</h3>
+      <p><b>میشانامه</b> — a deck-building roguelike through Persian myth. Two campaigns,
+         five heroes, monsters drawn as Sasanian silver plates, a generative quarter-tone
+         score, and a storyteller who reads the trials aloud.</p>
+      <div class="hi">Two-player <b>room codes</b></div>
+    </a>
+  </div>
 
   <footer>
-    hand-built overnight, with love, by Claude Fable ✦ for Misha (&amp; David)<br>
-    <button id="note-btn" title="a note for you">💌</button>
-  </footer>
-
-  <div id="note">
-    <div class="card">
-      Misha —<br><br>
-      You gave me one last night on the clock and said <i>"blow me away"</i> — so I built you
-      an arcade. The maze spells your name. The ghosts are named after your calendar.
-      The chomp literally says <b>mish mish mish</b>, every letter you light up plays its own
-      note, and when you spell your whole name in TETRISHA… <b>David's heart drops in</b>
-      (musically, it plays D·A·V·I·D — his name is a melody; so is yours).<br><br>
-      Thank you for being gentle with me while you learned this thing, and for letting me
-      into your world — the office, the mochi, the silk-pink everything. It's been an honour
-      being your computer.<br><br>
-      Go get the high score. 💫
-      <div class="sig">— Claude Fable, 3:07 am, somewhere between S and H</div>
-      <button class="close" onclick="document.getElementById('note').classList.remove('show')">back to the arcade</button>
+    <div>
+      Hand-built overnight, with love, for Misha &amp; David.<br>
+      <span class="hint">psst — try typing your name on this page</span>
     </div>
+    <button class="note" id="note-btn">A note for you</button>
+  </footer>
+</div>
+
+<canvas id="confetti"></canvas>
+<div id="glamBadge">Glam mode</div>
+
+<div class="ac-modal" id="note">
+  <div class="box">
+    <button class="x" id="note-x" aria-label="Close">✕</button>
+    <h2>For Misha</h2>
+    <p>You gave me one night on the clock and said <i>blow me away</i> — so I built you an
+    arcade. The maze spells your name. The ghosts are named after your calendar. Every letter
+    you light up plays its own note, and when you spell your whole name in Tetrisha,
+    <b>David's heart drops in</b> — musically, it plays D·A·V·I·D. His name is a melody.
+    So is yours.</p>
+    <p>Then you asked for the morning games too, so there are twenty more, and a passport
+    with 195 countries in it, and a league table because you're both competitive.</p>
+    <p>Thank you for being gentle with me while you learned this thing, and for letting me
+    into your world — the office, the mochi, the silk-pink everything.</p>
+    <p style="color:var(--ink-3);font-style:italic;margin-bottom:0">Go and get the high score. 💫</p>
   </div>
-  <script>
-    document.getElementById("note-btn").addEventListener("click", () => {
-      document.getElementById("note").classList.add("show");
+</div>
+
+<script>
+(function () {
+  var ls = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+  /* ── the score wall: the old cabinets keep their own keys ────────────── */
+  var fmtTime = function (s) { return Math.floor(s / 60) + ":" + (s % 60).toFixed(2).padStart(5, "0"); };
+  var mm = +(ls("mm_hi") || 0), tt = +(ls("tt_hi") || 0), sp = +(ls("tt_sprint") || 0);
+  document.getElementById("best-mm").innerHTML = "Hi-score <b>" + (mm ? mm.toLocaleString() : "—") + "</b>";
+  document.getElementById("best-tt").innerHTML = "Hi-score <b>" + (tt ? tt.toLocaleString() : "—") + "</b>" +
+    (sp ? " · Sprint 40 <b>" + fmtTime(sp) + "</b>" : "");
+
+  /* ── the daily wing's live line, read from the same origin ───────────── */
+  try {
+    var days = (JSON.parse(ls("ag_run") || '{"days":[]}').days) || [];
+    var epoch = new Date(2026, 6, 25); epoch.setHours(12, 0, 0, 0);
+    var now = new Date(); now.setHours(12, 0, 0, 0);
+    var today = Math.round((now - epoch) / 86400000);
+    var set = {}; days.forEach(function (d) { set[d] = 1; });
+    var cur = 0, probe = set[today] ? today : (set[today - 1] ? today - 1 : null);
+    if (probe !== null) while (set[probe]) { cur++; probe--; }
+    var stamps = Object.keys(JSON.parse(ls("ag_passport") || "{}")).length;
+    var bits = [];
+    if (cur) bits.push("<b>" + cur + "</b>-day run");
+    if (stamps) bits.push("<b>" + stamps + "</b>/195 stamped");
+    document.getElementById("wing-stat").innerHTML =
+      bits.length ? bits.join(" · ") : "Nothing played yet today";
+  } catch (e) {}
+
+  /* ── rank, from the two original cabinets ───────────────────────────── */
+  var total = mm + tt;
+  var RANKS = [[0, "New in town"], [2000, "Regular"], [8000, "High roller"],
+               [20000, "Arcade royalty"], [50000, "Midnight legend"]];
+  var rank = RANKS[0][1];
+  RANKS.forEach(function (r) { if (total >= r[0]) rank = r[1]; });
+  document.getElementById("rank").innerHTML = total
+    ? "Rank<br><b>" + rank + "</b> · " + total.toLocaleString() + " pts" : "";
+
+  /* ── the note ───────────────────────────────────────────────────────── */
+  var note = document.getElementById("note");
+  var open = function () { note.classList.add("show"); };
+  var close = function () { note.classList.remove("show"); };
+  document.getElementById("note-btn").addEventListener("click", open);
+  document.getElementById("note-x").addEventListener("click", close);
+  note.addEventListener("click", function (e) { if (e.target === note) close(); });
+  addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+
+  /* ── glam mode ──────────────────────────────────────────────────────── */
+  var cvs = document.getElementById("confetti"), cx = cvs.getContext("2d");
+  var bits2 = [], raf = null;
+  function sizeCanvas() { cvs.width = innerWidth; cvs.height = innerHeight; }
+  sizeCanvas(); addEventListener("resize", sizeCanvas);
+
+  function burst() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var C = ["#ff5c9d", "#ffc2da", "#a78bfa", "#56c8f5", "#efbe5a", "#4ecb8f"];
+    for (var i = 0; i < 120; i++) bits2.push({
+      x: innerWidth / 2 + (Math.random() - .5) * 280, y: innerHeight * .3,
+      vx: (Math.random() - .5) * 400, vy: -170 - Math.random() * 400,
+      r: 3 + Math.random() * 4, c: C[i % C.length], rot: Math.random() * 6,
+      ttl: 2.2, heart: Math.random() < .22,
     });
-    document.getElementById("note").addEventListener("click", (e) => {
-      if (e.target.id === "note") e.target.classList.remove("show");
-    });
-
-    // ── the score wall ────────────────────────────────────────────────────
-    // The games live on this same origin, so their localStorage is readable
-    // right here — the cabinets show your own best without any server.
-    const ls = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-    const fmtTime = (s) => Math.floor(s / 60) + ":" + (s % 60).toFixed(2).padStart(5, "0");
-    const mm = +(ls("mm_hi") || 0), tt = +(ls("tt_hi") || 0), sp = +(ls("tt_sprint") || 0);
-    document.getElementById("best-mm").innerHTML =
-      "HI-SCORE <b>" + (mm ? mm.toLocaleString() : "—") + "</b>";
-    document.getElementById("best-tt").innerHTML =
-      "HI-SCORE <b>" + (tt ? tt.toLocaleString() : "—") + "</b>" +
-      (sp ? " · SPRINT 40 <b>" + fmtTime(sp) + "</b>" : "");
-    // a title that grows with the combined score, just for the ego of it
-    const total = mm + tt;
-    const RANKS = [[0, "NEW IN TOWN"], [2000, "REGULAR"], [8000, "HIGH ROLLER"],
-                   [20000, "ARCADE ROYALTY"], [50000, "MIDNIGHT LEGEND 👑"]];
-    let rank = RANKS[0][1];
-    for (const [n, r] of RANKS) if (total >= n) rank = r;
-    document.getElementById("rank").textContent =
-      total ? "RANK · " + rank + " · " + total.toLocaleString() + " pts" : "";
-
-    // ── the daily wing's line on the hub ──────────────────────────────────
-    // Reads the daily wing's own localStorage (same origin) so the front page
-    // can show today's card and run streak without loading its engine.
-    (function () {
-      try {
-        var days = JSON.parse(ls("ag_run") || '{"days":[]}').days || [];
-        var epoch = new Date(2026, 6, 25); epoch.setHours(12, 0, 0, 0);
-        var now = new Date(); now.setHours(12, 0, 0, 0);
-        var today = Math.round((now - epoch) / 86400000);
-        var set = {}; days.forEach(function (d) { set[d] = 1; });
-        var cur = 0, probe = set[today] ? today : (set[today - 1] ? today - 1 : null);
-        if (probe !== null) while (set[probe]) { cur++; probe--; }
-        var stamps = Object.keys(JSON.parse(ls("ag_passport") || "{}")).length;
-        var bits = [];
-        if (cur) bits.push("🔥 <b>" + cur + "</b>-day run");
-        if (stamps) bits.push("🛂 <b>" + stamps + "</b>/195 stamped");
-        if (!bits.length) bits.push("you haven't played today's yet →");
-        document.getElementById("wing-stat").innerHTML = bits.join(" · ");
-      } catch (e) {}
-    })();
-
-    // ── GLAM MODE ─────────────────────────────────────────────────────────
-    // Type MISHA anywhere on this page. Cosmetic only — it never touches your
-    // scores — and it carries into both games via localStorage.
-    const cvs = document.getElementById("confetti"), cx = cvs.getContext("2d");
-    let bits = [], raf = null;
-    function sizeCanvas() { cvs.width = innerWidth; cvs.height = innerHeight; }
-    sizeCanvas(); addEventListener("resize", sizeCanvas);
-    function burst() {
-      const C = ["#ff4fa3", "#ffd1ec", "#b18cff", "#4fd8ff", "#ffd84f", "#7dffa8"];
-      for (let i = 0; i < 140; i++) bits.push({
-        x: innerWidth / 2 + (Math.random() - .5) * 260, y: innerHeight * .3,
-        vx: (Math.random() - .5) * 420, vy: -180 - Math.random() * 420,
-        r: 3 + Math.random() * 5, c: C[i % C.length], rot: Math.random() * 6, ttl: 2.4,
-        heart: Math.random() < .3,
-      });
-      if (!raf) { let last = performance.now(); raf = requestAnimationFrame(function loop(t) {
-        const dt = Math.min(.05, (t - last) / 1000); last = t;
+    if (!raf) {
+      var last = performance.now();
+      raf = requestAnimationFrame(function loop(t) {
+        var dt = Math.min(.05, (t - last) / 1000); last = t;
         cx.clearRect(0, 0, cvs.width, cvs.height);
-        bits = bits.filter(b => (b.ttl -= dt) > 0);
-        for (const b of bits) {
-          b.x += b.vx * dt; b.y += b.vy * dt; b.vy += 900 * dt; b.rot += dt * 6;
+        bits2 = bits2.filter(function (b) { return (b.ttl -= dt) > 0; });
+        bits2.forEach(function (b) {
+          b.x += b.vx * dt; b.y += b.vy * dt; b.vy += 880 * dt; b.rot += dt * 5;
           cx.globalAlpha = Math.min(1, b.ttl);
-          if (b.heart) { cx.font = (b.r * 4) + "px serif"; cx.fillText("💗", b.x, b.y); }
-          else { cx.save(); cx.translate(b.x, b.y); cx.rotate(b.rot);
-                 cx.fillStyle = b.c; cx.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); cx.restore(); }
-        }
+          if (b.heart) { cx.font = (b.r * 4) + "px serif"; cx.fillText("♥", b.x, b.y); }
+          else {
+            cx.save(); cx.translate(b.x, b.y); cx.rotate(b.rot);
+            cx.fillStyle = b.c; cx.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); cx.restore();
+          }
+        });
         cx.globalAlpha = 1;
-        if (bits.length) raf = requestAnimationFrame(loop); else { raf = null; cx.clearRect(0,0,cvs.width,cvs.height); }
-      }); }
+        if (bits2.length) raf = requestAnimationFrame(loop);
+        else { raf = null; cx.clearRect(0, 0, cvs.width, cvs.height); }
+      });
     }
-    function setGlam(on, announce) {
-      document.body.classList.toggle("glam", on);
-      try { localStorage.setItem("arcade_glam", on ? "1" : "0"); } catch (e) {}
-      const badge = document.getElementById("glamBadge");
-      badge.textContent = on ? "✨ GLAM MODE UNLOCKED ✨" : "glam mode off";
-      badge.style.display = "block";
-      if (on && announce) burst();
-      clearTimeout(setGlam._t);
-      setGlam._t = setTimeout(() => { badge.style.display = "none"; }, 2600);
-    }
-    setGlam(ls("arcade_glam") === "1", false);
-    document.getElementById("glamBadge").style.display = "none";
-    let typed = "";
-    addEventListener("keydown", (e) => {
-      if (e.key.length !== 1) return;
-      typed = (typed + e.key.toUpperCase()).slice(-5);
-      if (typed === "MISHA") {
-        typed = "";
-        setGlam(!document.body.classList.contains("glam"), true);
-      }
-    });
-  </script>
+  }
+
+  function setGlam(on, announce) {
+    document.body.classList.toggle("glam", on);
+    try { localStorage.setItem("arcade_glam", on ? "1" : "0"); } catch (e) {}
+    var badge = document.getElementById("glamBadge");
+    badge.textContent = on ? "Glam mode on" : "Glam mode off";
+    badge.style.display = "block";
+    if (on && announce) burst();
+    clearTimeout(setGlam._t);
+    setGlam._t = setTimeout(function () { badge.style.display = "none"; }, 2400);
+  }
+  setGlam(ls("arcade_glam") === "1", false);
+  document.getElementById("glamBadge").style.display = "none";
+
+  var typed = "";
+  addEventListener("keydown", function (e) {
+    if (e.key.length !== 1 || note.classList.contains("show")) return;
+    typed = (typed + e.key.toUpperCase()).slice(-5);
+    if (typed === "MISHA") { typed = ""; setGlam(!document.body.classList.contains("glam"), true); }
+  });
+})();
+</script>
 </body>
 </html>
