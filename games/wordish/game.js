@@ -309,28 +309,51 @@
     sheet(won, grid, detail, norm);
   }
 
+  function shareLine(detail, grid) {
+    var head = "WORDISHA " + (practice ? "(practice)" : "#" + day) +
+      (pack === "persian" ? " · PERSIAN PACK" : "") + (detail ? " " + detail : "");
+    return head + "\n" + (grid || []).join("\n") + "\n" + A.SITE;
+  }
+
   function sheet(won, grid, detail, norm) {
     var extra = "";
-    if (!won) extra += '<p class="center" style="font-size:22px;letter-spacing:5px;color:var(--gold);margin:8px 0">' +
-      A.esc(answer) + "</p>";
+    if (!won) extra += '<p class="center wd-answer">' + A.esc(answer) + "</p>";
     var ety = PERSIAN.filter(function (p) { return up(p.w || p) === answer; })[0];
-    if (ety && ety.from) extra += '<p class="etym">🇮🇷 <b>' + A.esc(answer) + "</b> — from Persian <i>" +
+    if (ety && ety.from) extra += '<p class="etym"><b>' + A.esc(answer) + "</b> — from Persian <i>" +
       A.esc(ety.from) + "</i></p>";
+    if (!ranked && !practice) {
+      extra += '<p class="tiny dim center" style="margin-top:var(--sp-2)">Persian pack — kept, ' +
+        "but it doesn't touch your WORDISHA stats.</p>";
+    }
 
-    A.results(ID, practice ? A.PRACTICE : day, {
+    // An unranked pack word shows the practice-shaped sheet: quoting a par or
+    // today's card for a result that isn't in either would be a lie.
+    var m = A.results(ID, ranked ? day : A.PRACTICE, {
       title: won ? ["GENIUS", "MAGNIFICENT", "IMPRESSIVE", "SPLENDID", "GREAT", "PHEW"][(guesses.length || 1) - 1]
         : "TOMORROW, THEN",
       extraHTML: extra,
       state: { norm: norm, shareGrid: grid, won: won },
-      shareText: "WORDISHA (practice) " + (detail || "") + "\n" + (grid || []).join("\n") + "\n" + A.SITE,
+      shareText: shareLine(detail, grid),
       onReplay: function () { location.reload(); },
     });
+
+    // Own the share text in every mode — the core only reads opts.shareText
+    // when dayN is PRACTICE.
+    var sb = m.body.querySelector("#ac-share");
+    if (sb) sb.onclick = function () { A.share(ranked ? A.shareCard(ID, day) : shareLine(detail, grid)); };
+    return m;
   }
 
   // Expose a debug hook so the build can drive it in a browser test.
   window.__WD = {
     answer: function () { return answer; },
     guess: function (w) { cur = up(w); submit(); },
-    state: function () { return { guesses: guesses, over: over, day: day, pack: pack }; },
+    reveal: doReveal,
+    state: function () {
+      return {
+        guesses: guesses, over: over, day: day, pack: pack, revealed: revealed.slice(),
+        ranked: ranked, stateId: stateId,
+      };
+    },
   };
 })();

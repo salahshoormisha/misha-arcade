@@ -519,9 +519,17 @@
 
   function seedLen() { return said.length ? 1 : 0; }
 
+  /** One message at a time. Words can land a second apart, and the shared toast
+   *  host stacks downwards — three in a row would walk over the square. */
+  function say(msg, bad) {
+    var host = document.querySelector(".ac-toast-host");
+    if (host) host.innerHTML = "";
+    A.toast(msg, bad);
+  }
+
   function push(ch) {
     if (over) return;
-    if (P.of[ch] === undefined) { A.toast(ch + " isn't on this board", true); return; }
+    if (P.of[ch] === undefined) { say(ch + " isn't on this board", true); return; }
     if (cur.length >= MAXCUR) { nope("That's long enough"); return; }
     var prev = cur.charAt(cur.length - 1);
     if (prev && P.of[prev] === P.of[ch]) {
@@ -546,7 +554,7 @@
       recount();
       lastOK = false;
       A.sfx("miss");
-      A.toast("Took back " + cur);
+      say("Took back " + cur);
       render();
       save();
     }
@@ -563,24 +571,26 @@
     recount();
     var done = left().length === 0;
     A.sfx("ok", said.length - 1);
-    praise(cur, done);
+    // A word that covers nothing new is the one thing worth warning about; that
+    // warning replaces the praise rather than queueing behind it.
+    if (!fresh && !done) say("No new letters from that one", true);
+    else praise(cur, done);
     lastOK = true;
     cur = cur.charAt(cur.length - 1);
     pulse();
     render();
     save();
     if (done) setTimeout(function () { end(true); }, 460);
-    else if (!fresh) A.toast("No new letters from that one", true);
   }
 
   // The original's praise ladder, verbatim from the bundle's rules.
   function praise(w, done) {
-    if (w.length >= 7) A.toast(done ? "Savant!" : "Genius!");
-    else A.toast(lastOK ? "Nice!" : "Awesome!");
+    if (w.length >= 7) say(done ? "Savant!" : "Genius!");
+    else say(lastOK ? "Nice!" : "Awesome!");
   }
 
   function nope(msg) {
-    A.toast(msg, true);
+    say(msg, true);
     A.sfx("bad");
     wordEl.classList.add("ac-shake");
     setTimeout(function () { wordEl.classList.remove("ac-shake"); }, 400);
