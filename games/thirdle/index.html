@@ -53,10 +53,13 @@
   .th-modes { margin-top: var(--sp-3); }
   .th-modes .ac-pill { min-height: 44px; text-decoration: none; cursor: pointer; }
 
-  /* the three answers on the result sheet */
-  .th-words {
+  /* The three answers on the result sheet. Scoped as `.ac-modal p.th-words`,
+     NOT `.th-words`: core/style.css styles `.ac-modal p` with two selectors, so
+     a bare one-class rule loses on specificity and the answers render as
+     12.5px body ink instead of the amber line they are meant to be. */
+  .ac-modal p.th-words {
     margin: var(--sp-2) 0 2px; font-family: var(--mono); font-size: var(--t-lg);
-    font-weight: 600; letter-spacing: .16em; color: var(--amber);
+    font-weight: 600; letter-spacing: .16em; color: var(--amber); line-height: 1.4;
   }
 </style>
 </head>
