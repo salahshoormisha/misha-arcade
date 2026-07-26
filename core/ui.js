@@ -143,15 +143,15 @@
 
     // Global error toast — invaluable for debugging on her machine remotely.
     root.addEventListener("error", function (e) {
-      A.toast("⚠︎ " + (e.message || "error"), true);
+      A.toast((e.message || "Something went wrong"), true);
     });
     return main;
   };
 
   function subLine(opts) {
     var d = opts.dayN === undefined ? A.dayNumber() : opts.dayN;
-    if (d === A.PRACTICE) return "PRACTICE · UNLIMITED";
-    return "DAY " + d + " · " + A.prettyDate(d).toUpperCase();
+    if (d === A.PRACTICE) return "Practice · unlimited";
+    return "Day " + d + " · " + A.prettyDate(d);
   }
   A.subLine = subLine;
 
@@ -160,14 +160,9 @@
     if (s) s.innerHTML = text;
   };
 
-  function glowFor(token) {
-    var map = {
-      "--hot": "rgba(255,79,163,.5)", "--cool": "rgba(79,216,255,.45)",
-      "--gold": "rgba(255,216,79,.45)", "--mint": "rgba(61,224,138,.45)",
-      "--violet": "rgba(177,140,255,.45)",
-    };
-    return map[token] || map["--hot"];
-  }
+  // The redesign removed glows. Cabinets still set --glow, so it resolves to
+  // a transparent value rather than being left undefined.
+  function glowFor() { return "transparent"; }
 
   /* ── on-screen keyboard ──────────────────────────────────────────────── */
 
@@ -228,8 +223,8 @@
   A.statsHTML = function (gameId) {
     var s = A.stats(gameId), g = A.game(gameId) || {};
     var h = '<div class="ac-stats">' +
-      st(s.played, "PLAYED") + st(s.winPct + "%", "WIN %") +
-      st(s.streak, "STREAK") + st(s.maxStreak, "MAX") + st(s.avgNorm, "AVG") +
+      st(s.played, "Played") + st(s.winPct + "%", "Win rate") +
+      st(s.streak, "Streak") + st(s.maxStreak, "Best") + st(s.avgNorm, "Average") +
       "</div>";
     var keys = Object.keys(s.curve);
     if (keys.length) {
@@ -257,10 +252,10 @@
     html += '<p class="tiny dim center" style="margin-top:14px">Arcade run: <b>' + rs.current +
       "</b> day" + (rs.current === 1 ? "" : "s") + " · best <b>" + rs.max + "</b> · " + rs.total + " days played</p>";
     html += '<div class="ac-row" style="margin-top:14px">' +
-      '<button class="ac-btn ghost sm" id="ac-arch">📅 ARCHIVE</button>' +
-      '<a class="ac-btn ghost sm" href="' + A.rootPath() + 'daily/" style="text-decoration:none">TODAY\'S RUN</a>' +
+      '<button class="ac-btn ghost sm" id="ac-arch">Archive</button>' +
+      '<a class="ac-btn ghost sm" href="' + A.rootPath() + 'daily/">Today\'s run</a>' +
       "</div>";
-    var m = A.modal((g.name || gameId).toUpperCase() + " · STATS", html);
+    var m = A.modal((g.name || gameId) + " · stats", html);
     var ab = m.body.querySelector("#ac-arch");
     if (ab) ab.onclick = function () { m.close(); A.archiveModal(gameId); };
     return m;
@@ -274,7 +269,7 @@
     var html = '<p class="tiny muted center">Every day since the arcade opened. Playing an old one ' +
       "counts for your stats but not your streak.</p><div id='ac-days' style='display:grid;" +
       "grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;margin-top:12px'></div>";
-    var m = A.modal("ARCHIVE", html);
+    var m = A.modal("Archive", html);
     var host = m.body.querySelector("#ac-days");
     for (var d = today; d >= 0; d--) {
       (function (d) {
@@ -340,28 +335,28 @@
       h += '<div class="ac-row" style="margin-top:10px">' +
         '<span class="ac-pill">PAR <b>' + pr.par + "</b></span>" +
         '<span class="ac-pill' + (d >= 0 ? " on" : "") + '">' +
-        (d >= 0 ? "▲ " : "▼ ") + "<b>" + Math.abs(d) + "</b> " + (d >= 0 ? "OVER" : "UNDER") + "</span>" +
-        (mine >= best && mine > 0 ? '<span class="ac-pill on">🏅 PERSONAL BEST</span>'
-          : '<span class="ac-pill">BEST <b>' + best + "</b></span>") +
+        (d >= 0 ? "+" : "−") + "<b>" + Math.abs(d) + "</b> v par" + "</span>" +
+        (mine >= best && mine > 0 ? '<span class="ac-pill on">Personal best</span>'
+          : '<span class="ac-pill">Best <b>' + best + "</b></span>") +
         "</div>" +
         '<p class="tiny dim center" style="margin-top:5px">par from ' + A.esc(pr.source) + "</p>";
 
       var c = A.card(dayN);
       h += '<div class="ac-row" style="margin-top:8px"><span class="ac-pill">TODAY\'S CARD <b>' +
-        c.total + "</b>/100</span><span class=\"ac-pill\">" + c.played + " GAME" +
-        (c.played === 1 ? "" : "S") + " DONE</span></div>";
+        c.total + "</b>/100</span><span class=\"ac-pill\">" + c.played + " game" +
+        (c.played === 1 ? "" : "s") + "</span></div>";
     }
 
     h += '<div class="ac-row" style="margin-top:16px">' +
-      '<button class="ac-btn" id="ac-share">📋 SHARE</button>' +
-      (practice ? '<button class="ac-btn ghost" id="ac-again">AGAIN ↻</button>'
+      '<button class="ac-btn" id="ac-share">Share</button>' +
+      (practice ? '<button class="ac-btn ghost" id="ac-again">Play again</button>'
         : '<a class="ac-btn ghost" href="' + A.rootPath() + 'league/" style="text-decoration:none">⚔️ LEAGUE</a>') +
       "</div>";
 
     if (!practice) {
       h += '<div class="ac-row" style="margin-top:8px">' +
-        '<a class="ac-btn ghost sm" href="' + A.rootPath() + 'daily/" style="text-decoration:none">NEXT GAME →</a>' +
-        (g.hasPractice ? '<a class="ac-btn ghost sm" href="?practice=1" style="text-decoration:none">PRACTICE ∞</a>' : "") +
+        '<a class="ac-btn ghost sm" href="' + A.rootPath() + 'daily/">Next game →</a>' +
+        (g.hasPractice ? '<a class="ac-btn ghost sm" href="?practice=1">Practice</a>' : "") +
         "</div><div class='ac-next center' id='ac-cd'></div>";
     }
 
@@ -378,7 +373,7 @@
       var tick = function () {
         var ms = A.msToMidnight();
         var hh = Math.floor(ms / 3600000), mm = Math.floor(ms % 3600000 / 60000), ss = Math.floor(ms % 60000 / 1000);
-        cd.textContent = "NEXT PUZZLE IN " + hh + "h " + mm + "m " + ss + "s";
+        cd.textContent = "Next puzzle in " + hh + "h " + mm + "m " + ss + "s";
       };
       tick();
       var iv = setInterval(function () {
@@ -387,7 +382,7 @@
       }, 1000);
     }
     if (A.backupDue()) {
-      var warn = el("p", "tiny center", '⚠︎ your stats live only in this browser — ' +
+      var warn = el("p", "tiny center", 'Your stats live only in this browser — ' +
         '<a href="#" id="ac-bk">save a backup</a>');
       warn.style.cssText = "margin-top:12px;color:var(--gold)";
       m.body.appendChild(warn);
@@ -401,25 +396,25 @@
   A.settingsModal = function () {
     var s = A.settings();
     var h = "";
-    h += row("player", "WHO'S PLAYING", '<input id="sv-player" value="' + A.esc(s.player) +
+    h += row("player", "Who's playing", '<input id="sv-player" value="' + A.esc(s.player) +
       '" placeholder="your name" style="background:#ffffff10;border:1px solid var(--line2);' +
       'border-radius:8px;padding:8px 10px;width:130px;text-align:right">');
-    h += tog("hardMode", "HARD MODE", s.hardMode, "revealed hints must be reused");
-    h += tog("colourblind", "HIGH CONTRAST", s.colourblind, "blue/orange instead of green/yellow");
-    h += tog("sound", "SOUND", s.sound);
-    h += tog("reduceMotion", "REDUCE MOTION", s.reduceMotion);
-    h += tog("glam", "✨ GLAM MODE", s.glam);
+    h += tog("hardMode", "Hard mode", s.hardMode, "revealed hints must be reused");
+    h += tog("colourblind", "High contrast", s.colourblind, "blue/orange instead of green/yellow");
+    h += tog("sound", "Sound", s.sound);
+    h += tog("reduceMotion", "Reduce motion", s.reduceMotion);
+    h += tog("glam", "Glam mode", s.glam);
     h += '<hr style="border:none;border-top:1px solid var(--line);margin:16px 0">';
     h += '<p class="tiny muted">Everything you\'ve played lives in <b>this browser only</b>. ' +
       "Keep a backup — it takes one tap.</p>";
     h += '<div class="ac-row" style="margin-top:10px">' +
-      '<button class="ac-btn ghost sm" id="sv-bk">⬇ BACKUP</button>' +
-      '<button class="ac-btn ghost sm" id="sv-rs">⬆ RESTORE</button>' +
-      '<button class="ac-btn ghost sm" id="sv-code">🔗 SYNC CODE</button></div>';
+      '<button class="ac-btn ghost sm" id="sv-bk">Back up</button>' +
+      '<button class="ac-btn ghost sm" id="sv-rs">Restore</button>' +
+      '<button class="ac-btn ghost sm" id="sv-code">Sync code</button></div>';
     var last = s.lastBackup ? new Date(s.lastBackup).toLocaleDateString() : "never";
     h += '<p class="tiny dim center" style="margin-top:8px">last backup: ' + last + "</p>";
 
-    var m = A.modal("SETTINGS", h);
+    var m = A.modal("Settings", h);
     var q = function (id) { return m.body.querySelector(id); };
 
     q("#sv-player").onchange = function () { A.set("player", this.value.trim().slice(0, 18)); A.toast("Hello, " + (this.value.trim() || "player")); };
@@ -429,7 +424,7 @@
         var v = !A.settings()[k];
         A.set(k, v);
         b.classList.toggle("on", v);
-        b.textContent = v ? "ON" : "OFF";
+        b.textContent = v ? "On" : "Off";
       };
     });
     q("#sv-bk").onclick = function () { A.backupNow(); A.toast("Saved to Downloads"); };
@@ -448,13 +443,13 @@
     };
     q("#sv-code").onclick = function () {
       var code = A.syncCode();
-      var mm = A.modal("SYNC CODE", '<p class="tiny muted">Paste this into the same box on another ' +
+      var mm = A.modal("Sync code", '<p class="tiny muted">Paste this into the same box on another ' +
         "browser or device to copy your whole arcade across. It's long — use the copy button.</p>" +
         '<textarea id="sc" style="width:100%;height:110px;background:#0d0620;border:1px solid var(--line2);' +
         'border-radius:8px;color:var(--ink3);font-size:9px;padding:8px" spellcheck="false">' + A.esc(code) +
         '</textarea><div class="ac-row" style="margin-top:10px">' +
-        '<button class="ac-btn sm" id="sc-copy">COPY</button>' +
-        '<button class="ac-btn ghost sm" id="sc-apply">APPLY PASTED CODE</button></div>');
+        '<button class="ac-btn sm" id="sc-copy">Copy</button>' +
+        '<button class="ac-btn ghost sm" id="sc-apply">Apply pasted code</button></div>');
       mm.body.querySelector("#sc-copy").onclick = function () { A.copy(code).then(function () { A.toast("Copied"); }); };
       mm.body.querySelector("#sc-apply").onclick = function () {
         var v = mm.body.querySelector("#sc").value.trim();
@@ -472,7 +467,7 @@
     function tog(k, label, on, note) {
       return row(k, label + (note ? '<br><span class="tiny dim" style="letter-spacing:0">' + note + "</span>" : ""),
         '<button class="ac-pill sv-tog' + (on ? " on" : "") + '" data-k="' + k + '" style="cursor:pointer;min-width:56px;justify-content:center">' +
-        (on ? "ON" : "OFF") + "</button>");
+        (on ? "On" : "Off") + "</button>");
     }
   };
 
@@ -537,7 +532,7 @@
 
   // A "you already played today" gate every daily game shows on re-entry.
   A.alreadyPlayed = function (gameId, dayN, opts) {
-    return A.results(gameId, dayN, Object.assign({ title: "ALREADY PLAYED" }, opts || {}));
+    return A.results(gameId, dayN, Object.assign({ title: "Already played" }, opts || {}));
   };
 
 })(window.A, window);
