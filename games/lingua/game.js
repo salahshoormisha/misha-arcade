@@ -588,6 +588,7 @@
   // The card keeps the answer after the sheet is dismissed — the page itself
   // should still teach you what you were looking at.
   function said() {
+    spec.classList.add("done");          // also releases the text for selection
     saidBox.innerHTML = '<div class="said"><div class="lg">' + A.esc(S.lang.toUpperCase()) + "</div>" +
       '<div class="mt">' + A.esc(S.script) + " · " + A.esc(S.family) + "<br>" +
       A.esc(speakers(S.speakers)) + " SPEAKERS</div>" +
@@ -683,6 +684,7 @@
       if (!hit) return null;
       sandbox = true; S = hit; guesses = []; taken = []; free = -1; over = false;
       picker.disable(false); picker.setExclude([]);
+      spec.classList.remove("done");
       noFontBox.innerHTML = ""; saidBox.innerHTML = "";
       spec.querySelector(".id").textContent = "SPECIMEN ∞";
       spec.querySelector(".foot").textContent = srcLabel(S.src);
