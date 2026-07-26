@@ -134,4 +134,124 @@ BOARDS = [
  "epilogue": "An eval board that is mostly about how evals fail, which is the honest version. HOLDOUT is the double-fit and it loses because TRAINING, TEST, MIND and TEA are already a full shelf — and because CONTAMINATION, SATURATION and CHERRY-PICKING are three deaths looking for a fourth.",
 },
 
+{
+ "title": "The Institutes",
+ "diff": 3,
+ "groups": [
+   {"name": "STATE AI BODIES", "tiles": ["AISI", "CAISI", "EU AI OFFICE", "NIST"],
+    "note": "Britain's AI Safety Institute became the AI Security Institute in February 2025; America's became the Center for AI Standards and Innovation, CAISI, that June. Both kept the building and changed the noun."},
+   {"name": "WHERE THE AI SUMMITS HAPPENED", "tiles": ["BLETCHLEY", "SEOUL", "PARIS", "NEW DELHI"],
+    "note": "Bletchley Park in November 2023 produced a declaration signed by both the US and China; Seoul added commitments; Paris renamed the whole series an Action Summit; India took the fourth."},
+   {"name": "WHAT A LAB PUBLISHES BEFORE IT SCALES", "tiles": ["RSP", "PREPAREDNESS", "FSF", "MODEL CARD"],
+    "note": "Anthropic's Responsible Scaling Policy, OpenAI's Preparedness Framework, Google DeepMind's Frontier Safety Framework — three documents that promise what a lab will do at a capability level it has not reached yet."},
+   {"name": "RED ___", "tiles": ["TEAM", "LINE", "FLAG", "TAPE"],
+    "note": "Red team, red line, red flag, red tape. Four things this entire field argues about, and the only group on the board that a lawyer and an engineer would read identically."},
+ ],
+ "traps": [
+   ["NIST", 2, "NIST publishes the AI Risk Management Framework, so 'the thing that publishes the framework' describes it exactly — it is an agency that happens to be a framework factory."],
+   ["SEOUL", 2, "The Seoul Frontier AI Safety Commitments are precisely a document labs signed about what they will do before scaling. The tile is the city, not the commitment."],
+ ],
+ "epilogue": "Two groups of proper nouns, one of documents, one of ordinary words, and the difficulty is that the documents are named after the institutions and the institutions are named after the cities. RSP, PREPAREDNESS, FSF and MODEL CARD are four publications already, which is what keeps NIST an agency and SEOUL a place.",
+},
+
+{
+ "title": "Open Weights",
+ "diff": 3,
+ "groups": [
+   {"name": "OPEN-WEIGHT MODEL FAMILIES", "tiles": ["MISTRAL", "DEEPSEEK", "GEMMA", "OLMO"],
+    "note": "Gemma is Google's, OLMo is the Allen Institute's and ships its training data too, and DeepSeek's releases in early 2025 made the phrase 'compute moat' considerably less popular."},
+   {"name": "WHAT PEOPLE DO TO A DOWNLOADED MODEL", "tiles": ["FINE-TUNE", "QUANTISE", "MERGE", "LORA"],
+    "note": "Quantising drops the numbers to four bits so the thing runs on a laptop; LoRA trains a small adapter instead of the whole network; merging averages two models' weights and, unreasonably, often works."},
+   {"name": "VOCABULARY OF THE MISUSE DEBATE", "tiles": ["UPLIFT", "MARGINAL RISK", "SAFEGUARDS", "DUAL USE"],
+    "note": "'Marginal risk' is the load-bearing phrase: the question is never whether a model can help with something dangerous, but whether it helps more than a library and a search engine already do."},
+   {"name": "___ WEIGHT", "tiles": ["FEATHER", "HEAVY", "PAPER", "OVER"],
+    "note": "Featherweight, heavyweight, paperweight, overweight. The word 'weights' meaning 'the actual numbers in the model' is barely a decade old outside the lab."},
+ ],
+ "traps": [
+   ["SAFEGUARDS", 1, "Removing the safeguards is the very first thing some people do to a downloaded model, and adding them back is what the fine-tuners do. It is an argument word here, not an action."],
+   ["LORA", 0, "LoRA is four capital letters that look exactly like a model family on a board that opens with four model families."],
+ ],
+ "epilogue": "The board is one argument seen from three sides: what exists, what you can do with it, and what people say about what you can do with it. SAFEGUARDS is the tile with two homes, and it stays in blue because FINE-TUNE, QUANTISE, MERGE and LORA are four verbs already — and because UPLIFT, MARGINAL RISK and DUAL USE are three pieces of jargon with a hole in them.",
+},
+
+{
+ "title": "The Papers",
+ "diff": 4,
+ "groups": [
+   {"name": "LANDMARK PAPERS BY SHORTHAND", "tiles": ["ATTENTION", "RESNET", "ADAM", "DROPOUT"],
+    "note": "'Attention Is All You Need' (2017), residual connections (2015), the Adam optimiser (2014), dropout (2014). Four papers that between them are cited more than most fields."},
+   {"name": "ARCHITECTURES", "tiles": ["TRANSFORMER", "CNN", "LSTM", "DIFFUSION"],
+    "note": "The LSTM held the sequence-modelling crown for twenty years and lost it in about eighteen months; diffusion took over images by learning to undo noise."},
+   {"name": "WHERE THE FIELD PUBLISHES", "tiles": ["ARXIV", "NEURIPS", "ICML", "OPENREVIEW"],
+    "note": "The real publication event is the arXiv preprint; the conference is where you find out who else was working on it. OpenReview means the referee reports are public, which is either brave or cruel."},
+   {"name": "___ HEAD", "tiles": ["HOT", "FIGURE", "LETTER", "ARROW"],
+    "note": "Hothead, figurehead, letterhead, arrowhead. An attention head is none of these, which is the entire reason this group is here."},
+ ],
+ "traps": [
+   ["ATTENTION", 3, "An attention head is the single most-said phrase in modern machine learning, and there is an ___ HEAD group on this board. The paper is the answer."],
+   ["TRANSFORMER", 0, "Everybody calls the 2017 paper 'the Transformer paper'. Its actual title is in the yellow group, which is why the word itself is filed as an architecture."],
+ ],
+ "epilogue": "The paper and the thing the paper introduced are almost never the same word, and this board is entirely about that gap: the Transformer is in the architecture group and the paper that invented it is called ATTENTION. If you tried ATTENTION with HOT, FIGURE and LETTER you were reading the board exactly as intended and were still wrong.",
+},
+
+{
+ "title": "Agents",
+ "diff": 3,
+ "groups": [
+   {"name": "ONE TURN OF AN AGENT LOOP", "tiles": ["PLAN", "ACT", "OBSERVE", "REFLECT"],
+    "note": "Plan, act, observe, reflect, repeat until done or until the budget runs out. Almost every agent framework since 2023 is a rediscovery of this loop with different logging."},
+   {"name": "HOW AN AGENT GOES WRONG", "tiles": ["INJECTION", "JAILBREAK", "LOOPING", "EXFILTRATION"],
+    "note": "Prompt injection is the one with no clean fix: if a model reads a web page, the web page gets to talk to it, and instructions and data arrive down the same pipe."},
+   {"name": "AGENT PLUMBING", "tiles": ["MCP", "API", "TOOL CALL", "SANDBOX"],
+    "note": "The Model Context Protocol was opened up in late 2024 to stop every tool integration being written twice; the sandbox is the part everybody adds after the first incident."},
+   {"name": "___ AGENT", "tiles": ["FREE", "DOUBLE", "ESTATE", "SECRET"],
+    "note": "Free agent, double agent, estate agent, secret agent. The word arrived in AI from economics, where an agent is simply someone acting on another's behalf."},
+ ],
+ "traps": [
+   ["SANDBOX", 1, "'Sandbox escape' is a failure mode before it is a component, and the group next door is entirely failure modes."],
+   ["DOUBLE", 1, "A double agent is a thing that appears to work for you while working for someone else, which is a description of the green group's worst case."],
+ ],
+ "epilogue": "Four groups and only one of them is really about software. SANDBOX is the honest double-fit — you build one, then you spend your life worrying about escapes from it — and INJECTION, JAILBREAK, LOOPING and EXFILTRATION are four ways to fail already. The purple is the reminder that 'agent' was a word about trust long before it was a word about tools.",
+},
+
+{
+ "title": "Governance",
+ "diff": 4,
+ "groups": [
+   {"name": "MACHINERY OF THE EU AI ACT", "tiles": ["RISK TIERS", "GPAI", "CE MARKING", "ANNEX III"],
+    "note": "Four tiers from unacceptable down to minimal, a separate chapter for general-purpose models, the same CE mark that appears on a kettle, and Annex III — the list that decides what counts as high-risk."},
+   {"name": "RECURRING US AI POLICY FIGHTS", "tiles": ["PREEMPTION", "MORATORIUM", "LIABILITY", "LICENSING"],
+    "note": "Whether federal rules should override state ones, whether to pause anything, who pays when a model causes harm, and whether training a frontier model should need permission. The same four arguments every session."},
+   {"name": "WHAT A GOVERNANCE REGIME ASKS FOR", "tiles": ["AUDITS", "INCIDENT LOGS", "REGISTRATION", "WATERMARKS"],
+    "note": "Every regime lands on roughly the same four asks, borrowed wholesale from finance, aviation and food safety — which is why the vocabulary sounds older than the technology."},
+   {"name": "___ CONTROL", "tiles": ["EXPORT", "QUALITY", "REMOTE", "CROWD"],
+    "note": "Export control, quality control, remote control, crowd control. Only one of them has ever been used to try to slow down a technology on purpose."},
+ ],
+ "traps": [
+   ["EXPORT", 1, "Export controls are the most-argued American AI policy lever there is, so EXPORT reads as a US fight rather than as half a compound noun."],
+   ["LICENSING", 2, "Licensing is exactly the kind of thing a regime asks for, alongside audits and registration — it is in green because in the US it is still an argument, not a requirement."],
+ ],
+ "epilogue": "Three groups of policy vocabulary and one of ordinary compounds, and the trick is that policy vocabulary IS ordinary compounds. EXPORT is the double-fit and it goes purple because PREEMPTION, MORATORIUM, LIABILITY and LICENSING are four live American arguments already — a set that would look completely different if this board had been written in Brussels.",
+},
+
+{
+ "title": "The Long Run",
+ "diff": 5,
+ "groups": [
+   {"name": "WORDS FOR THE THING PEOPLE ARE WORRIED ABOUT", "tiles": ["X-RISK", "S-RISK", "TAKEOFF", "SINGULARITY"],
+    "note": "Existential risk, suffering risk, the speed of the transition, and the 1993 word for the point past which the graph stops being readable. Three of the four were coined in the same small set of mailing lists."},
+   {"name": "NAMES ATTACHED TO THE ARGUMENT", "tiles": ["BOSTROM", "YUDKOWSKY", "HINTON", "RUSSELL"],
+    "note": "Bostrom wrote the 2014 book, Yudkowsky spent two decades on the mailing lists, Russell wrote the textbook and then wrote the objection, and Hinton left Google in 2023 to say it out loud."},
+   {"name": "BORROWED FROM SAFETY ENGINEERING", "tiles": ["SAFETY CASE", "SWISS CHEESE", "TRIPWIRE", "NEAR MISS"],
+    "note": "A safety case is an argument that a system is safe enough, written down and challengeable — nuclear and aviation have required them for decades, which is why AI keeps reaching for the phrase."},
+   {"name": "FIRE ___", "tiles": ["ALARM", "WALL", "DRILL", "ESCAPE"],
+    "note": "Fire alarm, firewall, fire drill, fire escape. All four have been used as metaphors in this argument, and one of them is the title of the most-quoted essay in it."},
+ ],
+ "traps": [
+   ["TAKEOFF", 2, "Takeoff is an aviation word on a board with a group of borrowed aviation and nuclear vocabulary. Here it means how fast capabilities climb, which is the older AI usage."],
+   ["TRIPWIRE", 3, "A tripwire sets off an alarm, and the purple group is four things a fire sets off. It is in blue because the phrase comes from safety engineering intact."],
+ ],
+ "epilogue": "The hardest board in the pack, and the reason is that this field talks about itself in borrowed words: half the safety vocabulary is aviation, half the risk vocabulary is science fiction, and the surnames are doing the work of citations. TAKEOFF is the double-fit worth the price of admission — and SAFETY CASE, SWISS CHEESE, TRIPWIRE and NEAR MISS are four borrowings already, so the aeroplane stays in yellow.",
+},
+
 ]
