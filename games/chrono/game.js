@@ -166,7 +166,14 @@
     return POOL[A.dailyIndex(ID, day, POOL.length)];
   }
   function answer() { return entry.y; }
-  function shown() { return Math.min(TRIES, guesses.length + 1); }
+
+  // How many clues have actually been shown. A winning guess does NOT unlock
+  // the next rung — otherwise the result sheet would claim you had read a clue
+  // you never needed.
+  function shown() {
+    var nailed = guesses.length && guesses[guesses.length - 1] === answer();
+    return Math.min(TRIES, guesses.length + (nailed ? 0 : 1));
+  }
 
   /* ── the year control ──────────────────────────────────────────────────── */
 
