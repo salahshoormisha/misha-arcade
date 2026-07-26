@@ -1259,3 +1259,44 @@ html{ background:var(--lapis); }
 @media (max-width:700px) and (max-height:740px){
   .scr.combat .stage #foes{ scale:0.86; }
 }
+
+/* ═══════════ THE CHINVAT BRIDGE, IN 3D ═══════════ */
+.bridge3d{ position:fixed; inset:0; z-index:200; background:#04060f; opacity:0;
+  animation:arin .5s ease-out forwards; }
+.bridge3d.out{ animation:arout .34s ease-in forwards; }
+.br-cv{ position:absolute; inset:0; display:block; width:100%; height:100%; }
+.br-hud{ position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .5s; }
+.bridge3d.walking .br-hud{ opacity:1; }
+.br-top{ position:absolute; top:0; left:0; right:0; padding:15px 22px;
+  display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;
+  background:linear-gradient(180deg, rgba(4,6,15,.8), transparent);
+  font-family:var(--ui); font-size:10.5px; letter-spacing:.17em; color:rgba(243,230,205,.65); }
+.br-prog b{ font-family:var(--serif); font-size:22px; letter-spacing:0; color:var(--gold-l); vertical-align:-2px; }
+.br-width{ color:var(--gold-l); letter-spacing:.04em; text-transform:none; font-style:italic; }
+.br-deeds{ color:#7fe6e0; }
+.br-tilt{ position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
+  width:min(320px, 62vw); height:6px; border-radius:4px; overflow:hidden;
+  background:rgba(0,0,0,.55); border:1px solid rgba(224,169,46,.26); }
+.br-tiltf{ width:36%; height:100%; margin-left:32%; border-radius:4px; transition:background .2s; }
+.br-help{ position:absolute; bottom:24px; left:0; right:0; text-align:center;
+  font-family:var(--ui); font-size:11px; letter-spacing:.1em; color:rgba(243,230,205,.4); }
+.br-open,.br-end{ position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:6px; padding:34px; text-align:center;
+  background:radial-gradient(80% 60% at 50% 44%, rgba(10,16,40,.94), rgba(3,5,12,.97)); }
+.br-open{ transition:opacity .45s, transform .45s; }
+.br-open.gone{ opacity:0; transform:scale(1.05); pointer-events:none; }
+.br-open h2,.br-end h2{ font-family:var(--serif); font-size:28px; letter-spacing:.16em;
+  color:var(--gold-l); font-weight:500; margin-bottom:2px; }
+.br-fa{ font-family:var(--fa); font-size:21px; color:var(--turq-l); margin-bottom:16px; }
+.br-open p,.br-end p{ max-width:540px; font-family:var(--serif); font-size:14.5px; line-height:1.68;
+  color:var(--parch-2); margin-bottom:10px; }
+.br-open p b{ color:var(--gold-l); }
+.br-rule{ margin-top:12px !important; padding:12px 18px; border-radius:8px;
+  background:rgba(46,156,156,.09); border:1px solid rgba(95,208,204,.28); }
+.br-open .btn,.br-end .btn{ margin-top:18px; }
+.br-end{ opacity:0; transition:opacity .6s; }
+.br-end.in{ opacity:1; }
+.br-big{ font-family:var(--serif); font-size:56px; color:var(--parch); line-height:1.1; margin:6px 0 14px; }
+.br-big i{ font-style:normal; font-size:17px; color:var(--turq-l); letter-spacing:.1em; }
+.br-end .dim{ font-size:12.5px; color:rgba(243,230,205,.5); }
+@media (max-width:560px){ .br-big{ font-size:42px } .br-open h2,.br-end h2{ font-size:22px } .br-top{ font-size:9.5px } }
