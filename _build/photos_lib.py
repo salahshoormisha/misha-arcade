@@ -244,8 +244,11 @@ def year_from_meta(info):
         raw = clean(em(info, key))
         if not raw:
             continue
-        # Explicit ranges / circa are too fuzzy for a year-guessing game.
-        if re.search(r"(circa|\bca\.?\b|between|or\s+\d{4}|\d{4}\s*[-–/]\s*\d{4}|\?)", raw, re.I):
+        # Explicit ranges / circa are too fuzzy for a year-guessing game, and an
+        # upload/scan/publication date is not the date the shutter fired.
+        if re.search(r"(circa|\bca\.?\b|between|or\s+\d{4}|\d{4}\s*[-–/]\s*\d{4}|\?|"
+                     r"upload|scan|digitis|digitiz|publish|published|retrieved|"
+                     r"unknown|undated|century|decade|s\b\s*$)", raw, re.I):
             continue
         m = _YEAR_RE.search(raw)
         if m:
@@ -253,6 +256,27 @@ def year_from_meta(info):
             if 1820 <= y <= 2025:
                 return y, raw[:40]
     return None, ""
+
+
+def resolve_year(cat_year, info):
+    """Reconcile a category year with EXIF/DateTimeOriginal. -> (year, source) or (None, why).
+
+    A digitisation date masquerading as DateTimeOriginal is the single commonest
+    trap on Commons: a photo filed under 'Category:1912 in Boston' whose
+    DateTimeOriginal reads 2009 was scanned in 2009, not taken then.
+    """
+    meta, _raw = year_from_meta(info)
+    if meta is None and cat_year is None:
+        return None, "no-date"
+    if meta is None:
+        return cat_year, "category"
+    if cat_year is None:
+        return meta, "exif"
+    if abs(meta - cat_year) <= 1:
+        return meta, "exif"
+    if cat_year <= 1990 and meta >= 1995:
+        return cat_year, "category"          # EXIF is the scan date
+    return None, "date-conflict"
 
 
 def thumb_url(info, width=1000):
