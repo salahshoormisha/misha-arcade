@@ -300,7 +300,13 @@ CRITERIA = [
     K("pol_worldcup", "Has won the men's World Cup", "pol", "!!G.WC_WINNERS[c.i]"),
 
     # ── name shape ────────────────────────────────────────────────────────
-    K("nm_oneword", "Name is a single word", "name", "c.n.indexOf(' ')<0"),
+    # "Name is a single word" is the obvious way round, but 161 of 194 countries
+    # satisfy it (rarity 0.83) and a cell that 83% of the world can fill teaches
+    # nothing. Its complement is the same fact, in band, and much better to play.
+    K("nm_multiword", "Name is more than one word", "name", "c.n.indexOf(' ')>=0",
+      note="Two or more words: South Africa yes, Botswana no. Stated this way "
+           "round because a single-word name is true of 83% of countries -- far "
+           "too common to make a cell mean anything."),
     K("nm_3words", "Name is three or more words", "name", "c.n.split(' ').length>=3"),
     K("nm_double", "Name contains a double letter", "name",
       "/([A-Za-z])\\1/.test(c.n)",
@@ -315,8 +321,11 @@ CRITERIA = [
       "c.n.charAt(c.n.length-1).toLowerCase()==='a'"),
     K("nm_cap_same", "Capital starts with the same letter as the country", "name",
       "!!c.cap&&c.cap.charAt(0).toLowerCase()===c.n.charAt(0).toLowerCase()"),
-    K("nm_cap_oneword", "Capital's name is a single word", "name",
-      "!!c.cap&&c.cap.indexOf(' ')<0"),
+    K("nm_cap_multiword", "Capital's name is more than one word", "name",
+      "!!c.cap&&c.cap.indexOf(' ')>=0",
+      note="Mexico City, Buenos Aires, Kuala Lumpur, Port Moresby. Stated this "
+           "way round for the same reason as the country-name one: 87% of "
+           "capitals are a single word."),
 ]
 
 
