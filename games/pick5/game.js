@@ -64,6 +64,17 @@
     return "$" + Math.round(v);
   }
   function pc(x, dp) { return x.toFixed(dp === undefined ? 1 : dp) + "%"; }
+  /**
+   * A share-grid row is rendered with `white-space: pre` in a column ~293px wide
+   * on a phone, so a raw HS4 name has to be trimmed or it runs out of the sheet:
+   * "Acyclic alcohol derivatives (halogenated, sulphonated, nitrated)" measures
+   * 706px. The full name is still on the sheet, in `lines` and in the table head.
+   */
+  function gridLabel(n) {
+    var s = String(n).split(/[;(]/)[0].trim().replace(/,$/, "");
+    if (s.length > 22) s = s.slice(0, 21).replace(/[\s,]+$/, "") + "…";
+    return s;
+  }
   function cname(iso) {
     var c = window.AD_C ? window.AD_C(iso) : null;
     return (c && c.n) || iso;
@@ -170,10 +181,7 @@
     "<h2" + (prod.name.length > 30 ? ' class="long"' : "") + ">" + A.esc(prod.name) + "</h2>" +
     '<div class="meta"><b>' + usd(prod.world) + "</b> traded worldwide in " + YEAR +
     " · <b>" + prod.n + "</b> countries export it</div>";
-  if (sec.colour) {
-    banner.style.setProperty("--pcol", sec.colour);
-    banner.style.setProperty("--pglow", sec.colour + "26");
-  }
+  if (sec.colour) banner.style.setProperty("--pcol", sec.colour);
   main.appendChild(banner);
 
   var box = A.el("div");
@@ -471,7 +479,7 @@
     });
     var t = perfect() ? { cup: "🏅" } : tierFor(p);
     var grid = [
-      "🏭 " + prod.name,
+      "🏭 " + gridLabel(prod.name),
       dots.join(" ") + "  " + hits + "/5",
       (t ? t.cup + " " : "") + p.toFixed(1) + "% of the top five",
     ];
@@ -542,7 +550,7 @@
     A.results(ID, practice ? A.PRACTICE : day, {
       title: perfect() ? "THE EXACT FIVE" : p >= 90 ? "GOLD" : p >= 75 ? "SILVER"
         : p >= 50 ? "BRONZE" : "NO TROPHY TODAY",
-      lines: [t ? "you took home " + (t.word || "a medal") : "you needed 50% for a bronze"],
+      lines: [prod.name, t ? "you took home " + (t.word || "a medal") : "you needed 50% for a bronze"],
       extraHTML: extra,
       state: { norm: norm, shareGrid: grid, won: won },
       shareText: "PICK 5 (practice) · " + detail + "\n" + (grid || []).join("\n") + "\n" + A.SITE,
