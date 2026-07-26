@@ -211,6 +211,12 @@
   .allclues div.seen b { color: var(--accent); }
 
   @media (max-width: 380px) {
+    /* .ac-wrap drops to --sp-3 of padding here, so the bar's bleed has to match
+       it exactly or the page gains 8px of horizontal scroll. */
+    .bar {
+      margin-left: calc(var(--sp-3) * -1); margin-right: calc(var(--sp-3) * -1);
+      padding-left: var(--sp-3); padding-right: var(--sp-3);
+    }
     .clue { grid-template-columns: 22px 1fr auto; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); }
     #year { font-size: var(--t-xl); }
     #go { padding: 0 var(--sp-3); }
