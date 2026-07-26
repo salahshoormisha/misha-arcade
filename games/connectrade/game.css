@@ -165,6 +165,6 @@
   .ctc { padding: 7px 9px; }
   .ctc .nm { white-space: normal; font-size: 11px; line-height: 1.25; }
   .ctc .tk { display: none; }
-  .ctc.done .nm { text-decoration: line-through; }
+  .ctc.done .tk { display: block; }   /* keep the ✓ — that one earns its space */
 }
 @media (max-width: 359px) { .ctt { height: 76px; } }

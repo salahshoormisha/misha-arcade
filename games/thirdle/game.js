@@ -32,7 +32,7 @@
   var day = A.requestedDay();
   var practice = day === A.PRACTICE;
   var P = null;                 // the puzzle: {w:[3 words], cross:[{...},{...}], cells, cols, rows}
-  var cur = [], guesses = [], over = false, t0 = Date.now();
+  var cur = [], guesses = [], over = false, won = false, t0 = Date.now();
   var dirty = {};               // slots retyped since the last submission
   // Declared here, not beside paintKeys: render() runs at boot and `var`
   // initialisers do not hoist, so a later declaration is still undefined.
@@ -197,7 +197,7 @@
     guesses.push(ws.slice());
     var st = states(ws);
     paintKeys(ws, st);
-    var won = ws[0] === P.w[0] && ws[1] === P.w[1] && ws[2] === P.w[2];
+    var didWin = ws[0] === P.w[0] && ws[1] === P.w[1] && ws[2] === P.w[2];
     // There is only one board, so the attempt STAYS on it, coloured, and you
     // edit it into your next attempt. A cell loses its colour the moment you
     // retype it — colours belong to letters, not to squares.
@@ -205,7 +205,7 @@
     focus = 0;
     render();
     save();
-    if (won) { A.sfx("win"); end(true); }
+    if (didWin) { A.sfx("win"); end(true); }
     else if (guesses.length >= TRIES) { A.sfx("lose"); end(false); }
     else {
       var greens = st.reduce(function (n, r) { return n + r.filter(function (x) { return x === "ok"; }).length; }, 0);
@@ -306,6 +306,20 @@
         if (!over && freeSlots[focus] === idx) cls += " cur";
         d.className = cls;
         d.textContent = over ? P.w[slot.w][slot.i] : ch;
+        // Tap a square to type there. The board persists between attempts, so
+        // without this the only way to change the 8th letter was to retype the
+        // seven before it.
+        if (!over && !locked[idx]) {
+          d.onclick = (function (i) {
+            return function () {
+              var f = freeSlots.indexOf(i);
+              if (f < 0) return;
+              focus = f;
+              A.sfx("tick");
+              render();
+            };
+          })(idx);
+        }
         gridEl.appendChild(d);
       }
     }
@@ -340,15 +354,15 @@
     }
     render();
     if (st && st.done) {
-      over = true; kbd.disable(true); render();
-      setTimeout(function () { sheet(st.won, st.norm); }, 240);
+      over = true; won = !!st.won; kbd.disable(true); render();
+      setTimeout(function () { sheet(won, st.norm, st.shareGrid); }, 240);
     }
   }
 
   /* ── ending ──────────────────────────────────────────────────────────── */
 
-  function end(won) {
-    over = true; kbd.disable(true); render();
+  function end(w) {
+    over = true; won = w; kbd.disable(true); render();
     var n = guesses.length;
     var norm = won ? NORM[n] : 12;
 
@@ -368,16 +382,23 @@
     sheet(won, norm, grid);
   }
 
-  function sheet(won, norm, grid) {
-    var extra = '<p class="center" style="margin:8px 0 2px;font-size:16px;letter-spacing:4px;color:var(--gold)">' +
-      P.w.map(A.esc).join(" · ") + "</p>";
-    A.results(ID, practice ? A.PRACTICE : day, {
-      title: won ? (guesses.length <= 3 ? "CROSS-REFERENCED" : "ALL THREE") : "SO CLOSE",
+  function shareLine(grid) {
+    return "THIRDLE " + (practice ? "(practice)" : "#" + day) +
+      "\n" + (grid || []).join("\n") + "\n" + A.SITE;
+  }
+
+  function sheet(w, norm, grid) {
+    var extra = '<p class="center th-words">' + P.w.map(A.esc).join(" · ") + "</p>";
+    var m = A.results(ID, practice ? A.PRACTICE : day, {
+      title: w ? (guesses.length <= 3 ? "CROSS-REFERENCED" : "ALL THREE") : "SO CLOSE",
       extraHTML: extra,
-      state: { norm: norm, shareGrid: grid, won: won },
-      shareText: "THIRDLE (practice)\n" + (grid || []).join("\n") + "\n" + A.SITE,
+      state: { norm: norm, shareGrid: grid, won: w },
+      shareText: shareLine(grid),
       onReplay: function () { location.reload(); },
     });
+    var sb = m.body.querySelector("#ac-share");
+    if (sb) sb.onclick = function () { A.share(practice ? shareLine(grid) : A.shareCard(ID, day)); };
+    return m;
   }
 
   window.addEventListener("resize", function () { clearTimeout(render._t); render._t = setTimeout(render, 140); });

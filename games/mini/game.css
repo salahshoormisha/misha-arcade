@@ -126,7 +126,9 @@
 /* ── tools sheet ────────────────────────────────────────────────────────── */
 
 .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 4px 0 14px; }
-.tools-grid button { width: 100%; min-height: 44px; padding-left: 4px; padding-right: 4px; }
+/* .ac-btn.sm caps out at 38px; these are the primary controls of the sheet, so
+   they get the full 44px tap target (specificity has to beat .ac-btn.sm) */
+.tools-grid button.ac-btn.sm { width: 100%; min-height: 44px; padding-left: 4px; padding-right: 4px; }
 .tools-lab { font-size: 10px; letter-spacing: 2px; color: var(--ink4); margin-bottom: 6px; }
 
 .mbadge { font-size: 11.5px; letter-spacing: 1px; color: var(--gold); text-align: center; margin-top: 8px; }

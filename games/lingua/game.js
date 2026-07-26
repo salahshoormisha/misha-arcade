@@ -267,15 +267,18 @@
     if (!specTxt) return;
     var vert = !!VERT[S.sc];
     var mul = SCALE[S.key] || SCALE[S.sc] || 1;
-    var maxH = vert ? 300 : A.clamp(Math.round(window.innerHeight * 0.40), 150, 330);
+    // Vertical text is measured across, horizontal text down. The height must
+    // be cleared for horizontal scripts or a switch of specimen inherits it.
+    var maxH = vert ? A.clamp(Math.round(window.innerHeight * 0.45), 220, 300)
+      : A.clamp(Math.round(window.innerHeight * 0.44), 240, 340);
     specTxt.style.lineHeight = String(LEAD[S.key] || LEAD[S.sc] || 1.65);
-    if (vert) specTxt.style.height = maxH + "px";
+    specTxt.style.height = vert ? maxH + "px" : "";
     for (var px = 31; px >= 14; px--) {
       specTxt.style.fontSize = Math.round(px * mul) + "px";
       if (vert ? specTxt.scrollWidth <= specTxt.clientWidth + 1
         : specTxt.scrollHeight <= maxH) break;
     }
-    specBody.style.minHeight = vert ? "" : Math.min(maxH, 132) + "px";
+    specBody.style.minHeight = vert ? "" : "132px";
   }
 
   /* Tofu check. Three or more DIFFERENT characters of a script that all render
