@@ -238,7 +238,9 @@
     row.className = "clue" + (fresh ? " fresh" : "");
     row.querySelector(".ix").textContent = pad(i + 1);
     row.querySelector(".tx").textContent = entry.c[i];
-    row.querySelector(".val").textContent = PTS[i + 1] + " PTS";
+    // A revealed clue's tier is history — the strip at the top carries the live
+    // number, so repeating it on every row is just noise.
+    row.querySelector(".val").textContent = "";
     if (fresh) {
       A.sfx("reveal");
       // scrollIntoView, not a rAF animation: a backgrounded tab pauses rAF and
@@ -256,8 +258,8 @@
     var row = rows[i];
     row.className = "clue locked";
     row.querySelector(".ix").textContent = pad(i + 1);
-    row.querySelector(".tx").textContent = "sealed · worth " + PTS[i + 1] + " if you get there";
-    row.querySelector(".val").textContent = "🔒";
+    row.querySelector(".tx").textContent = "sealed";
+    row.querySelector(".val").textContent = PTS[i + 1] + " PTS";
   }
 
   function pad(n) { return n < 10 ? "0" + n : String(n); }

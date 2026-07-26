@@ -93,31 +93,42 @@
    nothing on the page moves when it appears */
 #pz {
   position: absolute; inset: 0; z-index: 5; display: grid; place-items: center;
-  background: rgba(7, 3, 18, .95); border-radius: 10px; text-align: center;
-  opacity: 0; visibility: hidden; transition: opacity .16s ease, visibility .16s;
+  background: color-mix(in srgb, var(--bg-far) 95%, transparent);
+  border-radius: var(--r-sm); text-align: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity var(--slow) var(--ease), visibility var(--slow);
 }
 #pz.on { display: grid; opacity: 1; visibility: visible; }
-#pz b { display: block; font-size: 13px; letter-spacing: 3px; color: var(--cool); margin-bottom: 12px; }
+#pz b {
+  display: block; font-family: var(--display); font-size: var(--t-sm); font-weight: 650;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: var(--sp-3);
+}
 
 /* ── clue bar (lives directly above the keyboard) ───────────────────────── */
 
 #cbar {
   display: flex; align-items: stretch; width: min(500px, 100%);
-  margin: 12px auto 0; border: 1px solid var(--line);
-  border-radius: 12px; background: #ffffff08; overflow: hidden;
+  margin: var(--sp-3) auto 0; border: 1px solid var(--hair);
+  border-radius: var(--r-md); background: var(--s1); overflow: hidden;
   touch-action: pan-y;
 }
 #cbar button {
   flex: 0 0 46px; min-height: 56px; background: none; border: none;
-  color: var(--ink3); font-size: 18px; cursor: pointer;
+  color: var(--ink-3); font-size: var(--t-lg); cursor: pointer;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
 }
-#cbar button:active { background: #ffffff14; }
+#cbar button:hover { color: var(--ink); background: var(--s2); }
+#cbar button:active { background: var(--s3); }
 #cbar .txt {
   flex: 1 1 auto; min-width: 0; min-height: 56px; padding: 7px 6px; cursor: pointer;
   display: flex; flex-direction: column; justify-content: center; gap: 3px;
 }
-#cbar .lab { font-size: 9.5px; letter-spacing: 1.8px; color: var(--cool); }
-#cbar .cl { font-size: 13.5px; line-height: 1.35; color: var(--ink); }
+#cbar .lab {
+  font-size: var(--t-xs); font-weight: 550; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--accent);
+}
+#cbar .cl { font-size: var(--t-md); line-height: 1.35; color: var(--ink); }
 
 /* ── clue lists (inline on desktop, in a modal on phones) ───────────────── */
 

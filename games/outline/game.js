@@ -296,6 +296,9 @@
 
   window.__OL = {
     answer: function () { return answer; }, guess: guess,
+    // Exposed so the shape renderer can be checked against any country/angle
+    // without waiting for that day to come round in the archive.
+    draw: silhouette,
     state: function () { return { guesses: guesses, over: over, rot: rot, pool: POOL.length }; },
   };
 })();

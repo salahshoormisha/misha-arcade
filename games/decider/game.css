@@ -273,8 +273,14 @@ input.dc-range::-moz-range-thumb {
 .dc-foot .ac-pill { cursor: pointer; text-decoration: none; min-height: 44px; }
 .dc-foot .ac-pill:hover { border-color: var(--p); color: var(--ink); }
 
+/* The entrance rise moves the block but deliberately does NOT fade it in. An
+   animation that starts at opacity 0 leaves the whole screen invisible for as
+   long as it is stalled, and it stalls whenever the page is not painting
+   (backgrounded tab, locked phone) — the same trap as a paused
+   requestAnimationFrame. Transform-only means a stalled animation costs 8px of
+   position and nothing else. */
 .dc-in { animation: dcin .24s cubic-bezier(.2, .9, .3, 1); }
-@keyframes dcin { from { transform: translateY(8px); opacity: 0 } }
+@keyframes dcin { from { transform: translateY(8px) } }
 
 @media (max-width: 360px) {
   .dc-opt { font-size: 13px; gap: 9px; padding-left: 8px; }
