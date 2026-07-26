@@ -269,13 +269,16 @@
     node.addEventListener("click", function () { onCellClick(i); });
   }
 
-  /* The chrome BELOW the grid that has to stay on screen with it:
-     clue bar (12 margin + 70) + keyboard (16 margin + 144) + 8 slack.
-     The footer pill is deliberately NOT counted — it is a link, not a control
-     you need mid-solve, so it may sit below the fold. */
-  var BELOW_GRID = 250;
-
   function sizeGrid() {
+    /* The chrome BELOW the grid that has to stay on screen with it:
+       clue bar (12 margin + 70) + keyboard (16 margin + 144) + 8 slack. The
+       footer pill is deliberately NOT counted — it is a link, not a control you
+       need mid-solve, so it may sit below the fold. Declared in here, not at
+       module scope: buildDOM() calls sizeGrid() before a module-scope `var`
+       further down the file has run, and an undefined operand would make the
+       whole cell size NaN. */
+    var BELOW_GRID = 250;
+
     var avail = Math.min(430, Math.min(window.innerWidth, 620) - 34);
     var cs = A.clamp(Math.floor((avail - (N - 1) * GAP) / N), MIN_CELL, MAX_CELL);
 
@@ -286,9 +289,8 @@
        as the floor, so a very short window gets a small grid rather than a
        sliver. On a tall phone or a desktop this changes nothing. */
     var top = gridWrap.getBoundingClientRect().top + (window.scrollY || 0);
-    var room = window.innerHeight - top - BELOW_GRID;
-    var byHeight = Math.floor((room - (N - 1) * GAP) / N);
-    cs = A.clamp(Math.min(cs, byHeight), MIN_CELL, MAX_CELL);
+    var byHeight = Math.floor((window.innerHeight - top - BELOW_GRID - (N - 1) * GAP) / N);
+    if (isFinite(byHeight)) cs = A.clamp(Math.min(cs, byHeight), MIN_CELL, MAX_CELL);
 
     gridEl.style.gridTemplateColumns = "repeat(" + N + ", " + cs + "px)";
     gridEl.style.setProperty("--cs", cs + "px");

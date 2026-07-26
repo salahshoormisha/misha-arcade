@@ -696,7 +696,7 @@
       SAMPLES.forEach(function (s) {
         var box = A.el("div");
         box.style.cssText = "border:1px solid var(--line);border-radius:10px;padding:8px 10px;" +
-          "margin-bottom:6px;background:#ffffff06";
+          "margin-bottom:6px;background:var(--s1)";
         var tag = A.el("div");
         tag.style.cssText = "font-size:9px;letter-spacing:1px;color:var(--ink4)";
         tag.textContent = s.sc + " · " + s.lang + (isTofu(s.text, fontFor(s)) ? " · ⚠︎ TOFU" : "");

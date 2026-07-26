@@ -301,10 +301,15 @@
   // runs before the 460 ms reveal bumps `at`, so the stored `at` is one behind)
   // and from double-counting it — that could push `right` past the question
   // count and print "13 of 12 right" on the result sheet.
-  function save() { if (!practice) A.save(ID, day, { at: answered.length, right: right, answered: answered }); }
+  function save() {
+    if (practice) return;
+    A.save(ID, day, {
+      at: answered.length, right: right, answered: answered,
+      subjects: qs.map(function (q) { return q.iso; }),   // pins the day's twelve
+    });
+  }
 
-  function restore() {
-    var st = practice ? null : A.load(ID, day);
+  function restore(st) {
     if (st && !st.done && st.answered && st.answered.length) {
       answered = st.answered.slice(0, qs.length).map(Boolean);
       at = answered.length;
