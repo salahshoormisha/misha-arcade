@@ -290,7 +290,9 @@
     grid.classList.toggle("off", over);
     if (!live.length) return;
     var gw = grid.clientWidth || 344;
-    var tw = Math.max(46, (gw - 18) / 4);
+    // 12 = 3 gaps × the 4px gap in game.css (#qgrid). Keep the two in step or
+    // the deterministic type sizing below quietly stops matching the tile.
+    var tw = Math.max(46, (gw - 12) / 4);
     live.forEach(function (t) {
       var b = A.el("button", "qt", esc(t));
       b.type = "button";

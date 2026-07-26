@@ -62,7 +62,8 @@
     help: "<p>One country, as a plain silhouette — no labels, no scale, and <b>rotated</b>, so " +
       "recognising the picture won't save you.</p>" +
       "<ul><li>Six guesses, each with distance and direction to the real answer.</li>" +
-      "<li><b>💡 Hint</b> tells you its size and how many countries it borders — costs 8 points.</li>" +
+      "<li><b>Size &amp; borders</b> tells you how big it is and how many countries it touches — " +
+      "costs 8 points.</li>" +
       "<li>The shape turns the right way up when the round ends.</li></ul>",
   });
 
@@ -85,7 +86,7 @@
   picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "which country is that?" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
-  row.innerHTML = '<button class="ac-pill" id="hint">💡 SIZE &amp; BORDERS</button>' +
+  row.innerHTML = '<button class="ac-pill" id="hint">SIZE &amp; BORDERS</button>' +
     (practice ? '<a class="ac-pill" href="./">← TODAY\'S SHAPE</a>'
       : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>');
   main.appendChild(row);
@@ -115,7 +116,7 @@
     var c = byIso[answer];
     var n = (c.bord || []).length;
     var size = c.area > 2e6 ? "enormous" : c.area > 5e5 ? "large" : c.area > 1e5 ? "mid-sized" : "small";
-    hintBox.innerHTML = "💡 " + size + " (" + A.fmtNum(c.area) + " km²) · " +
+    hintBox.innerHTML = "<b>the shape</b>" + size + " (" + A.fmtNum(c.area) + " km²) · " +
       (n ? "borders " + n + " countr" + (n === 1 ? "y" : "ies") : "borders no one") +
       ' <span class="dim">(−8 pts)</span>';
     A.sfx("reveal"); save();
@@ -126,8 +127,8 @@
   function draw() {
     A.silhouette(cvs, answer, {
       rotate: over ? 0 : rot,
-      fill: over ? "#3de08a" : "#ffe3f3",
-      stroke: "#ffffff40", lw: 1.2, pad: 18,
+      fill: over ? "#4ecb8f" : "#f5f2f8",
+      stroke: "rgba(255,255,255,.22)", lw: 1.2, pad: 18,
     });
     tries.innerHTML = "";
     for (var t = 0; t < TRIES; t++) {
@@ -147,7 +148,7 @@
       el.innerHTML = '<img alt="" src="' + A.rootPath() + "core/data/flags/" + iso +
         '.svg" onerror="this.style.visibility=\'hidden\'">' +
         '<span class="nm">' + A.esc(c.n) + "</span>" +
-        (won ? '<span class="ar">🎉</span><span class="pc">100%</span>'
+        (won ? '<span class="ar">✓</span><span class="pc">100%</span>'
           : '<span class="km">' + A.geo.km(d) + '</span><span class="ar">' + A.arrow(b) +
             '</span><span class="pc">' + Math.round(A.geo.prox(d) * 100) + "%</span>");
       list.appendChild(el);
@@ -167,7 +168,7 @@
     renderGuesses();
     if (st && st.done) {
       over = true; picker.disable(true); draw();
-      setTimeout(function () { sheet(st.won, st.norm); }, 240);
+      setTimeout(function () { sheet(st.won, st.norm, st.shareGrid); }, 240);
     }
   }
 
@@ -201,11 +202,12 @@
 
   function sheet(won, norm, grid) {
     var c = byIso[answer];
-    var extra = '<p class="center" style="margin:6px 0 2px"><b style="font-size:17px;letter-spacing:2px">' +
-      A.esc(c.n) + "</b></p>" +
+    var extra = '<p class="center" style="margin:var(--sp-2) 0 2px">' +
+      '<b style="font-size:var(--t-lg);letter-spacing:.08em">' + A.esc(c.n) + "</b></p>" +
       '<p class="center tiny muted">' + A.esc([c.cap, c.sub || c.reg].filter(Boolean).join(" · ")) +
       " · " + A.fmtNum(c.area) + " km²</p>" +
-      (won ? '<p class="center tiny" style="color:var(--mint);margin-top:8px">🛂 stamped in your passport</p>' : "");
+      (won ? '<p class="center tiny" style="color:var(--green);margin-top:var(--sp-2)">' +
+        "stamped in your passport</p>" : "");
 
     A.results(ID, practice ? A.PRACTICE : day, {
       title: won ? (guesses.length <= 2 ? "CARTOGRAPHER" : "GOT IT") : "NOT THIS TIME",

@@ -4,45 +4,65 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATLAS GYM · Midnight Arcade</title>
-<meta name="theme-color" content="#070312">
+<meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-<link rel="stylesheet" href="../../core/style.css?v=7">
+<link rel="stylesheet" href="../../core/style.css?v=8">
 <style>
-  .prompt { text-align: center; margin: 10px auto 0; }
-  .prompt .q { font-size: 11px; letter-spacing: 2.4px; color: var(--ink4); }
-  .prompt .big { font-size: clamp(20px, 5.4vw, 28px); font-weight: 900; letter-spacing: 2px;
-                 color: #fff; margin-top: 8px; line-height: 1.3; }
-  #qflag { width: min(240px, 62vw); border-radius: 6px; display: block; margin: 12px auto 0;
-           box-shadow: 0 8px 26px #0008; }
-  #qshape { width: min(210px, 54vw); height: min(210px, 54vw); display: block; margin: 8px auto 0; }
-  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 440px; margin: 16px auto 0; }
-  .opts button {
-    background: #ffffff0a; border: 1px solid var(--line2); border-radius: 12px; color: var(--ink);
-    padding: 13px 10px; font-size: 13px; cursor: pointer; min-height: 52px; letter-spacing: .6px;
-    transition: transform .1s, background .15s;
+  .prompt { text-align: center; margin: var(--sp-3) auto 0; }
+  .prompt .q { font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase;
+               color: var(--ink-4); }
+  .prompt .big {
+    font-family: var(--display); font-size: clamp(20px, 5.4vw, 28px); font-weight: 700;
+    letter-spacing: .04em; color: var(--ink); margin-top: var(--sp-2); line-height: 1.25;
+    text-wrap: balance;
   }
-  .opts button:hover { background: #ffffff16; }
+  #qflag { width: min(240px, 62vw); border-radius: var(--r-sm); display: block;
+           margin: var(--sp-3) auto 0; box-shadow: var(--sh-2); background: var(--s1); }
+  #qshape { width: min(210px, 54vw); height: min(210px, 54vw); display: block;
+            margin: var(--sp-2) auto 0; }
+  /* only rendered if the flag SVG fails to load — never a broken-image icon */
+  .qflag-miss { max-width: min(240px, 62vw); margin: var(--sp-3) auto 0;
+                padding: var(--sp-5) var(--sp-4); border: 1px dashed var(--hair-2);
+                border-radius: var(--r-md); background: var(--s1);
+                font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase;
+                color: var(--ink-4); text-align: center; }
+
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2);
+          max-width: 440px; margin: var(--sp-4) auto 0; }
+  .opts button {
+    background: var(--s1); border: 1px solid var(--hair-2); border-radius: var(--r-md);
+    color: var(--ink); padding: var(--sp-3) var(--sp-2); font-size: var(--t-sm);
+    cursor: pointer; min-height: 52px; letter-spacing: .02em; text-wrap: balance;
+    transition: transform var(--fast) var(--ease), background var(--fast) var(--ease);
+  }
+  .opts button:hover { background: var(--s3); }
   .opts button:active { transform: scale(.98); }
-  .opts button.right { background: var(--ok); color: #06210f; border-color: var(--ok); font-weight: 800; }
-  .opts button.wrong { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .opts button.right { background: var(--ok); color: var(--bg-far); border-color: var(--ok); font-weight: 700; }
+  .opts button.wrong { background: var(--bad); color: var(--ink); border-color: var(--bad); }
   .opts button[disabled] { cursor: default; }
-  .prog { display: flex; gap: 3px; justify-content: center; margin-top: 12px; }
-  .prog i { width: 15px; height: 5px; border-radius: 9px; background: #ffffff18; }
-  .prog i.ok { background: var(--ok); } .prog i.no { background: var(--bad); }
-  .weak { max-width: 440px; margin: 18px auto 0; font-size: 11.5px; color: var(--ink3); line-height: 1.9; }
-  .weak b { color: var(--gold); }
+
+  .prog { display: flex; gap: 3px; justify-content: center; margin-top: var(--sp-3); }
+  .prog i { width: 15px; height: 5px; border-radius: var(--r-full); background: var(--s3); }
+  .prog i.ok { background: var(--ok); }
+  .prog i.no { background: var(--bad); }
+
+  .weak { max-width: 440px; margin: var(--sp-5) auto 0; font-size: var(--t-xs);
+          color: var(--ink-3); line-height: 1.9; text-align: center; }
+  .weak b { color: var(--amber); font-weight: 600; }
+  .weak em { font-style: normal; letter-spacing: .16em; text-transform: uppercase;
+             color: var(--ink-4); }
 </style>
 </head>
 <body>
-<script src="../../core/registry.js?v=7"></script>
-<script src="../../core/arcade.js?v=7"></script>
-<script src="../../core/ui.js?v=7"></script>
-<script src="../../core/audio.js?v=7"></script>
-<script src="../../core/worldmap.js?v=7"></script>
-<script src="../../core/flagart.js?v=7"></script>
-<script src="../../core/data/countries.js?v=7"></script>
-<script src="../../core/data/flags.js?v=7"></script>
-<script src="../../core/data/world.js?v=7"></script>
-<script src="game.js?v=7"></script>
+<script src="../../core/registry.js?v=8"></script>
+<script src="../../core/arcade.js?v=8"></script>
+<script src="../../core/ui.js?v=8"></script>
+<script src="../../core/audio.js?v=8"></script>
+<script src="../../core/worldmap.js?v=8"></script>
+<script src="../../core/flagart.js?v=8"></script>
+<script src="../../core/data/countries.js?v=8"></script>
+<script src="../../core/data/flags.js?v=8"></script>
+<script src="../../core/data/world.js?v=8"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>
