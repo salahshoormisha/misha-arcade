@@ -6,7 +6,7 @@
 <title>THE LEAGUE · Midnight Arcade</title>
 <meta name="theme-color" content="#070312">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
-<link rel="stylesheet" href="../core/style.css?v=4">
+<link rel="stylesheet" href="../core/style.css?v=6">
 <style>
   .vs { display: flex; align-items: stretch; gap: 8px; margin: 6px 0 14px; }
   .vs .side { flex: 1 1 0; text-align: center; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line); }
@@ -47,10 +47,10 @@
 </style>
 </head>
 <body>
-<script src="../core/registry.js?v=4"></script>
-<script src="../core/arcade.js?v=4"></script>
-<script src="../core/ui.js?v=4"></script>
-<script src="../core/audio.js?v=4"></script>
+<script src="../core/registry.js?v=6"></script>
+<script src="../core/arcade.js?v=6"></script>
+<script src="../core/ui.js?v=6"></script>
+<script src="../core/audio.js?v=6"></script>
 <script>
 (function () {
   var main = A.mount({ title: "THE LEAGUE", sub: null, wide: true, accent: "--hot",
@@ -175,6 +175,59 @@
             (yours ? yours.name : best[0]) + "</b> · " + A.esc(T.opponent) + "'s patch: <b>" +
             (theirs ? theirs.name : best[best.length - 1]) + "</b></p>";
         }
+      }
+    }
+
+    /* ── the team: you two against your own records ────────────────────── */
+    var rec = A.records(), form = A.weekForm(), rs = A.runStreak();
+    h += '<h3 class="sec">🤝 THE TEAM</h3>';
+    h += '<p class="tiny muted" style="margin-bottom:10px">When you play the dailies together — ' +
+      "which is most of the time — this is the scoreboard. No opponent, just the two of you " +
+      "against the best you've managed.</p>";
+    h += '<div class="ac-row">' +
+      '<span class="ac-pill">🔥 RUN <b>' + rs.current + "</b></span>" +
+      '<span class="ac-pill">BEST RUN <b>' + rs.max + "</b></span>" +
+      (rec.bestCard !== null
+        ? '<span class="ac-pill">🏅 BEST CARD <b>' + rec.bestCard + "</b> · day " + rec.bestDay + "</span>"
+        : "") +
+      "</div>";
+
+    if (form.thisWeek !== null) {
+      var dl = form.delta;
+      h += '<div class="ac-row" style="margin-top:8px">' +
+        '<span class="ac-pill">THIS WEEK <b>' + form.thisWeek + "</b> avg</span>" +
+        (form.lastWeek !== null
+          ? '<span class="ac-pill' + (dl >= 0 ? " on" : "") + '">' + (dl >= 0 ? "▲ " : "▼ ") +
+            "<b>" + Math.abs(dl) + "</b> v LAST WEEK</span>"
+          : '<span class="ac-pill dim">no week to compare yet</span>') +
+        "</div>";
+    }
+
+    // per-game bests, with today's result against them — the chase list
+    var chase = (A.registry || []).map(function (g) {
+      var r = rec.perGame[g.id];
+      if (!r) return null;
+      var t = A.load(g.id, A.dayNumber());
+      return { g: g, best: r.best, avg: r.avg, played: r.played, today: t && t.done ? t.norm : null };
+    }).filter(Boolean);
+
+    if (chase.length) {
+      h += '<h3 class="sec">🎯 RECORDS TO BEAT</h3>';
+      chase.sort(function (a, b) { return (b.today !== null) - (a.today !== null) || b.best - a.best; });
+      chase.forEach(function (r) {
+        var beat = r.today !== null && r.today >= r.best;
+        h += '<div class="g"><span style="width:22px">' + r.g.icon + "</span>" +
+          '<span class="n">' + r.g.name + "<i>played " + r.played + " · avg " + r.avg + "</i></span>" +
+          '<span class="a" style="width:56px">' + r.best + '<i style="display:block;font-style:normal;' +
+          'font-size:9px;color:var(--ink4)">BEST</i></span>' +
+          '<span class="b ' + (beat ? "w" : "") + '" style="width:56px">' +
+          (r.today === null ? "—" : r.today) +
+          '<i style="display:block;font-style:normal;font-size:9px;color:var(--ink4)">TODAY</i></span></div>';
+      });
+      var beaten = chase.filter(function (r) { return r.today !== null && r.today >= r.best; }).length;
+      if (beaten) {
+        h += '<p class="center" style="margin-top:10px;color:var(--gold);font-size:12px;letter-spacing:1.5px">' +
+          "🏅 " + beaten + " personal best" + (beaten === 1 ? "" : "s") + " today</p>";
       }
     }
 

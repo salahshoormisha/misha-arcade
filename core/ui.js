@@ -316,8 +316,22 @@
     if (opts.extraHTML) h += opts.extraHTML;
 
     if (!practice) {
+      // Par first — it's the number they actually want to beat.
+      var pr = A.par(gameId, dayN);
+      var mine = st.norm || 0;
+      var d = mine - pr.par;
+      var best = A.stats(gameId).bestNorm || 0;
+      h += '<div class="ac-row" style="margin-top:10px">' +
+        '<span class="ac-pill">PAR <b>' + pr.par + "</b></span>" +
+        '<span class="ac-pill' + (d >= 0 ? " on" : "") + '">' +
+        (d >= 0 ? "▲ " : "▼ ") + "<b>" + Math.abs(d) + "</b> " + (d >= 0 ? "OVER" : "UNDER") + "</span>" +
+        (mine >= best && mine > 0 ? '<span class="ac-pill on">🏅 PERSONAL BEST</span>'
+          : '<span class="ac-pill">BEST <b>' + best + "</b></span>") +
+        "</div>" +
+        '<p class="tiny dim center" style="margin-top:5px">par from ' + A.esc(pr.source) + "</p>";
+
       var c = A.card(dayN);
-      h += '<div class="ac-row" style="margin-top:6px"><span class="ac-pill">TODAY\'S CARD <b>' +
+      h += '<div class="ac-row" style="margin-top:8px"><span class="ac-pill">TODAY\'S CARD <b>' +
         c.total + "</b>/100</span><span class=\"ac-pill\">" + c.played + " GAME" +
         (c.played === 1 ? "" : "S") + " DONE</span></div>";
     }

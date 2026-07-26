@@ -150,6 +150,17 @@ window.AD_REGISTRY = [
     distLabel: "score band", stamps: true,
   },
 
+  /* ── THE ONE YOU PLAY AGAINST EACH OTHER ──────────────────────────────── */
+  {
+    id: "decider", name: "THE DECIDER", icon: "🥊", accent: "--hot", family: "versus",
+    tagline: "one device, two people, settle it",
+    blurb: "General knowledge, head to head. Alternating questions, a steal round where a " +
+      "miss hands it to the other one, and a final wager you can lose everything on. " +
+      "Pass the phone back and forth — no accounts, no waiting.",
+    parMs: 420000, hasArchive: true, hasPractice: true,
+    distLabel: "margin", stamps: false, versus: true,
+  },
+
   /* ── OFFLINE REINVENTIONS (work on a plane) ───────────────────────────── */
   {
     id: "chrono", name: "CHRONO", icon: "⏳", accent: "--violet", family: "offline",
@@ -183,4 +194,5 @@ window.AD_FAMILIES = {
   geo:     { name: "GEO WING",    icon: "🌍", note: "flags, shapes and grids" },
   photo:   { name: "PICTURE HOUSE", icon: "📷", note: "real photographs — needs a connection" },
   offline: { name: "THE ANNEXE",  icon: "✈️", note: "reinvented to work with no internet at all" },
+  versus:  { name: "THE RING",    icon: "🥊", note: "one device, two people, actually against each other" },
 };

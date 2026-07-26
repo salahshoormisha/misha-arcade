@@ -413,6 +413,66 @@
     return out;
   };
 
+  /* ── par: something to measure yourself against, with no server ────────
+     The real games tell you how you did versus everyone else. We have no
+     server and never will, so instead each game can declare how hard TODAY'S
+     puzzle is, and par is that difficulty blended with your own record. It is
+     honest — it never pretends to be a crowd — and it gives them the thing
+     they actually want: a number to beat.                                  */
+
+  var parFns = {};
+  A.setPar = function (gameId, fn) { parFns[gameId] = fn; };
+
+  A.par = function (gameId, dayN) {
+    var s = A.stats(gameId);
+    var mine = s.played >= 3 ? s.avgNorm : null;
+    var hard = null;
+    if (parFns[gameId]) {
+      try { hard = parFns[gameId](dayN); } catch (e) { hard = null; }
+    }
+    // A game's own difficulty estimate leads; your average pulls it toward you.
+    var par, source;
+    if (hard !== null && mine !== null) { par = Math.round(hard * 0.6 + mine * 0.4); source = "difficulty + your form"; }
+    else if (hard !== null) { par = Math.round(hard); source = "today's difficulty"; }
+    else if (mine !== null) { par = mine; source = "your average"; }
+    else { par = 70; source = "a solid day"; }
+    return { par: A.clamp(par, 5, 98), source: source };
+  };
+
+  /* ── records: the team's own high scores to chase ────────────────────── */
+
+  A.records = function () {
+    var out = { bestCard: null, bestDay: null, perGame: {}, weeks: {} };
+    var days = (getJSON(A.NS + "run", { days: [] }).days || []);
+    days.forEach(function (d) {
+      var c = A.card(d);
+      if (!out.bestCard || c.total > out.bestCard) { out.bestCard = c.total; out.bestDay = d; }
+      var wk = Math.floor(d / 7);
+      var w = out.weeks[wk] || (out.weeks[wk] = { n: 0, sum: 0, week: wk });
+      w.n++; w.sum += c.total;
+    });
+    Object.keys(out.weeks).forEach(function (k) {
+      out.weeks[k].avg = Math.round(out.weeks[k].sum / out.weeks[k].n);
+    });
+    (A.registry || []).forEach(function (g) {
+      var s = A.stats(g.id);
+      if (s.played) out.perGame[g.id] = { best: s.bestNorm, avg: s.avgNorm, played: s.played, streak: s.streak };
+    });
+    return out;
+  };
+
+  // This week vs last week — the co-op scoreboard.
+  A.weekForm = function () {
+    var r = A.records();
+    var thisWk = Math.floor(A.dayNumber() / 7);
+    var a = r.weeks[thisWk], b = r.weeks[thisWk - 1];
+    return {
+      thisWeek: a ? a.avg : null, thisN: a ? a.n : 0,
+      lastWeek: b ? b.avg : null, lastN: b ? b.n : 0,
+      delta: (a && b) ? a.avg - b.avg : null,
+    };
+  };
+
   /* ── share cards ─────────────────────────────────────────────────────── */
 
   A.SITE = "https://salahshoormisha.github.io/misha-arcade/";
