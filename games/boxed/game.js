@@ -315,6 +315,7 @@
   var cur = "";              // the word being built (starts with the chain letter)
   var used = {};             // board letters covered by submitted words
   var over = false, finished = false, lastOK = false, t0 = Date.now();
+  var result = null;         // {won, norm} once the square is finished
   var genMs = 0;
   var topEl, wordEl, curEl, caretEl, boxEl, cv, ctx, leftEl, listEl, usedPill;
   var btn = {}, pts = [], geo = { size: 0, lo: 0, hi: 0 };
@@ -722,8 +723,18 @@
     }
     if (st && st.done) {
       over = true; finished = true;
-      setTimeout(function () { sheet(!!st.won, st.norm); }, 260);
+      result = { won: !!st.won, norm: st.norm || 0 };
+      lockControls();
+      setTimeout(function () { sheet(result.won, result.norm); }, 260);
     }
+  }
+
+  // A finished square takes no more input, so its controls stop pretending to.
+  function lockControls() {
+    ["#bx-enter", "#bx-del", "#bx-restart", "#bx-give"].forEach(function (s) {
+      var b = document.querySelector(s);
+      if (b) b.disabled = true;
+    });
   }
 
   /* ── ending ───────────────────────────────────────────────────────────── */
@@ -755,6 +766,8 @@
     var norm = won ? normFor(n) : 10;
     var grid = shareGrid();
     var detail = won ? n + "w · par " + P.par : "unsolved";
+    result = { won: won, norm: norm };
+    lockControls();
 
     if (!practice) {
       A.finish(ID, day, {
@@ -773,10 +786,11 @@
   function sheet(won, norm, grid) {
     var n = said.length;
     var title = !won ? "THE SQUARE WINS"
-      : n <= 2 ? "TWO WORDS"
-        : n < P.par ? "UNDER TARGET"
-          : n === P.par ? "ON TARGET"
-            : "SUPER SOLVING";
+      : n === 1 ? "ONE WORD"
+        : n === 2 ? "TWO WORDS"
+          : n < P.par ? "UNDER TARGET"
+            : n === P.par ? "ON TARGET"
+              : "SUPER SOLVING";
 
     var same = n === 2 && said[0] === P.sol[0] && said[1] === P.sol[1];
     var head = same ? "THE TWO WORDS WE FOUND TOO"
@@ -826,7 +840,7 @@
   }
 
   function askGiveUp() {
-    if (over) { sheet(false, 10); return; }
+    if (over) { if (result) sheet(result.won, result.norm); return; }
     var m = A.modal("SHOW A SOLUTION?", '<p class="center muted">That ends today\'s square as ' +
       "unsolved — it scores 10, and it can't be undone.</p>" +
       '<div class="ac-row" style="margin-top:16px">' +
@@ -843,7 +857,8 @@
     state: function () {
       return {
         said: said.slice(), cur: cur, left: left().join(""), over: over,
-        day: day, practice: practice, par: P.par, norm: over ? normFor(said.length) : null,
+        day: day, practice: practice, par: P.par,
+        won: result ? result.won : null, norm: result ? result.norm : null,
       };
     },
     // type() replaces the buffer with `s`, keeping the chain letter, exactly as

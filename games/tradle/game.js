@@ -152,7 +152,8 @@
       "is the family it belongs to (the key is under the map).</p>" +
       "<p>Six guesses. Each wrong one tells you <b>how far away</b> you are, " +
       "<b>which way</b> to go, and how warm you're getting.</p>" +
-      "<ul><li><b>💡 Hint</b> gives you the whole economy in one line — costs 8 points, not a guess.</li>" +
+      "<ul><li><b>What is this economy?</b> gives you the whole basket in one line — " +
+      "costs 8 points, not a guess.</li>" +
       "<li>Every country you get right is <b>stamped in your passport</b>.</li>" +
       "<li>Type freely — <i>USA</i>, <i>Holland</i>, <i>Persia</i> and <i>Burma</i> all work.</li>" +
       "<li>Baskets are 2023 mirror-reconciled UN Comtrade data. A few countries " +
@@ -191,7 +192,7 @@
   picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "who sells this?" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
-  row.innerHTML = '<button class="ac-pill" id="hint">💡 WHAT IS THIS ECONOMY?</button>' +
+  row.innerHTML = '<button class="ac-pill" id="hint">WHAT IS THIS ECONOMY?</button>' +
     (practice ? '<a class="ac-pill" href="./">← TODAY\'S COUNTRY</a>'
       : '<a class="ac-pill" href="?practice=1">∞ PRACTICE</a>');
   main.appendChild(row);
@@ -243,9 +244,12 @@
   function doHint() {
     if (over || hinted) return;
     var h = (TRADE[answer] || {}).hint;
-    if (!h) { hintBox.innerHTML = "💡 no one-liner recorded for this one — no charge"; return; }
+    if (!h) {
+      hintBox.innerHTML = "<b>the economy</b>no one-liner recorded for this one — no charge";
+      return;
+    }
     hinted = true;
-    hintBox.innerHTML = "💡 " + A.esc(h.replace(/\s*\[partial data\]\s*$/, "")) +
+    hintBox.innerHTML = "<b>the economy</b>" + A.esc(h.replace(/\s*\[partial data\]\s*$/, "")) +
       ' <span class="dim">(−' + HINT_COST + " pts)</span>";
     A.sfx("reveal");
     save();
@@ -362,7 +366,7 @@
     g.save();
     g.scale(dpr, dpr);
     g.clearRect(0, 0, w, h);
-    g.fillStyle = "#0d0722";
+    g.fillStyle = "#141220";                       /* --s1 */
     g.fillRect(0, 0, w, h);
 
     var its = items();
@@ -370,26 +374,26 @@
     var rects = squarify(vals, 0, 0, w, h);
 
     rects.forEach(function (r) {
-      var sec = SECT[r.it.colour] || SECT["0"] || { colour: "#4a3a7d", name: "Other" };
+      var sec = SECT[r.it.colour] || SECT["0"] || { colour: "#2e2941", name: "Other" };
       var rgb = rgbOf(sec.colour);
       var x = r.x, y = r.y, rw = Math.max(0, r.w), rh = Math.max(0, r.h);
 
       var grad = g.createLinearGradient(x, y, x + rw, y + rh);
-      grad.addColorStop(0, mix(rgb, [255, 255, 255], 0.18));
-      grad.addColorStop(1, mix(rgb, [12, 6, 32], 0.30));
+      grad.addColorStop(0, mix(rgb, [245, 242, 248], 0.16));
+      grad.addColorStop(1, mix(rgb, [10, 9, 16], 0.34));
       g.fillStyle = grad;
       g.fillRect(x, y, rw, rh);
 
       // seams + a top-left highlight, so the blocks read as separate tiles
-      g.strokeStyle = "#0b052088"; g.lineWidth = 2;
+      g.strokeStyle = "rgba(10,9,16,.58)"; g.lineWidth = 2;
       g.strokeRect(x + 1, y + 1, Math.max(0, rw - 2), Math.max(0, rh - 2));
-      g.strokeStyle = "rgba(255,255,255,.16)"; g.lineWidth = 1;
+      g.strokeStyle = "rgba(255,255,255,.13)"; g.lineWidth = 1;
       g.beginPath();
       g.moveTo(x + 1.5, y + rh - 1.5); g.lineTo(x + 1.5, y + 1.5); g.lineTo(x + rw - 1.5, y + 1.5);
       g.stroke();
 
       var dark = lumOf(rgb) < 0.55;
-      var ink = dark ? "#ffffff" : "#12071f";
+      var ink = dark ? "#f5f2f8" : "#0a0910";
       var pad = rw > 76 ? 8 : 5;
       var maxW = rw - pad * 2;
       if (maxW < 26 || rh < 20) return;
@@ -419,7 +423,7 @@
       g.shadowBlur = 0;
     });
 
-    g.strokeStyle = "#ffffff14"; g.lineWidth = 1;
+    g.strokeStyle = "rgba(255,255,255,.075)"; g.lineWidth = 1;
     g.strokeRect(0.5, 0.5, w - 1, h - 1);
     g.restore();
 
@@ -443,7 +447,7 @@
     });
     order.sort(function (a, b) { return seen[b] - seen[a]; });
     legendEl.innerHTML = order.map(function (k) {
-      var s = SECT[k] || { colour: "#4a3a7d", name: "Other" };
+      var s = SECT[k] || { colour: "#2e2941", name: "Other" };
       return '<span><i style="background:' + A.esc(s.colour) + '"></i>' + A.esc(s.name) + "</span>";
     }).join("");
   }
@@ -484,7 +488,7 @@
       el.innerHTML =
         '<img alt="" src="' + A.rootPath() + "core/data/flags/" + iso + '.svg" onerror="this.style.visibility=\'hidden\'">' +
         '<span class="nm">' + A.esc(c.n) + "</span>" +
-        (won ? '<span class="ar">🎉</span><span class="pc">100%</span>'
+        (won ? '<span class="ar">✓</span><span class="pc">100%</span>'
           : '<span class="km">' + A.geo.km(distTo(iso)) + '</span><span class="ar">' +
             A.arrow(A.bearing(at(c)[0], at(c)[1], at(byIso[answer])[0], at(byIso[answer])[1])) +
             '</span><span class="pc">' + proxPct(iso) + "%</span>");
@@ -513,7 +517,7 @@
     if (st && st.done) {
       over = true;
       picker.disable(true);
-      setTimeout(function () { sheet(st.won); }, 240);
+      setTimeout(function () { sheet(st.won, st.shareGrid, st.norm); }, 240);
     }
   }
 
@@ -549,16 +553,16 @@
       ? top.slice(0, -1).join(", ") + " and " + top[top.length - 1]
       : (top[0] || "");
 
-    var extra = '<p class="center" style="margin:6px 0 2px">' +
+    var extra = '<p class="center" style="margin:var(--sp-2) 0 2px">' +
       '<img alt="" style="width:34px;height:22px;object-fit:cover;border-radius:2px;vertical-align:-5px;margin-right:8px" ' +
       'src="' + A.rootPath() + "core/data/flags/" + answer + '.svg" onerror="this.style.display=\'none\'">' +
-      '<b style="font-size:17px;letter-spacing:2px">' + A.esc(c.n) + "</b></p>" +
+      '<b style="font-size:var(--t-lg);letter-spacing:.08em">' + A.esc(c.n) + "</b></p>" +
       '<p class="center tiny muted">' + A.esc([c.cap, c.sub || c.reg].filter(Boolean).join(" · ")) + "</p>" +
       '<p class="top3">Sells mostly ' + sentence + "." +
       '<br><span class="muted tiny">' + usd(t.total) + " of goods in " + (T.year || 2023) + "</span></p>";
 
     if (t.note) extra += '<p class="caveat">⚠︎ ' + A.esc(t.note) + "</p>";
-    if (won) extra += '<p class="center tiny" style="color:var(--mint);margin-top:8px">🛂 ' +
+    if (won) extra += '<p class="center tiny" style="color:var(--green);margin-top:var(--sp-2)">' +
       A.esc(c.n) + " stamped in your passport</p>";
 
     A.results(ID, practice ? A.PRACTICE : day, {

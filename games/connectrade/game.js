@@ -716,7 +716,7 @@
     mistakes++;
     save();
     shake(picked);
-    A.sfx(mistakes >= MAX_MISTAKES ? "lose" : "miss");
+    A.sfx("miss");                        // end() plays the loss sting, not here
     if (best === PICK - 1) A.toast("One off!");
     else if (mistakes === MAX_MISTAKES - 1) A.toast("One heart left", true);
 

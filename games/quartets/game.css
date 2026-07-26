@@ -88,6 +88,13 @@
 .qctl .ac-pill, .qctl2 .ac-pill { cursor: pointer; min-height: 44px; }
 .qctl .ac-pill[disabled] { opacity: .4; cursor: default; }
 #qsubmit { min-width: 168px; }
+/* "SELECT FOUR" is an instruction, not an action. A 40%-opacity accent fill is
+   still the loudest thing on the screen and reads as the primary button, so the
+   disabled submit drops to a surface + muted ink instead. */
+#qsubmit[disabled] {
+  background: var(--s1); color: var(--ink-4); opacity: 1;
+  box-shadow: none; border: 1px solid var(--hair);
+}
 
 .qhint {
   text-align: center; font-size: var(--t-xs); color: var(--amber);
