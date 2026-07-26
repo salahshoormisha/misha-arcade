@@ -752,11 +752,17 @@
           : n === P.par ? "ON TARGET"
             : "SUPER SOLVING";
 
-    var extra = '<p class="sol">' + (won && n <= 2 ? "OUR TWO-WORDER" : "ONE TWO-WORD SOLUTION") +
+    var same = n === 2 && said[0] === P.sol[0] && said[1] === P.sol[1];
+    var head = same ? "THE TWO WORDS WE FOUND TOO"
+      : (won && n <= 2) ? "OURS WAS" : "ONE TWO-WORD SOLUTION";
+    var extra = '<p class="sol">' + head +
       "<br>" + A.esc(P.sol[0]) + ' <i>→</i> ' + A.esc(P.sol[1]) + "</p>" +
       '<p class="tiny dim center">' + A.fmtNum(P.words) + " words were playable on this square" +
       (P.sols2 >= 40 ? " · 40+ two-word solutions" : " · " + P.sols2 + " two-word solution" +
         (P.sols2 === 1 ? "" : "s")) + "</p>";
+    if (won && n <= 2 && !same) {
+      extra += '<p class="tiny muted center">Yours was different — and just as short.</p>';
+    }
     if (won && n > P.par) {
       extra += '<p class="tiny muted center">Solved in ' + n + ". For an extra challenge, try " +
         P.par + " or fewer.</p>";

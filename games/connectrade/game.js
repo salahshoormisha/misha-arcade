@@ -483,9 +483,12 @@
       else if (e.key === "Escape" && sel.length) { e.preventDefault(); sel = []; render(); }
     });
 
-    window.addEventListener("resize", function () {
-      clearTimeout(render._t);
-      render._t = setTimeout(render, 150);
+    window.addEventListener("resize", relayout);
+    window.addEventListener("orientationchange", relayout);
+    /* A tab that was hidden when it rendered has no layout to measure; re-fit
+       the type the moment it comes back. */
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) relayout();
     });
 
     restore();
@@ -494,6 +497,11 @@
   /* ── rendering ────────────────────────────────────────────────────────── */
 
   function render() { renderStrip(); renderBands(); renderGrid(); renderStatus(); renderLog(); }
+
+  function relayout() {
+    clearTimeout(relayout._t);
+    relayout._t = setTimeout(renderGrid, 140);
+  }
 
   function renderStrip() {
     stripEl.innerHTML = "";
@@ -565,6 +573,18 @@
     return 8;
   }
 
+  /* A tile's real box — or, if the page is laid out at zero width (hidden tab,
+     a Safari page restored from cache), the box it WILL have, derived from the
+     same numbers game.css uses. Never returns something unusable. */
+  function tileBox(el) {
+    var w = el ? el.clientWidth : 0, h = el ? el.clientHeight : 0;
+    if (w >= 60 && h >= 40) return { w: w, h: h };
+    var vw = Math.max(320, document.documentElement.clientWidth || window.innerWidth || 375);
+    var gw = Math.min(720, Math.min(900, vw) - 28);
+    var cols = gw >= 560 ? 4 : 2;
+    return { w: Math.max(80, (gw - (cols - 1) * 7) / cols), h: cols === 4 ? 84 : 70 };
+  }
+
   function renderGrid() {
     var live = liveTiles();
     grid.innerHTML = "";
@@ -588,9 +608,8 @@
        guessing the column count from a media query we'd have to keep in sync,
        and it is a single synchronous reflow — never rAF, which a background tab
        pauses (tiles would be left unsized and unreadable). */
-    var tw = shown[0].el.clientWidth || 160;
-    var th = shown[0].el.clientHeight || 70;
-    shown.forEach(function (s) { s.el.style.fontSize = fitFont(s.text, tw, th) + "px"; });
+    var box = tileBox(shown[0].el);
+    shown.forEach(function (s) { s.el.style.fontSize = fitFont(s.text, box.w, box.h) + "px"; });
   }
 
   function renderStatus() {
