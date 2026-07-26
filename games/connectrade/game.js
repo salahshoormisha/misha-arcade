@@ -41,7 +41,8 @@
      · ≥3 of the four have DIFFERENT dominant HS sections, and no section
        covers more than 2 of them (this is the anti-oil-state rule);
      · no more than 2 share a continent, and ≥3 different sub-regions.
-   Plus a five-day cooldown: no country appears twice inside six days.
+   Plus a cooldown: days are built in blocks of eight and no country may appear
+   twice inside a block, so you don't get Sweden three mornings running.
 
    NORM (cross-game 0-100 currency, CONTRACT §3):
      won  → max(25, 100 − 12 × mistakes)      lost → 10
@@ -908,7 +909,8 @@
     audit: function (n) {
       n = n || 200;
       var bad = [], seenLoose = 0, attempts = 0, maxAtt = 0, pars = [], longest = 0;
-      var use = {}, repeats = 0, prev = [], dispSeen = {}, dispClash = [];
+      var use = {}, dispSeen = {}, dispClash = [];
+      var adjacent = 0, inBlock = 0, prev = null, blockSeen = {}, blockAt = -1;
       for (var d = 0; d < n; d++) {
         var b = boardFor(d);
         if (!b) { bad.push([d, "no board"]); continue; }
@@ -934,15 +936,14 @@
           });
         });
         if (nb !== 16) bad.push([d, "tiles " + nb]);
-        if (!b.groups.some(function (g) { return TOP40[g.i]; })) {
-          /* not an error: the draw only guarantees the top-45 tier */
-        }
         var isos = b.groups.map(function (g) { return g.i; });
-        for (var k = 0; k < prev.length; k++) {
-          isos.forEach(function (i2) { if (prev[k].indexOf(i2) >= 0) repeats++; });
-        }
-        prev.push(isos);
-        if (prev.length > COOL_DAYS) prev.shift();
+        if (Math.floor(d / BLOCK) !== blockAt) { blockAt = Math.floor(d / BLOCK); blockSeen = {}; }
+        isos.forEach(function (i2) {
+          if (blockSeen[i2]) inBlock++;
+          blockSeen[i2] = 1;
+          if (prev && prev.indexOf(i2) >= 0) adjacent++;
+        });
+        prev = isos;
       }
       pars.sort(function (a, b2) { return a - b2; });
       return {
@@ -950,7 +951,7 @@
         looseBoards: seenLoose, meanAttempts: +(attempts / n).toFixed(2), maxAttempt: maxAtt,
         parMin: pars[0], parMedian: pars[Math.floor(pars.length / 2)], parMax: pars[pars.length - 1],
         longestLabel: longest, labelClashes: dispClash.slice(0, 6),
-        repeatsInsideWindow: repeats,
+        repeatsInsideBlock: inBlock, backToBackDays: adjacent,
         countriesUsed: Object.keys(use).length,
         mostUsed: Object.keys(use).sort(function (a, b2) { return use[b2] - use[a]; })
           .slice(0, 5).map(function (i2) { return i2 + ":" + use[i2]; })

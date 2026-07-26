@@ -117,14 +117,16 @@
 .cluelist .ci.filled { color: var(--ink4); }
 .cluelist .ci.filled b { color: var(--ink4); }
 
-/* the modal version wants two columns even on a phone-sized modal */
+/* the modal version wants two columns even on a phone-sized modal, and a full
+   44 px tap target — it is the phone way in to the clue list */
 .ac-modal .cluelist { display: grid; }
+.ac-modal .cluelist .ci { min-height: 44px; }
 @media (max-width: 420px) { .ac-modal .cluelist { grid-template-columns: 1fr; } }
 
 /* ── tools sheet ────────────────────────────────────────────────────────── */
 
 .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 4px 0 14px; }
-.tools-grid button { width: 100%; }
+.tools-grid button { width: 100%; min-height: 44px; padding-left: 4px; padding-right: 4px; }
 .tools-lab { font-size: 10px; letter-spacing: 2px; color: var(--ink4); margin-bottom: 6px; }
 
 .mbadge { font-size: 11.5px; letter-spacing: 1px; color: var(--gold); text-align: center; margin-top: 8px; }
