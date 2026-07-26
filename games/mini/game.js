@@ -876,8 +876,8 @@
         : "No reveals yet — full marks still on the table") +
       (checks ? " · " + checks + (checks === 1 ? " check" : " checks") : "") + "</p>" +
       '<div class="ac-row" style="margin-top:12px">' +
-      '<button class="ac-btn ghost sm" id="tl-pause">' + (paused ? "▶ RESUME" : "⏸ PAUSE") + "</button>" +
-      '<a class="ac-btn ghost sm" href="' + (practice ? "./" : "?practice=1") +
+      '<button class="ac-btn ghost" id="tl-pause">' + (paused ? "▶ RESUME" : "⏸ PAUSE") + "</button>" +
+      '<a class="ac-btn ghost" href="' + (practice ? "./" : "?practice=1") +
       '" style="text-decoration:none">' + (practice ? "← TODAY'S MINI" : "∞ PRACTICE") + "</a></div>";
     var m = A.modal("TOOLS", h);
     A.$$("[data-ck]", m.body).forEach(function (b) {

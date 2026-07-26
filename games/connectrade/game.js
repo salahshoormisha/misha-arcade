@@ -381,6 +381,15 @@
     return bits.join(" · ");
   }
 
+  /* trade.js flags two different problems; take the wording from its own note
+     so the tag can never contradict the note printed underneath it. */
+  function noteTag(iso) {
+    var c = TCO[iso];
+    if (!c || !c.note) return "";
+    return /^re-export/i.test(c.note) ? " · re-export inflated, see below"
+      : " · partial data, see below";
+  }
+
   /* ── boot ─────────────────────────────────────────────────────────────── */
 
   function boot() {
@@ -519,11 +528,10 @@
   function bandEl(g, k, revealed) {
     var b = A.el("div", "ctband" + (revealed ? " rev" : ""));
     b.style.setProperty("--ctc", "var(" + GC[k].tok + ")");
-    var c = TCO[g.i];
     b.innerHTML =
       '<span class="bn">' + flagImg(g.i, 20, 14) + esc(cname(g.i).toUpperCase()) + "</span>" +
       '<span class="bt">' + g.items.map(function (p) { return esc(p.disp); }).join(" · ") + "</span>" +
-      '<span class="bz">' + esc(basketLine(g)) + (c && c.note ? " · partial basket, see below" : "") + "</span>";
+      '<span class="bz">' + esc(basketLine(g) + noteTag(g.i)) + "</span>";
     return b;
   }
 
@@ -835,7 +843,7 @@
   }
 
   function sheet(w, norm) {
-    var html = '<div class="ctsum">', notes = [];
+    var html = '<div class="ctsum">';
     groups.forEach(function (g, k) {
       var c = TCO[g.i];
       html += '<div class="ctsrow" style="--ctc:var(' + GC[k].tok + ')">' +
@@ -847,7 +855,6 @@
         "<i>" + esc(basketLine(g)) + "</i>" +
         (c && c.note ? "<u>⚠︎ " + esc(c.note) + "</u>" : "") +
         "</div>";
-      if (c && c.note) notes.push(g.i);
     });
     html += "</div>";
     html += '<p class="tiny dim center" style="margin-top:8px;line-height:1.6">' +
