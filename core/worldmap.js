@@ -79,7 +79,7 @@
       dpr: 1,
       proj: null,
       colours: Object.assign({
-        sea: "#080a1e", land: "#2b4a6b", border: "#5d86ad",
+        sea: "#07060d", land: "#232036", border: "#332e4a",
         graticule: "#ffffff0d", rim: "#4fd8ff",
       }, opts.colours || {}),
     };

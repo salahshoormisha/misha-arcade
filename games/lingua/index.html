@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LINGUAGUESSR · Midnight Arcade</title>
+<meta name="theme-color" content="#070312">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗣️</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=7">
+<style>
+  /* ── the specimen: the hero element. A museum plate around real text. ──
+     Colours are tokens only; the only literals are translucent white/black
+     veils, which the polish pass can restyle without touching this file. */
+  .spec {
+    max-width: 480px; margin: 14px auto 0; padding: 14px 15px 12px;
+    position: relative; overflow: hidden;
+  }
+  .spec .plate {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    font-size: 9.5px; letter-spacing: 1.6px; color: var(--ink4);
+    border-bottom: 1px solid #ffffff12; padding-bottom: 9px;
+  }
+  .spec .plate .tries { display: flex; gap: 4px; flex: 0 0 auto; }
+  .spec .plate .tries i { width: 16px; height: 4px; border-radius: 9px; background: #ffffff20; }
+  .spec .plate .tries i.used { background: var(--bad); }
+  .spec .plate .tries i.won { background: var(--ok); }
+  .spec .body {
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px 2px; min-height: 132px;
+  }
+  .spec .txt {
+    color: var(--ink); text-align: center; max-width: 30em; margin: 0 auto;
+    overflow-wrap: anywhere; word-break: normal; hyphens: none;
+    text-shadow: 0 0 26px var(--glow);
+  }
+  /* traditional Mongolian is written in vertical columns, left to right */
+  .spec .txt.vert {
+    writing-mode: vertical-lr; text-orientation: mixed;
+    max-width: 100%; max-height: 300px; text-align: start;
+  }
+  .spec .foot {
+    border-top: 1px solid #ffffff12; padding-top: 9px; text-align: center;
+    font-size: 9.5px; letter-spacing: 1.4px; color: var(--ink4); line-height: 1.6;
+  }
+  .spec .no-font {
+    text-align: center; font-size: 11px; line-height: 1.6; color: var(--gold);
+    margin: 0 auto 10px; max-width: 32em;
+  }
+  /* the after-the-round caption, so the page itself tells you the answer */
+  .spec .said { animation: fade .22s ease; border-top: 1px solid #ffffff12; margin-top: 10px; padding-top: 10px; }
+  .spec .said .lg { font-size: 15px; letter-spacing: 2px; font-weight: 900; color: var(--accent); text-align: center; }
+  .spec .said .mt { font-size: 10px; letter-spacing: 1.3px; color: var(--ink4); text-align: center; margin-top: 4px; line-height: 1.7; }
+  .spec .said .gl { font-size: 12.5px; line-height: 1.7; color: var(--ink2); text-align: center; margin-top: 9px; font-style: italic; }
+
+  /* ── hint ladder ───────────────────────────────────────────────────────── */
+  .ladder { max-width: 480px; margin: 12px auto 0; display: grid; gap: 6px; }
+  .rung {
+    display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
+    min-height: 46px; padding: 8px 11px; border: 1px solid var(--line);
+    border-radius: 12px; background: #ffffff05; color: var(--ink2);
+    font-family: inherit; font-size: 13px; cursor: pointer;
+    transition: border-color .2s, background .2s, opacity .2s;
+  }
+  .rung .n {
+    flex: 0 0 auto; width: 21px; height: 21px; border-radius: 999px;
+    border: 1px solid var(--line2); display: grid; place-items: center;
+    font-size: 10px; font-weight: 800; color: var(--ink3);
+  }
+  .rung .lb { flex: 1 1 auto; font-size: 10.5px; letter-spacing: 1.5px; color: var(--ink3); }
+  .rung .cost { flex: 0 0 auto; font-size: 10px; letter-spacing: 1.2px; color: var(--gold); }
+  .rung:not([disabled]):hover, .rung:not([disabled]):focus-visible { border-color: var(--gold); background: #ffffff0c; }
+  .rung:not([disabled]):active { transform: translateY(1px); }
+  .rung[disabled] { cursor: default; opacity: .5; }
+  .rung.done {
+    display: block; opacity: 1; border-color: rgba(255, 216, 79, .38);
+    background: rgba(255, 216, 79, .07); cursor: default;
+  }
+  .rung.done .hd { display: flex; align-items: center; gap: 9px; }
+  .rung.done .n { border-color: var(--gold); color: var(--gold); }
+  .rung.done .hx { font-size: 12.5px; line-height: 1.75; color: var(--gold); margin-top: 7px; animation: fade .22s ease; }
+
+  /* ── guess rows — same markup and metrics as FLAGLE, on purpose ─────────── */
+  .guesses { max-width: 480px; margin: 14px auto 0; }
+  .gr {
+    display: flex; align-items: center; gap: 8px; padding: 8px 11px; margin-bottom: 6px;
+    border: 1px solid var(--line); border-radius: 10px; background: #ffffff07;
+    font-size: 13px; animation: fade .2s ease;
+  }
+  .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
+  .gr .nm { flex: 1 1 auto; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gr .km { color: var(--ink3); font-size: 11.5px; }
+  .gr .ar { font-size: 15px; }
+  .gr .pc { width: 42px; text-align: right; font-weight: 800; }
+  .gr.win { border-color: var(--ok); background: rgba(61, 224, 138, .1); }
+  .gr.win .pc { color: var(--ok); }
+
+  /* ── the reveal panel inside the result sheet ───────────────────────────── */
+  .rv-lang { font-size: 19px; letter-spacing: 2.5px; font-weight: 900; text-align: center; color: #fff; margin-top: 4px; }
+  .rv-meta { font-size: 10.5px; letter-spacing: 1.3px; color: var(--ink3); text-align: center; margin-top: 6px; line-height: 1.8; }
+  .rv-gloss { font-size: 12.5px; line-height: 1.75; color: var(--ink2); text-align: center; margin-top: 10px; font-style: italic; }
+  .rv-where { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 11px; }
+  .rv-where span {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px;
+    letter-spacing: .8px; border: 1px solid var(--line); border-radius: 999px;
+    padding: 4px 9px; color: var(--ink2); background: #ffffff08;
+  }
+  .rv-where span.hit { border-color: var(--ok); color: #fff; }
+  .rv-where img { width: 18px; height: 12px; object-fit: cover; border-radius: 2px; }
+  .rv-src { font-size: 9.5px; line-height: 1.7; color: var(--ink4); text-align: center; margin-top: 12px; }
+  .rv-src a { color: var(--ink3); }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=7"></script>
+<script src="../../core/arcade.js?v=7"></script>
+<script src="../../core/ui.js?v=7"></script>
+<script src="../../core/audio.js?v=7"></script>
+<script src="../../core/picker.js?v=7"></script>
+<script src="../../core/data/countries.js?v=7"></script>
+<script src="../../core/data/lingua.js?v=7"></script>
+<script src="game.js?v=7"></script>
+</body>
+</html>
