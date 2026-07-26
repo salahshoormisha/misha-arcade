@@ -364,13 +364,13 @@ CLUE_RULES = [
     (r"\b(?:deserts?|sand dunes?|dunes?|sahara|sand sea)\b", "desert sand"),
     (r"\b(?:rainforests?|jungle|tropical forests?)\b", "dense tropical forest"),
     (r"\b(?:tundra|permafrost)\b", "treeless tundra"),
-    (r"\b(?:glaciers?|ice cap|icecap|icebergs?)\b", "glacial ice"),
+    (r"\b(?:glaciers?|icebergs?)\b", "glacial ice"),
     (r"\b(?:fjords?)\b", "a fjord"),
     (r"\b(?:volcanoes?|volcano|volcanic|caldera|crater lake)\b", "a volcanic cone"),
     (r"\b(?:snow|snowy|snow[- ]covered|schnee|neige)\b", "snow on the ground"),
     (r"\b(?:mountains?|alps|andes|himalaya|highlands?|sierra|massif)\b",
      "mountains on the skyline"),
-    (r"\b(?:beaches?|seaside|coastline|shoreline|seafront|playa|coast)\b", "a coastline"),
+    (r"\b(?:beaches?|seaside|coastline|shoreline|seafront|playa|sea shore)\b", "a coastline"),
     (r"\b(?:harbours?|harbors?|port of|quays?|wharfs?|wharves|jetty|jetties)\b",
      "a working harbour"),
     (r"\b(?:canals?|gracht|grachten)\b", "a canal"),
@@ -401,6 +401,7 @@ CAP_JUNK = [
     r"\bAll rights reserved\b.*$", r"\bLicen[cs]e[:\s].*$",
     r"\bphotographer[:\s]*", r"\bCamera[:\s].*$", r"\bTaken with\b.*$",
     r"\bUploaded (by|from)\b.*$", r"\bOriginal caption[:\s]*",
+    r"\[\d+\]", r"\(\d{6,}\)", r"\bIMG[_ ]?\d+\b", r"\bDSC[_ ]?\d+\b",
 ]
 CAP_JUNK = [re.compile(p, re.I) for p in CAP_JUNK]
 
@@ -571,7 +572,11 @@ def harvest():
             sc -= 5 if re.search(r"\b(museum|monument|memorial|statue|sculpture|"
                                  r"palace|cathedral|basilica|mausoleum)\b", blob, re.I) else 0
             sc -= 3 if re.search(r"\b(aerial|from the air|satellite|drone)\b", blob, re.I) else 0
+            # first-person travel chatter makes a poor caption — use the title
+            if re.search(r"\b(I |I'|my |we |our |me\b|don't|didn't|forgot)", desc):
+                desc = ""
             cap = desc[:150] if len(desc) >= 12 else title.replace("_", " ").rsplit(".", 1)[0]
+            cap = re.sub(r"\s+", " ", cap).strip(" .,;:-|\"'")
             scored.append((sc, {
                 "id": "p_" + L.slug(title.rsplit(".", 1)[0], 46),
                 "url": url, "w": w, "h": h, "lat": lat, "lon": lon,
@@ -584,11 +589,20 @@ def harvest():
                 "easy": 1 if tag == "L" else 0,
             }))
         scored.sort(key=lambda t: (-t[0], t[1]["id"]))
+        seen_sig = set()
         for sc, e in scored:
             if picked >= want:
                 break
             if e["id"] in out:
                 continue
+            # near-duplicate guard: same subject shot twice from the same spot
+            sig = re.sub(r"[^a-z]+", "", e["caption"].lower())[:26]
+            near_dupe = any(L.haversine((e["lat"], e["lon"]), (o["lat"], o["lon"])) < 0.12
+                            for o in out.values() if o["iso2"] == iso2)
+            if sig in seen_sig or near_dupe:
+                bump("near-duplicate")
+                continue
+            seen_sig.add(sig)
             st, ct = L.verify_url(e["url"])
             stats["http"] += 1
             if st != 200 or not ct.startswith("image/"):

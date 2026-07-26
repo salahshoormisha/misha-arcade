@@ -38,8 +38,12 @@ sys.path.insert(0, BUILD)
 import food_authored  # noqa: E402
 
 IMG_W = 500          # upload.wikimedia.org thumbnail width we ask for
+# Reject a lead image that is plainly cartography/heraldry rather than a photo of
+# food.  Matched as WHOLE TOKENS -- an earlier substring version rejected
+# "Chen_Mapo_Tofu.jpg" because it contains "_map".
 BAD_FILE_HINT = re.compile(
-    r"(locator|_map|map_|flag_|coat_of_arms|\.svg$|logo|icon|blank)", re.I)
+    r"(?:^|[_\-\s(])(locator|map|maps|flag|flags|logo|icon|blank|seal|"
+    r"coa|arms|diagram|chart)(?:[_\-\s).]|$)|coat[_\- ]of[_\- ]arms|\.svg$", re.I)
 
 
 # ───────────────────────────────────────────────────────────── small utilities

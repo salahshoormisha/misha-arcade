@@ -1713,13 +1713,13 @@ DISHES = [
           "buzzing and numb.",
           "From Chengdu, named after the pockmarked wife of the cook who is said to "
           "have made it; the numbness comes from the local prickly ash.",
-          wiki="Mapo doufu"),
+          wiki="Mapo doufu", wikias="Mapo tofu"),
         d("Dan dan noodles",
           "Wheat noodles served under a spoonful of chilli oil, sesame paste, preserved "
           "mustard stem and minced pork, tossed together at the table.",
           "Named for the shoulder pole a hawker carried the pots on; the original was "
           "nearly dry, and the soupy version is a later export.",
-          wiki="Dan dan noodles"),
+          wiki="Dan dan noodles", wikias="Dandan noodles"),
         d("Xiaolongbao",
           "Small pleated steamed dumplings holding pork and a set meat jelly that melts "
           "into a mouthful of soup inside the wrapper.",
@@ -1778,7 +1778,7 @@ DISHES = [
           "black shrimp paste.",
           "Penang's version; the shrimp paste stirred in at the end is what separates "
           "it from the creamy coconut laksas further south.",
-          wiki="Asam laksa"),
+          commons="File:Asam Laksa.jpg"),
         d("Char kway teow",
           "Flat rice noodles fried over a roaring flame with prawns, cockles, egg, "
           "chives, bean sprouts and dark soy until they pick up a smoky char.",
@@ -1854,7 +1854,7 @@ DISHES = [
           "the skin turns to glass and the meat falls apart.",
           "The centre of every fiesta; Cebu's version is stuffed with lemongrass and "
           "spring onion and needs no sauce at all.",
-          wiki="Lechon"),
+          commons="File:Lechon sa Cebu.jpg"),
         d("Adobo",
           "Meat braised in vinegar, soy sauce, crushed garlic, bay leaf and whole black "
           "peppercorns until the sauce reduces and the fat begins to fry.",
@@ -1876,7 +1876,7 @@ DISHES = [
           "pickled mustard greens and crushed peanuts, served wet or dry.",
           "From the Shan hills in the east, and now the standard breakfast noodle in "
           "the cities.",
-          wiki="Shan noodles"),
+          commons="File:Shan Noodle.jpg"),
         d("Mohinga",
           "A catfish and lemongrass broth thickened with toasted rice and chickpea "
           "flour, poured over thin rice noodles and topped with crisp fritters, "
@@ -1894,26 +1894,26 @@ DISHES = [
           "long beans.",
           "Sold from baskets carried on a shoulder pole in the morning; the noodles are "
           "pressed by hand from fermented rice dough.",
-          wiki="Nom banh chok"),
+          wiki="Nom banh chok", wikias="Num banhchok"),
         d("Amok trey",
           "Fish fillets folded through a coconut curry paste of lemongrass, galangal "
           "and turmeric, then steamed in a banana-leaf cup until it sets like a savoury "
           "custard.",
           "The custard texture comes from egg beaten into the coconut cream; it is "
           "steamed, never simmered, which is what distinguishes it from a curry.",
-          wiki="Amok trey"),
+          wiki="Amok trey", wikias="Fish amok"),
         d("Kuy teav",
           "A clear pork-bone breakfast noodle soup with rice noodles, minced pork, "
           "fried garlic, bean sprouts and a squeeze of lime.",
           "Eaten before work from roadside stalls; the broth is simmered overnight and "
           "kept deliberately clear.",
-          wiki="Kuy teav"),
+          wiki="Kuy teav", wikias="Kuyteav"),
         d("Lok lak",
           "Cubes of beef seared hard and piled over lettuce and tomato with a dipping "
           "sauce of lime juice, black pepper and salt, topped with a fried egg.",
           "The lime-and-pepper dipping sauce is the local signature, and the fried egg "
           "on top is effectively compulsory.",
-          wiki="Lok lak"),
+          commons="File:Cambodian Lok Lak.jpg"),
     ]),
 
     # ══ LAOS ══════════════════════════════════════════════════════════════
@@ -2004,7 +2004,7 @@ DISHES = [
           "flakes of dried fish into a coarse red relish.",
           "Eaten with everything, at every meal; the coconut must be scraped that day "
           "or it turns.",
-          wiki="Pol sambola"),
+          wiki="Pol sambol"),
         d("Appam",
           "A bowl-shaped pancake of fermented rice flour and coconut milk cooked in a "
           "small curved pan so it is lacy and crisp at the rim and spongy in the "
@@ -2040,7 +2040,7 @@ DISHES = [
           "greens, refilled from the pot until you say stop.",
           "Eaten twice a day by much of the country; the refill is the point, which is "
           "why trekkers live on it.",
-          wiki="Dal bhat"),
+          commons="File:Dal Bhat Tarkari 4.jpg"),
         d("Momo",
           "Pleated steamed dumplings of minced buffalo or chicken with onion, ginger "
           "and coriander, served with a tomato and sesame dipping sauce.",
@@ -2056,7 +2056,7 @@ DISHES = [
           "spiced meat sauce, garlic yoghurt and a heavy dusting of dried mint.",
           "A Kabul dish; the leek-and-chive filling makes it distinct from the meat "
           "dumplings served beside it.",
-          wiki="Ashak"),
+          wiki="Ashak", wikias="Aushak"),
         d("Bolani",
           "A thin flatbread folded around a filling of potato, leek or pumpkin and "
           "pan-fried in a little oil, served with yoghurt.",
@@ -2067,13 +2067,13 @@ DISHES = [
           "tomato sauce, garlic yoghurt and dried mint.",
           "Part of a dumpling family that runs from the Turkic steppe to the "
           "Mediterranean; here they are large, open-topped and yoghurt-drenched.",
-          wiki="Mantu (dumpling)"),
+          wiki="Mantu (food)", wikias="Manti (food)"),
         d("Kabuli pulao",
           "Long-grain rice steamed over lamb and its stock, then heaped with "
           "caramelised julienned carrot, raisins and slivered almonds or pistachios.",
           "The national dish and the centrepiece of any celebration; the carrots and "
           "raisins are fried separately in sugar before they go on.",
-          wiki="Kabuli palaw"),
+          wiki="Kabuli palaw", wikias="Kabuli pulao"),
     ]),
 
     # ══ UZBEKISTAN ════════════════════════════════════════════════════════
@@ -2083,25 +2083,25 @@ DISHES = [
           "slapped onto the inside wall of a clay oven to bake.",
           "Sold hot from the tandoor at every bazaar; the pastry is layered with tail "
           "fat rather than butter.",
-          wiki="Samsa (pastry)"),
+          wiki="Samsa (food)"),
         d("Lagman",
           "Hand-pulled wheat noodles under a stew of mutton, peppers, tomato and "
           "radish, served either as a soup or fried dry with the sauce.",
           "Brought along the Silk Road by Dungan and Uyghur cooks; the noodles are "
           "swung and doubled by hand, never cut.",
-          wiki="Laghman"),
+          commons="File:Lagman.jpg"),
         d("Obi non",
           "A round flatbread with a thick rim and a thin middle stamped with a "
           "nail-studded seal, baked against the wall of a clay oven.",
           "Never cut with a knife and never laid face down; each city's bread has a "
           "recognisably different stamp.",
-          wiki="Obi non"),
+          wiki="Obi non", wikias="Tandyr nan"),
         d("Palov",
           "Rice cooked in a wide cast-iron pot over layered lamb, yellow carrot, onion, "
           "cumin and whole heads of garlic, and never stirred until it is served.",
           "Cooked in enormous pots by men at weddings; UNESCO lists the culture around "
           "it as intangible heritage.",
-          wiki="Palov"),
+          commons="File:Samarkand Palov.jpg"),
     ]),
 
     # ══ KAZAKHSTAN ════════════════════════════════════════════════════════
@@ -2123,13 +2123,13 @@ DISHES = [
           "in a mound on the table with tea.",
           "Made for every gathering; the smell of the frying fat is said to carry a "
           "greeting to the ancestors.",
-          wiki="Baursaki"),
+          wiki="Baursaki", wikias="Boortsog"),
         d("Beshbarmak",
           "Boiled horsemeat or lamb served over wide sheets of boiled dough with an "
           "onion broth, eaten with the hands from a communal platter.",
           "The name means 'five fingers'; the head of the sheep goes to the most "
           "honoured guest, who distributes the parts.",
-          wiki="Beshbarmak"),
+          commons="File:Beshbarmak, national dish (3991850909).jpg"),
     ]),
 
     # ══ MONGOLIA ══════════════════════════════════════════════════════════
@@ -2167,7 +2167,7 @@ DISHES = [
           "smooth, savoury porridge, served under melted butter.",
           "Cooked communally in huge cauldrons on feast days and tied to the memory of "
           "the 1915 defence of Musa Dagh.",
-          wiki="Harissa (dish)"),
+          commons="File:Armenian Harisa.JPG"),
         d("Ghapama",
           "A whole pumpkin hollowed out, filled with rice, dried fruit, nuts and honey, "
           "and baked whole until the shell is soft enough to spoon.",
@@ -2208,7 +2208,7 @@ DISHES = [
           "then turned out as a golden drum and cut open at the table.",
           "The 'king's pilaf', sealed in lavash so the crust bakes crisp; the theatre "
           "of cutting it open is half the dish.",
-          wiki="Shah plov"),
+          commons="File:Şah plov 1.jpg"),
         d("Dolma",
           "Vine leaves rolled tightly around minced lamb, rice and herbs and simmered "
           "in a covered pot, served with garlic yoghurt.",

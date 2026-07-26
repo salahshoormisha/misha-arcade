@@ -308,6 +308,13 @@ REJECT = [
     r"souvenirs?|merchandise|price[ _]tag|vending[ _]machine|"
     r"licence[ _]plates[ _]of|number[ _]plates|"
     r"clothing[ _]of|costumes[ _]of|textiles[ _]of|jewell?ery)\b",
+    # military hardware / regalia, not places
+    r"\b(battalion|regiment|brigade|squadron|armed[ _]forces|soldiers?|troops|"
+    r"tank[s]?[ _]of|warship|aircraft[ _]carrier|fighter[ _]jet|artillery|"
+    r"colours?[ _]of[ _]the|standard[ _]of[ _]the|military[ _]parade)\b",
+    # a shop/store interior described as such
+    r"\b(in[ _]a[ _][a-z]{2,14}[ _](store|shop)|inside[ _]the[ _](store|shop)|"
+    r"shop[ _]interior|store[ _]interior|shelves)\b",
     # heavy subject matter — this is a light daily game
     r"\b(slave|slavery|apartheid[ _]museum|genocide|prison|jail|"
     r"detention|deportation|riot|protest[ _]against|demolition|ruins[ _]after|"

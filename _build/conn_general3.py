@@ -58,7 +58,6 @@ BOARDS = [
    ["DRUM", 2, "A drum is unambiguously part of a drum kit, and there is a drum kit on this board. It is here to be hit by the last group instead."],
    ["CYMBAL", 0, "You strike a cymbal more literally than you strike a pose, a deal or a balance. It is the most strikable object in the grid."],
  ],
- "traps_note": "",
  "epilogue": "Two tiles argue about the same kit: DRUM wants to join the drums and CYMBAL wants to join the things you strike, and they cancel out. SNARE, HI-HAT and TOM cannot be anything else, and MATCH, DEAL and POSE cannot be anything else, so the leftovers sort themselves.",
 },
 
