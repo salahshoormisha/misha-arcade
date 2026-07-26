@@ -195,7 +195,9 @@ input.dc-range::-moz-range-thumb {
   background: var(--who); box-shadow: 0 0 14px var(--glow);
 }
 .dc-chips { margin-top: 12px; }
-.dc-chips .ac-pill { cursor: pointer; min-height: 38px; }
+/* Raised past the shared 34px pill base: these are thumb targets mid-game, and
+   the brief asks for a 44px minimum on anything you actually tap. */
+.dc-chips .ac-pill { cursor: pointer; min-height: 44px; }
 .dc-chips .ac-pill:hover { border-color: var(--p); color: var(--ink); }
 
 .dc-numwrap { margin-top: 16px; }
@@ -268,7 +270,7 @@ input.dc-range::-moz-range-thumb {
 .dc-acts { margin-top: 18px; }
 .dc-acts .ac-btn { text-decoration: none; }
 .dc-foot { margin-top: 14px; margin-bottom: 6px; }
-.dc-foot .ac-pill { cursor: pointer; text-decoration: none; min-height: 34px; }
+.dc-foot .ac-pill { cursor: pointer; text-decoration: none; min-height: 44px; }
 .dc-foot .ac-pill:hover { border-color: var(--p); color: var(--ink); }
 
 .dc-in { animation: dcin .24s cubic-bezier(.2, .9, .3, 1); }

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHRONO · Midnight Arcade</title>
+<meta name="theme-color" content="#0a0910">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=9">
+<style>
+  /* ────────────────────────────────────────────────────────────────────────
+     CHRONO — everything here is game-specific layout only. Colours, spacing,
+     radii, easing and type all come from core/style.css tokens; nothing is
+     hard-coded, so the restyle pass carries this page with it.
+     ──────────────────────────────────────────────────────────────────────── */
+
+  /* the ladder's falling value, as a strip of pips */
+  .tier { display: flex; gap: 5px; justify-content: center; margin-top: var(--sp-3); }
+  .tier i {
+    flex: 0 0 auto; width: 32px; height: 22px; border-radius: var(--r-sm);
+    display: grid; place-items: center; font-family: var(--mono);
+    font-size: 10px; font-style: normal; font-variant-numeric: tabular-nums;
+    color: var(--ink-4); background: var(--s1); border: 1px solid var(--hair);
+    transition: color var(--slow) var(--ease), background var(--slow) var(--ease),
+                border-color var(--slow) var(--ease);
+  }
+  .tier i.live { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .tier i.spent { color: var(--ink-4); background: transparent; border-style: dashed; }
+
+  /* ── the clue ladder ──────────────────────────────────────────────────── */
+  .ladder { margin: var(--sp-4) 0 0; display: grid; gap: var(--sp-2); }
+
+  .clue {
+    display: grid; grid-template-columns: 26px 1fr auto; gap: var(--sp-3);
+    align-items: start; min-height: 52px;
+    padding: var(--sp-3); border-radius: var(--r-md);
+    background: var(--s1); border: 1px solid var(--hair); box-shadow: var(--sh-1);
+  }
+  .clue .ix {
+    font-family: var(--mono); font-size: var(--t-xs); font-weight: 700;
+    color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.6;
+  }
+  .clue .tx { font-size: var(--t-sm); line-height: 1.65; color: var(--ink); }
+  .clue .val {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    color: var(--ink-4); white-space: nowrap; line-height: 1.9;
+    font-variant-numeric: tabular-nums;
+  }
+  .clue.locked { background: transparent; border-style: dashed; box-shadow: none; }
+  .clue.locked .ix { color: var(--ink-4); }
+  .clue.locked .tx { color: var(--ink-4); font-style: italic; }
+  /* An animation, not a transition: the static style is already visible, so a
+     backgrounded tab (or reduced motion) shows the clue rather than a blank. */
+  @keyframes clue-in { from { opacity: 0; transform: translateY(-6px); } }
+  .clue.fresh { animation: clue-in var(--slow) var(--ease); }
+  .clue.fresh { border-color: var(--hair-2); }
+
+  /* ── the verdict line — always present, so nothing jumps ──────────────── */
+  .verdict {
+    min-height: 40px; margin-top: var(--sp-4);
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: var(--t-sm); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3); line-height: 1.5;
+  }
+  .verdict b { color: var(--ink); font-weight: 650; }
+  .verdict .hot { color: var(--pink); }
+  .verdict .close { color: var(--near); }
+  .verdict .cool { color: var(--purple); }
+  .verdict .cold { color: var(--cyan); }
+  .verdict .far { color: var(--ink-4); }
+
+  /* ── guess history ────────────────────────────────────────────────────── */
+  .grows { display: grid; gap: var(--sp-1); margin-top: var(--sp-2); }
+  .gr {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+    background: var(--s1); border: 1px solid var(--hair);
+    border-left: 3px solid var(--no);
+    font-size: var(--t-sm); animation: clue-in var(--fast) var(--ease);
+  }
+  .gr .yr {
+    font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums;
+    flex: 0 0 auto; color: var(--ink);
+  }
+  .gr .vd {
+    flex: 1 1 auto; min-width: 0; font-size: var(--t-xs); letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .gr .bd {
+    flex: 0 0 auto; font-size: var(--t-xs); letter-spacing: .04em;
+    font-variant-numeric: tabular-nums; color: var(--ink-2);
+  }
+  .gr.w0 { border-left-color: var(--ok); }
+  .gr.w0 .bd, .gr.w0 .vd { color: var(--ok); font-weight: 650; }
+  .gr.w1 { border-left-color: var(--near); }  .gr.w1 .bd { color: var(--near); }
+  .gr.w2 { border-left-color: var(--pink); }  .gr.w2 .bd { color: var(--pink); }
+  .gr.w3 { border-left-color: var(--purple); } .gr.w3 .bd { color: var(--purple); }
+  .gr.w4 { border-left-color: var(--cyan); }  .gr.w4 .bd { color: var(--cyan); }
+  .gr.w5 { border-left-color: var(--no); }    .gr.w5 .bd { color: var(--ink-4); }
+
+  /* ── the guess bar: sticks to the bottom so it never moves under a thumb ─ */
+  .bar {
+    position: sticky; bottom: 0; z-index: 20;
+    margin: var(--sp-4) calc(var(--sp-4) * -1) 0;
+    padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + var(--safe));
+  }
+  .bar::before {
+    content: ""; position: absolute; inset: 0 calc(50% - 50vw); z-index: -1;
+    background: color-mix(in srgb, var(--bg-far) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-top: 1px solid var(--hair);
+  }
+  .bar.done { opacity: .45; pointer-events: none; }
+
+  .brow { display: flex; align-items: center; gap: var(--sp-2); }
+
+  .nudge {
+    flex: 0 0 auto; width: 44px; height: 44px; border-radius: var(--r-full);
+    display: grid; place-items: center; cursor: pointer;
+    background: var(--s1); border: 1px solid var(--hair-2); color: var(--ink-2);
+    font-family: var(--mono); font-size: var(--t-lg); line-height: 1; padding: 0;
+    transition: background var(--fast) var(--ease), color var(--fast) var(--ease),
+                border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+  }
+  .nudge:hover { background: var(--s3); color: var(--ink); border-color: var(--hair-2); }
+  .nudge:active { transform: scale(.94); }
+
+  #year {
+    flex: 1 1 auto; min-width: 0; height: 44px; text-align: center;
+    background: var(--s1); border: 1px solid var(--hair-2); border-radius: var(--r-md);
+    font-family: var(--mono); font-size: var(--t-2xl); font-weight: 700;
+    letter-spacing: .04em; color: var(--ink); font-variant-numeric: tabular-nums;
+    padding: 0 2px; -moz-appearance: textfield; appearance: textfield;
+    transition: border-color var(--fast) var(--ease);
+  }
+  #year::-webkit-outer-spin-button, #year::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+  #year:focus { outline: none; border-color: var(--accent); }
+  #year:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #go { flex: 0 0 auto; padding: 0 var(--sp-4); }
+
+  /* slider */
+  .track { position: relative; margin-top: var(--sp-2); }
+  #slider {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 34px;
+    background: transparent; display: block; margin: 0; cursor: pointer;
+  }
+  #slider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: var(--r-full);
+    background: linear-gradient(90deg, var(--s3), var(--s3));
+    border: 1px solid var(--hair);
+  }
+  #slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; margin-top: -10px; border-radius: var(--r-full);
+    background: var(--accent); border: 2px solid var(--bg-far);
+    box-shadow: var(--sh-2); cursor: grab;
+  }
+  #slider:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.06); }
+  #slider::-moz-range-track {
+    height: 6px; border-radius: var(--r-full); background: var(--s3); border: 1px solid var(--hair);
+  }
+  #slider::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: var(--r-full); border: 2px solid var(--bg-far);
+    background: var(--accent); box-shadow: var(--sh-2); cursor: grab;
+  }
+  #slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--r-full); }
+
+  /* previous guesses, marked on the track. Purely a memory aid — it restates
+     what the rows already say and adds no information. */
+  .ticks { position: absolute; left: 12px; right: 12px; top: 21px; height: 9px; pointer-events: none; }
+  .ticks i {
+    position: absolute; top: 0; width: 2px; height: 9px; margin-left: -1px;
+    border-radius: 1px; background: var(--ink-4);
+  }
+  .ticks i.w0 { background: var(--ok); }
+  .ticks i.w1 { background: var(--near); }
+  .ticks i.w2 { background: var(--pink); }
+  .ticks i.w3 { background: var(--purple); }
+  .ticks i.w4 { background: var(--cyan); }
+
+  .ends {
+    display: flex; justify-content: space-between; margin-top: -2px;
+    font-family: var(--mono); font-size: 10px; color: var(--ink-4);
+    font-variant-numeric: tabular-nums; letter-spacing: .04em;
+  }
+
+  /* ── result sheet ─────────────────────────────────────────────────────── */
+  .bigyear {
+    text-align: center; font-family: var(--mono); font-size: var(--t-3xl);
+    font-weight: 700; letter-spacing: .06em; color: var(--accent);
+    font-variant-numeric: tabular-nums; margin-top: var(--sp-2);
+  }
+  .note { text-align: center; font-size: var(--t-sm); color: var(--ink-2);
+          line-height: 1.75; margin-top: var(--sp-2); }
+  .allclues { margin: var(--sp-4) 0 0; display: grid; gap: 6px; }
+  .allclues div {
+    display: grid; grid-template-columns: 18px 1fr; gap: var(--sp-2);
+    font-size: var(--t-xs); line-height: 1.6; color: var(--ink-3);
+  }
+  .allclues div b { font-family: var(--mono); color: var(--ink-4); font-weight: 700; }
+  .allclues div.seen { color: var(--ink-2); }
+  .allclues div.seen b { color: var(--accent); }
+
+  @media (max-width: 380px) {
+    .clue { grid-template-columns: 22px 1fr auto; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); }
+    #year { font-size: var(--t-xl); }
+    #go { padding: 0 var(--sp-3); }
+    .tier i { width: 30px; }
+  }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=9"></script>
+<script src="../../core/arcade.js?v=9"></script>
+<script src="../../core/ui.js?v=9"></script>
+<script src="../../core/audio.js?v=9"></script>
+<script src="../../core/data/chrono.js?v=9"></script>
+<script src="game.js?v=9"></script>
+</body>
+</html>
