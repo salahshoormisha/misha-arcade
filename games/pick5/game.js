@@ -20,14 +20,22 @@
      computable measure of how obvious today's product is.
 
    WHERE THE RANKED TABLE COMES FROM
-     core/data/trade.js ships the exact top 5 per HS4 product (`top5[].top`).
-     Ranks 6+ are reconstructed from the same file two ways, so a pick just
-     outside the medals still gets its true rank and its real value:
-       (a) composition — a country's `items[]` share × its `total`
-       (b) RCA inversion — Balassa RCA rearranged: v = rca × E_country × W_product ÷ W_world
-     Both were checked against the exact top-5 values: (a) agrees to <0.5%,
-     (b) to <2%. Anything past that table scores 0 and is labelled honestly as
-     "outside the ranked table", NOT as "exports none" — see sheet().
+     core/data/trade.js ships, per HS4 product:
+       `top`  ranks 1..40 with a real USD value (4 significant figures)
+       `rest` every remaining exporter as a flat string of ISO2 codes in rank
+              order — no value, because at rank 41+ the value rounds to 0.0% of
+              the top five, but the RANK is exact.
+     So every country the source records as exporting the thing has a true rank,
+     and a country in neither list genuinely exported none of it that year.
+
+     THIS IS THE WHOLE POINT. The first build shipped only the exact top 5 and
+     tried to rebuild ranks 6+ from each country's 8-item composition and its
+     ~6 RCA rows. Almost nothing rebuilt, so almost every guess outside the
+     medals rendered "unranked / — / 0.0%", which reads as "this country exports
+     none of this". The median product here has ~190 exporters out of the 226
+     countries the file can name, so that reading was almost always false.
+     Never print zero exports unless `verdict()` proves it. The reconstruction
+     survives only as a fallback for a product built before `rest` existed.
    ========================================================================== */
 (function () {
   "use strict";
@@ -36,7 +44,11 @@
         during boot must be declared above its first use) ─────────────────── */
   var ID = "pick5", PICKS = 5;
   var T = window.AD_TRADE || {};
-  var PRODUCTS = (T.top5 || []).filter(function (p) { return p && p.top && p.top.length === 5; });
+  // `top` is now 40 deep where the data allows. Five is still the floor: the
+  // score denominator is the first five values, so a product with fewer is
+  // unplayable. (Was `=== 5`, which silently emptied the pool once the table
+  // got deeper — the one line that has to change before anything else works.)
+  var PRODUCTS = (T.top5 || []).filter(function (p) { return p && p.top && p.top.length >= 5; });
   var SECTIONS = T.sections || {};
   var TRADE_C = T.countries || [];
   var RCA = T.rca || {};
@@ -86,33 +98,104 @@
   }
 
   /* ── the ranked exporter table for one product ──────────────────────────── */
+  // Row shapes, in the order they are trusted:
+  //   {exact:true}  a real value from `top`   — scores
+  //   {tail:true}   a real rank from `rest`, value below the table — scores 0
+  //   {recon:true}  fallback reconstruction   — scores, marked approximate
   function tableFor(prod) {
-    var rows = [], seen = {}, floor5 = prod.top[4][1];
+    var rows = [], seen = {};
+    var floor = prod.top[prod.top.length - 1][1];   // last value we actually know
     prod.top.forEach(function (t) { rows.push({ i: t[0], v: t[1], exact: true }); seen[t[0]] = 1; });
 
-    var extra = {};
-    TRADE_C.forEach(function (c) {                       // (a) composition
-      if (seen[c.i]) return;
-      for (var k = 0; k < c.items.length; k++) {
-        if (c.items[k].name === prod.name) { extra[c.i] = c.items[k].share * c.total; return; }
-      }
-    });
-    Object.keys(RCA).forEach(function (iso) {            // (b) RCA inversion
-      if (seen[iso] || extra[iso] !== undefined || !TOTALS[iso] || !prod.world || !WORLD) return;
-      RCA[iso].forEach(function (p) {
-        if (p.name === prod.name) extra[iso] = p.rca * TOTALS[iso] * prod.world / WORLD;
-      });
-    });
+    var rest = prod.rest || "";
+    for (var k = 0; k + 1 < rest.length; k += 2) {
+      var iso = rest.substr(k, 2);
+      if (seen[iso]) continue;                     // never rank a country twice
+      seen[iso] = 1;
+      rows.push({ i: iso, v: 0, tail: true, under: floor });
+    }
 
-    Object.keys(extra).map(function (i) { return { i: i, v: extra[i], exact: false }; })
-      // A reconstructed value can never outrank the authoritative five. (On the
-      // shipped data this never fires — it is a guard, not a fudge.)
-      .filter(function (r) { return r.v > 0 && r.v < floor5; })
-      .sort(function (a, b) { return b.v - a.v; })
-      .forEach(function (r) { rows.push(r); });
+    // ── fallback, only if the product predates `rest` ─────────────────────
+    // Kept so an older core/data/trade.js still plays. It reconstructs ranks
+    // 6+ two ways: (a) composition — share × total; (b) RCA inversion —
+    // v = rca × E_country × W_product ÷ W_world. Checked against exact values
+    // at (a) <0.5%, (b) <2%, which is why these rows are labelled approximate.
+    if (!rest) {
+      var extra = {};
+      TRADE_C.forEach(function (c) {
+        if (seen[c.i]) return;
+        for (var j = 0; j < c.items.length; j++) {
+          if (c.items[j].name === prod.name) { extra[c.i] = c.items[j].share * c.total; return; }
+        }
+      });
+      Object.keys(RCA).forEach(function (iso2) {
+        if (seen[iso2] || extra[iso2] !== undefined || !TOTALS[iso2] || !prod.world || !WORLD) return;
+        RCA[iso2].forEach(function (p) {
+          if (p.name === prod.name) extra[iso2] = p.rca * TOTALS[iso2] * prod.world / WORLD;
+        });
+      });
+      Object.keys(extra).map(function (i) { return { i: i, v: extra[i], recon: true }; })
+        // A reconstructed value can never outrank a value we actually know.
+        .filter(function (r) { return r.v > 0 && r.v < floor; })
+        .sort(function (a, b) { return b.v - a.v; })
+        .forEach(function (r) { rows.push(r); });
+    }
 
     rows.forEach(function (r, k) { r.rank = k + 1; });
     return rows;
+  }
+
+  /* ── what is TRUE about a country and today's product ───────────────────── */
+  // The one function allowed to say a country exported none of something. It
+  // says so only when the country IS in the source's exporter universe and is
+  // absent from a ranked list that includes every exporter the source records.
+  //   kind: "medal" | "scores" | "tiny" | "approx" | "zero" | "unknown"
+  function verdict(iso) {
+    var r = byIso[iso];
+    if (r) {
+      if (r.tail) return { kind: "tiny", row: r };
+      if (r.recon) return { kind: "approx", row: r };
+      return { kind: r.rank <= 5 ? "medal" : "scores", row: r };
+    }
+    // No row. Three very different reasons, and conflating them WAS the bug.
+    // `complete` = the ranked list covers every exporter the source knows, so
+    // absence from it is a fact and not a gap in our table.
+    var complete = !!(prod.rest || prod.top.length >= prod.n);
+    if (!complete) return { kind: "unranked", row: null };
+    if (TOTALS[iso] !== undefined) return { kind: "zero", row: null };
+    return { kind: "unknown", row: null };
+  }
+
+  // The line under a pick. Never implies zero unless verdict() proved zero.
+  function subFor(iso) {
+    var d = verdict(iso), r = d.row;
+    var share = r && T5SUM ? 100 * r.v / T5SUM : 0;
+    switch (d.kind) {
+      case "medal":
+      case "scores":
+        return usd(r.v) + " · " + pc(share, 1) + " of the top five";
+      case "approx":
+        return "about " + usd(r.v) + " · " + pc(share, 1) + " of the top five";
+      case "tiny":
+        return "#" + r.rank + " of " + prod.n + " exporters · below " +
+          usd(r.under) + " · 0 points";
+      case "zero":
+        // Provable: the source lists every exporter and this country is not one.
+        return "no exports of it recorded in " + YEAR + " · 0 points";
+      case "unranked":
+        return "outside our ranked table · 0 points";
+      default:
+        return "not in the " + YEAR + " trade data · 0 points";
+    }
+  }
+
+  // Green = medal, yellow = actually scored, red = scored nothing. Red no longer
+  // means "we have no idea": the sub-line says which kind of nothing it is.
+  function clsFor(iso) {
+    var r = byIso[iso];
+    if (!r) return "out";
+    if (r.rank <= 5) return "top";
+    return r.v > 0 ? "mid" : "out";
   }
 
   function prodFor(dayN) { return PRODUCTS[A.dailyIndex(ID, dayN, PRODUCTS.length)]; }
@@ -120,7 +203,7 @@
   /* ── state — declared BEFORE anything that closes over it runs ──────────── */
   var day = A.requestedDay();
   var practice = day === A.PRACTICE;
-  var prod = null, table = null, byIso = {}, T5SUM = 0, TRUE5 = [];
+  var prod = null, table = null, byIso = {}, T5SUM = 0, TRUE5 = [], TOP5 = [];
   var picks = [], over = false, busy = false, instant = false, t0 = Date.now();
   var main, picker, slots, pctEl, cupEl, trackEl, leftEl, timers = [];
 
@@ -129,7 +212,8 @@
     var p = (dayN === A.PRACTICE) ? prod : prodFor(dayN);
     if (!p) return null;
     var sum = 0, tot = 0, m = {};
-    p.top.forEach(function (t) { m[t[0]] = t[1]; tot += t[1]; });
+    // slice(0,5): `top` is 40 deep now, and par is measured against the top FIVE.
+    p.top.slice(0, 5).forEach(function (t) { m[t[0]] = t[1]; tot += t[1]; });
     NAIVE.forEach(function (i) { sum += m[i] || 0; });
     return tot ? 50 + (50 * sum / tot) : null;
   });
@@ -148,15 +232,19 @@
       "one huge exporter can be worth more than four small ones.</p>" +
       "<ul><li><b>No undo, no skip, no duplicates.</b> Five picks and it's over.</li>" +
       "<li>Each pick shows its <b>true world rank</b> straight away — " +
-      "<b class='ok'>green</b> = top five, <b style='color:var(--near)'>yellow</b> = ranked but lower, " +
-      "<b style='color:var(--bad)'>red</b> = outside the ranked table. Use it: later picks are informed.</li>" +
+      "<b class='ok'>green</b> = top five, <b style='color:var(--near)'>yellow</b> = high enough to bank points, " +
+      "<b style='color:var(--bad)'>red</b> = banked nothing. Red still tells you the rank when there is " +
+      "one, so you learn whether the country exports the thing at all. Use it: later picks are informed.</li>" +
       "<li>Trophies at <b>50%</b> 🥉, <b>75%</b> 🥈, <b>90%</b> 🥇 — and 🏅 for the exact five.</li>" +
       "<li>You're told <b>how many countries export it</b>, which the original never does.</li>" +
       "<li>Every top-five country you name gets <b>stamped in your passport</b>.</li>" +
       "<li>Type freely — <i>USA</i>, <i>Holland</i>, <i>Persia</i> and <i>Burma</i> all work.</li></ul>" +
       "<p class='tiny muted'>Values are 2023 CEPII BACI (HS6 Rev. 1992) via the OEC, in USD FOB. " +
-      "Ranks 1–5 are exact; ranks below that are reconstructed from the same file, so the table is " +
-      "deep but not infinite — a country it doesn't cover scores zero.</p>",
+      "Every product carries an exact export value for its <b>40 biggest exporters</b> and an exact " +
+      "<b>rank for every other country that exported any of it</b> — usually around 190 of them. " +
+      "Below the top 40 the value is a rounding error against the top five, so it scores nothing, but " +
+      "you are told the real rank. The game only says a country exported <i>none</i> of something when " +
+      "the source really records none.</p>",
   });
 
   if (!PRODUCTS.length) {
@@ -169,8 +257,10 @@
   table = tableFor(prod);
   byIso = {};
   table.forEach(function (r) { byIso[r.i] = r; });
-  TRUE5 = prod.top.map(function (t) { return t[0]; });
-  T5SUM = prod.top.reduce(function (a, t) { return a + t[1]; }, 0);
+  // The scoring denominator is the top FIVE, not the whole 40-deep table.
+  TOP5 = prod.top.slice(0, 5);
+  TRUE5 = TOP5.map(function (t) { return t[0]; });
+  T5SUM = TOP5.reduce(function (a, t) { return a + t[1]; }, 0);
 
   var sec = SECTIONS[prod.colour] || {};
   var banner = A.el("div", "ac-card");
@@ -272,8 +362,7 @@
       }
       var iso = picks[k], r = byIso[iso];
       var v = r ? r.v : 0;
-      var share = T5SUM ? 100 * v / T5SUM : 0;
-      var cls = !r ? "out" : r.rank <= 5 ? "top" : "mid";
+      var cls = clsFor(iso);
       var badge = r ? "#" + r.rank : "—";
       li.innerHTML =
         '<span class="num" style="background:var(' + SEG[k] + ')">' + (k + 1) + "</span>" +
@@ -282,18 +371,21 @@
         '<span class="rk ' + cls + '">' + badge + "</span>";
       var nameEl = li.querySelector(".t"), subEl = li.querySelector(".sub"), rkEl = li.querySelector(".rk");
       var full = cname(iso);
-      var sub = r
-        ? usd(v) + " · " + pc(share, 1) + " of the top five"
-        : "outside the ranked table · 0 points";
+      var sub = subFor(iso);
 
       if (k === animate && !instant && !A.settings().reduceMotion && !document.hidden) {
         typeOut(nameEl, full, function (n, sb, rk, subTxt, val) {
           return function () {
-            countUp(sb, val, subTxt, function () {
+            var settleIn = function () {
               rk.classList.add("in");
               A.sfx(cls === "top" ? "ok" : cls === "mid" ? "near" : "miss", 2);
               afterReveal();
-            });
+            };
+            // Only tick a counter when there is a value to tick to. A pick that
+            // scores nothing must not flash "$0" on its way to a line that says
+            // it does export the thing.
+            if (val > 0) countUp(sb, val, subTxt, settleIn);
+            else { sb.textContent = subTxt; setTimeout(settleIn, 260); }
           };
         }(nameEl, subEl, rkEl, sub, v));
         busy = true;
@@ -471,9 +563,11 @@
     var won = p >= 50;
     var hits = picks.filter(function (i) { return byIso[i] && byIso[i].rank <= 5; }).length;
     var cb = A.settings().colourblind;
+    // The dot is a SCORE signal, so a rank-180 exporter and a non-exporter are
+    // both red — they both banked nothing. The sheet says which is which.
     var dots = picks.map(function (i) {
       var r = byIso[i];
-      if (!r) return "🔴";
+      if (!r || !r.v) return "🔴";
       if (r.rank <= 5) return cb ? "🟦" : "🟢";
       return cb ? "🟧" : "🟡";
     });
@@ -515,7 +609,7 @@
     extra += '<p class="p5head">THE REAL TOP FIVE · ' + A.esc(prod.name.toUpperCase()) + "</p>";
     extra += '<div class="p5wrap"><table class="p5tab"><tr><th></th><th>country</th>' +
       '<th style="text-align:right">exports</th><th style="text-align:right">share</th></tr>';
-    prod.top.forEach(function (tp, k) {
+    TOP5.forEach(function (tp, k) {
       var got = picks.indexOf(tp[0]) >= 0;
       extra += '<tr class="' + (got ? "got" : "") + '"><td class="r">' + (k + 1) + '</td><td class="c">' +
         flagImg(tp[0]) + A.esc(cname(tp[0])) + (got ? " ✓" : "") + '</td><td class="n">' + usd(tp[1]) +
@@ -527,20 +621,29 @@
     extra += '<div class="p5wrap"><table class="p5tab"><tr><th></th><th>country</th>' +
       '<th style="text-align:right">exports</th><th style="text-align:right">scored</th></tr>';
     picks.forEach(function (iso, k) {
-      var r = byIso[iso];
+      var d = verdict(iso), r = d.row;
+      // The rank cell says WHY there is no rank, instead of one flat "unranked"
+      // that made a genuine tiny exporter and a genuine non-exporter identical.
+      var rankCell = r ? "#" + r.rank
+        : d.kind === "zero" ? "none exported"
+          : d.kind === "unknown" ? "no data" : "unranked";
+      var valCell = !r ? (d.kind === "zero" ? "$0" : "—")
+        : r.v > 0 ? usd(r.v) : "&lt;" + usd(r.under);
       extra += '<tr class="' + (r && r.rank <= 5 ? "got" : "") + '"><td class="r">' + (k + 1) + '</td><td class="c">' +
         flagImg(iso) + A.esc(cname(iso)) +
-        ' <span class="dim">' + (r ? "#" + r.rank : "unranked") + "</span></td>" +
-        '<td class="n">' + (r ? usd(r.v) : "—") + '</td><td class="n">' +
+        ' <span class="dim">' + rankCell + "</span></td>" +
+        '<td class="n">' + valCell + '</td><td class="n">' +
         (r ? pc(100 * r.v / T5SUM, 1) : "0.0%") + "</td></tr>";
     });
     extra += "</table></div>";
 
+    var valued = prod.top.length, ranked = table.length;
     extra += '<p class="tiny dim" style="margin-top:var(--sp-2);line-height:1.6">' +
-      prod.n + " countries exported " + A.esc(prod.name.toLowerCase()) + " in " + YEAR +
-      ". Ranks 1–5 here are exact; this build ranks <b>" + table.length +
-      "</b> of them, and anything below that scores zero — it is outside our table, " +
-      "not necessarily outside the trade.</p>";
+      "<b>" + prod.n + "</b> countries exported " + A.esc(prod.name.toLowerCase()) +
+      " in " + YEAR + ". This table carries an exact value for the top <b>" + valued +
+      "</b> and an exact rank for all <b>" + ranked + "</b> — so a pick worth 0.0% is " +
+      "either a real exporter too small to register (its rank is shown) or a country " +
+      "the source records exporting none of it, and the rank column says which.</p>";
 
     var stamped = picks.filter(function (i) { return byIso[i] && byIso[i].rank <= 5; });
     if (stamped.length) extra += '<p class="center tiny" style="color:var(--green);' +
@@ -564,7 +667,17 @@
       return { hs4: prod.hs4, name: prod.name, n: prod.n, world: prod.world, top5Total: T5SUM };
     },
     top5: function () { return TRUE5.slice(); },
-    table: function () { return table.map(function (r) { return { iso: r.i, rank: r.rank, v: r.v, exact: !!r.exact }; }); },
+    table: function () {
+      return table.map(function (r) {
+        return {
+          iso: r.i, rank: r.rank, v: r.v,
+          kind: r.exact ? "exact" : r.tail ? "tail" : "recon",
+        };
+      });
+    },
+    // What the player would actually be TOLD about a country. The messaging fix
+    // is the point of this cabinet, so it has to be assertable, not eyeballed.
+    say: function (iso) { var d = verdict(iso); return { kind: d.kind, sub: subFor(iso), cls: clsFor(iso) }; },
     // Turn off the staged reveal so picks resolve synchronously — use this first.
     fast: function (on) { instant = on !== false; return instant; },
     pick: commit,
