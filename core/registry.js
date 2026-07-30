@@ -92,7 +92,7 @@ window.AD_REGISTRY = [
     distLabel: "guesses used", stamps: true,
   },
   {
-    id: "geogrid", soon: true, name: "GEOGRID", icon: "⌗", accent: "--violet", family: "geo",
+    id: "geogrid", name: "GEOGRID", icon: "⌗", accent: "--violet", family: "geo",
     tagline: "nine cells, ten guesses, no repeats",
     blurb: "Three criteria across, three down. Fill all nine — and score better " +
       "for picking the countries nobody thinks of.",

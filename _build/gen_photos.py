@@ -339,6 +339,11 @@ def main():
                                             L.urllib.parse.unquote(e["page"])))})
         if kind == "time":
             o["gps"] = 1 if e.get("gps") else 0
+            # Clues are optional on `time` (photos_time_clues.py derives them
+            # from the file's own categories, and terse rows yield none), so
+            # the key is only emitted when there is something to say.
+            if e.get("clues"):
+                o["clues"] = e["clues"][:3]
         else:
             o["clues"] = e["clues"][:4]
             o["easy"] = 1 if e.get("easy") else 0
