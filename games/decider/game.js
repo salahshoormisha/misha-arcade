@@ -8,17 +8,40 @@
 
    THREE ROUNDS
      R1  ALTERNATING  six questions each, strictly in turns, 10 points, the
-                      difficulty ramping 1→5. Both players in a pair get the
+                      difficulty ramping 1→4. Both players in a pair get the
                       SAME category and the SAME difficulty (different
                       questions), so the round is genuinely symmetrical.
-     R2  THE STEAL    six questions, three each. Miss one and it is offered to
-                      the other player for half points. The correct answer is
-                      NOT shown until the steal has been resolved — otherwise
-                      the steal would be free.
+     R2  THE STEAL    six questions, three each, picking the ramp up at 3 and
+                      finishing at 5. Miss one and it is offered to the other
+                      player for half points. The correct answer is NOT shown
+                      until the steal has been resolved — otherwise the steal
+                      would be free.
      R3  THE WAGER    one numeric question. Each player secretly stakes up to
                       their own score BEFORE seeing the question, then answers
                       secretly. Closest takes the whole pot; dead exact takes
                       double. Revealed together.
+
+   THE LADDER, AND WHY IT IS BUILT IN PAIRS
+     Every rung of both ladders is a PAIR of questions drawn from one category
+     at one difficulty, one for each player. That is what makes the contest
+     symmetrical, and it is never traded away: if the bank cannot fill a rung
+     we move the whole rung, both players together, rather than splitting them.
+     R2 used to be a flat list of six rising difficulties handed out
+     alternately, which quietly gave the player who went second a strictly
+     harder set (2,3,4 against 3,4,5). Pairs fix that.
+
+     Consecutive rungs never move by more than one pip, so a round ramps
+     instead of sawtoothing. When a rung cannot be filled at its target
+     difficulty we look one pip either side before anything else, and we never
+     accept a jump of more than one from the difficulty actually served last.
+
+   NO REPEATS, ACROSS DAYS
+     A plan's `used` map only stops a repeat inside one game. The bank is
+     shared by every day, so questions asked on previous mornings are also
+     excluded — see SEEN_KEY. They are remembered by a hash of the question
+     text rather than by index, so the memory survives the bank being
+     regenerated, and the window is capped at a share of the bank so the pool
+     can never starve.
 
    A full-screen curtain sits between every turn, so nobody sees a question
    that is not theirs. It fades in via a forced reflow, never rAF — rAF is
@@ -44,17 +67,35 @@
 
   var ID = "decider";
   var PTS = 10, STEAL_PTS = 5;
-  var R1_LADDER = [1, 2, 3, 3, 4, 5];      // one entry per PAIR of questions
-  var R2_LADDER = [2, 3, 3, 4, 4, 5];      // one entry per question
+  // One entry per PAIR of questions in both rounds. R2 picks the ramp up one
+  // pip below where R1 left it, which reads as a new round without the old
+  // 5 → 2 lurch. Served over a whole card that is 2/4/6/4/2 across the five
+  // pips: roughly 11 / 22 / 33 / 22 / 11 per cent.
+  var R1_LADDER = [1, 2, 2, 3, 3, 4];
+  var R2_LADDER = [3, 4, 5];
   var R1_N = R1_LADDER.length * 2;         // 12
-  var R2_N = R2_LADDER.length;             // 6
+  var R2_N = R2_LADDER.length * 2;         // 6
   var NQ = R1_N + R2_N;                    // 18 asked questions, then the wager
+  var MAX_STEP = 1;                        // pips a rung may move from the last
   var COL = ["--hot", "--cool"];           // player one, player two
   var LET = ["A", "B", "C", "D"];
   var DEF = ["Misha", "David"];
   var H2H_KEY = A.NS + "decider:h2h";
+  var SEEN_KEY = A.NS + "decider:seen";
+  var SEEN_SHARE = 0.45;                   // of the bank we may hold in memory
   var NAME_MAX = 12;
   var PAR = 50;                            // a level contest
+
+  // How often a category should come up, relative to the others. The players
+  // asked for less art, less literature and less of the older cultural end of
+  // history: that is a weighting problem, not a bank-size one, because the
+  // picker walks categories rather than questions. Overridden by
+  // AD_TRIVIA.weights so the data file stays the single source of truth.
+  var DEFAULT_W = {
+    general: 1, geo: 1, science: 1, ai: 1, food: 1, sport: 1, film: 1,
+    cities: 1, persia: 1, jewish: 0.95, music: 0.9, words: 0.9,
+    history: 0.55, lit: 0.3, art: 0.22,
+  };
 
   var HELP =
     "<p><b>One phone, two people, three rounds.</b> Pass it back and forth — a full-screen " +
@@ -62,8 +103,9 @@
     "<ul>" +
     "<li><b>Round 1 — alternating.</b> Six questions each, strictly in turns, ten points a go. " +
     "Both of you get the same category and the same difficulty each time, so nobody gets the " +
-    "easy half. The ladder climbs from one pip to five.</li>" +
-    "<li><b>Round 2 — the steal.</b> Six questions, three each. Miss yours and it is offered to " +
+    "easy half. The ladder climbs a pip at a time, one to four.</li>" +
+    "<li><b>Round 2 — the steal.</b> Six questions, three each, and it picks the ladder back up " +
+    "at three and finishes at five. Miss yours and it is offered to " +
     "the other one for <b>five</b>. You will not be told the right answer until the steal has " +
     "been settled, so there is nothing to give away.</li>" +
     "<li><b>Round 3 — the wager.</b> One question with a number for an answer. You each stake up " +
@@ -116,11 +158,59 @@
       (BY[key] || (BY[key] = [])).push(idx);
       (BYD[d] || (BYD[d] = [])).push(idx);
     }
+    // A stable id per question, from its text. Used by the cross-day memory
+    // below: an index would be meaningless the moment the bank is regenerated.
+    for (i = 0; i < ALL.length; i++) ALL[i].id = qid(ALL[i].q);
     CAT_KEYS = Object.keys(CATS).filter(function (c) {
       for (var d = 1; d <= 5; d++) if ((BY[c + "|" + d] || []).length) return true;
       return false;
     });
   })();
+
+  // FNV-1a over the punctuation-stripped question, base 36. Short enough that a
+  // thousand of them fit comfortably in localStorage.
+  function qid(text) {
+    var s = String(text).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    var h = 0x811c9dc5, i;
+    for (i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return h.toString(36);
+  }
+
+  /* ── what they have already been asked, ACROSS DAYS ──────────────────────
+     A plan's own `used` map stops a repeat inside one game and nothing more —
+     the bank is shared by every morning, so without this a question could come
+     straight back tomorrow. We keep a rolling list of question ids, oldest
+     first, and exclude them when a plan is built. Capped at a share of the bank
+     so the pool can never starve, and stored by text hash so the memory
+     survives core/data/trivia.js being regenerated. */
+
+  function seenIds() {
+    var v = A._get(SEEN_KEY, null);
+    return v && Object.prototype.toString.call(v.q) === "[object Array]" ? v.q : [];
+  }
+  function seenCap() { return Math.max(40, Math.floor(ALL.length * SEEN_SHARE)); }
+  function seenMap() {
+    var list = seenIds(), m = {}, i;
+    for (i = 0; i < list.length; i++) m[list[i]] = 1;
+    return m;
+  }
+  // Newest wins, oldest is forgotten first.
+  function remember(idxs) {
+    var list = seenIds(), have = {}, rev = [], out, i, id;
+    for (i = 0; i < idxs.length; i++) if (ALL[idxs[i]]) list.push(ALL[idxs[i]].id);
+    for (i = list.length - 1; i >= 0; i--) {
+      id = list[i];
+      if (have[id]) continue;
+      have[id] = 1;
+      rev.push(id);
+    }
+    rev.reverse();
+    out = rev.length > seenCap() ? rev.slice(rev.length - seenCap()) : rev;
+    A._set(SEEN_KEY, { v: 1, q: out });
+  }
 
   /* ── who is playing ──────────────────────────────────────────────────── */
 
@@ -161,55 +251,121 @@
     for (i = 0; i < list.length; i++) if (!used[list[i]]) out.push(list[i]);
     return out;
   }
-  function widen(diff, used) {
-    var order = [diff], out = [], k, d;
-    for (k = 1; k <= 4; k++) { order.push(diff - k); order.push(diff + k); }
-    for (k = 0; k < order.length; k++) {
-      d = order[k];
-      if (d >= 1 && d <= 5) out = out.concat(pool(BYD[d] || [], used));
-    }
-    return out;
+
+  var CATW = T.weights || DEFAULT_W;
+  function catWeight(c) {
+    var w = +CATW[c];
+    return isFinite(w) && w > 0 ? w : 1;
   }
-  // Categories not yet used today come first, so a game spreads across the board.
+
+  /**
+   * Categories in the order we will try them for one rung.
+   *  - Ones not yet used today come first, so a game spreads across the board.
+   *  - Inside each tier the order is a WEIGHTED shuffle, so a category's weight
+   *    is what decides how often it comes up. This is the lever the players
+   *    actually asked for: art, literature and the older cultural end of
+   *    history now surface far less often, without any category disappearing.
+   *    Efraimidis-Spirakis: key = u^(1/w), largest key first, gives each
+   *    category a probability of leading proportional to its weight.
+   */
   function catOrder(rnd, catsUsed) {
-    var shuffled = A.shuffle(rnd, CAT_KEYS), fresh = [], stale = [], i;
-    for (i = 0; i < shuffled.length; i++) {
-      (catsUsed[shuffled[i]] ? stale : fresh).push(shuffled[i]);
+    var fresh = [], stale = [], i, c, k;
+    for (i = 0; i < CAT_KEYS.length; i++) {
+      c = CAT_KEYS[i];
+      k = Math.pow(rnd(), 1 / catWeight(c));
+      (catsUsed[c] ? stale : fresh).push({ c: c, k: k });
     }
-    return fresh.concat(stale);
+    fresh.sort(byKey);
+    stale.sort(byKey);
+    return fresh.map(pluck).concat(stale.map(pluck));
+
+    function byKey(a, b) { return b.k - a.k; }
+    function pluck(x) { return x.c; }
   }
+
+  /**
+   * n questions from ONE category at EXACTLY this difficulty, or null.
+   * Strict on both counts: every rung is a pair, and both players must get the
+   * same category and the same difficulty as each other. That symmetry is the
+   * whole point of the game, so it is never traded for a fuller ladder — if a
+   * rung cannot be filled we move the rung, not one player.
+   */
   function take(rnd, diff, used, catsUsed, n) {
-    var order = catOrder(rnd, catsUsed), i, p;
+    var order = catOrder(rnd, catsUsed), i, p, got;
     for (i = 0; i < order.length; i++) {
       p = pool(BY[order[i] + "|" + diff] || [], used);
       if (p.length >= n) {
-        var got = A.sample(rnd, p, n);
+        got = A.sample(rnd, p, n);
         got.forEach(function (x) { used[x] = 1; });
         catsUsed[order[i]] = (catsUsed[order[i]] || 0) + n;
         return got;
       }
     }
-    var wide = widen(diff, used);              // last resort: difficulty only
-    if (wide.length < n) return null;
-    var any = A.sample(rnd, wide, n);
-    any.forEach(function (x) { used[x] = 1; catsUsed[ALL[x].cat] = (catsUsed[ALL[x].cat] || 0) + 1; });
-    return any;
+    return null;
   }
 
-  function buildPlan() {
-    var seed = practice ? ID + ":prac:" + Date.now() + ":" + Math.random() : ID + ":plan:" + day;
+  /**
+   * One rung of the ladder, smoothed.
+   *
+   * `target` is what the ladder asked for; `prev` is the difficulty actually
+   * served by the rung before it, or null at the start of the game. We try the
+   * target first, then one pip either side, and we refuse anything more than
+   * MAX_STEP from `prev` — which is what stops a round serving two easy
+   * questions and then two hard ones. Only if the bank cannot fill the rung
+   * within that window at all do we widen, nearest difficulty first.
+   */
+  function takeRung(rnd, target, prev, used, catsUsed, n) {
+    var wish = [target, target + 1, target - 1, target + 2, target - 2];
+    var tried = {}, order = [], i, d, got;
+
+    for (i = 0; i < wish.length; i++) {
+      d = wish[i];
+      if (d < 1 || d > 5 || tried[d]) continue;
+      if (prev !== null && Math.abs(d - prev) > MAX_STEP) continue;
+      tried[d] = 1;
+      order.push(d);
+    }
+    // Fallback: give up the smoothing before giving up the round, nearest first.
+    for (d = 1; d <= 5; d++) if (!tried[d]) order.push(d);
+    order.sort(function (a, b) {
+      var pa = tried[a] ? 0 : 1, pb = tried[b] ? 0 : 1;
+      return pa !== pb ? pa - pb : Math.abs(a - target) - Math.abs(b - target);
+    });
+
+    for (i = 0; i < order.length; i++) {
+      got = take(rnd, order[i], used, catsUsed, n);
+      if (got) return { d: order[i], got: got };
+    }
+    return null;
+  }
+
+  /**
+   * `skip` is the cross-day memory: question ids already asked on previous
+   * mornings, pre-loaded into `used` so they cannot come round again.
+   * `seedFor` overrides the seed (the audit hook uses it); leave it out in play.
+   */
+  function buildPlan(skip, seedFor) {
+    var seed = seedFor || (practice
+      ? ID + ":prac:" + Date.now() + ":" + Math.random()
+      : ID + ":plan:" + day);
     var rnd = A.rng(seed);
-    var used = {}, catsUsed = {}, r1 = [], r2 = [], i, got;
+    var used = {}, catsUsed = {}, r1 = [], r2 = [], prev = null, i, rung;
+
+    if (skip) for (i = 0; i < ALL.length; i++) if (skip[ALL[i].id]) used[i] = 1;
 
     for (i = 0; i < R1_LADDER.length; i++) {
-      got = take(rnd, R1_LADDER[i], used, catsUsed, 2);
-      if (!got) return null;
-      r1.push(got[0], got[1]);
+      rung = takeRung(rnd, R1_LADDER[i], prev, used, catsUsed, 2);
+      if (!rung) return null;
+      prev = rung.d;
+      r1.push(rung.got[0], rung.got[1]);
     }
+    // R2 is built in pairs too. It used to be six single questions handed out
+    // alternately, which gave whoever went second a strictly harder set.
     for (i = 0; i < R2_LADDER.length; i++) {
-      got = take(rnd, R2_LADDER[i], used, catsUsed, 1);
-      if (!got) return null;
-      r2.push(got[0]);
+      rung = takeRung(rnd, R2_LADDER[i], prev, used, catsUsed, 2);
+      if (!rung) return null;
+      prev = rung.d;
+      r2.push(rung.got[0], rung.got[1]);
     }
     var np = pool(NUM.filter(function (x) { return ALL[x].diff >= 3; }), used);
     if (!np.length) np = pool(NUM, used);
@@ -274,7 +430,10 @@
     return;
   }
 
-  plan = buildPlan();
+  // Prefer a card of questions they have never seen. If the memory has eaten so
+  // much of the bank that a card can no longer be built, build one anyway —
+  // a repeat beats a cabinet that will not open.
+  plan = buildPlan(seenMap()) || buildPlan(null);
   if (!plan) {
     main.innerHTML = '<p class="center muted" style="padding:44px 0;line-height:1.85">' +
       "Couldn't build tonight's card from the question bank.<br>" +
@@ -368,8 +527,9 @@
       "</div>" +
       '<div class="dc-rules">' +
         rule("R1", "<b>Six each, in turns.</b> Same category, same difficulty, ten points — " +
-          "and it gets harder every question.") +
-        rule("R2", "<b>The steal.</b> Three each. Miss and the other one gets it for five.") +
+          "climbing a pip at a time from one to four.") +
+        rule("R2", "<b>The steal.</b> Three each, three up to five. Miss and the other one " +
+          "gets it for five points.") +
         rule("R3", "<b>The wager.</b> One number. Stake what you dare. Closest takes the pot, " +
           "exact takes double.") +
       "</div>" +
@@ -785,6 +945,10 @@
     S.si = 0;
     S.stage = "q";
     S.t0 = Date.now();
+    // Burn tonight's questions here rather than at the end: a card they walked
+    // away from halfway through has still been seen, and a card they never
+    // opened at all costs nothing, because we never got this far.
+    remember(plan.r1.concat(plan.r2, [plan.w]));
     A.sfx("key");
     save();
     paint();
@@ -1159,6 +1323,68 @@
     h2h: ledger,
     share: shareRows,
     normFor: normFor,
+    seen: function () { return { held: seenIds().length, cap: seenCap() }; },
+    forget: function () { A._set(SEEN_KEY, { v: 1, q: [] }); return "forgotten"; },
+
+    /**
+     * Build n fresh cards through the REAL picker and report what it actually
+     * served: the difficulty histogram, each category's share, the biggest
+     * difficulty step one player sees between consecutive questions in a round,
+     * and whether every pair really did match on category and difficulty.
+     *   __DC.audit(200)
+     * Ignores the cross-day memory, so the numbers describe the bank rather
+     * than this device's history.
+     */
+    audit: function (n) {
+      n = n || 200;
+      var diffs = {1:0,2:0,3:0,4:0,5:0}, cats = {}, served = 0, fails = 0;
+      var steps = {}, worst = 0, asym = 0, crossMax = 0, k, i, p, seq, d, c;
+
+      for (k = 0; k < n; k++) {
+        p = buildPlan(null, "audit:" + k);
+        if (!p) { fails++; continue; }
+        // Every question served, for the histogram and the category shares.
+        var all = p.r1.concat(p.r2);
+        for (i = 0; i < all.length; i++) {
+          d = ALL[all[i]].diff; c = ALL[all[i]].cat;
+          diffs[d]++; cats[c] = (cats[c] || 0) + 1; served++;
+        }
+        // Pair symmetry: [0,1] is one rung, [2,3] the next, in both rounds.
+        for (i = 0; i < all.length; i += 2) {
+          if (ALL[all[i]].cat !== ALL[all[i + 1]].cat ||
+              ALL[all[i]].diff !== ALL[all[i + 1]].diff) asym++;
+        }
+        // One player's own sequence through a round is the even slots of it.
+        seq = [];
+        for (i = 0; i < p.r1.length; i += 2) seq.push(ALL[p.r1[i]].diff);
+        worst = Math.max(worst, run(seq));
+        var s2 = [];
+        for (i = 0; i < p.r2.length; i += 2) s2.push(ALL[p.r2[i]].diff);
+        worst = Math.max(worst, run(s2));
+        crossMax = Math.max(crossMax, Math.abs(s2[0] - seq[seq.length - 1]));
+      }
+      var out = { cards: n, failed: fails, served: served,
+        pairsBroken: asym, worstStepInRound: worst, worstStepAcrossRounds: crossMax,
+        stepHistogram: steps, diff: {}, cat: {} };
+      for (d = 1; d <= 5; d++) {
+        out.diff[d] = diffs[d] + " (" + (100 * diffs[d] / served).toFixed(1) + "%)";
+      }
+      Object.keys(cats).sort(function (a, b) { return cats[b] - cats[a]; })
+        .forEach(function (c2) {
+          out.cat[c2] = cats[c2] + " (" + (100 * cats[c2] / served).toFixed(1) + "%)";
+        });
+      return out;
+
+      function run(a) {
+        var m = 0, j, st;
+        for (j = 1; j < a.length; j++) {
+          st = Math.abs(a[j] - a[j - 1]);
+          steps[st] = (steps[st] || 0) + 1;
+          if (st > m) m = st;
+        }
+        return m;
+      }
+    },
     /**
      * Play a whole game without touching the screen.
      *   __DC.play({ hit:[0.8,0.55], bet:"half", ans:[+2,-9] })
