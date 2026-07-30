@@ -301,6 +301,36 @@ def rnd(x, n):
     return round(x + 0.0, n)
 
 
+def sig_int(v, sig=None):
+    """Round a USD value to `sig` significant figures. Integer maths only, so it
+    is exactly reproducible on any machine (no float rounding drift)."""
+    sig = VALUE_SIGFIG if sig is None else sig     # constant is defined below
+    iv = int(round(float(v)))
+    if iv <= 0:
+        return 0
+    s = str(iv)
+    if len(s) <= sig:
+        return iv
+    p = len(s) - sig
+    unit = 10 ** p
+    return ((iv + unit // 2) // unit) * unit
+
+
+def jsnum(iv):
+    """Shortest JSON number for a value already rounded by sig_int().
+
+    `1348e9` is a legal JSON number and a legal JS Number literal, and saves 3-4
+    bytes per row against `1348000000000`. Over 12,000 rows that is ~45 KB.
+    """
+    if iv <= 0:
+        return "0"
+    p = 0
+    while iv % 10 == 0:
+        iv //= 10
+        p += 1
+    return "%de%d" % (iv, p) if p > 0 else "%d" % iv
+
+
 def palette_check():
     """Min pairwise separation of the 21 section colours (sanity, reported)."""
     def rgb(h):
@@ -342,7 +372,30 @@ N_ITEMS = 8           # named products per country before the "Other" remainder
 # the extra depth for FEWER bytes than a 6-deep list with shares.
 N_RCA = 9
 RCA_MIN_SHARE = 0.005  # Connectrade's own filter: >= 0.5% of the country's exports
-MAX_PRODUCTS = 150    # PICK 5 products kept, chosen round-robin across sections
+MAX_PRODUCTS = 300    # PICK 5 products kept, chosen round-robin across sections
+
+# ---------------------------------------------------------------------------
+# HOW DEEP THE PICK 5 EXPORTER TABLE GOES  (added 2026-07-28)
+#
+# The first build shipped only the exact top 5 per product and left PICK 5 to
+# reconstruct ranks 6+ out of each country's 8-item composition and its ~6 RCA
+# rows. Almost nothing reconstructed, so almost every guess outside the medals
+# rendered as "unranked / -- / 0.0%", which a player reads as "this country
+# exports none of this". That is false for nearly everybody: the median product
+# in this cube has 190 exporting countries out of the 228 we can name. So:
+#
+#   top   ranks 1..TOP_DEPTH with real USD values (4 significant figures)
+#   rest  every remaining exporter, in rank order, as a flat string of ISO2
+#         codes -- 2 bytes buys an EXACT rank for a country whose value is far
+#         too small to score. Absence from BOTH lists is then a real fact: BACI
+#         records no exports of that product from that country in this year.
+#
+# Cost, measured not guessed: ~557 B/product for top-40 at 4 s.f. and ~282 B for
+# the tail, against ~180 B for the old top-5. That is what pushes the file past
+# CONTRACT.md's 300 KB cap; MAX_PRODUCTS is the dial that trades pool size for
+# bytes, and `--emit` retunes it offline from the cache without refetching.
+TOP_DEPTH = 40        # ranks carrying an exact value (the brief's minimum)
+VALUE_SIGFIG = 4      # 4 s.f. reproduces every figure PICK 5's usd() displays
 
 
 def build(members, world, arr_countries, by3, product_ids, wb):
@@ -498,6 +551,8 @@ def build(members, world, arr_countries, by3, product_ids, wb):
             iso2_by_key[m["key"]] = c["i"]
 
     top5_out = []
+    clamped = 0
+    depths = []
     for hid in product_ids:
         cf = cache_path("prod", "%d.json" % hid)
         if not os.path.exists(cf):
@@ -506,31 +561,54 @@ def build(members, world, arr_countries, by3, product_ids, wb):
             data = json.load(open(cf))["data"]
         except Exception:
             continue
-        rows = [r for r in data if float(r["Trade Value"]) > 0]
-        if len(rows) < 8:
-            continue
-        rows.sort(key=lambda r: (-float(r["Trade Value"]), r["Exporter Country ID"]))
-        top = []
-        for r in rows[:5]:
+        # Rank every exporter we can name. An exporter the ISO2 map cannot
+        # resolve is dropped rather than silently shifting everyone's rank up,
+        # and `n` is recomputed from what survives, so "#63 of 190" always
+        # counts the same list the game can actually search.
+        ranked = []
+        for r in data:
+            v = float(r["Trade Value"])
+            if v <= 0:
+                continue
             i2 = iso2_by_key.get(r["Exporter Country ID"])
             if not i2:
                 continue
-            top.append([i2, int(round(float(r["Trade Value"])))])
-        if len(top) < 5:
+            ranked.append((v, i2))
+        if len(ranked) < 8:
             continue
+        ranked.sort(key=lambda t: (-t[0], t[1]))
+
+        top = []
+        prev = None
+        for v, i2 in ranked[:TOP_DEPTH]:
+            iv = sig_int(v)
+            # Rounding must never invert the ranking it is attached to.
+            if prev is not None and iv > prev:
+                iv = prev
+                clamped += 1
+            prev = iv
+            top.append([i2, iv])
+        if len(top) < 5 or top[4][1] <= 0:
+            continue
+        rest = "".join(i2 for _, i2 in ranked[TOP_DEPTH:])
+
         code, hs2, sec = hs4_of(hid)
-        top5_out.append({
+        depths.append(len(ranked))
+        rec = {
             "hs4": code,
             "name": hs4_name.get(hid, ""),
             "colour": str(sec),
-            "n": len(rows),                       # full ranked exporter list length
+            "n": len(ranked),                     # = len(top) + len(rest)/2
             "world": int(round(world_by_hs4.get(hid, 0.0))),
             "top": top,
-        })
+        }
+        if rest:
+            rec["rest"] = rest
+        top5_out.append(rec)
     top5_out.sort(key=lambda p: p["hs4"])
 
     return (countries_out, top5_out, rca_out, warn_sum, skipped, world_total,
-            partial)
+            partial, clamped, depths)
 
 
 # ---------------------------------------------------------------------------
@@ -563,9 +641,42 @@ def emit(countries_out, top5_out, rca_out):
     return payload
 
 
+TOP5_SENTINEL = "@@TOP5@@"
+
+
+def top5_json(top5_out):
+    """Hand-serialise top5 so the USD values use the short exponent form.
+
+    json.dumps would print `1348000000000`; `1348e9` is the same JSON number in
+    6 bytes instead of 13. Everything else still goes through json.dumps, and
+    the result is spliced in over a sentinel, so the file is one plain JSON
+    object literal exactly as _build/check_trade.py demands.
+    """
+    out = []
+    for p in top5_out:
+        rows = ",".join('["%s",%s]' % (i2, jsnum(v)) for i2, v in p["top"])
+        s = ('{"hs4":%s,"name":%s,"colour":%s,"n":%d,"world":%d,"top":[%s]'
+             % (json.dumps(p["hs4"]), json.dumps(p["name"], ensure_ascii=False),
+                json.dumps(p["colour"]), p["n"], p["world"], rows))
+        if p.get("rest"):
+            s += ',"rest":%s' % json.dumps(p["rest"])
+        out.append(s + "}")
+    return "[" + ",".join(out) + "]"
+
+
 def write_file(payload):
+    top5_out = payload["top5"]
+    payload = dict(payload)
+    payload["top5"] = TOP5_SENTINEL
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":"),
                       sort_keys=False)
+    body = body.replace('"%s"' % TOP5_SENTINEL, top5_json(top5_out), 1)
+
+    # Facts quoted in the header are measured off the payload being written, so
+    # the comment can never drift from the data underneath it.
+    ns = sorted(p["n"] for p in top5_out) or [0]
+    MEDIAN_EXPORTERS = ns[len(ns) // 2]
+    N_NAMED = len(payload["countries"])
     header = (
         "/* core/data/trade.js -- window.AD_TRADE\n"
         "\n"
@@ -587,8 +698,19 @@ def write_file(payload):
         "                     (under-reported to Comtrade, e.g. Iran) or is\n"
         "                     re-export inflated. Surface it in the UI.\n"
         "   top5[]      .hs4 .name .colour .n (how many countries export it at all)\n"
-        "               .world (world trade USD)  .top [[ISO2, USD] x5] rank 1..5\n"
-        "               PICK 5 scores a pick as value / sum(top 5 values).\n"
+        "               .world (world trade USD)\n"
+        "               .top  [[ISO2, USD]] for ranks 1..%d, descending. Values are\n"
+        "                     4 significant figures, written short (1348e9), which is\n"
+        "                     legal JSON and reproduces every figure the game prints.\n"
+        "               .rest ranks %d+ as one flat string of 2-char ISO2 codes in rank\n"
+        "                     order, no values -- their exports are real but far too\n"
+        "                     small to score. Rank = %d + index/2 + 1.\n"
+        "               PICK 5 scores a pick as value / sum(the FIRST FIVE values).\n"
+        "               .n = len(top) + len(rest)/2, so \"#63 of 190\" is exact.\n"
+        "               A country in NEITHER list really did export none of it in this\n"
+        "               year -- that is the only case where the game may say so. The\n"
+        "               median product here has %d exporters out of the %d countries\n"
+        "               this file can name, so \"exports none\" is almost always wrong.\n"
         "   rca{ISO2}   6-9 products by revealed comparative advantage (Balassa),\n"
         "               RCA-descending, each already filtered to >=0.5%% of that\n"
         "               country's exports (so the game never re-applies it).\n"
@@ -606,7 +728,7 @@ def write_file(payload):
         "          Redraw; do not paper over it.\n"
         "   sections{}  HS section id -> {name, colour}; \"0\" = the Other remainder.\n"
         "*/\n"
-    )
+    ) % (TOP_DEPTH, TOP_DEPTH + 1, TOP_DEPTH, MEDIAN_EXPORTERS, N_NAMED)
     tmp = OUT + ".tmp"
     with open(tmp, "w") as fh:
         fh.write(header)
@@ -641,7 +763,51 @@ PICK5_HS4 = """
 8541 8542 8544 8703 8704 8708 8711 8716 8802 8901 8903 9001 9018 9021 9022
 9027 9028 9101 9113 9201 9301 9306 9401 9403 9405 9503 9504 9506 9603 9613
 9701 9705 9706
-""".split()
+"""
+
+# Second curation pass (2026-07-28), tripling the candidate pool so PICK 5 stops
+# repeating after five months. Same test as above -- would a strong generalist who
+# is NOT a trade specialist have an intuition about who sells this? A machine
+# filter shortlisted 467 further HS4 codes (>= $2B world trade, <= 32-char name,
+# no chemistry-exam vocabulary, nothing called "Other <something>"); these are the
+# ones that survived reading the list by hand.
+PICK5_HS4_MORE = """
+0207 0202 0304 0307 0102 0206 0204 0407 0403 0103 0105 0104 0301 0210 0305
+0713 1205 0806 1003 0809 0710 0811 1101 1107 1206 1202 0807 0714 0704 0707
+0705 0712 1007 0706 0601 1108 1209
+1512 1514 1507 1517 1513 1504 1520
+2309 2304 1604 1605 1902 2403 2401 1904 2002 1601 2105 1804 1803 2104 2007
+2102 1805 2001 2302 2301
+2713 2523 2616 2702 2704 2613 2610 2602 2503 2607 2604 2712 2517 2614 2505
+2508 2520 2516 2510
+3302 2937 3104 3003 3307 3215 2941 3005 2814 2936 3507 3306 3406 3503 3405
+3103 2807 2809 3802 3208 3209 3707 3404 2803 3801
+3920 3902 4002 3919 3924 3903 3906 3925 4009 3918 3910 4010 3912 3922 4008
+3915 4012
+4201
+4411 4410 4409 4415 4408 4419 4420
+4819 4804 4802 4707 4821 4803 4820 4813 4902 4808 4811 4810
+6104 6302 6202 6201 6115 6211 6205 6103 6206 6108 6105 6107 6111 5703 6306
+5702 6305 6112 6309 6116 6102 6301 6303 6106 6304 6101 6214 5101 6208 5607
+6209 5603
+6402 6406 6704 6702
+7019 7007 7009 6910 7005 6911 6902 6912 6810 6806 6804 6805 6807 7003 6809
+7008
+7110 7112 7103 7117
+7308 7318 7204 8302 7404 7408 7307 7604 7602 7610 7402 7502 7607 8301 7323
+7321 7411 8108 7217 7612 7407 7315 7615 7605 8105 7201 8212 8202 8204 8211
+7317 8203 8104 7608 8215 7322 7309
+8525 8413 8409 8483 8516 8408 8534 8518 8521 8428 8532 8427 8433 8502 8526
+8511 8508 8426 8432 8485 8527 8451 8506 8465 8458 8403 8439 8470 8514 8417
+8484 8510 8423 8402 8452 8401 8406 8513 8530 8434 8446
+8701 8714 8905 8702 8705 8710 8607 8609 8603 8904 8606 8715 8709 8713
+9032 9030 9102 9019 9013 9002 9004 9015 9014 9003 9011 9006 9207 9017 9020
+9305
+9404 9406 9505 9608 9402 9617 9507 9607 9615
+9703
+"""
+
+PICK5_HS4 = (PICK5_HS4 + PICK5_HS4_MORE).split()
 
 
 def resolve_products(world):
@@ -722,7 +888,8 @@ def main():
 
     sys.stderr.write("[3/3] building ...\n")
     (countries_out, top5_out, rca_out, warn_sum, skipped, world_total,
-     partial) = build(members, world, arr_countries, by3, product_ids, wb)
+     partial, clamped, depths) = build(members, world, arr_countries, by3,
+                                       product_ids, wb)
 
     payload = emit(countries_out, top5_out, rca_out)
     payload["worldTotal"] = int(round(world_total))
@@ -738,6 +905,13 @@ def main():
     print("  countries          %d" % len(countries_out))
     print("  products (top5)    %d  (curated %d -> shipped %d, unresolved %d)"
           % (len(top5_out), len(all_ids), len(product_ids), len(missing_codes)))
+    valued = sorted(len(p["top"]) for p in top5_out) or [0]
+    ranked = sorted(depths) or [0]
+    print("  valued ranks/prod  min %d  median %d  max %d  (TOP_DEPTH %d)"
+          % (valued[0], valued[len(valued) // 2], valued[-1], TOP_DEPTH))
+    print("  ranked exporters   min %d  median %d  max %d  (top + rest)"
+          % (ranked[0], ranked[len(ranked) // 2], ranked[-1]))
+    print("  rounding clamps    %d  (4 s.f. never inverted a rank)" % clamped)
     print("  rca countries      %d" % len(rca_out))
     print("  shares sum > 1.02  %d %s" % (len(warn_sum), warn_sum if warn_sum else ""))
     print("  flagged baskets    %d partial/re-export (see .note)" % len(partial))
