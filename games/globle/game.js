@@ -21,9 +21,15 @@
   ALL.forEach(function (c) { byIso[c.i] = c; });
 
   // Only countries we can actually draw AND locate.
+  // Anything we can both place and draw on the globe. GUESS is everything —
+  // territories included, so typing Greenland or Taiwan works — while POOL is
+  // the narrower set allowed to be the day's answer.
+  var drawable = function (c) {
+    return (c.capll || c.ll) && window.AD_WORLD && (window.AD_WORLD.rings(c.i) || []).length;
+  };
+  var GUESS = ALL.filter(drawable).map(function (c) { return c.i; });
   var POOL = ALL.filter(function (c) {
-    return c.un === 1 && (c.capll || c.ll) &&
-      window.AD_WORLD && (window.AD_WORLD.rings(c.i) || []).length;
+    return drawable(c) && (c.un === 1 || (c.pop || 0) >= 100000);
   }).map(function (c) { return c.i; });
 
   function at(iso) { var c = byIso[iso]; return c.capll || c.ll; }
@@ -71,7 +77,7 @@
 
   var pickHost = A.el("div"); pickHost.style.marginTop = "12px";
   main.appendChild(pickHost);
-  picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "name any country…" });
+  picker = A.picker(pickHost, { pool: GUESS, onPick: guess, placeholder: "name any country…" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
   row.innerHTML = (practice ? '<a class="ac-pill" href="./">← TODAY\'S COUNTRY</a>'

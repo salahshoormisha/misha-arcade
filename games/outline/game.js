@@ -44,6 +44,12 @@
   CAND.sort(function (a, b) { return b._sal - a._sal; });
   var POOL = CAND.slice(0, 130).map(function (c) { return c.i; });
 
+  // What you're allowed to TYPE is much wider than what can be the answer:
+  // anywhere we can locate, territories included. The answer pool stays the
+  // top-130 by salience so a day is never an unnameable speck.
+  var GUESS = ALL.filter(function (c) { return c.capll || c.ll; })
+    .map(function (c) { return c.i; });
+
   function at(iso) { var c = byIso[iso]; return c.capll || c.ll; }
   function dist(a, b) { return A.haversine(at(a)[0], at(a)[1], at(b)[0], at(b)[1]); }
 
@@ -83,7 +89,7 @@
 
   var pickHost = A.el("div"); pickHost.style.marginTop = "14px";
   main.appendChild(pickHost);
-  picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "which country is that?" });
+  picker = A.picker(pickHost, { pool: GUESS, onPick: guess, placeholder: "which country is that?" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
   row.innerHTML = '<button class="ac-pill" id="hint">SIZE &amp; BORDERS</button>' +

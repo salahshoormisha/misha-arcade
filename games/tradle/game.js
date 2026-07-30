@@ -137,6 +137,12 @@
       TRADE[i].total >= MIN_EXPORTS && TRADE[i].items && TRADE[i].items.length > 2;
   }).sort();
 
+  // Guess pool: anywhere we can put on a map, territories included — Hong Kong
+  // and Taiwan are enormous exporters and used not to be typeable at all. The
+  // feedback is distance-based, so a guess needs coordinates and nothing more.
+  var GUESS = ALL.filter(function (c) { return c.capll || c.ll; })
+    .map(function (c) { return c.i; });
+
   /* ── state ─────────────────────────────────────────────────────────────── */
   var day = A.requestedDay();
   var practice = day === A.PRACTICE;
@@ -152,6 +158,8 @@
       "is the family it belongs to (the key is under the map).</p>" +
       "<p>Six guesses. Each wrong one tells you <b>how far away</b> you are, " +
       "<b>which way</b> to go, and how warm you're getting.</p>" +
+      "<p>The <b>total value</b> of the basket is shown above the map from the start — " +
+      "use it. Shares alone can't tell a $2B economy from a $400B one.</p>" +
       "<ul><li><b>What is this economy?</b> gives you the whole basket in one line — " +
       "costs 8 points, not a guess.</li>" +
       "<li>Every country you get right is <b>stamped in your passport</b>.</li>" +
@@ -168,6 +176,16 @@
   }
 
   answer = pickAnswer();
+
+  // Total exports, shown while you PLAY. The original puts it above the
+  // treemap and it is one of the strongest clues in the game — a $2B basket and
+  // a $400B basket can look identical once they're normalised to shares, so
+  // holding this back until the end sheet threw away half the information.
+  var totalEl = A.el("div", "totalx");
+  totalEl.innerHTML = '<span class="tx-k">total exports</span>' +
+    '<span class="tx-v">' + usd((TRADE[answer] || {}).total || 0) + "</span>" +
+    '<span class="tx-y">' + (T.year || 2023) + "</span>";
+  main.appendChild(totalEl);
 
   var wrap = A.el("div"); wrap.id = "mapwrap";
   cvs = A.el("canvas"); cvs.id = "tree";
@@ -189,7 +207,7 @@
 
   var pickHost = A.el("div"); pickHost.style.marginTop = "14px";
   main.appendChild(pickHost);
-  picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "who sells this?" });
+  picker = A.picker(pickHost, { pool: GUESS, onPick: guess, placeholder: "who sells this?" });
 
   var row = A.el("div", "ac-row"); row.style.marginTop = "10px";
   row.innerHTML = '<button class="ac-pill" id="hint">WHAT IS THIS ECONOMY?</button>' +

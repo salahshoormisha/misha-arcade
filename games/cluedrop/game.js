@@ -84,6 +84,11 @@
     return c && c.un === 1 && (c.capll || c.ll) && (NOTES[i] || []).length >= 2;
   }).sort();
 
+  // Typeable set is everything we can place, territories included; the answer
+  // pool above stays narrow because an answer needs written clues.
+  var GUESS = ALL.filter(function (c) { return c.capll || c.ll; })
+    .map(function (c) { return c.i; });
+
   /* ── state ─────────────────────────────────────────────────────────────── */
   var day = A.requestedDay();
   var practice = day === A.PRACTICE;
@@ -129,7 +134,7 @@
 
   var pickHost = A.el("div", "pickhost");
   main.appendChild(pickHost);
-  picker = A.picker(pickHost, { pool: POOL, onPick: guess, placeholder: "which country?" });
+  picker = A.picker(pickHost, { pool: GUESS, onPick: guess, placeholder: "which country?" });
 
   var row = A.el("div", "ac-row pillrow");
   row.innerHTML = practice

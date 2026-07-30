@@ -6,8 +6,18 @@
 <title>TRADLE · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
-<link rel="stylesheet" href="../../core/style.css?v=11">
+<link rel="stylesheet" href="../../core/style.css?v=12">
 <style>
+  /* Total exports — a live clue, so it reads as a stat block, not a caption. */
+  .totalx { display: flex; align-items: baseline; justify-content: center; gap: var(--sp-2);
+            margin: var(--sp-3) auto 0; }
+  .totalx .tx-k { font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase;
+                  color: var(--ink-3); }
+  .totalx .tx-v { font-size: var(--t-xl); font-weight: 700; letter-spacing: -.01em;
+                  font-variant-numeric: tabular-nums; color: var(--ink); }
+  .totalx .tx-y { font-size: var(--t-xs); color: var(--ink-3);
+                  font-variant-numeric: tabular-nums; }
+
   #mapwrap { position: relative; width: min(420px, 92vw); margin: var(--sp-3) auto 0; }
   #tree {
     width: 100%; display: block; border-radius: var(--r-md); background: var(--s1);
@@ -70,13 +80,13 @@
 </style>
 </head>
 <body>
-<script src="../../core/registry.js?v=11"></script>
-<script src="../../core/arcade.js?v=11"></script>
-<script src="../../core/ui.js?v=11"></script>
-<script src="../../core/audio.js?v=11"></script>
-<script src="../../core/picker.js?v=11"></script>
-<script src="../../core/data/countries.js?v=11"></script>
-<script src="../../core/data/trade.js?v=11"></script>
-<script src="game.js?v=12"></script>
+<script src="../../core/registry.js?v=12"></script>
+<script src="../../core/arcade.js?v=12"></script>
+<script src="../../core/ui.js?v=12"></script>
+<script src="../../core/audio.js?v=12"></script>
+<script src="../../core/picker.js?v=12"></script>
+<script src="../../core/data/countries.js?v=12"></script>
+<script src="../../core/data/trade.js?v=12"></script>
+<script src="game.js?v=13"></script>
 </body>
 </html>

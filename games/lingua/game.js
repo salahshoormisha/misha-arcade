@@ -135,11 +135,13 @@
     return s && s.text && s.countries && s.countries.some(function (i) { return CO[i] && at(CO[i]); });
   }).sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
 
-  // The guessing pool: every UN member, plus every country that is an answer
-  // somewhere (Greenland, Taiwan, Hong Kong, Macau, Kosovo). Same every day,
-  // so it gives nothing away.
+  // The guessing pool: every place we can put on the globe — territories and
+  // partially-recognised states included. Restricting this to UN members meant
+  // typing Greenland, Guernsey, Réunion or New Caledonia returned nothing at
+  // all, which reads as the game not knowing they exist. It is the same set
+  // every day, so it still gives nothing away.
   var PMAP = {};
-  (window.AD_COUNTRIES || []).forEach(function (c) { if (c.un === 1 && at(c)) PMAP[c.i] = 1; });
+  (window.AD_COUNTRIES || []).forEach(function (c) { if (at(c)) PMAP[c.i] = 1; });
   SAMPLES.forEach(function (s) {
     s.countries.forEach(function (i) { if (CO[i] && at(CO[i])) PMAP[i] = 1; });
   });

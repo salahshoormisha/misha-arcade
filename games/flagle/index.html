@@ -6,7 +6,7 @@
 <title>FLAGLE · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏳️</text></svg>">
-<link rel="stylesheet" href="../../core/style.css?v=11">
+<link rel="stylesheet" href="../../core/style.css?v=12">
 <style>
   #flagwrap { position: relative; width: min(400px, 88vw); margin: var(--sp-3) auto 0; }
   /* aspect-ratio only holds until draw() sets an explicit height from the flag's
@@ -46,17 +46,71 @@
              margin: var(--sp-3) auto 0; max-width: 400px; line-height: 1.7; }
   .hintbox b { font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase;
                color: var(--ink-3); font-weight: 550; margin-right: var(--sp-1); }
+
+  .fl-status { text-align: center; margin-top: var(--sp-2); min-height: 1.2em;
+               font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
+               color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* ── bonus rounds ── unlocked by winning; one accent (amber) for the lot */
+  .bonus { max-width: 400px; margin: var(--sp-4) auto 0; padding: var(--sp-3);
+           border: 1px solid var(--hair); border-radius: var(--r-lg); background: var(--s1);
+           box-shadow: var(--sh-1); }
+  .bn-head { display: flex; align-items: baseline; justify-content: space-between;
+             gap: var(--sp-2); margin-bottom: var(--sp-2); }
+  .bn-ix { font-size: var(--t-xs); letter-spacing: .16em; color: var(--ink-3);
+           font-variant-numeric: tabular-nums; }
+  .bn-nm { font-size: var(--t-xs); letter-spacing: .16em; font-weight: 650; color: var(--amber); }
+  .bn-ask { font-size: var(--t-md); line-height: 1.5; margin: 0 0 var(--sp-3); }
+
+  .bn-opts { display: grid; gap: var(--sp-2); }
+  .bn-text { grid-template-columns: 1fr; }
+  .bn-shape { grid-template-columns: repeat(2, 1fr); }
+  .bn-flag { grid-template-columns: repeat(4, 1fr); }
+
+  .bn-opt { appearance: none; cursor: pointer; font: inherit; color: var(--ink);
+            background: var(--s2); border: 1px solid var(--hair);
+            border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3);
+            text-align: left; transition: background .16s var(--ease),
+            border-color .16s var(--ease), transform .16s var(--ease); }
+  .bn-opt:hover:not(:disabled) { background: var(--s3); border-color: var(--ink-3); }
+  .bn-opt:disabled { cursor: default; }
+  .bn-opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); }
+  .bn-opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent);
+                  opacity: .62; }
+  .bn-flag .bn-opt { padding: var(--sp-2); display: flex; align-items: center; justify-content: center; }
+  .bn-flag .bn-opt img { width: 100%; max-width: 54px; aspect-ratio: 3 / 2;
+                         object-fit: cover; border-radius: 2px; display: block; }
+  .bn-shape .bn-opt { padding: var(--sp-1); }
+  canvas.bn-shape { width: 100%; height: 96px; display: block; }
+
+  .bn-foot { min-height: 1.3em; margin: var(--sp-3) 0 0; text-align: center;
+             font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
+             color: var(--ink-3); }
+  .bn-note { text-transform: none; letter-spacing: .01em; font-size: var(--t-sm);
+             color: var(--ink-2); line-height: 1.6; }
+  .bn-next { display: block; margin: var(--sp-3) auto 0; }
+
+  .bn-tally { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--sp-2);
+              margin: var(--sp-3) 0 var(--sp-1); }
+  .bn-tally span { display: flex; flex-direction: column; align-items: center; gap: 3px;
+                   font-size: var(--t-md); line-height: 1; }
+  .bn-tally span.miss { opacity: .34; filter: grayscale(1); }
+  .bn-tally i { font-style: normal; font-size: 9px; letter-spacing: .1em; color: var(--ink-3); }
+
+  @media (max-width: 420px) {
+    .bn-flag { grid-template-columns: repeat(3, 1fr); }
+  }
 </style>
 </head>
 <body>
-<script src="../../core/registry.js?v=11"></script>
-<script src="../../core/arcade.js?v=11"></script>
-<script src="../../core/ui.js?v=11"></script>
-<script src="../../core/audio.js?v=11"></script>
-<script src="../../core/flagart.js?v=11"></script>
-<script src="../../core/data/countries.js?v=11"></script>
-<script src="../../core/data/flags.js?v=11"></script>
-<script src="../../core/picker.js?v=11"></script>
-<script src="game.js?v=12"></script>
+<script src="../../core/registry.js?v=12"></script>
+<script src="../../core/arcade.js?v=12"></script>
+<script src="../../core/ui.js?v=12"></script>
+<script src="../../core/audio.js?v=12"></script>
+<script src="../../core/flagart.js?v=12"></script>
+<script src="../../core/data/countries.js?v=12"></script>
+<script src="../../core/data/flags.js?v=12"></script>
+<script src="../../core/picker.js?v=12"></script>
+<script src="game.js?v=13"></script>
 </body>
 </html>

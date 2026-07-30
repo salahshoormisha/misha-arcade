@@ -57,7 +57,10 @@
     for (var attempt = 0; attempt < 4000; attempt++) {
       var w2 = A.pick(rand, ANS);
       var a = Math.floor(rand() * LEN), b = Math.floor(rand() * LEN);
-      if (a === b) continue;
+      // The two ACROSS words must be at least one clear row apart. Merely
+      // rejecting a === b let them land on touching rows, which reads as a
+      // solid block of letters — it looks like the puzzle is missing a word.
+      if (Math.abs(a - b) < 2) continue;
       var p = Math.floor(rand() * LEN), q = Math.floor(rand() * LEN);
       var c1 = byLP[w2[a] + p], c3 = byLP[w2[b] + q];
       if (!c1 || !c3) continue;
@@ -173,6 +176,17 @@
 
   function back() {
     if (over) return;
+    // Tapping a square moves the cursor ONTO it, and the board stays full
+    // between attempts — so backspace has to mean "clear the square I'm
+    // looking at" whenever that square holds a letter. Always stepping back
+    // first deleted the letter *before* the one you tapped, which is why
+    // deleting felt broken.
+    if (focus < freeSlots.length && cur[freeSlots[focus]]) {
+      cur[freeSlots[focus]] = "";
+      dirty[freeSlots[focus]] = 1;
+      render();
+      return;
+    }
     if (focus <= 0) return;
     focus--;
     cur[freeSlots[focus]] = "";

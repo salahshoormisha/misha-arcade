@@ -85,7 +85,12 @@
     index().forEach(function (e) {
       if (pool && !pool[e.i]) return;
       if (ex[e.i]) return;
-      if (opts.unOnly !== false && e.rec.un !== 1 && !(pool && pool[e.i])) return;
+      // Territories and partially-recognised states are typeable by DEFAULT.
+      // This used to hide 56 real places — Taiwan, Kosovo, Palestine, Greenland,
+      // Hong Kong, Puerto Rico, the Faroes — so typing them returned nothing at
+      // all, which reads as the game not knowing they exist. A game that needs a
+      // narrower set passes its own `pool`; `unOnly: true` is now opt-in.
+      if (opts.unOnly === true && e.rec.un !== 1 && !(pool && pool[e.i])) return;
       var best = 99;
       for (var k = 0; k < e.keys.length; k++) {
         var key = e.keys[k];
@@ -97,7 +102,15 @@
       }
       if (best < 99) hits.push({ e: e, r: best });
     });
-    hits.sort(function (a, b) { return a.r - b.r || b.e.pop - a.e.pop; });
+    // Match quality first, then UN members, then population — so widening the
+    // list to every territory never pushes the country you actually meant off
+    // the end of the suggestions. "Vir" still offers Virgin Islands, but "Ind"
+    // still offers India first.
+    hits.sort(function (a, b) {
+      return a.r - b.r ||
+        ((b.e.rec.un === 1) - (a.e.rec.un === 1)) ||
+        b.e.pop - a.e.pop;
+    });
     return hits.slice(0, opts.max || 8).map(function (h) { return h.e.rec; });
   };
 
