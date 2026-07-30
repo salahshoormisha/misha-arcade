@@ -257,8 +257,14 @@
     .getPropertyValue("--ink") || "").trim() || "#f5f2f8";
 
   // Asks the real render path, so "can we draw this?" can never disagree with
-  // what the round actually shows.
+  // what the round actually shows. The area floor is a separate judgement: a
+  // 430 km² island renders as a dot, and picking between four dots is not a
+  // question about shape. Those countries just skip this round.
+  var SHAPE_MIN_AREA = 10000;   // km²
   function hasShape(iso) {
+    var c = byIso[iso];
+    if (!c || (c.area || 0) < SHAPE_MIN_AREA) return false;
+    if (!A.silhouette) return false;
     if (!hasShape._c) { hasShape._c = A.el("canvas"); hasShape._c.width = hasShape._c.height = 8; }
     try { return A.silhouette(hasShape._c, iso, { pad: 0 }) !== false; }
     catch (e) { return false; }

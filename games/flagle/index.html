@@ -108,9 +108,14 @@
 <script src="../../core/ui.js?v=12"></script>
 <script src="../../core/audio.js?v=12"></script>
 <script src="../../core/flagart.js?v=12"></script>
+<!-- worldmap + world.js are here only for the SHAPE bonus round. Without them
+     A.silhouette doesn't exist, hasShape() quietly returns false, and that
+     round silently vanishes for every country. -->
+<script src="../../core/worldmap.js?v=12"></script>
 <script src="../../core/data/countries.js?v=12"></script>
+<script src="../../core/data/world.js?v=12"></script>
 <script src="../../core/data/flags.js?v=12"></script>
 <script src="../../core/picker.js?v=12"></script>
-<script src="game.js?v=13"></script>
+<script src="game.js?v=14"></script>
 </body>
 </html>

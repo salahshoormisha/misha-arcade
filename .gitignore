@@ -1,2 +1,14 @@
 .DS_Store
 _build/*.json
+
+# Raw harvester downloads and intermediate binaries. All re-downloadable; the
+# Numberbatch dump alone is 325 MB and must never enter the history.
+_build/sem/*.gz
+_build/sem/*.zip
+_build/sem/*.f32
+_build/sem/*.i8
+_build/sem/*.bin
+_build/src/
+_build/cache/
+_build/flags-raw/
+_build/*.log
