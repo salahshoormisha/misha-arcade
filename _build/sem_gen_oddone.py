@@ -25,6 +25,10 @@
 #         (word ids into sem/ship_vocab.txt)
 #         sem/oddone_report.txt
 # Nothing lexical is printed.
+#
+# 2026-08-05: rounds are now APPENDED to sem/oddone_raw.tsv the moment they are
+# found (same columns) so a killed run still leaves usable puzzles behind; the
+# sorted sem/oddone.tsv is still written at the end. Semantics unchanged.
 # =============================================================================
 import os, sys, math
 from array import array
@@ -104,6 +108,7 @@ def main():
     rounds = []
     seen_sets = set()
     scanned_hubs = 0
+    raw = open(os.path.join(SEM, "oddone_raw.tsv"), "w", encoding="utf-8")
 
     for h in hubs:
         if len(rounds) >= TARGET:
@@ -221,11 +226,16 @@ def main():
             seen_sets.add(key)
             used_here += 1
             rounds.append((ids, dec, h, wrong, margin))
+            raw.write("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.4f\n"
+                      % (ids[0], ids[1], ids[2], ids[3], dec, h,
+                         wrong[0], wrong[1], wrong[2], margin))
+            raw.flush()
 
-        if scanned_hubs % 200 == 0:
+        if scanned_hubs % 25 == 0:
             sys.stdout.write("  hubs %d/%d, rounds %d\n" % (scanned_hubs, len(hubs), len(rounds)))
             sys.stdout.flush()
 
+    raw.close()
     # ---- deal into days: four rounds, easy -> hard ------------------------
     rounds.sort(key=lambda r: -r[4])          # big margin = easy first
     with open(os.path.join(SEM, "oddone.tsv"), "w", encoding="utf-8") as f:
