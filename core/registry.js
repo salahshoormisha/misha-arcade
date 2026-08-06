@@ -186,6 +186,42 @@ window.AD_REGISTRY = [
     parMs: 160000, hasArchive: true, hasPractice: true,
     distLabel: "guesses used", stamps: true,
   },
+
+  /* ── SEMANTIC WING (meaning, measured) ────────────────────────────────── */
+  {
+    id: "linxicon", soon: true, name: "LINXICON", icon: "🔗", accent: "--cool", family: "sem",
+    tagline: "chain two far-apart words through meaning",
+    blurb: "Two words with nothing in common — until you build the bridge between " +
+      "them, one genuine association at a time. Bolder steps, better score.",
+    parMs: 240000, hasArchive: true, hasPractice: true,
+    distLabel: "links", stamps: false,
+  },
+  {
+    id: "oddone", soon: true, name: "ODD ONE OUT", icon: "🃏", accent: "--gold", family: "sem",
+    tagline: "four share a thread. one is an impostor.",
+    blurb: "Five words: four belong to a category thousands of people agree on, one " +
+      "just sits nearby pretending. Call the impostor, then name the thread.",
+    parMs: 150000, hasArchive: true, hasPractice: true,
+    distLabel: "rounds", stamps: false,
+  },
+
+  /* ── THE LAB (life and machines) ──────────────────────────────────────── */
+  {
+    id: "phylo", soon: true, name: "PHYLO", icon: "🧬", accent: "--mint", family: "lab",
+    tagline: "guess the organism — evolution tells you how close",
+    blurb: "Globle on the tree of life. Each wrong species answers with how long ago " +
+      "you and it last shared an ancestor, and the taxonomy you have pinned down.",
+    parMs: 240000, hasArchive: true, hasPractice: true,
+    distLabel: "guesses", stamps: false,
+  },
+  {
+    id: "misaligned", soon: true, name: "MISALIGNED", icon: "📎", accent: "--violet", family: "lab",
+    tagline: "the objective was met. that was the problem.",
+    blurb: "Real, documented cases of systems gaming their own objectives. Given what " +
+      "was asked for, pick what it actually did — then spot the invented incident.",
+    parMs: 240000, hasArchive: true, hasPractice: true,
+    distLabel: "rounds", stamps: false,
+  },
 ];
 
 window.AD_FAMILIES = {
@@ -194,5 +230,7 @@ window.AD_FAMILIES = {
   geo:     { name: "GEO WING",    icon: "🌍", note: "flags, shapes and grids" },
   photo:   { name: "PICTURE HOUSE", icon: "📷", note: "real photographs — needs a connection" },
   offline: { name: "THE ANNEXE",  icon: "✈️", note: "reinvented to work with no internet at all" },
+  sem:     { name: "SEMANTIC WING", icon: "🔗", note: "how words sit next to each other" },
+  lab:     { name: "THE LAB",     icon: "🧬", note: "life, machines, and what went wrong" },
   versus:  { name: "THE RING",    icon: "🥊", note: "one device, two people, actually against each other" },
 };
