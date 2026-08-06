@@ -15,15 +15,16 @@
   #flag { width: 100%; aspect-ratio: 3 / 2; display: block; border-radius: var(--r-sm);
           background: var(--s1); box-shadow: var(--sh-2); }
 
-  /* guess rows — shared metrics with OUTLINE / TRADLE / FOODGUESSR */
+  /* Guess rows are TWO lines: the geography on top, the flag affinity under it.
+     One line couldn't hold both without either truncating "Central African
+     Republic" or pushing the affinity off the right edge at 375px. */
   .guesses { max-width: 400px; margin: var(--sp-4) auto 0; }
   .gr {
-    display: flex; align-items: center; gap: var(--sp-2);
     padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-1);
     border: 1px solid var(--hair); border-radius: var(--r-md);
     background: var(--s1); font-size: var(--t-sm);
   }
-  .gr img { width: 26px; height: 17px; object-fit: cover; border-radius: 2px; flex: 0 0 auto; }
+  .gr .g1 { display: flex; align-items: center; gap: var(--sp-2); }
   /* min-width:0 is what stops "Central African Republic" from refusing to shrink
      and squeezing the distance column into a second line. */
   .gr .nm { flex: 1 1 auto; min-width: 0; letter-spacing: .04em;
@@ -31,21 +32,15 @@
   .gr .km { flex: 0 0 auto; white-space: nowrap; color: var(--ink-3);
             font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
   .gr .ar { flex: 0 0 auto; font-size: var(--t-md); line-height: 1; }
-  .gr .pc { flex: 0 0 auto; width: 42px; text-align: right; font-weight: 650;
-            font-variant-numeric: tabular-nums; }
+  .gr .g2 { margin-top: 3px; font-size: var(--t-xs); color: var(--ink-3);
+            letter-spacing: .01em; line-height: 1.5; }
   .gr.win { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
-  .gr.win .pc { color: var(--ok); }
-  .gr.win .ar { color: var(--ok); font-weight: 650; }
+  .gr.win .g2 { color: var(--ok); }
 
   .tries { display: flex; gap: var(--sp-1); justify-content: center; margin-top: var(--sp-3); }
   .tries i { width: 26px; height: 5px; border-radius: var(--r-full); background: var(--s3); }
   .tries i.used { background: var(--bad); }
   .tries i.won { background: var(--ok); }
-
-  .hintbox { font-size: var(--t-sm); color: var(--amber); text-align: center;
-             margin: var(--sp-3) auto 0; max-width: 400px; line-height: 1.7; }
-  .hintbox b { font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase;
-               color: var(--ink-3); font-weight: 550; margin-right: var(--sp-1); }
 
   .fl-status { text-align: center; margin-top: var(--sp-2); min-height: 1.2em;
                font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
@@ -89,6 +84,13 @@
   .bn-note { text-transform: none; letter-spacing: .01em; font-size: var(--t-sm);
              color: var(--ink-2); line-height: 1.6; }
   .bn-next { display: block; margin: var(--sp-3) auto 0; }
+  /* The way out. The original traps you in the chain after a win; here the
+     rounds also run after a loss, so there has to be a door. */
+  .bn-skip { display: block; margin: var(--sp-2) auto 0; appearance: none; border: 0;
+             background: none; cursor: pointer; font: inherit; font-size: var(--t-xs);
+             letter-spacing: .14em; color: var(--ink-4); padding: var(--sp-2);
+             min-height: 44px; transition: color var(--fast) var(--ease); }
+  .bn-skip:hover { color: var(--ink-2); }
 
   .bn-tally { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--sp-2);
               margin: var(--sp-3) 0 var(--sp-1); }
@@ -116,6 +118,6 @@
 <script src="../../core/data/world.js?v=12"></script>
 <script src="../../core/data/flags.js?v=12"></script>
 <script src="../../core/picker.js?v=12"></script>
-<script src="game.js?v=14"></script>
+<script src="game.js?v=15"></script>
 </body>
 </html>

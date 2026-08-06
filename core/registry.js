@@ -86,8 +86,9 @@ window.AD_REGISTRY = [
   {
     id: "flagle", name: "FLAGLE", icon: "🏳️", accent: "--hot", family: "geo",
     tagline: "six tiles of a flag, six guesses",
-    blurb: "Real vector flags, revealed a tile at a time. Wrong guesses give you " +
-      "distance, direction and — if you want it — what the flag has on it.",
+    blurb: "Real vector flags behind six shut tiles, one opened per guess — the " +
+      "flattest corner first, whatever the flag has ON it last. Wrong guesses give " +
+      "you distance, direction, and how much your flag has in common with the answer's.",
     parMs: 90000, hasArchive: true, hasPractice: true,
     distLabel: "guesses used", stamps: true,
   },
