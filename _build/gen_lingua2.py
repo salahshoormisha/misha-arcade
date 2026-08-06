@@ -79,6 +79,13 @@ def fold(s):
     return re.sub(r'[^a-z0-9 ]+', ' ', s.lower())
 
 
+# Folded country strings that are also ordinary English words, so blocking them
+# costs a real hint and buys nothing: `island` is only here because countries.js
+# carries Iceland's endonym Ísland, and `male` because the Maldivian capital is
+# Malé. The unambiguous forms (iceland, icelandic, maldives) still block.
+FALSE_FRIENDS = {'island', 'male'}
+
+
 def blocklist(countries):
     """Every string that would hand a player the answer."""
     out = set()
@@ -90,6 +97,23 @@ def blocklist(countries):
     out |= {'persia', 'holland', 'burma', 'britain', 'england', 'scotland', 'wales',
             'america', 'russia', 'china', 'india', 'iran', 'israel', 'egypt', 'japan',
             'korea', 'ireland', 'brazil', 'mexico', 'spain', 'france', 'italy'}
+    return {t for t in out - FALSE_FRIENDS if len(t) >= 4}
+
+
+def own_terms(isos, by):
+    """The blocklist that applies to a SAMPLE'S OWN TEXT.
+
+    The text is a verbatim foreign-language passage, so the giveaway to guard
+    against is the passage naming the country it comes from — not an accidental
+    homograph. The Kven UDHR contains the Finnish word `oman` ("one's own"),
+    which the global blocklist read as Oman and which gives away nothing.
+    """
+    out = set()
+    for i in isos:
+        c = by.get(i) or {}
+        for s in [c.get('n'), c.get('cap'), c.get('demo')] + list(c.get('alt') or []):
+            if s and len(s) >= 4:
+                out.add(fold(s).strip())
     return {t for t in out if len(t) >= 4}
 
 
@@ -166,7 +190,7 @@ def build():
                 bad = ('hint', b, h)
                 break
         if not bad:
-            b = has_blocked(cd['text'], block)
+            b = has_blocked(cd['text'], own_terms(isos, by))
             if b:
                 bad = ('text', b, cd['text'][:60])
         if not bad and fold(name).strip() and fold(name).strip() in fold(cd['text']):

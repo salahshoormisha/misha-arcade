@@ -35,7 +35,7 @@ RULES FOLLOWED
 
 SCRIPTS = {
     'Latn': ('Latin', 'The Latin alphabet.'),
-    'Cyrl': ('Cyrillic', 'Cyrillic — and not the Russian inventory: watch for letters Russian does not have.'),
+    'Cyrl': ('Cyrillic', 'Cyrillic — but not the commonest inventory: watch for letters the biggest Cyrillic language does not have.'),
     'Arab': ('Arabic', 'Arabic script, right to left.'),
     'Deva': ('Devanagari', 'Devanagari: a horizontal head-line runs across the top of every word and the letters hang beneath it.'),
     'Beng': ('Bengali-Assamese', 'Bengali-Assamese script: a head-line like Devanagari, but the letters are rounder and end in hooks.'),
