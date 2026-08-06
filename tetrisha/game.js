@@ -71,7 +71,8 @@
     queue: [], bag: [],
     mode: "marathon", clock: 0, perfects: 0,
     bestSprint: +(localStorage.getItem(SPRINT_KEY) || 0) || null,
-    score: 0, lines: 0, level: 1, hi: +(localStorage.getItem(HI_KEY) || 0),
+    // `|| 0` also repairs a saved "NaN" from the pre-fix score bug
+    score: 0, lines: 0, level: 1, hi: +(localStorage.getItem(HI_KEY) || 0) || 0,
     meter: 0, heartQueued: false, b2b: false, combo: -1,
     gravT: 0, lockT: 0, lockResets: 0, grounded: false,
     clearingRows: [], clearT: 0, stateT: 0, paused: false,
@@ -300,9 +301,16 @@
     if (full.length) {
       game.clearingRows = full; game.clearT = 0; game.state = "clearing";
       const n = full.length;
-      const base = spin === "tspin" ? [0, 800, 1200, 1600, 1600][n] * game.level
-                 : spin === "mini" ? [0, 200, 400, 400, 400][n] * game.level
-                 : [0, 100, 300, 500, 800][n] * game.level;
+      // A piece completes at most 4 rows, but a heart detonation's column
+      // collapse can complete ANY number at once — indexing these tables with
+      // n > 4 gave undefined, and one `score += undefined * level` turned the
+      // score into NaN for the rest of the game. Clamp, and pay a flat bonus
+      // per row past the quad instead.
+      const ni = Math.min(n, 4);
+      const base = (spin === "tspin" ? [0, 800, 1200, 1600, 1600][ni]
+                 : spin === "mini" ? [0, 200, 400, 400, 400][ni]
+                 : [0, 100, 300, 500, 800][ni]) * game.level
+                 + Math.max(0, n - 4) * 300 * game.level;
       const hard = n === 4 || !!spin;     // quads and spins chain back-to-back
       const b2bBonus = hard && game.b2b ? base * 0.5 : 0;
       game.b2b = hard;
@@ -318,9 +326,12 @@
         setTimeout(() => { flair("💌 INCOMING FROM DAVID", "#ff8fc6"); sfx("heartIncoming"); }, 500);
       }
       if (spin) {
-        const label = (spin === "tspin" ? "T-SPIN " : "T-SPIN MINI ") + ["", "SINGLE", "DOUBLE", "TRIPLE", "QUAD"][n];
+        const label = (spin === "tspin" ? "T-SPIN " : "T-SPIN MINI ") + ["", "SINGLE", "DOUBLE", "TRIPLE", "QUAD"][ni];
         flair(b2bBonus ? label + " B2B!" : label, "#c77dff");
         sfx("tspin"); sfx("lineClear", n); shake(4, 0.25);
+      } else if (n > 4) {
+        // only a heart's collapse gets here
+        flair("LOVE LANDSLIDE ×" + n + " 💗", "#ff4fa3"); shake(6, 0.35); sfx("lineClear", 4);
       } else if (n === 4) {
         flair(b2bBonus ? "M I S H A !!! B2B!!" : "M I S H A !!!", "#ff4fd8"); shake(5, 0.3); sfx("lineClear", 4);
       } else {
