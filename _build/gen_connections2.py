@@ -37,7 +37,8 @@ PACKS = [
     ("general", "MIXED BAG",
      "The main archive. Wordplay, general knowledge, and a purple that bites.",
      ["conn_general1", "conn_general2", "conn_general3", "conn_general4",
-      "conn_general5", "conn_general6", "conn_general7", "conn_general8"]),
+      "conn_general5", "conn_general6", "conn_general7", "conn_general8",
+      "conn_general9"]),
     ("persia", "PERSIAN BLUE",
      "Nowruz, poets, food, carpets, and the words English quietly borrowed.",
      ["conn_persia", "conn_persia2"]),
@@ -67,7 +68,7 @@ HEADER = """// core/data/connections.js — grouping puzzles for QUARTETS (windo
 # every-board-declares-a-trap rule are enforced on these only — the original 110
 # boards predate both rules and are another session's work, so they stand as-is.
 NEW_MODULES = set("""conn_general5 conn_general6 conn_general7 conn_general8
-conn_persia2 conn_united2 conn_united3 conn_places2 conn_places3
+conn_general9 conn_persia2 conn_united2 conn_united3 conn_places2 conn_places3
 conn_ai2 conn_jewish2""".split())
 
 SRC = {}   # (pack_id, board_id) -> module name

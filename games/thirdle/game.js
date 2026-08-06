@@ -420,6 +420,9 @@
   window.__TH = {
     answer: function () { return P.w; },
     puzzle: function () { return { w: P.w, cross: P.cross, cells: Object.keys(P.cells).length }; },
+    // The generator, on the same seed the day itself uses — so a test can scan
+    // every future day for a layout that reads badly without loading 400 pages.
+    build: function (n) { return buildPuzzle(A.rngFor(ID, n)); },
     guess: function (a, b, c) {
       var ws = [up(a), up(b), up(c)];
       freeSlots.forEach(function (slot) {
