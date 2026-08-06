@@ -47,7 +47,7 @@ OUT = os.path.join(ROOT, "core", "data", "linxicon.js")
 DIMS = 300
 CORE = 4200            # BFS universe — matches sem_linkgraph.py's CORE
 TARGET = 520           # days of puzzles (the brief asks for >= 400)
-MAX_FAR = 0.115        # endpoints must be this unrelated or less
+MAX_FAR = 0.050        # endpoints must be this unrelated or less
 MIN_HOPS = 3           # shortest known path, in links
 MAX_HOPS = 5
 ENDPOINT_REUSE = 2     # how often one word may be an endpoint across the archive
@@ -187,6 +187,16 @@ def main():
             return False
         return len(adj[i]) >= 6
 
+    def stem(w):
+        """Light singular/gerund fold, so RIVER→NAIL and RIVER→NAILS cannot both
+        ship as if they were two different days."""
+        for suf in ("ies", "es", "s"):
+            if len(w) > 4 and w.endswith(suf):
+                base = w[:-len(suf)] + ("y" if suf == "ies" else "")
+                if base in idx:
+                    return base
+        return w
+
     pool = [i for i in range(CORE) if endpoint_ok(i)]
     # Seasoned words first, then commonest first: the archive opens on words
     # anybody would recognise and drifts outward.
@@ -205,7 +215,8 @@ def main():
     for a in pool:
         if len(puzzles) >= TARGET:
             break
-        if used_end[a] >= ENDPOINT_REUSE:
+        sa = stem(vocab[a])
+        if used_end[sa] >= ENDPOINT_REUSE:
             continue
 
         # BFS out to MAX_HOPS, remembering one parent per node
@@ -227,19 +238,34 @@ def main():
         # Candidate partners: far in meaning, reachable, and still fresh.
         cands = []
         for b, d in dist.items():
-            if d < MIN_HOPS or b not in poolset or used_end[b] >= ENDPOINT_REUSE:
+            if d < MIN_HOPS or b not in poolset:
                 continue
-            key = (a, b) if a < b else (b, a)
-            if key in used_pair or key in assoc:
+            sb = stem(vocab[b])
+            if sb == sa or used_end[sb] >= ENDPOINT_REUSE:
+                continue
+            key = (sa, sb) if sa < sb else (sb, sa)
+            if key in used_pair:
+                continue
+            if ((a, b) if a < b else (b, a)) in assoc:
                 continue
             c = sum(map(mul, va, vec(b)))
             if c > MAX_FAR:
                 continue
-            cands.append((c, d, b))
-        # The most distant partners first — those are the puzzles worth having.
+            cands.append((-d, c, b))
+        # Longest chain first, then the most distant pair — the long ones are
+        # scarce and worth more. But take the SECOND puzzle from this word out of
+        # the shortest band available, so the archive gets both lengths instead
+        # of 500 identical 4-link days.
         cands.sort()
+        if cands:
+            shortest = -max(k[0] for k in cands)
+            longest = -min(k[0] for k in cands)
+            if shortest != longest:
+                alt = [k for k in cands if -k[0] == shortest]
+                cands = [cands[0]] + alt + cands[1:]
 
-        for c_ab, d, b in cands:
+        for negd, c_ab, b in cands:
+            d = -negd
             if len(puzzles) >= TARGET or made_here >= 2:
                 break
             # rebuild the path
@@ -269,10 +295,10 @@ def main():
                 continue
 
             rb = int(round(sum(bold(s) for s in steps) / float(len(steps))))
-            key = (a, b) if a < b else (b, a)
-            used_pair.add(key)
-            used_end[a] += 1
-            used_end[b] += 1
+            sb = stem(vocab[b])
+            used_pair.add((sa, sb) if sa < sb else (sb, sa))
+            used_end[sa] += 1
+            used_end[sb] += 1
             made_here += 1
             band_count[d] += 1
             puzzles.append({
