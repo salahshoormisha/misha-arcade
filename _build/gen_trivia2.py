@@ -74,6 +74,16 @@ WEIGHTS = {
 # material written to test an insider.
 DEMOTE = {"art": 1, "lit": 1, "history": 1, "cities": 1, "persia": 1, "jewish": 1}
 
+# ── ... except the batches written FOR the insider ───────────────────────────
+# Any trivia_parts file whose name ends in "_hard" is exempt from DEMOTE. Those
+# files are the "material written to test an insider" the note above promises:
+# they were rated by asking "would a proud local have to stop and think?", so a
+# 5 in them is already a real 5 and demoting it would leave the top rung of
+# cities / persia / jewish permanently empty -- which is exactly the state this
+# exemption was added to fix. Difficulty is capped at 5 by the input gate, so
+# there is no way to write a 5 into those categories without it.
+DEMOTE_EXEMPT = lambda src: str(src).endswith("_hard")  # noqa: E731
+
 # ── dropped outright: the specialist end of exactly what they complained about ─
 # Matched on a distinctive fragment of the question text.
 DROP = [
@@ -206,7 +216,7 @@ def build():
         seen_q[key] = 1
 
         diff = rec["diff"]
-        if cat in DEMOTE:
+        if cat in DEMOTE and not DEMOTE_EXEMPT(rec["src"]):
             diff = max(1, diff - DEMOTE[cat])
 
         if rec["numeric"]:
