@@ -18,7 +18,7 @@
        n = |guess − actual|
        n = 0  → 5,000            (a distinct prize for nailing it)
        n > 0  → round(4800 · e^(−(n−1)/10))
-       1y 4800 · 2y 4343 · 3y 3930 · 5y 3217 · 8y 2384 · 10y 1952
+       1y 4800 · 2y 4343 · 3y 3930 · 5y 3218 · 8y 2384 · 10y 1952
        15y 1184 · 20y 718 · 30y 264 · 50y 36
 
    PLACE (max 5,000).  The original is piecewise linear and DISCONTINUOUS at
@@ -29,8 +29,8 @@
 
        d ≤ 25 km → 5,000          (146 of the 190 photos are city-centre
        else      → round(5000 · e^(−d/1200))   precision, so 25 km IS exact)
-       100 km 4,600 · 250 km 4,058 · 500 km 3,293 · 1,000 km 2,168
-       2,000 km 940 · 4,000 km 177 · 8,000 km 6
+       100 km 4,600 · 250 km 4,060 · 500 km 3,296 · 1,000 km 2,173
+       2,000 km 944 · 4,000 km 178 · 8,000 km 6
 
    Submit with no pin and you keep the year points and forfeit the place points
    — the real game's timeout rule, made into an ordinary move.
@@ -38,9 +38,12 @@
    NORM (CONTRACT §3).  50,000 needs five spot-on years AND five pins inside
    25 km, so it is the theoretical ceiling, not a realistic one. Piecewise
    linear through
-       (0,0) → (30,000, 72) → (40,000, 92) → (50,000, 100)
-   A solid day — years within ~5, mostly the right country — lands 72-78.
-   An excellent one — years within ~3, mostly the right city — lands ~92.
+       (0,0) → (27,000, 72) → (37,000, 92) → (50,000, 100)
+   Calibrated on five-round games with the shape real ones have — a couple of
+   rounds nailed, a couple respectable, one disaster:
+     good     2y+10km, 6y+300km, 12y+1200km, 4y+800km, 20y+4000km = 26.5k → 71
+     terrific 0y+5km,  2y+50km,  5y+250km,   3y+600km, 8y+1500km  = 37.2k → 92
+   So 100 needs a flawless five, not merely a very good one.
 
    THE YEAR RANGE IS READ FROM THE DATA at boot (min/max of AD_PHOTOS.time),
    never hard-coded: the photo set is still growing and the slider must track it.
@@ -51,7 +54,7 @@
   var ID = "timeguessr", ROUNDS = 5;
   var YEAR_MAX = 5000, PLACE_MAX = 5000, PER_ROUND = YEAR_MAX + PLACE_MAX;
   var MAXTOT = PER_ROUND * ROUNDS;          // 50,000
-  var SOLID = 30000, GREAT = 40000;         // the two norm hinges
+  var SOLID = 27000, GREAT = 37000;         // the two norm hinges
   var K_KM = 1200;                          // km constant of the place curve
   var FREE_KM = 25;                         // inside this, a perfect place score
   var YEAR_TAU = 10;                        // years constant of the year curve
@@ -209,8 +212,8 @@
       "</ul>" +
       "<p>Up to <b>5,000</b> for the year — spot on is 5,000, three years out is 3,930, " +
       "twenty is 718 — and up to <b>5,000</b> for the place: anything inside 25 km is full " +
-      "marks, 500 km out is 3,293, 2,000 km is 940. Both curves are smooth, so a better " +
-      "guess always scores better. <b>50,000</b> is the ceiling; 30,000 is a good day.</p>" +
+      "marks, 500 km out is 3,296, 2,000 km is 944. Both curves are smooth, so a better " +
+      "guess always scores better. <b>50,000</b> is the ceiling; 27,000 is a good day.</p>" +
       "<p class='tiny muted'>Every photograph is freely licensed, from Wikimedia Commons, " +
       "and its credit is shown when the round resolves. The pictures need a connection — " +
       "without one the round plays on its caption instead.</p>",
@@ -824,7 +827,7 @@
       "</b> of 5 right countries · best round <b>" + A.esc(rounds[bestI].place) + ", " +
       rounds[bestI].year + "</b> at " + best.toLocaleString() + "</p>" +
       "<p class='center tiny dim'>A good five rounds is " + SOLID.toLocaleString() +
-      " — years within about five, mostly the right country. An excellent one is " +
+      " — two of them nailed, two respectable, one disaster. An excellent one is " +
       GREAT.toLocaleString() + ".</p>";
 
     var m = A.results(ID, practice ? A.PRACTICE : day, {

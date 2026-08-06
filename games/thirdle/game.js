@@ -127,7 +127,10 @@
       "the other two. This is the one that wins you the puzzle.</li>" +
       "<li>Grey — nowhere, or you've already found every copy of it.</li></ul>" +
       "<p>The two crossing letters are given to you and can't be changed. Your attempt stays on " +
-      "the board — <b>tap any square</b> to move there and edit it into your next guess.</p>",
+      "the board — <b>tap any square</b> to move there and edit it into your next guess.</p>" +
+      "<p>Delete works the way you'd expect either way: straight after typing, it takes back the " +
+      "letter you just typed; after tapping a square, it empties that square. <b>CLEAR</b> wipes " +
+      "the lot and starts you at the first square.</p>",
   });
 
   if (ANS.length < 200) {
@@ -392,10 +395,18 @@
               var f = freeSlots.indexOf(i);
               if (f < 0) return;
               focus = f;
+              // The cursor is now sitting ON a square the player chose, not
+              // after a letter they typed — which is what tells back() to
+              // clear this square rather than the one before it.
+              justTyped = false;
               A.sfx("tick");
               render();
             };
           })(idx);
+        } else if (!over && locked[idx]) {
+          // Tapping a given letter did nothing at all, which reads as a dead
+          // square. Say why instead.
+          d.onclick = function () { A.toast("The crossing letters are given"); };
         }
         gridEl.appendChild(d);
       }
@@ -420,26 +431,42 @@
     var st = practice ? null : A.load(ID, day);
     if (st && st.guesses) {
       guesses = st.guesses;
-      keyState = st.keyState || {};
+      // Merged by rank, not overwritten, so the two given letters stay green.
+      var saved = st.keyState || {};
+      Object.keys(saved).forEach(function (ch) {
+        if (!keyState[ch] || RANK[saved[ch]] > RANK[keyState[ch]]) keyState[ch] = saved[ch];
+      });
       if (st.cur && st.cur.length === LEN * 3) cur = st.cur;
+      // Land on the first empty square — but a board reloaded between attempts
+      // is FULL, and parking the cursor past the last square left the keyboard
+      // dead: typing did nothing until you happened to press backspace. A full
+      // board reopens at the start, exactly as it does after a submission.
       focus = 0;
       for (var f = 0; f < freeSlots.length; f++) {
         if (!cur[freeSlots[f]]) { focus = f; break; }
-        focus = f + 1;
       }
-      kbd.paint(keyState);
+      justTyped = false;
     }
+    kbd.paint(keyState);
     render();
     if (st && st.done) {
-      over = true; won = !!st.won; kbd.disable(true); render();
+      over = true; won = !!st.won; shutInput(); render();
       setTimeout(function () { sheet(won, st.norm, st.shareGrid); }, 240);
     }
   }
 
   /* ── ending ──────────────────────────────────────────────────────────── */
 
+  // Everything that takes input goes quiet together: the keyboard was already
+  // dimmed at the end, but CLEAR stayed live and lit next to a finished board.
+  function shutInput() {
+    kbd.disable(true);
+    var cb = main.querySelector("#th-clear");
+    if (cb) { cb.disabled = true; cb.style.opacity = ".45"; }
+  }
+
   function end(w) {
-    over = true; won = w; kbd.disable(true); render();
+    over = true; won = w; shutInput(); render();
     var n = guesses.length;
     var norm = won ? NORM[n] : 12;
 
