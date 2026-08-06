@@ -233,15 +233,13 @@
     undoBtn.onclick = doUndo;
     giveBtn.onclick = function () {
       if (over) return;
-      A.modal("Give up?", '<p>The chain stays where it is and the day is scored on how ' +
-        "far you got.</p>" +
+      var m = A.modal("Give up?", '<p>The chain stays where it is, and the day is scored on ' +
+        "how far you got.</p>" +
         '<div class="ac-row" style="margin-top:var(--sp-4)">' +
         '<button class="ac-btn" id="lx-yes">Give up</button>' +
-        '<button class="ac-btn ghost" id="lx-no">Keep going</button></div>',
-        { onOpen: function (m) {
-          m.body.querySelector("#lx-yes").onclick = function () { m.close(); end(false); };
-          m.body.querySelector("#lx-no").onclick = function () { m.close(); };
-        } });
+        '<button class="ac-btn ghost" id="lx-no">Keep going</button></div>');
+      m.body.querySelector("#lx-yes").onclick = function () { m.close(); end(false); };
+      m.body.querySelector("#lx-no").onclick = function () { m.close(); };
     };
 
     render();

@@ -1,0 +1,160 @@
+/* ============================================================================
+   LINXICON — game-specific CSS only. Every shared .ac-* component comes from
+   core/style.css unrestyled. Tokens only, no literal colours. One accent
+   (--cool, set by A.mount) and it is used for exactly two things: the two
+   meters, and the far word you are aiming at.
+   ========================================================================== */
+
+/* ── the chain ───────────────────────────────────────────────────────────
+   A single column so it reads top-to-bottom like a route, at 375 px and at
+   1280 px alike. Nodes are the words; edges are the rungs between them and
+   carry the one number that matters, how bold the step was. */
+
+#lx-chain {
+  display: flex; flex-direction: column; align-items: stretch;
+  margin: var(--sp-4) auto 0; max-width: 380px;
+}
+
+.lx-node {
+  border: 1px solid var(--hair-2); border-radius: var(--r-md);
+  background: var(--s1); color: var(--ink);
+  font-family: var(--mono); font-weight: 600;
+  font-size: var(--t-lg); letter-spacing: .12em;
+  text-align: center; padding: 11px var(--sp-3);
+  word-break: break-word;
+}
+/* The two fixed words are the only things allowed to wear the accent. */
+.lx-node.start { border-color: var(--hair-2); color: var(--ink); background: var(--s2); }
+.lx-node.target {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent); background: var(--s1);
+}
+.lx-node.target.done { background: var(--accent-dim); }
+
+/* ── the rung between two words ───────────────────────────────────────────
+   Grid, not flex: the rail sits in its own 2px column so every rung's meter
+   starts at the same x whatever the boldness number's width. */
+.lx-edge {
+  display: grid; grid-template-columns: 14px 1fr auto; align-items: center;
+  gap: var(--sp-2); padding: 6px 0 6px var(--sp-3); min-height: 40px;
+}
+.lx-edge .lx-rail {
+  grid-row: 1 / span 2; grid-column: 1;
+  width: 2px; height: 100%; min-height: 26px; margin: 0 auto;
+  background: var(--hair-2); border-radius: 1px;
+}
+.lx-edge .lx-meter {
+  grid-column: 2; height: 6px; border-radius: var(--r-full);
+  background: rgba(255, 255, 255, .08); overflow: hidden;
+}
+.lx-edge .lx-meter i {
+  display: block; height: 100%; border-radius: var(--r-full);
+  background: var(--accent); transition: width var(--slow) var(--ease);
+}
+.lx-edge b {
+  grid-column: 3; font-family: var(--mono); font-size: var(--t-sm);
+  font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums;
+  min-width: 26px; text-align: right;
+}
+.lx-edge em {
+  grid-column: 2 / span 2; font-style: normal;
+  font-size: var(--t-xs); letter-spacing: .06em; color: var(--ink-4);
+}
+.lx-edge.hinted em { color: var(--ink-3); }
+/* The unfinished rung: dashed, no meter, nothing claimed. */
+.lx-edge.open { grid-template-columns: 14px 1fr; }
+.lx-edge.open .lx-rail {
+  background: repeating-linear-gradient(to bottom,
+    var(--hair-2) 0 4px, transparent 4px 9px);
+}
+.lx-edge.open em { grid-column: 2; }
+
+/* ── loading ─────────────────────────────────────────────────────────────
+   Same vertical rhythm as the game it is standing in for, so nothing jumps
+   when the swap happens. */
+.lx-load { max-width: 380px; margin: var(--sp-5) auto 0; }
+.lx-load p { margin-bottom: var(--sp-2); }
+.lx-load .ac-bar { margin: var(--sp-2) 0; }
+
+/* ── the game panel ──────────────────────────────────────────────────── */
+.lx-game { opacity: 0; transition: opacity var(--slow) var(--ease); }
+.lx-game.in { opacity: 1; }
+
+.lx-warm { max-width: 380px; margin: var(--sp-4) auto 0; }
+.lx-warm p { margin-top: 5px; letter-spacing: .12em; text-transform: uppercase; }
+
+.lx-form {
+  display: flex; gap: var(--sp-2); align-items: stretch;
+  max-width: 380px; margin: var(--sp-4) auto 0;
+}
+.lx-form input {
+  flex: 1 1 auto; min-width: 0; min-height: 46px;
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--hair-2); border-radius: var(--r-full);
+  background: var(--s1); color: var(--ink);
+  font-family: var(--mono); font-size: var(--t-lg); letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.lx-form input::placeholder {
+  color: var(--ink-4); text-transform: none; letter-spacing: .02em;
+  font-family: var(--ui); font-size: var(--t-sm);
+}
+.lx-form input:focus { outline: none; border-color: var(--accent); background: var(--s2); }
+.lx-form input:disabled { opacity: .5; }
+.lx-form .ac-btn { flex: 0 0 auto; padding: 0 var(--sp-4); }
+
+.lx-tools { margin-top: var(--sp-3); }
+.lx-tools .ac-pill { min-height: 44px; }
+.lx-tools .ac-pill[disabled] { opacity: .4; pointer-events: none; }
+.lx-top { margin-top: var(--sp-2); }
+.lx-top .ac-pill { min-height: 34px; text-decoration: none; }
+
+/* ── result sheet extras ─────────────────────────────────────────────────
+   Scoped as `.ac-modal p.x`, not `.x`: core/style.css styles `.ac-modal p`
+   with two selectors, so a bare one-class rule loses on specificity and the
+   text silently renders as body copy. */
+.lx-sum { margin: var(--sp-3) 0 0; }
+.lx-srow {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: baseline;
+  gap: var(--sp-2); padding: 6px 0; border-top: 1px solid var(--hair);
+}
+.lx-srow span {
+  font-family: var(--mono); font-size: var(--t-xs); letter-spacing: .06em;
+  color: var(--ink-2);
+}
+.lx-srow b {
+  font-family: var(--mono); font-size: var(--t-sm); font-weight: 650;
+  color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.lx-srow i {
+  font-style: normal; font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-4); min-width: 52px; text-align: right;
+}
+.ac-modal p.lx-route {
+  margin-top: var(--sp-3); font-family: var(--mono); font-size: var(--t-xs);
+  line-height: 1.9; letter-spacing: .06em; color: var(--ink-3); text-align: center;
+}
+.ac-modal p.lx-route b {
+  display: block; font-family: var(--ui); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px;
+}
+.ac-modal p.lx-beat {
+  margin-top: var(--sp-3); font-size: var(--t-sm); color: var(--amber); text-align: center;
+}
+
+/* ── wide screens ────────────────────────────────────────────────────────
+   The chain is a column by design; on a desktop it just gets more air and a
+   slightly larger word, never a second column — a route with a fold in it
+   stops reading as a route. */
+@media (min-width: 700px) {
+  #lx-chain { max-width: 420px; }
+  .lx-node { font-size: var(--t-xl); padding: 13px var(--sp-4); }
+  .lx-warm, .lx-form, .lx-load { max-width: 420px; }
+}
+
+/* At 375px the three tool pills must still fit on one row. */
+@media (max-width: 400px) {
+  .lx-tools .ac-pill { padding: 6px var(--sp-2); letter-spacing: .04em; font-size: 10px; }
+  .lx-node { font-size: var(--t-md); letter-spacing: .08em; }
+}

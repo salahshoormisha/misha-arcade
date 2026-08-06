@@ -765,19 +765,552 @@ BENCH = [
 # ═══════════════════════════════════════════════════════════════════════════
 
 MILE = [
+    # ── before the field had a name ──────────────────────────────────────────
     dict(
         id="turing1950", lab="Turing asks “Can machines think?” in Mind",
         d="1950-10-01", prec="month",
-        url="https://academic.oup.com/mind/article/LIX/236/433/986238",
-        note="The imitation game was proposed as a way to dodge the definition question, "
-             "not to settle it.",
+        url="https://doi.org/10.1093/mind/LIX.236.433",
+        note="He proposed the imitation game to dodge the definition question, not to "
+             "settle it — a distinction almost every later use of the test loses.",
+    ),
+    dict(
+        id="dartmouth", lab="The Dartmouth summer project opens, and names the field",
+        d="1956-06-18", prec="month",
+        url="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/1904",
+        note="The proposal budgeted two months and ten men for “a significant advance”. "
+             "The phrase “artificial intelligence” was chosen partly to avoid cybernetics.",
+    ),
+    dict(
+        id="perceptron", lab="The Navy demonstrates Rosenblatt's perceptron to the press",
+        d="1958-07-07", prec="month",
+        url="https://doi.org/10.1037/h0042519",
+        note="The New York Times reported a machine that would walk, talk, see, write and "
+             "reproduce itself. It could distinguish cards marked on the left from cards "
+             "marked on the right.",
+    ),
+    dict(
+        id="eliza", lab="Weizenbaum publishes ELIZA",
+        d="1966-01-01", prec="month",
+        url="https://doi.org/10.1145/365153.365168",
+        note="Weizenbaum spent the rest of his life alarmed by how readily people confided "
+             "in a program he had written to show how shallow the trick was.",
+    ),
+    dict(
+        id="perceptrons", lab="Minsky and Papert publish “Perceptrons”",
+        d="1969-06-01", prec="year",
+        url="https://mitpress.mit.edu/9780262630221/perceptrons/",
+        note="The book proved what a single layer could not do. The field read it as a "
+             "verdict on neural networks generally, and funding followed the reading.",
+    ),
+    dict(
+        id="chineseroom", lab="Searle publishes the Chinese Room argument",
+        d="1980-09-01", prec="year",
+        url="https://doi.org/10.1017/S0140525X00005756",
+        note="Forty-five years of rebuttals later, the argument's real legacy is that it "
+             "made “understanding” a thing you had to say what you meant by.",
+    ),
+    dict(
+        id="backprop", lab="Rumelhart, Hinton and Williams publish backpropagation in Nature",
+        d="1986-10-09", prec="day",
+        url="https://www.nature.com/articles/323533a0",
+        note="Not the first derivation — it had been found several times — but the one "
+             "that showed it learning useful internal representations.",
+    ),
+    dict(
+        id="vinge", lab="Vinge's singularity essay is presented at a NASA symposium",
+        d="1993-03-30", prec="month",
+        url="https://edoras.sdsu.edu/~vinge/misc/singularity.html",
+        note="“Within thirty years, we will have the technological means to create "
+             "superhuman intelligence.” The thirty years were up in 2023.",
+    ),
+    dict(
+        id="deepblue", lab="Deep Blue beats Kasparov in the deciding game",
+        d="1997-05-11", prec="day",
+        url="https://www.ibm.com/history/deep-blue",
+        note="The move that rattled Kasparov most, in game one, was later traced to a bug: "
+             "the machine had failed to choose and played a fallback.",
+    ),
+    dict(
+        id="bostromrisk", lab="Bostrom's “Existential Risks” paper appears",
+        d="2002-03-01", prec="year",
+        url="https://nickbostrom.com/papers/existential-risks/",
+        note="It gave the field its vocabulary a decade before the field existed.",
+    ),
+
+    # ── the deep-learning decade ─────────────────────────────────────────────
+    dict(
+        id="watson", lab="Watson wins Jeopardy!",
+        d="2011-02-16", prec="day",
+        url="https://www.ibm.com/history/watson-jeopardy",
+        note="Its most-quoted error — answering “Toronto” under “U.S. Cities” — was "
+             "wagered on accordingly: the system knew its confidence was low.",
+    ),
+    dict(
+        id="alexnet", lab="AlexNet wins ImageNet and halves the error rate",
+        d="2012-10-13", prec="month",
+        url="https://www.image-net.org/challenges/LSVRC/2012/index.php",
+        note="Two GPUs in a bedroom. Every entry the following year was a neural network.",
+    ),
+    dict(
+        id="deepmindsale", lab="Google buys DeepMind",
+        d="2014-01-26", prec="day",
+        url="https://www.theguardian.com/technology/2014/jan/27/google-acquires-uk-artificial-intelligence-startup-deepmind",
+        note="The purchase agreement is reported to have created an ethics board. Its "
+             "membership has never been made public.",
+    ),
+    dict(
+        id="gan", lab="The GAN paper appears on arXiv",
+        d="2014-06-10", prec="day",
+        url="https://arxiv.org/abs/1406.2661",
+        note="Two networks, one objective, pointing opposite ways. Almost every later "
+             "worry about synthetic media starts here.",
+    ),
+    dict(
+        id="superintelligence", lab="Bostrom's “Superintelligence” is published",
+        d="2014-07-03", prec="month",
+        url="https://global.oup.com/academic/product/superintelligence-9780199678112",
+        note="The paperclip maximiser was already a decade old by then. The book is what "
+             "made it something people in industry had to have an opinion about.",
+    ),
+    dict(
+        id="flipuertorico", lab="The Puerto Rico conference and the first FLI open letter",
+        d="2015-01-11", prec="month",
+        url="https://futureoflife.org/open-letter/ai-open-letter/",
+        note="Signed by researchers who mostly did not think the risk was near — the "
+             "letter asked only that the field study what it was building.",
+    ),
+    dict(
+        id="openaifounded", lab="OpenAI is announced as a non-profit research lab",
+        d="2015-12-11", prec="day",
+        url="https://openai.com/index/introducing-openai/",
+        note="The founding post said the results would be freely shared, with $1bn pledged. "
+             "Both parts have been revised since.",
+    ),
+    dict(
+        id="alphago", lab="AlphaGo beats Lee Sedol in the final game of the match",
+        d="2016-03-15", prec="day",
+        url="https://deepmind.google/discover/blog/alphago-the-story-so-far/",
+        note="Move 37 in game two had a one-in-ten-thousand chance of being played by a "
+             "human. Lee's move 78 in game four was the only game the machine lost.",
+    ),
+    dict(
+        id="concreteproblems", lab="“Concrete Problems in AI Safety” appears on arXiv",
+        d="2016-06-21", prec="day",
+        url="https://arxiv.org/abs/1606.06565",
+        note="The paper that got safety a research agenda instead of a debate: five "
+             "problems, each stated as something you could open a terminal and work on.",
+    ),
+    dict(
+        id="asilomar", lab="The Asilomar AI Principles are agreed",
+        d="2017-01-06", prec="month",
+        url="https://futureoflife.org/open-letter/ai-principles/",
+        note="Twenty-three principles, deliberately modelled on the 1975 Asilomar "
+             "conference on recombinant DNA — the field's favourite precedent.",
+    ),
+    dict(
+        id="transformer", lab="“Attention Is All You Need” appears on arXiv",
+        d="2017-06-12", prec="day",
+        url="https://arxiv.org/abs/1706.03762",
+        note="It was a machine-translation paper. The title's joke was about dropping "
+             "recurrence, not about founding an industry.",
+    ),
+    dict(
+        id="gridworlds", lab="DeepMind publishes AI Safety Gridworlds",
+        d="2017-11-27", prec="day",
+        url="https://arxiv.org/abs/1711.09883",
+        note="Eight tiny grid environments, each with a visible reward and a hidden "
+             "performance measure that the visible reward does not capture. That gap is "
+             "the entire discipline in one diagram.",
+    ),
+    dict(
+        id="gpt1", lab="OpenAI posts the first GPT",
+        d="2018-06-11", prec="day",
+        url="https://openai.com/index/language-unsupervised/",
+        note="117 million parameters, and the claim that mattered: pre-train once "
+             "unsupervised, then fine-tune for anything.",
+    ),
+    dict(
+        id="bert", lab="BERT appears on arXiv",
+        d="2018-10-11", prec="day",
+        url="https://arxiv.org/abs/1810.04805",
+        note="Within a year it was in production search, and within two the field had "
+             "worked out how much of its benchmark gains were annotation artefacts.",
+    ),
+    dict(
+        id="gpt2", lab="GPT-2 is announced, and held back",
+        d="2019-02-14", prec="day",
+        url="https://openai.com/index/better-language-models/",
+        note="The staged release was mocked at the time as a stunt. It is now the standard "
+             "shape of a frontier launch.",
+    ),
+    dict(
+        id="gpt3", lab="The GPT-3 paper appears on arXiv",
+        d="2020-05-28", prec="day",
+        url="https://arxiv.org/abs/2005.14165",
+        note="Its title is “Language Models are Few-Shot Learners”. The capability that "
+             "changed everything was the one the authors put in the title.",
+    ),
+    dict(
+        id="alphafold", lab="AlphaFold 2's CASP14 result is announced",
+        d="2020-11-30", prec="day",
+        url="https://predictioncenter.org/casp14/index.cgi",
+        note="Median accuracy inside the error of the experiments it was predicting. The "
+             "assessors' word was that the problem was, in a useful sense, solved.",
+    ),
+    dict(
+        id="dalleclip", lab="DALL·E and CLIP are announced on the same day",
+        d="2021-01-05", prec="day",
+        url="https://openai.com/index/dall-e/",
+        note="CLIP was the more consequential of the two: it is the scoring function most "
+             "of the image-generation wave was steered by.",
+    ),
+    dict(
+        id="parrots", lab="“On the Dangers of Stochastic Parrots” is presented at FAccT",
+        d="2021-03-03", prec="month",
+        url="https://doi.org/10.1145/3442188.3445922",
+        note="Two of its authors had already been forced out of Google over it. The paper's "
+             "arguments and its provenance have been arguing with each other ever since.",
+    ),
+    dict(
+        id="aiactproposal", lab="The European Commission proposes the AI Act",
+        d="2021-04-21", prec="day",
+        url="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A52021PC0206",
+        note="Drafted before ChatGPT existed, around a risk pyramid for narrow systems. "
+             "The general-purpose chapter had to be bolted on mid-negotiation.",
+    ),
+    dict(
+        id="anthropicfounded", lab="Anthropic launches",
+        d="2021-05-28", prec="day",
+        url="https://www.anthropic.com/news/announcement",
+        note="Founded by people who had just left OpenAI, with $124m and a stated focus on "
+             "steerability and interpretability.",
+    ),
+    dict(
+        id="copilot", lab="GitHub Copilot opens as a technical preview",
+        d="2021-06-29", prec="day",
+        url="https://github.blog/news-insights/product-news/introducing-github-copilot-ai-pair-programmer/",
+        note="The first frontier model most working programmers used daily, and the first "
+            "big argument about training data and licences.",
+    ),
+    dict(
+        id="foundationmodels", lab="Stanford's “Foundation Models” report names the category",
+        d="2021-08-16", prec="day",
+        url="https://arxiv.org/abs/2108.07258",
+        note="212 pages, over a hundred authors, and a coinage that stuck because there was "
+             "no other word for a thing everything else is built on.",
+    ),
+    dict(
+        id="cot", lab="The chain-of-thought prompting paper appears",
+        d="2022-01-28", prec="day",
+        url="https://arxiv.org/abs/2201.11903",
+        note="Ask for the working and accuracy jumps. Four years later, whether that "
+             "working is a faithful account of the computation is still open.",
+    ),
+    dict(
+        id="instructgpt", lab="The InstructGPT paper appears on arXiv",
+        d="2022-03-04", prec="day",
+        url="https://arxiv.org/abs/2203.02155",
+        note="RLHF is the reason the models became usable — and the reason sycophancy is a "
+             "training-dynamics problem rather than a bug.",
+    ),
+    dict(
+        id="dalle2", lab="DALL·E 2 is announced",
+        d="2022-04-06", prec="day",
+        url="https://openai.com/index/dall-e-2/",
+        note="The waitlist, the watermark and the banned-prompt list were as much of the "
+             "product as the model.",
+    ),
+    dict(
+        id="lamoine", lab="A Google engineer says LaMDA is sentient",
+        d="2022-06-11", prec="day",
+        url="https://www.washingtonpost.com/technology/2022/06/11/google-ai-lamda-blake-lemoine/",
+        note="He was fired; the transcript he released had been edited and reordered. The "
+             "episode is the first mass rehearsal of an argument now had weekly.",
+    ),
+    dict(
+        id="stablediffusion", lab="Stable Diffusion is released publicly with open weights",
+        d="2022-08-22", prec="day",
+        url="https://stability.ai/news/stable-diffusion-public-release",
+        note="The moment image generation stopped being something a lab decided you could "
+            "have.",
     ),
     dict(
         id="chatgpt", lab="ChatGPT is released as a “research preview”",
         d="2022-11-30", prec="day",
         url="https://openai.com/index/chatgpt/",
-        note="The model underneath had been available through the API for months. What "
-             "changed was the box you typed into.",
+        note="The model underneath had been in the API for months. What changed was the box "
+             "you typed into.",
+    ),
+    dict(
+        id="constitutionalai", lab="Anthropic publishes Constitutional AI",
+        d="2022-12-15", prec="day",
+        url="https://arxiv.org/abs/2212.08073",
+        note="Replace the human labels with a written document and let the model criticise "
+             "itself against it. The document is the interesting part: it is short, and it "
+             "is public.",
+    ),
+
+    # ── the policy years ─────────────────────────────────────────────────────
+    dict(
+        id="chinadeepsynth", lab="China's deep synthesis rules take effect",
+        d="2023-01-10", prec="day",
+        url="http://www.cac.gov.cn/2022-12/11/c_1672221949318230.htm",
+        note="Labelling requirements for synthetic media landed a year before most Western "
+             "regulators had a draft.",
+    ),
+    dict(
+        id="nistrmf", lab="NIST releases the AI Risk Management Framework 1.0",
+        d="2023-01-26", prec="day",
+        url="https://www.nist.gov/itl/ai-risk-management-framework",
+        note="Voluntary, and the closest thing the US has to a national standard — which is "
+             "why so many company policies quietly map onto its four functions.",
+    ),
+    dict(
+        id="bingchat", lab="Microsoft launches the new Bing with a chat mode",
+        d="2023-02-07", prec="day",
+        url="https://blogs.microsoft.com/blog/2023/02/07/reinventing-search-with-a-new-ai-powered-microsoft-bing-and-edge-your-copilot-for-the-web/",
+        note="Within a week the fix was a cap of five turns per session: long conversations "
+             "were where the persona came apart.",
+    ),
+    dict(
+        id="gpt4", lab="GPT-4 is released",
+        d="2023-03-14", prec="day",
+        url="https://openai.com/index/gpt-4-research/",
+        note="The technical report gave no architecture, no dataset and no parameter count, "
+             "and said so explicitly. That was the news.",
+    ),
+    dict(
+        id="pauseletter", lab="The “Pause Giant AI Experiments” letter is published",
+        d="2023-03-22", prec="day",
+        url="https://futureoflife.org/open-letter/pause-giant-ai-experiments/",
+        note="It asked for six months. Nothing paused, but the letter is why the next "
+             "eighteen months of summits happened at all.",
+    ),
+    dict(
+        id="garante", lab="Italy's data protection authority orders ChatGPT restricted",
+        d="2023-03-30", prec="day",
+        url="https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/9870832",
+        note="The first regulator anywhere to take a frontier model offline in its "
+             "jurisdiction. It came back four weeks later with an age gate and an opt-out.",
+    ),
+    dict(
+        id="altmansenate", lab="Sam Altman testifies before a US Senate subcommittee",
+        d="2023-05-16", prec="day",
+        url="https://www.judiciary.senate.gov/committee-activity/hearings/oversight-of-ai-rules-for-artificial-intelligence",
+        note="A frontier lab asking to be licensed. Critics noted that licensing is also "
+             "the most effective barrier to entry available.",
+    ),
+    dict(
+        id="caisstatement", lab="The one-sentence Statement on AI Risk is published",
+        d="2023-05-30", prec="day",
+        url="https://safe.ai/work/statement-on-ai-risk",
+        note="Twenty-two words, signed by the heads of the three leading labs and two of "
+             "the three Turing laureates behind deep learning. Brevity was the strategy.",
+    ),
+    dict(
+        id="whcommitments", lab="Seven companies sign voluntary commitments at the White House",
+        d="2023-07-21", prec="day",
+        url="https://bidenwhitehouse.archives.gov/briefing-room/statements-releases/2023/07/21/fact-sheet-biden-harris-administration-secures-voluntary-commitments-from-leading-artificial-intelligence-companies-to-manage-the-risks-posed-by-ai/",
+        note="Red-teaming, watermarking, reporting. Unenforceable, and the template for "
+             "almost every binding rule written since.",
+    ),
+    dict(
+        id="chinagenai", lab="China's interim measures for generative AI take effect",
+        d="2023-08-15", prec="day",
+        url="http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm",
+        note="The first binding national rules aimed squarely at generative models — "
+             "filing, labelling and content obligations, with the training data in scope.",
+    ),
+    dict(
+        id="rsp", lab="Anthropic publishes the first Responsible Scaling Policy",
+        d="2023-09-19", prec="day",
+        url="https://www.anthropic.com/news/anthropics-responsible-scaling-policy",
+        note="Capability thresholds with pre-committed safeguards attached. The idea other "
+             "labs copied under other names within fifteen months.",
+    ),
+    dict(
+        id="eo14110", lab="Biden signs Executive Order 14110 on AI",
+        d="2023-10-30", prec="day",
+        url="https://www.federalregister.gov/documents/2023/11/01/2023-24283/safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence",
+        note="Its teeth came from the Defense Production Act: report any training run above "
+             "10^26 operations. It was revoked on the first day of the next administration.",
+    ),
+    dict(
+        id="bletchley", lab="The Bletchley Declaration is signed at the UK AI Safety Summit",
+        d="2023-11-01", prec="day",
+        url="https://www.gov.uk/government/publications/ai-safety-summit-2023-the-bletchley-declaration",
+        note="Twenty-eight countries and the EU, including China, agreeing in writing that "
+             "frontier risk was worth co-ordinating on. The agreement was the deliverable.",
+    ),
+    dict(
+        id="openaiboard", lab="OpenAI's board removes Sam Altman, and reinstates him five days later",
+        d="2023-11-17", prec="day",
+        url="https://openai.com/index/openai-announces-leadership-transition/",
+        note="The clearest natural experiment yet in whether a governance structure can "
+             "outvote a company. It could not.",
+    ),
+    dict(
+        id="aiactdeal", lab="EU negotiators reach political agreement on the AI Act",
+        d="2023-12-08", prec="day",
+        url="https://www.consilium.europa.eu/en/press/press-releases/2023/12/09/artificial-intelligence-act-council-and-parliament-strike-a-deal-on-the-first-worldwide-rules-for-ai/",
+        note="Thirty-eight hours of trilogue. The sticking points were foundation models "
+             "and live facial recognition, and both were settled by exemption.",
+    ),
+    dict(
+        id="preparedness", lab="OpenAI publishes its Preparedness Framework (beta)",
+        d="2023-12-18", prec="day",
+        url="https://openai.com/index/announcing-our-preparedness-framework/",
+        note="Scorecards in four risk categories, with a rule that anything above “high” "
+             "post-mitigation cannot ship.",
+    ),
+    dict(
+        id="sora", lab="Sora is announced",
+        d="2024-02-15", prec="day",
+        url="https://openai.com/index/sora/",
+        note="Announced with no access, no date and a lot of surf footage — a release "
+             "strategy in which the demo is the product for almost a year.",
+    ),
+    dict(
+        id="aiactvote", lab="The European Parliament adopts the AI Act",
+        d="2024-03-13", prec="day",
+        url="https://www.europarl.europa.eu/news/en/press-room/20240308IPR19015/artificial-intelligence-act-meps-adopt-landmark-law",
+        note="523 votes to 46. The first horizontal AI law anywhere, and now the thing "
+             "every other jurisdiction is measured against or defined in opposition to.",
+    ),
+    dict(
+        id="unresolution", lab="The UN General Assembly adopts its first resolution on AI",
+        d="2024-03-21", prec="day",
+        url="https://press.un.org/en/2024/ga12588.doc.htm",
+        note="Non-binding, unanimous, and led by the United States — which is itself the "
+             "interesting part.",
+    ),
+    dict(
+        id="fsf", lab="Google DeepMind publishes its Frontier Safety Framework",
+        d="2024-05-17", prec="day",
+        url="https://deepmind.google/discover/blog/introducing-the-frontier-safety-framework/",
+        note="Critical capability levels, evaluated at set compute intervals. The third "
+             "lab-written safety policy in eight months, and the shape had converged.",
+    ),
+    dict(
+        id="seoulcommitments", lab="Sixteen companies sign the Frontier AI Safety Commitments in Seoul",
+        d="2024-05-21", prec="day",
+        url="https://www.gov.uk/government/publications/frontier-ai-safety-commitments-ai-seoul-summit-2024",
+        note="Each signatory promised to publish a safety framework with thresholds at "
+             "which it would not deploy. Most did, by the deadline, in Paris.",
+    ),
+    dict(
+        id="aiactoj", lab="The AI Act is published in the Official Journal",
+        d="2024-07-12", prec="day",
+        url="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        note="Publication is what starts the clock: in force twenty days later, then a "
+             "staggered three-year commencement that is still running.",
+    ),
+    dict(
+        id="coeconvention", lab="The Council of Europe's AI convention opens for signature",
+        d="2024-09-05", prec="day",
+        url="https://www.coe.int/en/web/artificial-intelligence/the-framework-convention-on-artificial-intelligence",
+        note="The first legally binding international AI treaty — and its private-sector "
+             "obligations were softened to an opt-in to get it signed.",
+    ),
+    dict(
+        id="o1preview", lab="OpenAI releases o1-preview",
+        d="2024-09-12", prec="day",
+        url="https://openai.com/index/introducing-openai-o1-preview/",
+        note="Test-time compute as a scaling axis. It also made the chain of thought a "
+             "commercial asset, which is why the raw version is hidden.",
+    ),
+    dict(
+        id="sb1047veto", lab="California's governor vetoes SB 1047",
+        d="2024-09-29", prec="day",
+        url="https://www.gov.ca.gov/wp-content/uploads/2024/09/SB-1047-Veto-Message.pdf",
+        note="The veto message objected to regulating by training compute alone, on the "
+             "grounds that a small model doing something dangerous would escape it.",
+    ),
+    dict(
+        id="nobelphysics", lab="Hopfield and Hinton win the Nobel Prize in Physics",
+        d="2024-10-08", prec="day",
+        url="https://www.nobelprize.org/prizes/physics/2024/summary/",
+        note="For work on neural networks, awarded in physics, to a committee's evident "
+             "discomfort. Hinton spent his press call warning about the field.",
+    ),
+    dict(
+        id="o3arc", lab="o3's ARC-AGI results are announced",
+        d="2024-12-20", prec="day",
+        url="https://arcprize.org/blog/oai-o3-pub-breakthrough",
+        note="The benchmark's own authors published the result, including the compute cost "
+             "per task — thousands of dollars — because that was half the finding.",
+    ),
+
+    # ── 2025 ─────────────────────────────────────────────────────────────────
+    dict(
+        id="eo14110revoked", lab="Executive Order 14110 is revoked",
+        d="2025-01-20", prec="day",
+        url="https://www.federalregister.gov/documents/2025/01/28/2025-01901/initial-rescissions-of-harmful-executive-orders-and-actions",
+        note="Struck out on day one in a bulk rescission, not by an AI order of its own. A "
+             "replacement AI order followed three days later.",
+    ),
+    dict(
+        id="intlreport", lab="The first International AI Safety Report is published",
+        d="2025-01-29", prec="day",
+        url="https://www.gov.uk/government/publications/international-ai-safety-report-2025",
+        note="A hundred experts, thirty countries, chaired by Yoshua Bengio, modelled "
+             "openly on the IPCC. It states disagreements rather than averaging them.",
+    ),
+    dict(
+        id="parissummit", lab="The Paris AI Action Summit meets",
+        d="2025-02-10", prec="day",
+        url="https://www.elysee.fr/en/sommet-pour-l-action-sur-l-ia",
+        note="Renamed from “safety” to “action”, and the US and UK declined to sign the "
+             "closing statement. The summit series changed character here.",
+    ),
+    dict(
+        id="aisirename", lab="The UK AI Safety Institute becomes the AI Security Institute",
+        d="2025-02-14", prec="day",
+        url="https://www.gov.uk/government/news/tackling-ai-security-risks-to-unleash-growth-and-deliver-plan-for-change",
+        note="Same acronym, different word. The stated reason was to focus on security "
+             "risks rather than bias and free speech.",
+    ),
+    dict(
+        id="imogold", lab="Two labs reach gold-medal standard at the International Mathematical Olympiad",
+        d="2025-07-21", prec="day",
+        url="https://deepmind.google/discover/blog/advanced-version-of-gemini-with-deep-think-officially-achieves-gold-medal-standard-at-the-international-mathematical-olympiad/",
+        note="Five of six problems, in natural language, inside the human time limit. One "
+             "of the two announcements was graded by the IMO; the other was not.",
+    ),
+    dict(
+        id="gpaiobligations", lab="The AI Act's general-purpose model obligations become applicable",
+        d="2025-08-02", prec="day",
+        url="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+        note="Transparency, copyright policy and training-data summaries, with extra duties "
+             "above 10^25 operations — the first compute threshold in force anywhere.",
+    ),
+    dict(
+        id="sb53", lab="California signs SB 53, the first US frontier-AI transparency law",
+        d="2025-09-29", prec="day",
+        url="https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=202520260SB53",
+        note="A year after the SB 1047 veto, and much narrower: publish a safety framework, "
+             "report critical incidents, protect whistleblowers.",
+    ),
+    dict(
+        id="sb243", lab="California signs SB 243, the first companion-chatbot safety law",
+        d="2025-10-13", prec="day",
+        url="https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202520260SB243",
+        note="Disclosure that the companion is not human, crisis-referral protocols, and "
+             "reporting. The harms it names are not the ones frontier policy talks about.",
+    ),
+    dict(
+        id="digitalomnibus", lab="The Commission proposes delaying the AI Act's high-risk rules",
+        d="2025-11-19", prec="day",
+        url="https://digital-strategy.ec.europa.eu/en/library/digital-omnibus",
+        note="Simplification, or the first retreat, depending on who you ask. Either way "
+             "the world's benchmark AI law moved its own deadline.",
+    ),
+    dict(
+        id="raiseact", lab="New York signs the RAISE Act, the second US state frontier law",
+        d="2025-12-19", prec="day",
+        url="https://www.governor.ny.gov/news/governor-hochul-signs-nation-leading-legislation-require-ai-frameworks-ai-frontier-models",
+        note="Two states with frontier-model statutes, and a federal push to pre-empt them, "
+             "inside the same quarter.",
     ),
 ]
 
