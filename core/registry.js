@@ -134,7 +134,7 @@ window.AD_REGISTRY = [
     distLabel: "score band", stamps: true,
   },
   {
-    id: "placeguessr", soon: true, name: "PLACEGUESSR", icon: "🛣️", accent: "--cool", family: "photo",
+    id: "placeguessr", name: "PLACEGUESSR", icon: "🛣️", accent: "--cool", family: "photo",
     tagline: "one photo, one pin, five rounds",
     blurb: "Not the monuments — the roadsides. Read the script on the signs, the " +
       "plants, the traffic side. Hints cost you points.",
