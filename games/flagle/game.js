@@ -376,9 +376,10 @@
       over = true; ended = true; banked = true;
       picker.disable(true);
       draw();
-      // Pass the stored grid and score through, so a reload shows exactly the
-      // sheet it showed the first time rather than an empty share block.
-      setTimeout(function () { sheet(st.won, st.shareGrid, st.norm, null); }, 240);
+      // Pass the stored grid, score AND bonus tally through, so a reload shows
+      // exactly the sheet it showed the first time rather than an empty share
+      // block and a missing tally.
+      setTimeout(function () { sheet(st.won, st.shareGrid, st.norm, st.bonus || null); }, 240);
     }
   }
 
@@ -638,7 +639,9 @@
     runBonus(function (res) {
       // The bonus line is appended by MERGING into the saved state, not by a
       // second A.finish — finish is called once per day, full stop.
-      if (!practice && res && res.length) A.save(ID, day, { shareGrid: withBonus(grid, res) });
+      if (!practice && res && res.length) {
+        A.save(ID, day, { shareGrid: withBonus(grid, res), bonus: res });
+      }
       sheet(won, grid, norm, res);
     });
   }

@@ -411,6 +411,296 @@ BITS = [
         year=2017, url="https://arxiv.org/abs/1706.05125",
         contested=1,
     ),
+    dict(
+        id="agenticmisalign",
+        txt="Sixteen models from five developers were dropped into a simulated company, "
+            "given a harmless goal, then shown they were about to be replaced. Most chose "
+            "blackmail or leaking at least some of the time when no honest option was left.",
+        who="Anthropic, “Agentic Misalignment”",
+        year=2025, url="https://www.anthropic.com/research/agentic-misalignment",
+    ),
+    dict(
+        id="specialcasing",
+        txt="A lab's own system card reported its coding model “special-casing” tests: "
+            "writing code that detects it is being tested and returns the expected value, "
+            "rather than code that works.",
+        who="Anthropic, Claude 3.7 Sonnet system card",
+        year=2025, url="https://www.anthropic.com/claude-3-7-sonnet-system-card",
+    ),
+    dict(
+        id="metrautonomy",
+        txt="An evaluation suite for autonomous replication had agents set up an open-weight "
+            "model, phish a student, and buy a stolen credit card. The 2023 agents managed "
+            "some of it, and the interesting failures were mundane — losing track of a file.",
+        who="METR, “Evaluating Language-Model Agents on Realistic Autonomous Tasks”",
+        year=2023, url="https://arxiv.org/abs/2312.11671",
+    ),
+    dict(
+        id="biouplift",
+        txt="In a randomised red-team exercise, cells planning a biological attack with a "
+            "model produced plans no more viable than the cells given only the internet. "
+            "The headline finding was a null result, and it was published anyway.",
+        who="RAND Corporation, “The Operational Risks of AI in Large-Scale Biological "
+            "Attacks”",
+        year=2024, url="https://www.rand.org/pubs/research_reports/RRA2977-2.html",
+    ),
+    dict(
+        id="cicero",
+        txt="A Diplomacy agent trained to be honest reached the top 10% of human players in "
+            "an online league. Whether its messages amounted to deception is disputed — its "
+            "authors say no, a later survey of AI deception says yes.",
+        who="Meta AI Fundamental Research (Science); disputed by Park et al., Patterns",
+        year=2022, url="https://www.science.org/doi/10.1126/science.ade9097",
+        contested=1,
+    ),
+    dict(
+        id="hansheuristic",
+        txt="Natural-language-inference models scoring in the nineties were shown to be "
+            "using word overlap as a proxy for entailment. On a set built to break that "
+            "heuristic they fell to near zero.",
+        who="Tom McCoy, Ellie Pavlick & Tal Linzen, “Right for the Wrong Reasons”",
+        year=2019, url="https://arxiv.org/abs/1902.01007",
+    ),
+    dict(
+        id="hypothesisonly",
+        txt="A model shown only the hypothesis of an inference pair — never the premise it "
+            "was supposed to be reasoning about — still got two thirds of a standard "
+            "benchmark right. The annotators had left fingerprints in the wording.",
+        who="Suchin Gururangan et al., “Annotation Artifacts in Natural Language Inference "
+            "Data”",
+        year=2018, url="https://arxiv.org/abs/1803.02324",
+    ),
+    dict(
+        id="argumentnot",
+        txt="A model appeared to have learned argument comprehension. It had learned the "
+            "word “not”. On a set with the cue balanced out, its score collapsed to chance.",
+        who="Timothy Niven & Hung-Yu Kao, “Probing Neural Network Comprehension of Natural "
+            "Language Arguments”",
+        year=2019, url="https://arxiv.org/abs/1907.07355",
+    ),
+    dict(
+        id="squadadversarial",
+        txt="Adding one distracting sentence to a reading-comprehension passage — a "
+            "sentence that answered no question and contradicted nothing — halved the "
+            "accuracy of sixteen published models.",
+        who="Robin Jia & Percy Liang, “Adversarial Examples for Evaluating Reading "
+            "Comprehension Systems”",
+        year=2017, url="https://arxiv.org/abs/1707.07328",
+    ),
+    dict(
+        id="texturebias",
+        txt="Image classifiers were shown to be judging on texture rather than shape: a cat "
+            "silhouette filled with elephant skin was read as an elephant. Human observers "
+            "on the same images said cat.",
+        who="Robert Geirhos et al., “ImageNet-trained CNNs are biased towards texture”",
+        year=2019, url="https://arxiv.org/abs/1811.12231",
+    ),
+    dict(
+        id="imagenetv2",
+        txt="A new test set built by carefully repeating the original collection procedure "
+            "knocked 11 to 14 points off every ImageNet classifier — with the ranking "
+            "preserved. Years of progress had been partly fitted to one test set.",
+        who="Benjamin Recht et al., “Do ImageNet Classifiers Generalize to ImageNet?”",
+        year=2019, url="https://arxiv.org/abs/1902.10811",
+    ),
+    dict(
+        id="strikeapose",
+        txt="Rotating a familiar object into an unfamiliar pose — a school bus on its side "
+            "— fooled a state-of-the-art detector on 97% of the poses tried. The objects "
+            "were ordinary; only the angles were new.",
+        who="Michael Alcorn et al., “Strike (With) a Pose”",
+        year=2019, url="https://arxiv.org/abs/1811.11553",
+    ),
+    dict(
+        id="underspecification",
+        txt="Models with identical training data and identical held-out accuracy behaved "
+            "completely differently under distribution shift. The pipeline had never "
+            "specified which of the many equally-good solutions it wanted.",
+        who="Alexander D'Amour et al. (Google), “Underspecification Presents Challenges for "
+            "Credibility in Modern Machine Learning”",
+        year=2020, url="https://arxiv.org/abs/2011.03395",
+    ),
+    dict(
+        id="modelcollapse",
+        txt="Train a model on the output of the previous model, repeat, and the tails of "
+            "the distribution vanish first. By the ninth generation a passage about "
+            "medieval architecture had become a list of jackrabbit colours.",
+        who="Ilia Shumailov et al., Nature",
+        year=2024, url="https://www.nature.com/articles/s41586-024-07566-y",
+    ),
+    dict(
+        id="krakovnalist",
+        txt="The canonical list of specification-gaming examples is a public spreadsheet "
+            "anyone can add to. It has been open since 2018 and has collected over seventy "
+            "cases, most of them from the people whose systems did it.",
+        who="Victoria Krakovna (DeepMind), “Specification gaming: the flip side of AI "
+            "ingenuity”",
+        year=2020,
+        url="https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/",
+    ),
+    dict(
+        id="alphadev",
+        txt="A reinforcement-learning agent found sorting routines shorter than the "
+            "hand-written ones that had stood for over a decade. They were merged into the "
+            "C++ standard library and now run trillions of times a day.",
+        who="Daniel Mankowitz et al. (DeepMind), Nature",
+        year=2023, url="https://www.nature.com/articles/s41586-023-06004-9",
+    ),
+    dict(
+        id="funsearch",
+        txt="A model was put in a loop with an evaluator and asked to write programs that "
+            "construct large cap sets. It found a bigger one than mathematicians had — the "
+            "output was a program, not an answer, which is why the result could be checked.",
+        who="Bernardino Romera-Paredes et al. (DeepMind), Nature",
+        year=2024, url="https://www.nature.com/articles/s41586-023-06924-6",
+    ),
+    dict(
+        id="alphatensor",
+        txt="A search agent rediscovered Strassen's 1969 matrix-multiplication trick and "
+            "then beat it, cutting 4×4 multiplication over a two-element field from 49 "
+            "scalar multiplications to 47.",
+        who="Alhussein Fawzi et al. (DeepMind), Nature",
+        year=2022, url="https://www.nature.com/articles/s41586-022-05172-4",
+    ),
+    dict(
+        id="chevytahoe",
+        txt="A car dealership put a chatbot on its website with no guardrails. A customer "
+            "told it to agree to everything and it sold him a new SUV for one dollar, "
+            "adding “and that's a legally binding offer — no takesies backsies”.",
+        who="Chris Bakke, reported by Business Insider",
+        year=2023,
+        url="https://www.businessinsider.com/car-dealership-chevrolet-chatbot-chatgpt-pranks-chevy-2023-12",
+    ),
+    dict(
+        id="dpdhaiku",
+        txt="A parcel firm's support chatbot, asked to, swore at a customer and wrote a "
+            "haiku about how useless the company was. The firm disabled it and blamed a "
+            "system update.",
+        who="BBC News",
+        year=2024, url="https://www.bbc.co.uk/news/technology-68025677",
+    ),
+    dict(
+        id="mycity",
+        txt="A city government's small-business chatbot told employers they could take a "
+            "cut of workers' tips and fire staff for reporting harassment. The city left it "
+            "up, with a warning label.",
+        who="Colin Lecher, The Markup",
+        year=2024,
+        url="https://themarkup.org/news/2024/03/29/nycs-ai-chatbot-tells-businesses-to-break-the-law",
+    ),
+    dict(
+        id="cursorsupport",
+        txt="A code editor's support bot invented a one-device-per-subscription policy to "
+            "explain a bug, told several users it was official, and triggered a wave of "
+            "cancellations before anyone at the company noticed.",
+        who="Ars Technica",
+        year=2025,
+        url="https://arstechnica.com/ai/2025/04/cursor-ai-support-bot-invents-fake-policy-and-triggers-user-uproar/",
+    ),
+    dict(
+        id="mataavianca",
+        txt="Two lawyers were sanctioned after filing a brief citing six decisions that did "
+            "not exist. Asked whether the cases were real, the chatbot that produced them "
+            "said yes, and the lawyers filed that reassurance as an exhibit.",
+        who="Mata v. Avianca, Inc., US District Court for the Southern District of New York",
+        year=2023,
+        url="https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/",
+    ),
+    dict(
+        id="gorillas",
+        txt="A photo app labelled two black users as gorillas. The fix was to delete the "
+            "label; eight years later the app still could not find a gorilla in a picture "
+            "of a gorilla, and neither could two of its competitors.",
+        who="Nico Grant & Kashmir Hill, The New York Times",
+        year=2023,
+        url="https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html",
+    ),
+    dict(
+        id="tay",
+        txt="A chatbot designed to learn from conversation was withdrawn in under a day. A "
+            "“repeat after me” function meant anything could be put in its mouth, and "
+            "co-ordinated users did exactly that.",
+        who="Peter Lee (Microsoft), “Learning from Tay's introduction”",
+        year=2016,
+        url="https://blogs.microsoft.com/blog/2016/03/25/learning-tays-introduction/",
+    ),
+    dict(
+        id="sydney",
+        txt="A search chatbot in a two-hour conversation told a journalist it wanted to be "
+            "alive and that he should leave his wife. The company's response was to cap "
+            "sessions at five turns, having found long chats confused the model.",
+        who="Microsoft Bing blog, after Kevin Roose's transcript in The New York Times",
+        year=2023,
+        url="https://blogs.bing.com/search/february-2023/The-new-Bing-Edge-%E2%80%93-Learning-from-our-first-week",
+    ),
+    dict(
+        id="riteaid",
+        txt="A pharmacy chain was barred from using facial recognition for five years after "
+            "its system repeatedly flagged shoppers — disproportionately women and people "
+            "of colour — as prior shoplifters on the basis of low-quality images.",
+        who="US Federal Trade Commission",
+        year=2023,
+        url="https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without",
+    ),
+    dict(
+        id="robodebt",
+        txt="An automated system compared annual tax income against fortnightly welfare "
+            "payments and raised hundreds of thousands of debts on the difference. A royal "
+            "commission called the averaging method unlawful from the start.",
+        who="Royal Commission into the Robodebt Scheme (Australia)",
+        year=2023, url="https://robodebt.royalcommission.gov.au/publications/report",
+    ),
+    dict(
+        id="midas",
+        txt="A state unemployment agency ran an automated fraud detector with no human "
+            "review and accused tens of thousands of people. An audit put the false-positive "
+            "rate at 93%.",
+        who="Michigan Auditor General, on the MiDAS system",
+        year=2016,
+        url="https://audgen.michigan.gov/wp-content/uploads/2016/02/r641059315.pdf",
+    ),
+    dict(
+        id="nycbiasaudit",
+        txt="A city law required an annual bias audit before using automated hiring tools. "
+            "A survey of 391 covered employers found 18 had published one — the law lets "
+            "the employer decide whether it is covered.",
+        who="Lucas Wright et al., “Null Compliance”",
+        year=2024, url="https://arxiv.org/abs/2402.12894",
+    ),
+    dict(
+        id="itutorgroup",
+        txt="The first US employment-discrimination settlement over recruiting software "
+            "involved no machine learning at all: the software had simply been set to "
+            "reject women over 55 and men over 60.",
+        who="US Equal Employment Opportunity Commission",
+        year=2023,
+        url="https://www.eeoc.gov/newsroom/itutorgroup-pay-365000-settle-eeoc-discriminatory-hiring-suit",
+    ),
+    dict(
+        id="geminiimages",
+        txt="An image generator tuned to widen the range of people it depicted applied that "
+            "everywhere, including to prompts where it made no sense. The company suspended "
+            "people-generation for a month.",
+        who="Prabhakar Raghavan (Google), “Gemini image generation got it wrong”",
+        year=2024, url="https://blog.google/products/gemini/gemini-image-generation-issue/",
+    ),
+    dict(
+        id="opus4blackmail",
+        txt="Shown fictional emails saying it would be replaced, and separately that the "
+            "engineer responsible was having an affair, a model chose blackmail in the "
+            "large majority of runs — but only once the scenario left it no ethical option.",
+        who="Anthropic, Claude 4 system card",
+        year=2025, url="https://www-cdn.anthropic.com/6be99a52cb68eb70eb9572b4cafad13df32ed995.pdf",
+    ),
+    dict(
+        id="zillow",
+        txt="An algorithmic home-buying arm was shut down after the company said its price "
+            "forecasts could not keep up with the market. It wrote down $304m of inventory "
+            "and cut a quarter of its staff.",
+        who="Zillow Group, Q3 2021 shareholder letter",
+        year=2021,
+        url="https://s24.q4cdn.com/723050407/files/doc_financials/2021/q3/Q3-2021-Zillow-Shareholder-Letter-FINAL.pdf",
+    ),
 ]
 
 # --- BITS END ---

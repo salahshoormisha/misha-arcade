@@ -414,31 +414,31 @@
   sliderEl.addEventListener("input", function () { setYear(sliderEl.value, "slider"); });
 
   // Hold-to-repeat, like the original: one year, then a pause, then a run.
+  // A press steps immediately, so the click that follows it must not step
+  // again. `armed` is consumed by that click rather than cleared on a timer —
+  // a timer would make a keyboard press in the same tick disappear.
   function bindNudge(btn, dir) {
-    var delay = null, run = null, viaPointer = false;
+    var delay = null, run = null, armed = false;
     function step() {
       if (resolved || over) return;
       setYear(year + dir);
       A.sfx("key");
     }
-    function stop() {
-      clearTimeout(delay); clearInterval(run); delay = run = null;
-      setTimeout(function () { viaPointer = false; }, 0);
-    }
+    function stopHold() { clearTimeout(delay); clearInterval(run); delay = run = null; }
+    function abandon() { armed = false; stopHold(); }   // no click will follow
     btn.addEventListener("pointerdown", function () {
       if (resolved || over) return;
-      viaPointer = true;
+      armed = true;
       step();
       delay = setTimeout(function () { run = setInterval(step, 80); }, 400);
     });
-    btn.addEventListener("pointerup", stop);
-    btn.addEventListener("pointercancel", stop);
-    btn.addEventListener("pointerleave", stop);
-    window.addEventListener("pointerup", stop);
-    // Keyboard activation fires click with no pointerdown before it.
+    btn.addEventListener("pointerup", stopHold);
+    btn.addEventListener("pointercancel", abandon);
+    btn.addEventListener("pointerleave", abandon);
+    window.addEventListener("pointerup", stopHold);   // released off the button
     btn.addEventListener("click", function () {
-      if (viaPointer) return;
-      step();
+      if (armed) { armed = false; return; }           // already stepped on the press
+      step();                                          // keyboard / assistive activation
     });
   }
   bindNudge(document.getElementById("yminus"), -1);
@@ -871,7 +871,22 @@
       sliderEl.dispatchEvent(new Event("input", { bubbles: true }));
       return year;
     },
-    nudge: function (dir) { document.getElementById(dir < 0 ? "yminus" : "yplus").click(); return year; },
+    // a finger on the nudge: press, release, click — the whole sequence, so the
+    // hold-to-repeat timer is armed AND disarmed exactly as it would be
+    nudge: function (dir) {
+      var b = document.getElementById(dir < 0 ? "yminus" : "yplus");
+      var o = { bubbles: true, cancelable: true, pointerId: 1, pointerType: "mouse", isPrimary: true };
+      try { b.dispatchEvent(new PointerEvent("pointerdown", o)); } catch (e) {}
+      try { b.dispatchEvent(new PointerEvent("pointerup", o)); } catch (e) {}
+      b.dispatchEvent(new MouseEvent("click", o));
+      return year;
+    },
+    // the same button reached from the keyboard: a bare click, no pointer at all
+    nudgeKey: function (dir) {
+      var b = document.getElementById(dir < 0 ? "yminus" : "yplus");
+      b.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      return year;
+    },
 
     // a tap on the canvas at that lat/lon — the map's own hit-testing runs
     drop: function (lat, lon) {

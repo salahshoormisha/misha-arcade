@@ -38,11 +38,19 @@
   // initialisers do not hoist, so a later declaration is still undefined.
   var RANK = { ok: 4, near: 3, elsewhere: 2, miss: 1 };
   var focus = 0;                // index into the free (unlocked) slots
+  var justTyped = false;        // last input wrote a letter (see back())
   var gridEl, kbd, keyState = {}, triesEl;
 
   /* ── puzzle construction ──────────────────────────────────────────────
      Lay it out as a real little crossword: word 2 runs DOWN, words 1 and 3
      run ACROSS through it at two different rows. */
+
+  // Same word, or one letter off it in the same places (SCARE/SCARF).
+  function alike(x, y) {
+    var same = 0;
+    for (var i = 0; i < LEN; i++) if (x[i] === y[i]) same++;
+    return same >= LEN - 1;
+  }
 
   function buildPuzzle(rand) {
     // letter+position index so we can find crossing words instantly
@@ -57,15 +65,22 @@
     for (var attempt = 0; attempt < 4000; attempt++) {
       var w2 = A.pick(rand, ANS);
       var a = Math.floor(rand() * LEN), b = Math.floor(rand() * LEN);
-      // The two ACROSS words must be at least one clear row apart. Merely
-      // rejecting a === b let them land on touching rows, which reads as a
-      // solid block of letters — it looks like the puzzle is missing a word.
-      if (Math.abs(a - b) < 2) continue;
       var p = Math.floor(rand() * LEN), q = Math.floor(rand() * LEN);
+      // THE SHAPE HAS TO READ AS THREE WORDS. Rejecting only a === b let the
+      // two across words land on touching rows; rejecting only touching rows
+      // still allowed two rows apart with the same column offset, which draws
+      // a solid five-wide slab with a single square between — it looks like a
+      // two-word puzzle, which is exactly what she reported. So: never
+      // touching, and when they are only two rows apart they must be at least
+      // three columns offset, so the shape is a staircase and not a block.
+      var dRow = Math.abs(a - b), dCol = Math.abs(p - q);
+      if (dRow < 2 || (dRow === 2 && dCol < 3)) continue;
       var c1 = byLP[w2[a] + p], c3 = byLP[w2[b] + q];
       if (!c1 || !c3) continue;
       var w1 = A.pick(rand, c1), w3 = A.pick(rand, c3);
-      if (w1 === w2 || w3 === w2 || w1 === w3) continue;
+      // …and as three DIFFERENT words. SCARE/SCARF or DAISY/DAILY in one
+      // puzzle reads as a typo, or as a word list too thin to fill a grid.
+      if (alike(w1, w2) || alike(w2, w3) || alike(w1, w3)) continue;
 
       // geometry: w2 down at column C, rows 0..4; w1 across at row a; w3 at row b
       var C = Math.max(p, q);
@@ -154,11 +169,18 @@
   main.appendChild(key);
 
   var row = A.el("div", "ac-row th-modes");
-  row.innerHTML = practice ? '<a class="ac-pill" href="./">TODAY\'S THREE</a>'
-    : '<a class="ac-pill" href="?practice=1">PRACTICE</a>';
+  row.innerHTML = '<button class="ac-pill" id="th-clear" type="button">CLEAR</button>' +
+    (practice ? '<a class="ac-pill" href="./">TODAY\'S THREE</a>'
+      : '<a class="ac-pill" href="?practice=1">PRACTICE</a>');
   main.appendChild(row);
+  row.querySelector("#th-clear").onclick = clearAll;
 
   kbd = A.keyboard({ onKey: type, onEnter: submit, onBack: back, host: main });
+
+  // The two given letters are known from the first second, so the keyboard
+  // says so — the original does the same, and a key that stays blank while its
+  // letter sits on the board looks like the keyboard has lost track.
+  P.cross.forEach(function (x) { keyState[P.w[x.w][x.i]] = "ok"; });
 
   restore();
 
@@ -170,27 +192,63 @@
     cur[freeSlots[focus]] = ch;
     dirty[freeSlots[focus]] = 1;
     focus++;
+    justTyped = true;
     A.sfx("type");
     render();
   }
 
+  function wipe(f) {
+    if (f < 0 || f >= freeSlots.length) return false;
+    if (!cur[freeSlots[f]]) return false;
+    cur[freeSlots[f]] = "";
+    dirty[freeSlots[f]] = 1;
+    return true;
+  }
+
+  /* DELETING. The board keeps the last attempt, so the square the cursor
+     lands on after you type is usually NOT empty — which means "is the next
+     square empty?" cannot tell us what the player meant, and using it is what
+     made deleting feel broken. Both earlier rules had a bad half:
+
+       always step back first  → tap a square, hit delete, and it ate the
+                                 letter BEFORE the one you tapped.
+       always clear in place   → type a letter, hit delete, and it ate the
+                                 stale letter AHEAD of it while your own
+                                 letter sat there needing a second press.
+
+     What actually disambiguates them is what the player did last. After
+     TYPING, backspace undoes that letter. After TAPPING (or after a
+     submission, or a reload), backspace clears the square you are looking at
+     and leaves the cursor on it, ready to retype. */
   function back() {
     if (over) return;
-    // Tapping a square moves the cursor ONTO it, and the board stays full
-    // between attempts — so backspace has to mean "clear the square I'm
-    // looking at" whenever that square holds a letter. Always stepping back
-    // first deleted the letter *before* the one you tapped, which is why
-    // deleting felt broken.
-    if (focus < freeSlots.length && cur[freeSlots[focus]]) {
-      cur[freeSlots[focus]] = "";
-      dirty[freeSlots[focus]] = 1;
+    if (!justTyped && focus < freeSlots.length && cur[freeSlots[focus]]) {
+      wipe(focus);
       render();
       return;
     }
-    if (focus <= 0) return;
+    if (focus <= 0) {
+      // Nothing to the left; clear where we stand if anything is there.
+      if (wipe(focus)) render();
+      return;
+    }
     focus--;
-    cur[freeSlots[focus]] = "";
-    dirty[freeSlots[focus]] = 1;
+    wipe(focus);
+    justTyped = false;
+    A.sfx("tick");
+    render();
+  }
+
+  // The way out of a full board: backspace walks left and stops at the first
+  // square, so with the last attempt still sitting there you could otherwise
+  // be left picking letters off one tap at a time.
+  function clearAll() {
+    if (over) return;
+    if (!freeSlots.some(function (s) { return cur[s]; })) return;
+    freeSlots.forEach(function (s) { cur[s] = ""; dirty[s] = 1; });
+    focus = 0;
+    justTyped = false;
+    A.sfx("bad");
     render();
   }
 
@@ -201,12 +259,16 @@
   function submit() {
     if (over) return;
     var ws = words();
-    if (ws.some(function (w) { return w.length < LEN || /\s|^$/.test(w) || w.indexOf("") >= 0 && w.length !== LEN; })) {
-      return nope("Fill all three words");
-    }
     for (var i = 0; i < 3; i++) {
-      if (ws[i].length !== LEN || !/^[A-Z]{5}$/.test(ws[i])) return nope("Fill all three words");
+      if (!/^[A-Z]{5}$/.test(ws[i])) return nope("Fill all three words");
       if (!VALID[ws[i]]) return nope('"' + ws[i] + '" isn\'t a word');
+    }
+    // The last attempt is still sitting on the board, so ENTER twice is one
+    // slip of the thumb — and it would burn a try on three words you have
+    // already had the answer to. It can never be worth anything, so refuse it.
+    var line = ws.join(" ");
+    if (guesses.some(function (g) { return g.join(" ") === line; })) {
+      return nope("Same three words — change one");
     }
     guesses.push(ws.slice());
     var st = states(ws);
@@ -217,6 +279,7 @@
     // retype it — colours belong to letters, not to squares.
     dirty = {};
     focus = 0;
+    justTyped = false;
     render();
     save();
     if (didWin) { A.sfx("win"); end(true); }
