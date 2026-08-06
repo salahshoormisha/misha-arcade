@@ -93,6 +93,8 @@ paralysed paralyzed plague poison poisoned prison rape rapist refugee scalpel se
 slaughter slave slavery starve starving stillborn strangle stroke suffering suicide surgery terminal
 terror terrorism terrorist torture toxic trauma tumor tumour undertaker victim violence violent virus war
 weapon widow wound wounded
+coward disgusting dumb fat hate hated hatred idiot idiots jerk loser moron moronic pathetic stupid
+ugly useless worthless
 """.split())
 
 # CONTRACT §7, kept light: words that quietly smell of Edinburgh rain, a London
