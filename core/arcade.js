@@ -446,7 +446,10 @@
     var days = (getJSON(A.NS + "run", { days: [] }).days || []);
     days.forEach(function (d) {
       var c = A.card(d);
-      if (!out.bestCard || c.total > out.bestCard) { out.bestCard = c.total; out.bestDay = d; }
+      // `=== null`, not falsy: a best card of 0 is a real best card, and the
+      // falsy test kept overwriting it, so a run of blanked days reported the
+      // LAST of them as the best day rather than the first.
+      if (out.bestCard === null || c.total > out.bestCard) { out.bestCard = c.total; out.bestDay = d; }
       var wk = Math.floor(d / 7);
       var w = out.weeks[wk] || (out.weeks[wk] = { n: 0, sum: 0, week: wk });
       w.n++; w.sum += c.total;
