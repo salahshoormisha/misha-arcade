@@ -60,10 +60,23 @@ python3 _build/conn_tools.py hot 3              # tiles at or near the reuse cap
 
 - **Board titles must be new.** Check `titles` for your pack AND `titles` with no
   argument (titles are informally global).
-- **Category names must be new.** Check `cats <pack>` before you commit to a group.
+- **Category names must be new DATASET-WIDE, not just inside your batch.** Run
+  `python3 _build/conn_tools.py cats` with NO pack argument and check against the whole
+  list. The generator warns on any repeat and the coordinator has to hand-fix it.
+  Names normalise by stripping punctuation, so `___ CASE`, `CASE ___` and `A CASE` all
+  collide as `case`. **The archive is already saturated with `___ BAND`, `___ CASE`,
+  `___ HEAD`, `___ HOUSE`, `___ GARDEN`, `___ ROAD`, `___ TIME`, `___ SET`,
+  `SHADES OF BLUE`, `PARTS OF A GUITAR` and `ON A BICYCLE` — do not write any of those,
+  and be sparing with `___ WORD` compounds built on very common nouns.**
+- **A near-duplicate GROUP is worse than a duplicate name.** Three boards in this
+  archive each ran a `___ BAND` group and between them used ARM/BROAD/RUBBER/WAIST
+  twice over. Before finalising a compound group, `freq` its tiles: if two or more of
+  your four are already sitting in a similar group elsewhere, rebuild the group.
 - A tile string may appear in at most **6 boards dataset-wide**. Check `freq` for
   anything that feels common. Prefer fresh tile strings — repetition across the archive
   is the thing that makes it feel small, even when every board is legal.
+- **Do not run `python3 _build/gen_connections2.py` with no arguments** — it rewrites
+  the shipped data file while other sessions are mid-write. Use `--check-module` only.
 
 ## 4. The players and the bar
 
