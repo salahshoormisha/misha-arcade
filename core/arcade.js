@@ -553,13 +553,21 @@
     return decodeURIComponent(escape(atob(s)));
   }
 
+  /* Version 2 names each game by its own id. Version 1 used the game's INDEX in
+     the registry, which is fine right up until a cabinet is inserted anywhere
+     but the end — after that an older link decodes cleanly into the WRONG
+     games, reporting a Wordle score as a Flagle one with no error anywhere. A
+     link that fails loudly is recoverable; one that lies is not. Ids cost about
+     forty characters in a URL hash, which nobody reads. Version 1 tokens are
+     still accepted so any link already sent keeps working. */
   A.packCard = function (dayN) {
     var c = A.card(dayN), parts = [];
-    (A.registry || []).forEach(function (g, i) {
+    (A.registry || []).forEach(function (g) {
       var r = c.results[g.id];
-      if (r) parts.push([i, r.norm, r.won ? 1 : 0, String(r.detail || "").replace(/[;,|]/g, " ").slice(0, 12)].join(","));
+      if (r) parts.push([g.id, r.norm, r.won ? 1 : 0,
+        String(r.detail || "").replace(/[;,|]/g, " ").slice(0, 12)].join(","));
     });
-    var body = ["1", dayN, (c.name || "player").replace(/[|]/g, ""), parts.join(";")].join("|");
+    var body = ["2", dayN, (c.name || "player").replace(/[|]/g, ""), parts.join(";")].join("|");
     return b64url(body) + "." + fnv1a(body).toString(36);
   };
 
@@ -569,11 +577,17 @@
       var body = unb64url(bits[0]);
       if (bits[1] && fnv1a(body).toString(36) !== bits[1]) return null;   // mangled
       var f = body.split("|");
-      if (f[0] !== "1") return null;
+      if (f[0] !== "1" && f[0] !== "2") return null;
+      var byIndex = f[0] === "1";      // the old positional format
       var out = { day: +f[1], name: f[2] || "player", results: {}, played: 0, sum: 0 };
       (f[3] ? f[3].split(";") : []).forEach(function (p) {
-        var q = p.split(","), g = (A.registry || [])[+q[0]];
-        if (!g) return;
+        var q = p.split(","), reg = A.registry || [], g;
+        if (byIndex) {
+          g = reg[+q[0]];
+        } else {
+          for (var i = 0; i < reg.length; i++) if (reg[i].id === q[0]) { g = reg[i]; break; }
+        }
+        if (!g) return;                // a game this build doesn't have: skip it
         out.results[g.id] = { norm: +q[1], won: q[2] === "1", detail: q[3] || "" };
         out.played++; out.sum += +q[1];
       });
