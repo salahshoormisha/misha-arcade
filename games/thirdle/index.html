@@ -18,9 +18,12 @@
   #grid { display: grid; gap: var(--sp-1); margin: var(--sp-3) auto 0; justify-content: center; }
   #grid .cell { width: var(--cs, 46px); height: var(--cs, 46px); font-size: calc(var(--cs, 46px) * .52); }
   #grid .gap { visibility: hidden; }
-  /* an editable square invites a tap; a given letter and a finished grid do not */
+  /* an editable square invites a tap; a given letter and a finished grid do not.
+     `.done` rather than `.reveal`: a WON board is painted .ok, not .reveal, so
+     keying off the state class alone left every square of a finished win still
+     advertising itself as tappable. */
   #grid .ac-tile:not(.lock) { cursor: pointer; }
-  #grid .ac-tile.lock, #grid .ac-tile.reveal { cursor: default; }
+  #grid .ac-tile.lock, #grid.done .ac-tile { cursor: default; }
 
   /* the fourth state — "this letter lives in one of the other two words" */
   .ac-tile.elsewhere { background: var(--purple); border-color: var(--purple); color: var(--bg); }

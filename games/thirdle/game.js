@@ -131,6 +131,9 @@
       "<li>Grey — nowhere, or you've already found every copy of it.</li></ul>" +
       "<p>The two crossing letters are given to you and can't be changed. Your attempt stays on " +
       "the board — <b>tap any square</b> to move there and edit it into your next guess.</p>" +
+      "<p>Typing fills the words in order — the top word across, then the word running down, " +
+      "then the bottom word across — and the squares of the word you're in are shaded so you " +
+      "can see where you are.</p>" +
       "<p>Delete works the way you'd expect either way: straight after typing, it takes back the " +
       "letter you just typed; after tapping a square, it empties that square. <b>CLEAR</b> wipes " +
       "the lot and starts you at the first square.</p>",
@@ -423,6 +426,8 @@
     var lastWords = guesses.length ? guesses[guesses.length - 1] : null;
     var curSlot = (!over && focus < freeSlots.length) ? freeSlots[focus] : -1;
     var curWord = curSlot >= 0 ? Math.floor(curSlot / LEN) : -1;
+    // A finished board takes no taps, so it must not look like it does.
+    if (over !== gridEl.classList.contains("done")) gridEl.classList.toggle("done", over);
 
     for (var n = 0; n < cellEls.length; n++) {
       var e = cellEls[n];

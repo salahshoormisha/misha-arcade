@@ -53,12 +53,29 @@
 #      agree on plural-s / -ing / -ly / -ed, so the odd one is never the odd one
 #      typographically.
 #
+# Two more failures showed up on the second read-through and are fixed too:
+#
+#   5. PART OF SPEECH. "blown" among breeze/hurricane/kite, "cloudy" among
+#      weather/hail/storm, "sweetness" among cane/cinnamon/candy, "classical"
+#      among jazz/concert/chord. Every one of those is a second defensible
+#      answer — the only participle, the only adjective, the only abstract noun.
+#      There is no tagger here, so wordclass() derives one: a word is BASE unless
+#      stripping a derivational ending leaves another word in this same
+#      vocabulary, in which case it is the adverb / participle / adjective /
+#      abstraction it was derived into. All five must agree.
+#
+#   6. SUPERORDINATES. "sport" among touchdown/tackle/stadium; "weather" among
+#      hail/cloudy/storm. A member that the other three all evoke is not a member
+#      of the thread, it is another name for it — and a player will say so. Any
+#      such member is dropped before quads are formed.
+#
 # Also new: members and decoy must be words both players certainly know (rank
 # cap over the shipped frequency-ordered vocabulary), no member may pair off with
 # the decoy, the decoy must not sit lopsidedly nearer one member than the rest,
 # the GRIM list from sem_gen_linxicon.py is honoured (nobody wants IDIOT and
-# MORON in a morning puzzle), and one round per hub, so the archive never serves
-# four near-identical boards off the same category.
+# MORON in a morning puzzle), every wrong name for the thread has to be a name
+# somebody could actually believe, and one round per hub, so the archive never
+# serves four near-identical boards off the same category.
 # -----------------------------------------------------------------------------
 #
 # DIFFICULTY. Two forces: how far outside the thread the decoy sits (HUBGAP —
@@ -99,25 +116,30 @@ MIN_MEMBERS = 6       # candidate members a hub needs before it is worth trying
 POOL_MEMBERS = 13     # the strongest members considered
 QUAD_TOP = 9          # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
-MEM_HUB_SPREAD = 0.32 # ...and no member may be a straggler relative to the rest
+MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
+MEM_HUB_SPREAD = 0.30 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
 MEM_PAIR_MIN = -0.02  # nor flat opposites
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
-HUBGAP_MIN = 0.150    # THE cleanliness gate: outside the thread by this much
+HUBGAP_MIN = 0.175    # THE cleanliness gate: outside the thread by this much
 HUBGAP_MAX = 0.520    # ...but not so far outside that it is free
 TEMPT_MIN = 0.240     # it must still be pulled towards the four
 DEC_PAIR_MAX = 0.62   # it may not pair off with one member
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
 
 # ── what makes the answer the only answer ────────────────────────────────────
-RIVAL_GAP = 0.085     # true foursome's best name beats every rival's by this
+RIVAL_GAP = 0.115     # true foursome's best name beats every rival's by this
 COH_GAP = 0.010       # cheap centroid pre-screen for the same thing
-RIVAL_SCAN = 6000     # vocabulary searched for a rival thread's name
-RIVAL_KEEP = 140      # exact-scored survivors of the centroid pre-screen
+RIVAL_SCAN = 5600     # vocabulary searched for a rival thread's name
+RIVAL_PRE = 96        # dims used for the first, cheapest pass over that
+RIVAL_MID = 600       # survivors re-scored on all 300 dims
+RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the four
 
+MAX_USES = 4          # times one word may appear anywhere in the archive
 TARGET = 1500         # rounds to stop at (4 to a day)
 DECOY_SCAN = 7000     # decoys come from the commonest words
+NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
 
 # Function and discourse words — lifted from sem_gen_linxicon.py so the two
 # cabinets agree about what is not a puzzle word.
@@ -203,6 +225,58 @@ def shape(w):
             w.endswith("ing"),
             w.endswith("ly"),
             w.endswith("ed"))
+
+
+# Irregular past participles: the -en rule below misses most of them, and one
+# participle among four nouns is a second answer every time.
+IRREG = set("""
+blown grown known thrown drawn flown sewn shown sworn worn torn born
+broken frozen taken given eaten fallen driven written spoken chosen stolen woven
+hidden forgotten beaten bitten ridden risen shaken swollen awoken proven
+begun drunk sung sunk swum won held kept slept felt built burnt dealt meant
+""".split())
+
+# Endings that turn one word into another. Order matters: the longest ending
+# that leaves a real word wins, so "sweetness" is an ABSTRACTION and not a noun
+# that happens to end in -ss.
+DERIV = [
+    ("ly", "ADV"),
+    ("ness", "ABST"), ("ity", "ABST"), ("ment", "ABST"), ("tion", "ABST"),
+    ("sion", "ABST"), ("ance", "ABST"), ("ence", "ABST"), ("ism", "ABST"),
+    ("ship", "ABST"), ("hood", "ABST"), ("dom", "ABST"),
+    ("ing", "VERBF"), ("ed", "VERBF"), ("en", "VERBF"),
+    ("ous", "ADJ"), ("ful", "ADJ"), ("less", "ADJ"), ("ive", "ADJ"),
+    ("able", "ADJ"), ("ible", "ADJ"), ("ical", "ADJ"), ("ic", "ADJ"),
+    ("ish", "ADJ"), ("al", "ADJ"), ("ary", "ADJ"), ("y", "ADJ"),
+]
+
+
+def make_wordclass(known):
+    """There is no part-of-speech tagger in the standard library, so derive one.
+    A word is BASE unless stripping a derivational ending leaves another word in
+    this same vocabulary — CLOUDY is cloud+y, SWEETNESS is sweet+ness, CLASSICAL
+    is classic+al, BLOWN is blow+n. All five words on a board must agree, so the
+    impostor is never the only adjective or the only participle."""
+    def stems(w, suf):
+        base = w[:-len(suf)]
+        if len(base) < 3:
+            return []
+        out = [base, base + "e"]
+        if len(base) > 2 and base[-1] == base[-2]:
+            out.append(base[:-1])                  # running -> run
+        if base.endswith("i"):
+            out.append(base[:-1] + "y")            # happiness -> happy
+        return out
+
+    def cls(w):
+        if w in IRREG:
+            return "VERBF"
+        for suf, tag in DERIV:
+            if len(w) > len(suf) + 2 and w.endswith(suf):
+                if any(s in known for s in stems(w, suf)):
+                    return tag
+        return "BASE"
+    return cls
 
 
 def main():
