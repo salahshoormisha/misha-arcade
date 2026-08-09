@@ -3,219 +3,198 @@
 If a session ended mid-build (usage limit, crash, closed laptop), start here.
 Everything needed to continue is on disk and in git.
 
-**Last updated:** 2026-07-26, after the weekly-limit stop.
+**Last updated:** 2026-08-09.
 
 ---
 
 ## 1. What this is
 
-A wing of ~21 daily puzzle games added to Misha's Midnight Arcade, alongside the
+A wing of daily puzzle games added to Misha's Midnight Arcade, alongside the
 three original cabinets. Misha and David play NYT/OEC/geo daily games together
 every morning; this rebuilds their whole line-up with archives, practice modes,
 a shared daily card, a serverless head-to-head league, a co-op records board and
 a cross-game country passport.
 
-- **Binding spec:** `_build/CONTRACT.md`. §2 core API, §3 the 0–100 `norm`,
+- **Binding spec:** `_build/CONTRACT.md`. §2 core API, §3 the 0-100 `norm`,
   §4 design tokens, §5 registration, §6 data shapes,
   **§7 PERSONAL FLAVOUR — confirmed by the players, follow exactly.**
-- **Researched mechanics** for all 21 source games: `_build/RESEARCH.md` (339 KB,
-  one section per game — exact rules, scoring formulas, share formats, known
-  weaknesses). Machine-readable: `_build/RESEARCH.json`.
+- **Researched mechanics:** `_build/RESEARCH.md` (one section per source game —
+  exact rules, scoring formulas, share formats). Don't re-research.
 - **Live:** https://salahshoormisha.github.io/misha-arcade/
 
 ---
 
-## 2. State of play
+## 2. TEST FIRST — this is the part that matters
 
-### Core (all done, all committed)
-| Path | What |
-|---|---|
-| `core/arcade.js` | daily seeding, stats, streaks, the 0–100 norm, `A.par()`, records, share, duel links, passport, backup |
-| `core/ui.js` | header, modals, toasts, keyboard, result sheet, settings, archive |
-| `core/style.css` | **the design system** — rebuilt 2026-07-26, see §4 |
-| `core/picker.js` | the country type-ahead used by 8 cabinets |
-| `core/worldmap.js` | equirect + globe renderer, click-to-guess, silhouettes |
-| `core/flagart.js` | real vector flag loading/drawing |
-| `core/audio.js` | WebAudio SFX, no files |
-| `core/registry.js` | **the cabinet list — single source of truth for ids.** An entry with `soon: true` is not built yet and renders as a dead row |
-
-### Data (`core/data/`)
-| File | Status |
-|---|---|
-| `countries.js` | ✅ 250 countries — pop, GDP/capita, capital coords, borders, languages |
-| `world.js` | ✅ Natural Earth geometry for 246; every centroid verified inside its country |
-| `flags.js` + `flags/*.svg` | ✅ 250 real vector flags, with colour + feature index |
-| `words.js` | ✅ 1,318 answers / 11,024 valid / 23,568 Letter-Boxed / 56 Persian etymologies |
-| `crosswords.js` | ✅ mini + midi grids with hand-written clues |
-| `connections.js` | ✅ packs (see §5 — packs were corrected after the players' feedback) |
-| `trade.js` | ✅ export composition + per-product top exporters + RCA |
-| `food.js` | ✅ 50 cuisines, 238 dishes, 236 with verified photo URLs |
-| `lingua.js` | ✅ 50+ languages, real sourced text, script-tell hints |
-| `trivia.js` | ✅ question bank for THE DECIDER (149 KB, validated) |
-| `photos.js` | ⚠️ `place` done (185 photos, 84 countries, real coords + clues); `time` only 1850–1899 (48) — see §7.2 |
-| `geogrid.js` | ✅ criteria + rarity + pairs matrix + obviousness prior + buildGrid() |
-
-### Cabinets
-Check reality, not this table: a cabinet is built when
-`games/<id>/index.html` > 300 bytes **and** `games/<id>/game.js` > 3 KB.
+There is a real headless DOM at **`_build/harness.js`** that runs the actual
+pages under JavaScriptCore. It exists so a cabinet can be driven **through its
+own buttons**.
 
 ```bash
-cd /Users/mishasalahshoor/cbai-ops/misha-arcade
-for g in games/*/; do n=$(basename $g); \
-  h=$(stat -f%z $g/index.html 2>/dev/null||echo 0); \
-  j=$(stat -f%z $g/game.js 2>/dev/null||echo 0); \
-  [ "$h" -gt 300 ] && [ "$j" -gt 3000 ] && echo "$n ok" || echo "$n PENDING"; done
+JSC=/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc
+$JSC _build/harness.js -e 'load("_build/t_all.js")'      # every cabinet boots?
+$JSC _build/harness.js -e 'load("_build/t_thirdle.js")'  # one cabinet, in depth
 ```
 
-Built and live (18): wordish, thirdle, mini, midi, quartets, boxed, tradle,
-pick5, connectrade, flagle, globle, outline, atlas, foodguessr, lingua, chrono,
-cluedrop, decider.
-Not yet built (3): geogrid, timeguessr, placeguessr.
+`_build/t_all.js` is the smoke sweep: for each cabinet it parses the **real**
+`index.html`, loads exactly the scripts that page loads in page order, boots,
+and checks the debug hook exists. **Run it before and after any change.**
 
-**After building a cabinet, remove its `soon: true` from `core/registry.js`.**
+### Two traps this harness was built to catch
 
----
+**A silent bail-out.** THE DECIDER shipped broken for days. `gen_trivia2.py`
+switched `core/data/trivia.js` from verbose objects to packed rows and nothing
+updated the reader, so the cabinet hit its own "the question bank didn't load"
+guard and `return`ed out of its IIFE. No crash, no console error — just a polite
+error card. `window.__DC` never existed, which is exactly what `t_all.js` now
+checks for. **Every cabinet has guards like that and every cabinet's data comes
+from a generator that can drift away from it.**
 
-## 3. How to build a remaining cabinet
+**A vacuous sweep.** `A.requestedDay()` (in `core/ui.js`) clamps `?d=` to today,
+because you cannot play tomorrow's puzzle. So a test that walks "232 days of the
+archive" without moving the calendar re-tests today 232 times and passes for the
+wrong reason. One FLAGLE sweep reported 232 days and had actually seen 16 flags.
+Use the calendar shim **before** loading the cabinet:
 
-1. Read `_build/CONTRACT.md` (all of it).
-2. Read your game's section in `_build/RESEARCH.md`.
-3. Copy the shape of `games/wordish/game.js` — it is commented as the reference
-   implementation. `games/flagle/game.js` shows `A.picker` + passport stamps;
-   `games/foodguessr/game.js` shows a multi-round game; `games/mini/game.js`
-   shows a complex custom grid with its own keyboard behaviour.
-4. Files at `games/<id>/index.html` + `game.js`, `<id>` matching the registry.
-5. Expose `window.__XX` debug hooks so it can be driven headlessly.
-6. Verify in the browser before claiming done, at 1280px **and** 375px.
+```js
+H.atDay(300);            // today becomes arcade day 300, so ?d=0..300 resolve
+H.calendar("2027-01-01") // or set a date outright
+H.calendar(null)         // put the real clock back
+```
 
-### Traps this build actually hit — do not reintroduce
-- **`var` initialisers do not hoist.** A function that runs at boot and reads a
-  `var` declared further down the file gets `undefined`. Cost us two cabinets.
-- **Never reveal UI inside `requestAnimationFrame`** — rAF is paused in a
-  background tab, so the result sheet silently never appears.
-- **Fill map countries as separate paths.** One combined path is evaluated under
-  a single nonzero winding rule and floods the canvas.
-- **Bump `?v=N`** on script tags after editing a core file, or the browser
-  serves the old one and your change appears to do nothing.
-- `A.geo` and `A.normName` live in `arcade.js`; `A.picker` in `picker.js`;
-  `A.map`/`A.silhouette` in `worldmap.js`.
-- The browser pane has a **tab cap**. If several agents drive it at once they
-  fight over the active tab. Give browser QA to one agent at a time.
+A harness that calls the function *under* the button proves nothing about the
+button — this arcade already shipped a dead END TURN past 300 passing tests.
 
 ---
 
-## 4. The design system (rebuilt 2026-07-26)
+## 3. State of play
 
-The player's verdict on the first version: *"too visually vibecoded"*, *"too many
-visual bugs"*, and that this made her *"doubt the smoothness and flawlessness of
-the gameplay — which is essential"*. So `core/style.css` was rewritten:
+### Cabinets — 24 built, 21 open to players
 
-- One accent per screen. No glowing text, no gradient headlines, no starfield,
-  no emoji as UI chrome. Depth from layered surfaces + hairlines + soft shadows.
-- Type does the work: tight heavy sans for display, tracked small caps for
-  labels, mono **only** where functional (grid letters, timers, scores).
-- A 4px spacing scale, a fixed type scale, one easing curve, tabular numerals.
-- **Every old CSS variable is aliased**, so cabinets written against the old
-  names still work. Use `var(--ink)`, `var(--s1)`, `var(--hair)`, `var(--sp-3)`,
-  `var(--t-sm)`, `var(--r-md)`, `var(--ease)` — never a literal hex outside
-  canvas drawing code.
-- The sticky header's backdrop is a full-bleed pseudo-element; do not put the
-  background back on `.ac-header` itself or it clips to 880px.
+`soon: true` in `core/registry.js` means *built but not yet opened*; the hub
+renders it as a dead row rather than a broken link. **Clear the flag only when
+the cabinet genuinely works.**
 
----
+| Wing | Cabinets |
+|---|---|
+| **Word** | WORDISHA · THIRDLE · MINI · MIDI · QUARTETS · BOXED IN |
+| **Trade** | TRADLE · PICK 5 · CONNECTRADE |
+| **Geo** | FLAGLE · GEOGRID · GLOBLE · OUTLINE · ATLAS GYM |
+| **Photo** | PLACEGUESSR · FOODGUESSR · (TIMEGUESSR — `soon`) |
+| **Semantic** | LINXICON · (ODD ONE OUT — `soon`) |
+| **The Lab** | PHYLO · (MISALIGNED — `soon`) |
+| **Annexe** | CHRONO · CLUEDROP · LINGUAGUESSR |
+| **The Ring** | THE DECIDER |
 
-## 5. Content decisions the players confirmed
-
-- **Difficulty:** between "solid daily players" and "genuinely strong". A good
-  day should score ≈70–75, an excellent one ≈90. Do not patronise them; do not
-  make 100 routine.
-- **QUARTETS packs:** `general`, `persia` (Persian culture broadly — **light on
-  Shāhnāmeh**, they don't know that lore and it has its own cabinet), `united`
-  (grown to ~20 boards; FOURMATIONS is retired and its football folds in here,
-  minus the boards they found too niche or too obviously four-of-a-kind),
-  `places` (**Cambridge/Boston, London, Edinburgh, Houston** — their four
-  cities), `ai` (AI safety/governance/policy), `jewish` (Jewish culture &
-  Israel). **No office/CBAI pack — they declined it.** Never name real colleagues.
-- **FOURMATIONS is retired** and removed from the hub.
-- They play the dailies **together as a team** far more than against each other,
-  but they are competitive and like knowing how a score compares. Hence both
-  `league/` sections: THE SEASON (head-to-head) and THE TEAM (co-op records,
-  week-on-week form, per-game personal bests) — plus `A.par()` on every result
-  sheet, which is honest that it is a computed prior, not a crowd.
-- **THE DECIDER** exists because they asked for a 1v1 general-knowledge game.
-
----
-
-## 6. Local testing & deploy
-
-A static server runs at **http://localhost:4173** (launch config `misha-arcade`).
-Key pages: `/`, `/daily/`, `/league/`, `/passport/`, `/games/<id>/`.
-Every cabinet supports `?d=<n>` (archive) and `?practice=1`.
-
-Deploy with the script — never by hand:
+Verify reality rather than trusting this table:
 
 ```bash
-./deploy.sh "message" core/ games/foo/ index.html
+$JSC _build/harness.js -e 'load("_build/t_all.js")'
+grep -o 'id: "[a-z0-9]*", soon: true' core/registry.js
+```
+
+### Test suites and where they stand
+
+| Suite | Status |
+|---|---|
+| `t_all.js` | ✅ 23/23 cabinets boot |
+| `t_thirdle.js` | ✅ 193 checks |
+| `t_linxicon.js` | ✅ 131 |
+| `t_phylo.js` | ✅ 109 |
+| `t_decider.js` | ✅ 25 |
+| `t_placeguessr.js` | ✅ 15 |
+| `t_tetrisha.js` | ✅ 9 |
+| `t_flagle.js` | ⚠️ 161/163 — cycle sweep needs `H.atDay`; affinity readout can single out one country |
+| `t_misaligned.js` | ⚠️ 119/122 — BENCH bank too shallow; `soon` not yet cleared |
+| `t_timeguessr.js` | ⚠️ 149/153 — scores too generously vs the contract's norm; share grid mostly black |
+| `t_smoke.js` | ❌ orphan scaffold, throws on a missing `GAME` — repair or delete |
+
+### Data (`core/data/`)
+
+All generated by re-runnable stdlib-only Python in `_build/`. **Never hand-edit
+a generated file — edit its bank and re-run the generator.**
+
+`countries.js` · `world.js` · `flags.js` + 250 SVGs · `words.js` ·
+`crosswords.js` (440 minis, 406 midis) · `connections.js` · `trade.js` ·
+`food.js` · `lingua.js` · `trivia.js` (1,587 questions) · `chrono.js` ·
+`cluedrop.js` · `geogrid.js` · `photos.js` · `phylo.js` · `linxicon.js` +
+`semlinks.js` · `semantic.js` + `semantic-v0..v8.js` (quantised Numberbatch)
+
+---
+
+## 4. What is left
+
+1. **MISALIGNED** — author more BENCH rows (real, cited machine-vs-human
+   benchmark data points) in `_build/mi_bank_extra.py`, re-run
+   `gen_misaligned.py`, get `t_misaligned.js` green, then clear `soon`.
+2. **ODD ONE OUT** — the generator still admits antonym members (`bad` inside a
+   GOOD thread) and decoys that genuinely belong (`CLOUD` for weather). Fix both
+   in `_build/sem_gen_oddone.py`, then clear `soon`. **Fewer clean puzzles beat
+   more murky ones.**
+3. **TIMEGUESSR** — re-calibrate the norm curve down to the contract's target
+   (good day ≈70-75, excellent ≈90), fix the mostly-black share grid, clear `soon`.
+4. **FLAGLE** — rerun the cycle sweep with `H.atDay`; decide on the merits what
+   to do about the affinity readout narrowing to one country.
+5. **QUARTETS pool** — ~110 boards repeats inside four months and they play
+   daily. Partial batches sit in `_build/conn_*.py`; finish them.
+6. `_build/t_smoke.js` — repair or delete.
+
+---
+
+## 5. Content decisions the players confirmed — do not re-decide
+
+- **Difficulty:** between "solid daily players" and "genuinely strong". A good
+  day ≈70-75, excellent ≈90. Don't patronise them; don't make 100 routine.
+- **QUARTETS packs:** `general`, `persia` (**light on Shāhnāmeh — they don't
+  know that lore**), `united` (football; FOURMATIONS retired into it, minus
+  boards where four tiles were obviously one type), `places` (**Cambridge/Boston,
+  London, Edinburgh, Houston**), `ai`, `jewish`. **No office/CBAI pack — they
+  declined it. Never name real colleagues or their employer.**
+- **THE DECIDER:** they asked for a 1v1 general-knowledge game. They also asked
+  for **less art / literature / older cultural history** (now weighted 0.22 /
+  0.30 / 0.55) and for **their cities and heritages to be HARDER** (cities,
+  persia and jewish had zero difficulty-5 questions; now 59 / 41 / 36 at
+  difficulty 4-5). The ladder never moves more than one pip between rungs —
+  that was their "two easy then two hard" complaint.
+- They play the dailies **as a team** far more than against each other, but are
+  competitive and like knowing how a score compares. Hence THE SEASON
+  (head-to-head) *and* THE TEAM (co-op records, form, personal bests), plus
+  `A.par()` on every result sheet — honest that it is a computed prior, not a crowd.
+- **FLAGLE is played on hard mode**: the picker must never show flag thumbnails,
+  or you can type two letters and eye-match the answer. `A.picker(..., {flags:false})`.
+
+---
+
+## 6. Traps that have actually bitten this build
+
+- **`var` initialisers do not hoist.** A function that runs at boot and reads a
+  `var` declared further down gets `undefined`. Cost two cabinets.
+- **Never reveal UI inside `requestAnimationFrame`** — rAF is paused in a
+  background tab, so the result sheet silently never appears. Force a reflow.
+- **Fill map countries as separate canvas paths.** One combined path is
+  evaluated under a single nonzero winding rule and floods the canvas.
+- **Bump `?v=N` AFTER editing**, never before, or you cache the old file.
+- **A generated data file can drift away from its reader** — see §2.
+- `A.geo` and `A.normName` live in `arcade.js`; `A.picker` in `picker.js`;
+  `A.map`/`A.silhouette` in `worldmap.js`; `A.requestedDay`/`A.results` in
+  `ui.js`. A missing dependency usually shows up as a feature silently
+  vanishing, not as an error.
+
+---
+
+## 7. Deploy
+
+```bash
+./deploy.sh "message" core/ games/foo/        # named paths only
 ```
 
 `CLAUDE.md` at the repo root is binding. The big one: **several Claude sessions
 work in this repo at once, so never `git add -A`, never `git add .`, never
-force-push.** Name your paths. This build already swept up another session's
-in-progress MISHANAMEH work once and had to rewrite the commit.
+force-push.** Name your paths.
 
-A background checkpoint loop may be committing `core/data/` and `games/` every
-~60 s while a build runs. Check `git log` before assuming a commit is yours.
+`_build/checkpoint.sh` commits named paths every 90 s while a build runs, so a
+usage limit costs at most 90 seconds of work. Start it before dispatching
+agents; check `git log` before assuming a commit is yours.
 
----
-
-## 7. Known open items — EXACTLY what is left
-
-A weekly usage limit stopped the last wave. Everything below is the remaining work,
-in priority order. Relaunch the saved workflow scripts rather than rewriting the briefs.
-
-### 1. Three cabinets not yet built
-`geogrid`, `timeguessr`, `placeguessr` — all still carry `soon: true` in
-`core/registry.js`, so the Daily Run shows them as pending rather than 404ing.
-**Their data is already done and committed** (`core/data/geogrid.js` 138 KB,
-`core/data/photos.js` 138 KB), so this is game code only.
-
-Relaunch:
-```
-Workflow({scriptPath: "~/.claude/projects/-Users-mishasalahshoor-cbai-ops-misha-arcade/94c0cfc1-e07b-4090-a957-ef69abdd367f/workflows/scripts/arcade-last-three-wf_566379ce-f16.js"})
-```
-**After building each one, delete its `soon: true` from `core/registry.js`.**
-
-### 2. The historical photo set is only half-harvested
-`AD_PHOTOS.place` is finished: 185 photos, 84 countries, every one with real
-geosearch coordinates and visual `clues`. **`AD_PHOTOS.time` only reached
-1850–1899 (48 photos)** — the harvester was cut off. It needs extending to
-1900–2015 at ≥8 per decade. The brief is the `photos-time` job in the workflow
-above; the previous harvester's script is in `_build/`.
-
-TIMEGUESSR is written to read the array's real min/max year at runtime, so it
-works with whatever is present — the set just gets better as it grows.
-
-### 3. The visual QA sweep never ran
-All three polish agents died on the limit. Relaunch:
-```
-Workflow({scriptPath: "~/.claude/projects/-Users-mishasalahshoor-cbai-ops-misha-arcade/94c0cfc1-e07b-4090-a957-ef69abdd367f/workflows/scripts/arcade-packs-and-polish-wf_e4161526-133.js"})
-```
-The `packs` job in it is **already done** (110 boards landed) — delete that job
-from the JOBS array before re-running, or it will redo finished work.
-The two QA jobs sweep every cabinet at 1280px and 375px for horizontal scroll,
-clipped text, blurry canvases, picker suggestions clipped by a parent overflow,
-long country names wrapping badly, and leftover emoji in button labels.
-
-### 4. Smaller things
-- Cache-busters are at `?v=11` everywhere. Bump on any core edit.
-- `games/_shared/` is an empty directory left by an agent; delete it.
-- Some cabinets still carry emoji in their own control labels (the QA sweep in
-  §3 covers this). Emoji in *share grids* is intentional and should stay.
-
----
-
-## 8. Raw inputs (gitignored, re-downloadable)
-
-`_build/countries-110m.json`, `countries-50m.json` — unpkg world-atlas 2.0.2.
-`_build/countries-full.json` — raw.githubusercontent.com/mledoze/countries.
-`_build/RESEARCH.json` — the research corpus in machine-readable form.
+Raw harvester downloads (`_build/sem/*.gz`, `*.f32`, `_build/src/`) are
+gitignored and re-downloadable — the Numberbatch dump alone is 325 MB.
