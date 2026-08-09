@@ -371,7 +371,7 @@
       '<p class="center tiny" style="font-style:italic;color:var(--ink-3)">' + A.esc(answer.s) + "</p>" +
       '<p class="center tiny muted" style="margin-top:var(--sp-2);line-height:1.55">' +
       A.esc(answer.d) + "</p>" +
-      '<p class="center tiny" style="margin-top:var(--sp-3);color:var(--ink-4);' +
+      '<p class="center tiny lineage" style="margin-top:var(--sp-3);color:var(--ink-4);' +
       'letter-spacing:.06em;line-height:1.8">' + lin.map(A.esc).join(" &rsaquo; ") + "</p>";
 
     A.results(ID, practice ? A.PRACTICE : day, {

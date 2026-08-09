@@ -85,6 +85,18 @@
       // puzzle reads as a typo, or as a word list too thin to fill a grid.
       if (alike(w1, w2) || alike(w2, w3) || alike(w1, w3)) continue;
 
+      // WORD ORDER FOLLOWS THE BOARD. `a` and `b` are independent, so on about
+      // half of all days the first word was the LOWER of the two across words:
+      // you pressed a key at the start of your turn and the letter appeared at
+      // the bottom of the grid, then the cursor jumped up to the down word.
+      // Normalising here makes typing order = reading order everywhere, and
+      // makes the answers on the result sheet list top, down, bottom.
+      if (a > b) {
+        var sw = w1; w1 = w3; w3 = sw;
+        var sa = a; a = b; b = sa;
+        var sp = p; p = q; q = sp;
+      }
+
       // geometry: w2 down at column C, rows 0..4; w1 across at row a; w3 at row b
       var C = Math.max(p, q);
       var cells = {}, minC = C, maxC = C;
@@ -480,10 +492,20 @@
 
   /* ── persistence ─────────────────────────────────────────────────────── */
 
-  function save() { if (!practice) A.save(ID, day, { guesses: guesses, cur: cur, keyState: keyState }); }
+  // `sig` stamps the saved board with the puzzle it belongs to. A restored
+  // `cur` is a flat 15-slot array whose meaning depends entirely on which word
+  // is which, so if the generator ever lays a day out differently the old array
+  // would drop letters into the wrong squares — including the two given ones.
+  function sig() { return P.w.join("|"); }
+
+  function save() {
+    if (practice) return;
+    A.save(ID, day, { guesses: guesses, cur: cur, keyState: keyState, sig: sig() });
+  }
 
   function restore() {
     var st = practice ? null : A.load(ID, day);
+    if (st && st.sig && st.sig !== sig()) st = null;   // a different puzzle wrote that
     if (st && st.guesses) {
       guesses = st.guesses;
       // Merged by rank, not overwritten, so the two given letters stay green.

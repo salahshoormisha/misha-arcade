@@ -38,13 +38,21 @@
   white-space: nowrap;
 }
 
-.ladder { padding: var(--sp-2) 0; }
+.ladder {
+  padding: var(--sp-2) 0;
+  /* one number the rung, the ruled-out row and the spine all read, so the
+     three can never drift apart: the width of the rank column */
+  --rk-w: 74px;
+  /* the spine sits in the GUTTER between the two columns, not on top of the
+     rank label — 16px page padding + the rank column + half the 12px gap */
+  --spine-x: calc(var(--sp-4) + var(--rk-w) + 6px);
+}
 
 /* ── one rung ─────────────────────────────────────────────────────────── */
 
 .rung {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr);
+  grid-template-columns: var(--rk-w) minmax(0, 1fr);
   align-items: baseline;
   gap: var(--sp-3);
   padding: 7px var(--sp-4);
@@ -54,7 +62,7 @@
    lineage is confirmed, so the ladder reads as one object rather than rows */
 .rung::before {
   content: "";
-  position: absolute; left: 66px; top: 0; bottom: 0;
+  position: absolute; left: var(--spine-x); top: 0; bottom: 0;
   width: 1px; background: var(--hair);
 }
 .rung:first-child::before { top: 50%; }
@@ -94,7 +102,7 @@
 .rung.edge::before { background: var(--accent); opacity: .5; }
 .rung.edge::after {
   content: "";
-  position: absolute; left: 63px; top: calc(50% - 3px);
+  position: absolute; left: calc(var(--spine-x) - 3px); top: calc(50% - 3px);
   width: 7px; height: 7px; border-radius: var(--r-full);
   background: var(--accent);
 }
@@ -111,10 +119,18 @@
 
 .ruled {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr);
+  grid-template-columns: var(--rk-w) minmax(0, 1fr);
   align-items: baseline;
   gap: var(--sp-3);
   padding: 2px var(--sp-4) var(--sp-2);
+  position: relative;
+}
+/* the spine runs through here too, or the line breaks where the crossed-off
+   branches hang off it and the ladder stops reading as one object */
+.ruled::before {
+  content: "";
+  position: absolute; left: var(--spine-x); top: 0; bottom: 0;
+  width: 1px; background: var(--hair);
 }
 .ruled .rk {
   font-family: var(--mono);
@@ -191,9 +207,8 @@
 /* ── narrow phones ────────────────────────────────────────────────────── */
 
 @media (max-width: 400px) {
-  .rung, .ruled { grid-template-columns: 60px minmax(0, 1fr); gap: var(--sp-2); }
-  .rung::before { left: 53px; }
-  .rung.edge::after { left: 50px; }
+  .ladder { --rk-w: 60px; --spine-x: calc(var(--sp-4) + var(--rk-w) + 4px); }
+  .rung, .ruled { gap: var(--sp-2); }
   .rung .rk, .ruled .rk { font-size: 9px; letter-spacing: .08em; }
   .gr { gap: var(--sp-2); }
   .gr .bars i { width: 4px; }

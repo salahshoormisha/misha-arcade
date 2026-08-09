@@ -333,6 +333,9 @@ def main():
     hubset = {w: frozenset(d.keys()) for w, d in resp_of.items()}
     EMPTY = frozenset()
 
+    known = set(vocab)
+    wordclass = make_wordclass(known)
+
     def playable(i, cap):
         return i < cap and vocab[i] not in bad and len(vocab[i]) >= 3
 
@@ -342,22 +345,31 @@ def main():
                   if playable(i, MAXRANK) and resp_of.get(i)]
     rival_pool = [i for i in range(min(RIVAL_SCAN, n))
                   if i < MAXRANK and vocab[i] not in STOP and len(vocab[i]) >= 3]
+    rival_pre = [V[i][:RIVAL_PRE] for i in rival_pool]
 
     # ── the rival-thread search ─────────────────────────────────────────────
     # thread(S) = max over the common vocabulary of min_{w in S} cos(w, t): the
     # best name that exists for this foursome, whether or not anyone wrote it
-    # down. Two stages so it is affordable — a centroid pre-screen over the whole
-    # pool, then the exact min-cosine over the survivors.
+    # down. This is the expensive thing in the script and it runs five times per
+    # candidate board, so it narrows in three passes: 96 dimensions over the
+    # whole pool, then all 300 over what survives, then the exact min-cosine to
+    # each of the four over what survives that.
     def thread(ids, banned):
         c = unit(ids)
+        cpre = c[:RIVAL_PRE]
         pre = []
-        for t in rival_pool:
+        for k in range(len(rival_pool)):
+            pre.append((sum(map(mul, cpre, rival_pre[k])), k))
+        pre.sort(reverse=True)
+        mid = []
+        for _, k in pre[:RIVAL_MID]:
+            t = rival_pool[k]
             if t in banned:
                 continue
-            pre.append((dot(c, t), t))
-        pre.sort(reverse=True)
+            mid.append((dot(c, t), t))
+        mid.sort(reverse=True)
         best = (-2.0, -1)
-        for _, t in pre[:RIVAL_KEEP]:
+        for _, t in mid[:RIVAL_KEEP]:
             m = 2.0
             for i in ids:
                 x = cos(i, t)
@@ -386,6 +398,7 @@ def main():
 
     rounds = []
     scanned = 0
+    uses = defaultdict(int)
     stat = defaultdict(int)
     raw = open(os.path.join(SEM, "oddone_raw.tsv"), "w", encoding="utf-8")
 
@@ -398,12 +411,18 @@ def main():
             sys.stdout.flush()
 
         mem = [c for c, cnt in sorted(cue_of[h].items(), key=lambda kv: -kv[1])
-               if cnt >= MIN_CUE and playable(c, MAXRANK) and not samestem(vocab[c], vocab[h])]
+               if cnt >= MIN_CUE and playable(c, MAXRANK) and not samestem(vocab[c], vocab[h])
+               and uses[c] < MAX_USES]
         mem = mem[:POOL_MEMBERS]
         if len(mem) < 4:
             continue
         hc = {c: cos(c, h) for c in mem}
-        mem = [c for c in mem if hc[c] >= MEM_HUB_MIN]
+        mem = [c for c in mem if MEM_HUB_MIN <= hc[c] <= MEM_HUB_MAX]
+        # A member the others all evoke is not a member of the thread, it is
+        # another name for it — and a player will happily say so. SPORT among
+        # touchdown/tackle/stadium; WEATHER among hail/storm/cloudy.
+        mem = [c for c in mem
+               if sum(1 for o in mem if o != c and c in hubset.get(o, EMPTY)) < 3]
         if len(mem) < 4:
             stat["hub: too few members near the hub"] += 1
             continue
@@ -425,6 +444,8 @@ def main():
                 continue
             if len(set(shape(vocab[x]) for x in q)) != 1:
                 continue
+            if len(set(wordclass(vocab[x]) for x in q)) != 1:
+                continue
             if any(samestem(vocab[q[a]], vocab[q[b]]) for a in range(4) for b in range(a + 1, 4)):
                 continue
             # prefer: everyone well inside the thread, evenly, and distinct
@@ -439,6 +460,7 @@ def main():
             ids = list(q)
             words = [vocab[i] for i in ids]
             sh = shape(words[0])
+            wc = wordclass(words[0])
             minhub = min(hc[i] for i in ids)
             cent = unit(ids)
             banned = set(cue_of[h].keys()) | {h} | set(ids)
@@ -452,7 +474,9 @@ def main():
                 if cand in banned:
                     continue
                 cw = vocab[cand]
-                if shape(cw) != sh:
+                if shape(cw) != sh or wordclass(cw) != wc:
+                    continue
+                if uses[cand] >= MAX_USES:
                     continue
                 if samestem(cw, vocab[h]) or any(samestem(cw, w) for w in words):
                     continue

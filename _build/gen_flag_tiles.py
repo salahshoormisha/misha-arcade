@@ -30,17 +30,25 @@ HOW
   2. Decode the PNG with zlib + numpy only (read_png below is a complete
      non-interlaced 8-bit PNG reader — no Pillow, no cairo).
   3. Split the flag rectangle into the same 3x2 the game draws and score each
-     tile on three axes:
-       detail  — mean Sobel gradient magnitude. Emblems, text, coats of arms.
-       palette — how many quantised colours cover >=3% of the tile. Bands.
-       ident   — how FEW other flags have a similar-looking tile in the same
-                 position. This is the one that actually matters: a tile of
-                 plain red is shared with 40 other flags and tells you nothing;
-                 Brazil's globe is shared with none and ends the puzzle.
-  4. Rank the six tiles ascending, MERGING near-ties, and store the ranks.
-     Ties matter: a plain tricolour measures flat, all six ranks come out 0, and
-     the game falls back to the day's seeded shuffle — i.e. it degrades exactly
-     to flagle.io's behaviour on the flags where there is nothing to rank.
+     tile on three axes, all measured WITHIN the flag:
+       detail  — mean gradient magnitude. Emblems, text, coats of arms, stars.
+       palette — how many quantised colours cover >=3% of the tile. Bands and
+                 boundaries; a tile of one flat colour scores 1.
+       odd     — how far the tile's mean colour sits from the whole flag's mean
+                 colour. A tile that looks like the rest of the flag adds
+                 nothing you didn't already have.
+     An earlier draft scored a fourth axis, "how few OTHER flags have a similar
+     tile in this position". It reads well but measures badly: Indonesia is a
+     plain red-over-white bicolour whose six tiles are pairwise identical, and
+     positional corpus rarity gave them six DIFFERENT ranks (plain red at
+     top-left had 6 look-alikes, plain red at top-centre had 2 — an artefact of
+     which flags happen to be red where, not a fact about Indonesia). Dropped.
+  4. Rank the six tiles ascending, merging ties on an ABSOLUTE threshold, and
+     store the ranks. Ties matter and the threshold has to be absolute: a plain
+     tricolour has to come out all-zeros so the game falls back to the day's
+     seeded shuffle — i.e. degrade exactly to flagle.io's behaviour on the flags
+     where there is genuinely nothing to rank. A relative threshold instead
+     amplifies antialiasing noise into a confident, meaningless ordering.
 
 OUTPUT
   Rewrites core/data/flags.js in place, adding `"t":[r0..r5]` to every entry
@@ -75,8 +83,9 @@ SVG_DIR = os.path.join(ROOT, "core", "data", "flags")
 BOX = 512          # qlmanage thumbnail box, px
 COLS, ROWS = 3, 2  # FLAGLE's tile grid
 SIG = 12           # tile signature is SIG x SIG RGB
-TIE = 0.055        # ranks merge when the gap is under this share of the range
-W_DETAIL, W_PALETTE, W_IDENT = 0.45, 0.18, 0.37   # how the three axes combine
+TIE = 0.060        # two tiles share a rank when their info differs by less
+W_DETAIL, W_PALETTE, W_ODD = 0.55, 0.20, 0.25     # how the three axes combine
+P_DETAIL, P_ODD = 90, 88                          # percentile that saturates each
 
 
 # ── PNG: a complete 8-bit non-interlaced reader, stdlib + numpy ──────────────
@@ -245,14 +254,16 @@ def measure(im, box):
 
 
 def rank(vals):
-    """Ascending ranks 0..5, near-equal values sharing a rank."""
-    lo, hi = min(vals), max(vals)
-    span = hi - lo
+    """Ascending ranks 0..5, values within TIE of each other sharing a rank.
+
+    The threshold is absolute, deliberately — see the module docstring. A flag
+    whose six tiles all measure within TIE comes out [0,0,0,0,0,0], which is the
+    signal FLAGLE reads as "nothing to rank here, use the seeded shuffle"."""
     order = sorted(range(len(vals)), key=lambda k: vals[k])
     out = [0] * len(vals)
     r = 0
     for n, k in enumerate(order):
-        if n and (span <= 0 or (vals[k] - vals[order[n - 1]]) / span > TIE):
+        if n and (vals[k] - vals[order[n - 1]]) > TIE:
             r += 1
         out[k] = r
     return out
@@ -333,29 +344,28 @@ def main():
     if not order:
         sys.exit("nothing rendered — is qlmanage available?")
 
-    # ident: how few OTHER flags have a similar tile in the same position.
-    # Stacked per position so the comparison is like-for-like: seeing tile 0
-    # only ever narrows against other flags' tile 0.
-    ident = {i: [0.0] * (COLS * ROWS) for i in order}
-    for k in range(COLS * ROWS):
-        M = np.array([sigs[i][k] for i in order])          # N x (SIG*SIG*3)
-        # mean per-channel absolute difference between every pair of tiles
-        d = np.abs(M[:, None, :] - M[None, :, :]).mean(axis=2)
-        near = (d < 0.085).sum(axis=1) - 1                 # drop self
-        for n, i in enumerate(order):
-            ident[i][k] = float(near[n])
+    # odd: how far each tile's mean colour is from the flag's own mean colour,
+    # as a fraction of the RGB cube's diagonal. Computed off the cached tile
+    # signatures, so tuning it needs no re-render.
+    N = COLS * ROWS
+    odd = {}
+    for i in order:
+        means = [np.asarray(sigs[i][k]).reshape(SIG, SIG, 3).mean(axis=(0, 1)) for k in range(N)]
+        whole = np.mean(means, axis=0)
+        odd[i] = [float(np.linalg.norm(m - whole) / np.sqrt(3.0)) for m in means]
 
-    dmax = max(max(detail[i]) for i in order) or 1.0
-    imax = max(max(ident[i]) for i in order) or 1.0
+    dscale = float(np.percentile([v for i in order for v in detail[i]], P_DETAIL)) or 1.0
+    oscale = float(np.percentile([v for i in order for v in odd[i]], P_ODD)) or 1.0
+    print("saturation points: detail p%d=%.3f  odd p%d=%.3f" % (P_DETAIL, dscale, P_ODD, oscale))
 
     ranks, flat, info_of = {}, 0, {}
     for i in order:
         info = []
-        for k in range(COLS * ROWS):
-            d = min(1.0, detail[i][k] / (dmax * 0.55))     # emblems saturate early
+        for k in range(N):
+            d = min(1.0, detail[i][k] / dscale)
             p = min(1.0, (palette[i][k] - 1) / 4.0)
-            u = 1.0 - min(1.0, ident[i][k] / (imax * 0.35))
-            info.append(W_DETAIL * d + W_PALETTE * p + W_IDENT * u)
+            o = min(1.0, odd[i][k] / oscale)
+            info.append(W_DETAIL * d + W_PALETTE * p + W_ODD * o)
         info_of[i] = info
         r = rank(info)
         ranks[i] = r
@@ -364,7 +374,11 @@ def main():
 
     print("flat flags (no rankable tile, seeded shuffle stands): %d" % flat)
     print("ranked flags: %d" % (len(order) - flat))
-    for iso in ("JP", "BR", "US", "CA", "PA", "FR", "NP", "ZA", "IR", "GB", "ID", "MC"):
+    bands = {}
+    for i in order:
+        bands[max(ranks[i])] = bands.get(max(ranks[i]), 0) + 1
+    print("distinct ranks per flag: %s" % {k + 1: v for k, v in sorted(bands.items())})
+    for iso in ("JP", "BR", "US", "CA", "PA", "FR", "NP", "ZA", "IR", "GB", "ID", "MC", "TR", "SA"):
         if iso in ranks:
             print("  %s %s" % (iso, ranks[iso]))
 
@@ -374,9 +388,9 @@ def main():
                 print("%s: not measured" % iso)
                 continue
             print("\n%s  rank=%s" % (iso, ranks[iso]))
-            for k in range(COLS * ROWS):
-                print("   tile %d  detail %7.3f  palette %d  ident %5.0f  info %.3f"
-                      % (k, detail[iso][k], palette[iso][k], ident[iso][k], info_of[iso][k]))
+            for k in range(N):
+                print("   tile %d  detail %7.3f  palette %d  odd %.3f  info %.3f"
+                      % (k, detail[iso][k], palette[iso][k], odd[iso][k], info_of[iso][k]))
 
     if dry or probe:
         return
