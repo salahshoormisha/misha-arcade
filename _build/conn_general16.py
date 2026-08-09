@@ -88,4 +88,44 @@ BOARDS = [
  "epilogue": "SPIDER is a rest before it is a card game, and SHANGHAI is a game before it is a finish.",
 },
 
+{
+ "title": "Silly Point",
+ "diff": 4,
+ "groups": [
+   {"name": "___ SLIP", "tiles": ["FREUDIAN", "PINK", "COW", "GYM"],
+    "note": "Freudian slip, pink slip, cowslip, gymslip. Only one of them is a flower."},
+   {"name": "WAYS TO BE OUT IN CRICKET", "tiles": ["BOWLED", "RUN OUT", "HIT WICKET", "TIMED OUT"],
+    "note": "Hit wicket means you knocked your own bails off, usually with the bat."},
+   {"name": "FIELDING POSITIONS IN CRICKET", "tiles": ["GULLY", "COVER", "THIRD MAN", "FINE LEG"],
+    "note": "Third man stands behind the slips; fine leg is the same idea, other side."},
+   {"name": "SPORTING WORDS FOR ZERO", "tiles": ["DUCK", "LOVE", "BAGEL", "GOOSE EGG"],
+    "note": "Duck's egg, goose egg, bagel. Nothing has always been shaped like food."},
+ ],
+ "traps": [
+   ["COVER", 0, "A cover slip is the little glass square that goes over a microscope slide"],
+   ["DUCK", 1, "Out for a duck is how everybody says it, so DUCK reads as a dismissal"],
+ ],
+ "epilogue": "COVER takes SLIP under a microscope, and out for a DUCK is a dismissal. Count, do not nod.",
+},
+
+{
+ "title": "Respawn",
+ "diff": 3,
+ "groups": [
+   {"name": "WHAT AN ARCADE CABINET FLASHES", "tiles": ["GAME OVER", "INSERT COIN", "HIGH SCORE", "PLAYER ONE"],
+    "note": "Three of them are instructions. One is only the bad news."},
+   {"name": "ON A PINBALL TABLE", "tiles": ["FLIPPER", "BUMPER", "PLUNGER", "TILT"],
+    "note": "Tilt is a real switch: nudge the table too hard and it kills the ball."},
+   {"name": "VERBS GAMING TOOK OVER", "tiles": ["NERF", "BUFF", "CAMP", "GRIND"],
+    "note": "Nerf, buff, camp, grind. Three were verbs already and one was a foam toy."},
+   {"name": "STOOD IN AN ARCADE IN 1982", "tiles": ["ASTEROIDS", "CENTIPEDE", "TEMPEST", "JOUST"],
+    "note": "Atari made three of them. Williams made the one with the ostrich."},
+ ],
+ "traps": [
+   ["TILT", 2, "Going on tilt is the verb every player uses for losing their head entirely"],
+   ["INSERT COIN", 1, "A pinball table wants a coin first too, and says so in the same red letters"],
+ ],
+ "epilogue": "TILT is a state of mind now, and INSERT COIN is written on both machines. 1982 still wants four.",
+},
+
 ]
