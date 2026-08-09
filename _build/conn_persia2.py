@@ -16,8 +16,8 @@ BOARDS = [
  "title": "Sabzi Khordan",
  "diff": 3,
  "groups": [
-   {"name": "___ GARDEN", "tiles": ["BEER", "ROOF", "ROCK", "WINTER"],
-    "note": "Beer, roof, rock, winter. Only one of them has ever grown anything."},
+   {"name": "___ POT", "tiles": ["JACK", "FLOWER", "MELTING", "STOCK"],
+    "note": "Jackpot, flowerpot, melting pot, stockpot. Only one of them has ever held soup."},
    {"name": "ALSO ON THE SABZI PLATE", "tiles": ["RADISH", "FETA", "WALNUTS", "SCALLIONS"],
     "note": "The plate is not only herbs. Salt cheese and walnuts do the heavy lifting."},
    {"name": "PERSIAN HERB NAMES", "tiles": ["TARKHOON", "REYHAN", "SHEVID", "TAREH"],

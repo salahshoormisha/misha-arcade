@@ -202,7 +202,7 @@ POOL_MEMBERS = 40     # the strongest members considered
 QUAD_TOP = 26         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
-MEM_HUB_SPREAD = 0.33 # ...and no member may be a straggler relative to the rest
+MEM_HUB_SPREAD = 0.36 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
 MEM_PAIR_MIN = 0.215  # FAULT C. THE FOUR MUST BE FOUR. This was -0.02, which is
                       # to say it was nothing, and it is why AMOUNT stood among
@@ -261,7 +261,12 @@ MAX_USES = 4          # times one word may appear anywhere in the archive
 BOARD_OVERLAP = 1     # words two shipped boards may have in common
 HUB_APART = 0.66      # ...and no two threads may be this close: BUG and INSECT
                       # ran the same board twice with two words changed.
-TARGET = 1500         # rounds to stop at (4 to a day)
+TARGET = 1500         # candidate rounds to stop at
+PER_DAY = 3           # rounds a player is dealt each morning. Three, not four:
+                      # the registry's own parMs is 150 s, which is a comfortable
+                      # 50 s a round at three and a scramble at four — and after
+                      # the hand gate the archive is short enough that a fourth
+                      # round a day would come round again a third sooner.
 DECOY_SCAN = 8600     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
 NAME_COVER = 2        # ...but may be evoked by at most this many of the four
@@ -1134,25 +1139,58 @@ def main():
 
     raw.close()
 
-    # ── deal into days: four rounds, one from each quartile, easy -> hard ────
-    rounds.sort(key=lambda r: r["hard"])
-    ndays = len(rounds) // 4
-    q = [rounds[i * ndays:(i + 1) * ndays] for i in range(4)]
+    # ── THE HAND GATE ────────────────────────────────────────────────────────
+    # Everything above is a measurement, and there is a class of broken board no
+    # measurement here can see. MERMAID among dolphin / whale / shark with
+    # MONSTER as the impostor: the vectors have no idea that two of those are
+    # mythical and three are animals, and neither does free association. PAINT
+    # among pink / orange / rouge with PASTE: a substance among three colours.
+    # Both boards clear every test in this file and both are unplayable.
+    #
+    # So the last gate is a person. Every candidate is written to sem/oddone_
+    # pool.txt in plain English; a human plays it and writes the ones that hold
+    # up into _build/oddone_keep.txt, one signature per line. ONLY BOARDS ON
+    # THAT LIST SHIP. A board added by a later re-run is not on the list, so it
+    # cannot reach the archive unread — which is the safe direction to fail.
+    # Delete the file to ship the whole pool (that is how the pool gets made).
+    def sig(r):
+        return "%s:%s+%s" % (vocab[r["hub"]],
+                             "/".join(sorted(vocab[i] for i in r["ids"])),
+                             vocab[r["dec"]])
+
+    write_pool(rounds, vocab, sig)
+    keepfile = os.path.join(HERE, "oddone_keep.txt")
+    kept, kept_names = rounds, "every candidate (no keep list)"
+    if os.path.exists(keepfile):
+        keep = set()
+        for line in open(keepfile, encoding="utf-8"):
+            line = line.split("#")[0].strip()
+            if line:
+                keep.add(line)
+        kept = [r for r in rounds if sig(r) in keep]
+        unseen = keep - set(sig(r) for r in rounds)
+        kept_names = "%d of %d candidates on the keep list (%d listed boards no " \
+                     "longer generated)" % (len(kept), len(rounds), len(unseen))
+
+    # ── deal into days: PER_DAY rounds, one from each band, easy -> hard ─────
+    kept.sort(key=lambda r: r["hard"])
+    ndays = len(kept) // PER_DAY
+    q = [kept[i * ndays:(i + 1) * ndays] for i in range(PER_DAY)]
     days = []
     for i in range(ndays):
-        days.append([q[0][i], q[1][i], q[2][i], q[3][i]])
-    # One hub may now contribute two boards, and two boards off SCHOOL on the
-    # same morning would read as a mistake. Swap within the quartile until no
-    # day names the same thread twice.
-    for lane in range(4):
+        days.append([q[k][i] for k in range(PER_DAY)])
+    # One hub may contribute several boards, and two boards off SCHOOL on the
+    # same morning would read as a mistake. Swap within the band until no day
+    # names the same thread twice.
+    for lane in range(PER_DAY):
         for i in range(ndays):
-            hubs_here = set(days[i][k]["hub"] for k in range(4) if k != lane)
+            hubs_here = set(days[i][k]["hub"] for k in range(PER_DAY) if k != lane)
             if days[i][lane]["hub"] not in hubs_here:
                 continue
             for j in range(ndays):
                 if j == i:
                     continue
-                other = set(days[j][k]["hub"] for k in range(4) if k != lane)
+                other = set(days[j][k]["hub"] for k in range(PER_DAY) if k != lane)
                 if days[i][lane]["hub"] in other or days[j][lane]["hub"] in hubs_here:
                     continue
                 days[i][lane], days[j][lane] = days[j][lane], days[i][lane]
@@ -1163,7 +1201,7 @@ def main():
     flat = []
     dayidx = []
     for d in days:
-        dayidx.append([len(flat) + k for k in range(4)])
+        dayidx.append([len(flat) + k for k in range(PER_DAY)])
         flat.extend(d)
 
     write_js(flat, dayidx, vocab)
@@ -1172,6 +1210,8 @@ def main():
 
     lines = ["hubs worth trying          : %d" % len(hubs),
              "hubs scanned               : %d" % scanned,
+             "candidates generated       : %d" % len(rounds),
+             "hand gate                  : %s" % kept_names,
              "rounds shipped             : %d" % len(flat),
              "days shipped               : %d" % len(dayidx),
              "distinct hubs              : %d" % len(set(r["hub"] for r in flat))]
@@ -1196,6 +1236,21 @@ def main():
     with open(os.path.join(SEM, "oddone_report.txt"), "w") as f:
         f.write(txt)
     sys.stdout.write(txt)
+
+
+def write_pool(rounds, vocab, sig):
+    """Every candidate, in plain English, with its signature — the sheet a human
+    plays through before any of it reaches the archive. Build artifact."""
+    with open(os.path.join(SEM, "oddone_pool.txt"), "w", encoding="utf-8") as f:
+        f.write("# Every board the generator would ship. Play each one; put the\n"
+                "# signature of the ones with exactly ONE defensible answer into\n"
+                "# _build/oddone_keep.txt. Nothing else reaches the archive.\n")
+        for r in sorted(rounds, key=lambda r: (vocab[r["hub"]], r["hard"])):
+            f.write("%s\n    %-56s odd=%-12s names: %s\n" % (
+                sig(r),
+                " ".join(vocab[i].upper() for i in r["ids"]),
+                vocab[r["dec"]].upper(),
+                " / ".join([vocab[r["hub"]]] + [vocab[w] for w in r["wrong"]])))
 
 
 def write_tsv(flat, vocab):
@@ -1246,6 +1301,10 @@ def write_js(flat, days, vocab):
                 "   the hub by a single person in either direction; and a search of the common\n"
                 "   vocabulary for the best possible NAME of every rival foursome, which the\n"
                 "   true foursome had to beat outright.\n"
+                "   AND THEN A PERSON PLAYED IT. Measurement cannot see that MERMAID is\n"
+                "   mythical among three sea animals, or PAINT a substance among three\n"
+                "   colours. Only boards a human played and kept — _build/oddone_keep.txt —\n"
+                "   are here; the whole generated pool is _build/sem/oddone_pool.txt.\n"
                 "   =========================================================================== */\n")
         f.write("window.AD_ODDONE = { rounds: [\n")
         for r in flat:

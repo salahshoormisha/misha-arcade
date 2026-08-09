@@ -13,16 +13,16 @@ BOARDS = [
     "note": "Earle Dickson invented the Band-Aid for his accident-prone wife."},
    {"name": "WORDS MEANING DIZZY", "tiles": ["GIDDY", "WOOZY", "REELING", "SWIMMING"],
     "note": "Giddy first meant possessed by a god, which is a stronger claim."},
-   {"name": "___ HEAD", "tiles": ["EGG", "HOT", "FIGURE", "SPEAR"],
-    "note": "Egghead, hothead, figurehead, spearhead. Only one actually leads."},
+   {"name": "___ BEAT", "tiles": ["HEART", "OFF", "DOWN", "UP"],
+    "note": "Heartbeat, offbeat, downbeat, upbeat. The downbeat is the one the conductor gives."},
    {"name": "IN THE EAR", "tiles": ["HAMMER", "ANVIL", "STIRRUP", "DRUM"],
     "note": "Malleus, incus and stapes translate as hammer, anvil and stirrup."},
  ],
  "traps": [
-   ["HAMMER", 2, "A hammerhead is the shark everyone can draw, and the word is right there"],
-   ["DRUM", 2, "A drumhead is the skin you hit, and a drumhead trial is the fast kind"],
+   ["HEARING", 3, "HEARING is the one word on this board that is unarguably about the ear"],
+   ["DRUM", 2, "A drumbeat is the plainest beat there is, and the eardrum is the joke"],
  ],
- "epilogue": "HAMMER and DRUM both take HEAD. Hammer, anvil and stirrup are the three smallest bones you own.",
+ "epilogue": "HEARING is an ear word and DRUM takes BEAT. Hammer, anvil and stirrup are the smallest bones you own.",
 },
 
 {
@@ -133,7 +133,7 @@ BOARDS = [
     "note": "A lozenge was a diamond shape long before it was a throat sweet."},
    {"name": "MEDICINES FROM PLANTS", "tiles": ["ASPIRIN", "MORPHINE", "QUININE", "DIGITALIS"],
     "note": "Willow bark, poppy, cinchona, foxglove. Every one of them grew first."},
-   {"name": "TIME ___", "tiles": ["ZONE", "LAPSE", "PIECE", "TABLE"],
+   {"name": "PUT TIME IN FRONT", "tiles": ["ZONE", "LAPSE", "PIECE", "TABLE"],
     "note": "Timezone, time lapse, timepiece, timetable. Only one of them runs late."},
    {"name": "ONCE A BRAND NAME", "tiles": ["ESCALATOR", "TRAMPOLINE", "THERMOS", "ZIPPER"],
     "note": "Every one of them was somebody's trademark before it was a plain noun."},
@@ -151,18 +151,18 @@ BOARDS = [
  "groups": [
    {"name": "___ BONE", "tiles": ["WISH", "FUNNY", "HERRING", "TROM"],
     "note": "Wishbone, funny bone, herringbone, trombone. The funny bone is a nerve."},
-   {"name": "ON A BICYCLE", "tiles": ["SPOKE", "CHAIN", "MUDGUARD", "PANNIER"],
-    "note": "Spoke, chain, mudguard, pannier. In America two of them have other names."},
+   {"name": "WHAT YOU PUT ON A HORSE", "tiles": ["BRIDLE", "GIRTH", "BIT", "REINS"],
+    "note": "The girth is the strap under the belly, and the only thing holding the rest on."},
    {"name": "___ CAP", "tiles": ["KNEE", "MAD", "SKULL", "ICE"],
     "note": "Kneecap, madcap, skullcap, ice cap. Only one of them is also a plant."},
    {"name": "TYPES OF JOINT IN THE BODY", "tiles": ["HINGE", "PIVOT", "SADDLE", "SOCKET"],
     "note": "The thumb is a saddle joint, which is why it can face the other fingers."},
  ],
  "traps": [
-   ["SADDLE", 1, "A bicycle saddle is the first thing anybody adjusts, and it belongs on that list"],
+   ["SADDLE", 1, "A saddle is the first thing anybody puts on a horse, and the tack is right there"],
    ["KNEE", 3, "The knee is the largest joint in the body, and a hinge, so it reads both ways"],
  ],
- "epilogue": "SADDLE is on the bicycle and KNEE takes CAP. The last group wants the type, not the example.",
+ "epilogue": "SADDLE goes on a horse and KNEE takes CAP. The last group wants the type of joint, not an example.",
 },
 
 {

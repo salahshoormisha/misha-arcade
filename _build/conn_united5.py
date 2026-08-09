@@ -14,7 +14,7 @@ BOARDS = [
  "title": "Easter Road",
  "diff": 2,
  "groups": [
-   {"name": "___ ROAD", "tiles": ["EASTER", "RING", "SILK", "ABBEY"],
+   {"name": "EACH ONE TAKES ROAD", "tiles": ["EASTER", "RING", "SILK", "ABBEY"],
     "note": "Hibs play at Easter Road. The rest carry traffic, trade and the Beatles."},
    {"name": "GLASGOW GROUNDS", "tiles": ["IBROX", "PARKHEAD", "HAMPDEN", "FIRHILL"],
     "note": "Firhill is Partick Thistle's. Hampden has been Scotland's since 1903."},

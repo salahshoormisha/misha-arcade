@@ -58,7 +58,7 @@ BOARDS = [
     "note": "Screening the ball and shielding it are the same act, differently sold."},
    {"name": "___ WALL", "tiles": ["SEA", "FIRE", "DRY", "CAVITY"],
     "note": "Seawall, firewall, dry wall, cavity wall. The ten-yard one is not listed."},
-   {"name": "SET ___", "tiles": ["PIECE", "BACK", "SQUARE", "POINT"],
+   {"name": "SET COMES FIRST", "tiles": ["PIECE", "BACK", "SQUARE", "POINT"],
     "note": "Set piece, setback, set square, set point. Only one of them is a plan."},
  ],
  "traps": [

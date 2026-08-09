@@ -153,8 +153,8 @@ BOARDS = [
  "groups": [
    {"name": "___ SUIT", "tiles": ["SWIM", "TRACK", "LAW", "BOILER"],
     "note": "A boiler suit in Britain is a pair of coveralls in America."},
-   {"name": "___ CASE", "tiles": ["PENCIL", "BRIEF", "STAIR", "NUT"],
-    "note": "Pencil case, briefcase, staircase, nutcase. Only one holds a rubber."},
+   {"name": "___ TOP", "tiles": ["TANK", "LAP", "ROOF", "HILL"],
+    "note": "Tank top, laptop, rooftop, hilltop. Only one of them is knitwear in Britain."},
    {"name": "MEANS 'NOT VERY GOOD'", "tiles": ["NAFF", "DIRE", "GRIM", "RUBBISH"],
     "note": "Four verdicts, all of them delivered in the same flat tone of voice."},
    {"name": "TWO DIFFERENT GARMENTS", "tiles": ["PANTS", "VEST", "JUMPER", "SUSPENDERS"],
@@ -162,9 +162,9 @@ BOARDS = [
  ],
  "traps": [
    ["PANTS", 2, "Pants is British for disappointing before it is anything anybody wears"],
-   ["BRIEF", 3, "Briefs are underwear, so BRIEF reads as one more garment with a double life"],
+   ["TANK", 3, "A tank top is a sleeveless jumper in Britain and a sleeveless shirt in America"],
  ],
- "epilogue": "PANTS is also British for rubbish and BRIEFS are underwear. Only four are two garments at once.",
+ "epilogue": "PANTS is British for rubbish and a TANK TOP changes garment at the border. Only four are two things at once.",
 },
 
 ]

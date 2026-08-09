@@ -9,8 +9,8 @@ BOARDS = [
  "title": "Excess Baggage",
  "diff": 3,
  "groups": [
-   {"name": "___ CASE", "tiles": ["BRIEF", "STAIR", "NUT", "BOOK"],
-    "note": "Briefcase, staircase, nutcase, bookcase. Only one of them travels."},
+   {"name": "___ CLASS", "tiles": ["FIRST", "ECONOMY", "MASTER", "WORKING"],
+    "note": "First class, economy class, masterclass, working class. Only two get you a seat."},
    {"name": "WHAT THE DEPARTURE SCREEN SAYS", "tiles": ["BOARDING", "DELAYED", "FINAL CALL", "ON TIME"],
     "note": "Four states of an orange dot-matrix. Only one of them means go."},
    {"name": "INSIDE AN AIRLINER", "tiles": ["CABIN", "GALLEY", "AISLE", "CARGO HOLD"],
