@@ -190,7 +190,7 @@ window.AD_REGISTRY = [
 
   /* ── SEMANTIC WING (meaning, measured) ────────────────────────────────── */
   {
-    id: "linxicon", soon: true, name: "LINXICON", icon: "🔗", accent: "--cool", family: "sem",
+    id: "linxicon", name: "LINXICON", icon: "🔗", accent: "--cool", family: "sem",
     tagline: "chain two far-apart words through meaning",
     blurb: "Two words with nothing in common — until you build the bridge between " +
       "them, one genuine association at a time. Bolder steps, better score.",
@@ -208,7 +208,7 @@ window.AD_REGISTRY = [
 
   /* ── THE LAB (life and machines) ──────────────────────────────────────── */
   {
-    id: "phylo", soon: true, name: "PHYLO", icon: "🧬", accent: "--mint", family: "lab",
+    id: "phylo", name: "PHYLO", icon: "🧬", accent: "--mint", family: "lab",
     tagline: "guess the organism — evolution tells you how close",
     blurb: "Globle on the tree of life. Each wrong species answers with how long ago " +
       "you and it last shared an ancestor, and the taxonomy you have pinned down.",

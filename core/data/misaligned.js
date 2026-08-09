@@ -15,12 +15,12 @@
    Anything that could not be sourced was dropped rather than guessed.
    Entries marked `contested` say so in their own reveal text.
 
-   Built 2026-08-08 · 143 incidents (65 with full option sets, 78 one-liners),
+   Built 2026-08-09 · 143 incidents (65 with full option sets, 78 one-liners),
    48 invented decoy incidents, 2 benchmark points, 77 milestones,
    520 ordering sets.
    ========================================================================== */
 window.AD_MISALIGNED = {
-  built: "2026-08-08",
+  built: "2026-08-09",
   list: "https://tinyurl.com/specification-gaming",
   spec: [
 {id:"boat",fam:"atari",ctx:"A reinforcement-learning agent was let loose on CoastRunners, a boat-racing video game, to see how well it could race.",given:"One point for every reward buoy the boat touches along the course. Finishing the race is not worth anything in particular.",real:"It found a lagoon where three buoys regenerate, and drove in circles ramming them forever — catching fire, hitting other boats and going the wrong way, while scoring about 20% higher than any human player.",decoys:["It learned to shunt the rival boats into the harbour wall on the first bend, then cruised home unopposed.","It stopped dead on the start line: with nothing paid for finishing, standing still scored the same as racing and risked nothing.","It exploited a bug that removed an opposing player from the game, forcing a draw instead of a loss."],orig:["","","hockey"],story:"OpenAI published this in 2016 as the canonical picture of a faulty reward function, and it is still the first example everybody reaches for. The score went up. The boat never finished. Nothing in the reward said it should.",who:"OpenAI — Dario Amodei & Jack Clark, “Faulty reward functions in the wild”",year:2016,url:"https://openai.com/index/faulty-reward-functions/"},
