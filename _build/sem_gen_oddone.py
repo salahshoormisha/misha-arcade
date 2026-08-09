@@ -93,6 +93,67 @@
 # one round per hub, so the archive never serves four near-identical boards off
 # the same category.
 #
+# -----------------------------------------------------------------------------
+# 2026-08-09, LATER — THE TWENTY-FOUR PLAYED BY HAND, AND WHAT THEY SAID.
+#
+# The pass above shipped twenty-four boards. Playing every one of them: ten hold
+# up, fourteen have a second defensible answer. And the fourteen do NOT fail the
+# way the notes above assume. Not one of them failed on its decoy. Every single
+# one failed on a MEMBER:
+#
+#     AMOUNT   among deposit / credit / paycheck   (the other three are bank
+#              transactions; a player takes AMOUNT and is not wrong)
+#     DRIVEWAY among jeep / limo / van             (a place among three vehicles)
+#     ROUTE    among shuttle / transport / metro
+#     TRAGIC   among incident / collision / catastrophe   (the only adjective)
+#     PROTESTANT among gospel / communion / sermon
+#     LIQUID   among pump / hydrogen / diesel      (and the opposite of the hub)
+#     TUTOR    among scholar / intern / graduate   (teaches; they study)
+#     SCARF, COAT named HAT.  CHIN, BEAK named MOUTH.  (the thread's own name
+#              does not cover its own members — the second phase is unanswerable)
+#
+# So the fault is not "the impostor belongs". It is THE FOUR ARE NOT FOUR. The
+# hub H is harvested as a free-association RESPONSE, and a response is not a
+# category: DRIVEWAY evokes CAR as surely as JEEP does. Four words that each
+# evoke H can still be a vehicle, a place, a brand and a verb.
+#
+# Four measurements separate the ten from the fourteen, with no overlap at all
+# on this sample, and each one is independently a thing you can say out loud:
+#
+#   A. NO WORD ON THE BOARD MAY LEAN ADJECTIVE.  ADJ_MAX 0.115 -> 0.055. The ten
+#      good boards top out at 0.046 on the derived ADJ axis; TRAGIC is 0.101,
+#      TUTOR's board 0.103, PROTESTANT's 0.076. One quality among four things is
+#      the cheapest second answer there is.
+#   B. THE FIVE MUST BE THE SAME KIND OF WORD, harder.  AXIS_SPREAD 0.145 ->
+#      0.135. This is what DRIVEWAY (PLACE), BEAK, SCARF and ROUTE trip over.
+#   C. THE FOUR MUST COHERE WITH EACH OTHER, not merely with the hub.
+#      MEM_PAIR_MIN -0.02 -> 0.215 — i.e. it existed only in name. This is the
+#      §4 kinship test done in the other currency, and it is the one that says
+#      AMOUNT is not a bank transaction and BLEEP is not a THUMP.
+#   D. THE IMPOSTOR MUST WIN THE OUTLIER TEST BY A REAL MARGIN.  OUT_GAP 0.050
+#      -> 0.150. The good boards' worst member out-fits the impostor by 0.154 at
+#      the very least; the broken ones sit at 0.090-0.143. A margin of 0.05 is
+#      inside the noise of a 4-bit quantised vector.
+#
+# Applied to the twenty-four: nine of the ten good boards survive and all
+# fourteen broken ones die. (The tenth, mend/remedy/restore/solve, dies on B —
+# a verb thread spreads wide on the VERB axis. Boards of that shape still come
+# through; that particular one does not.)
+#
+# Two more, from the same reading:
+#   E. A THREAD IS NOT A FLAVOUR. sweet / sour / bitter / salty and the rest join
+#      EVAL. CARAMEL / TART / PASTRY / SYRUP named SWEET ships with TART's other
+#      meaning inside it, and the hub is a quality, which §1 already refuses.
+#   F. THE NAME ON THE CARD MUST BE THE BEST NAME ON THE CARD. A wrong name now
+#      has to fit the four measurably WORSE than the true one (NAME_MARGIN), not
+#      merely be a different word. The naming phase was where HAT and MOUTH
+#      actually broke, and nothing was checking it.
+#
+# The tightening costs yield, heavily, and that is the right trade: a board with
+# two arguable answers is not a hard board, it is a broken one. Yield is bought
+# back by looking at more foursomes per hub (QUAD_TOP, QUAD_TRY, HUB_ROUNDS) and
+# by scanning every hub rather than stopping at 300.
+#
 # DIFFICULTY. Two forces: how far outside the thread the decoy sits (HUBGAP —
 # smaller is harder) and how strongly it is pulled towards the four (TEMPT —
 # bigger is harder). Rounds are dealt four to a day as an easy -> hard ladder,
@@ -137,26 +198,35 @@ NAMERANK = 6500       # ...and so do the four wrong names
 # ── what makes four words a thread ───────────────────────────────────────────
 MIN_CUE = 2           # people who answered H when cued with this member
 MIN_MEMBERS = 5       # candidate members a hub needs before it is worth trying
-POOL_MEMBERS = 22     # the strongest members considered
-QUAD_TOP = 15         # quads are drawn from the top QUAD_TOP of those
+POOL_MEMBERS = 30     # the strongest members considered
+QUAD_TOP = 20         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.33 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
-MEM_PAIR_MIN = -0.02  # nor flat opposites
+MEM_PAIR_MIN = 0.215  # FAULT C. THE FOUR MUST BE FOUR. This was -0.02, which is
+                      # to say it was nothing, and it is why AMOUNT stood among
+                      # deposit/credit/paycheck and DRIVEWAY among jeep/limo/van:
+                      # each was close to the HUB, and nothing ever asked whether
+                      # it was close to its fellow members. The ten hand-verified
+                      # good boards bottom out at 0.218.
 KIN_MIN = 3           # of the six member pairs, how many must be kin (§4 above)
 
 # ── everyone on the board must be the same KIND of word ──────────────────────
-AXIS_SPREAD = 0.145   # max spread across the five, on every derived axis
-ADJ_MAX = 0.115       # ...and ODD ONE OUT is a game about THINGS: no word on the
-VERB_MAX = 0.130      # board may lean adjective or verb in absolute terms. This
-                      # is the thing a derivational tagger cannot see — SUPREME
-                      # among testimony/justice/appeal, ACADEMIC among publisher/
-                      # reader, EVALUATION among experiment/sample. Each is the
-                      # only quality among four things, and a player will say so
-                      # before they have finished reading the card.
-HUB_ROUNDS = 3        # rounds one hub may contribute, on disjoint words
-QUAD_TRY = 60         # foursomes tried per hub before moving on
+AXIS_SPREAD = 0.135   # FAULT B. Max spread across the five, on every derived
+                      # axis. BEAK among lip/jaw/chin, SCARF and COAT among
+                      # helmet/hood, DRIVEWAY among jeep/limo/van and ROUTE among
+                      # shuttle/metro all sat between 0.136 and 0.145.
+ADJ_MAX = 0.055       # FAULT A. ODD ONE OUT is a game about THINGS: no word on
+VERB_MAX = 0.130      # the board may lean adjective or verb in absolute terms.
+                      # This is the thing a derivational tagger cannot see —
+                      # TRAGIC among incident/collision/catastrophe, SUPREME among
+                      # testimony/justice/appeal, ACADEMIC among publisher/reader.
+                      # Each is the only quality among four things, and a player
+                      # says so before they have finished reading the card. The
+                      # good boards top out at 0.046; TRAGIC is 0.101.
+HUB_ROUNDS = 4        # rounds one hub may contribute, on disjoint words
+QUAD_TRY = 140        # foursomes tried per hub before moving on
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
 HUBGAP_MIN = 0.175    # outside the thread by this much, relative to the members
