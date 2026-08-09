@@ -92,21 +92,28 @@
      Tiles are numbered 0 1 2 across the top, 3 4 5 across the bottom.
 
      A flag's telling detail is almost never spread evenly: it is a charge in
-     the middle, or a canton in the top-left, or a triangle at the hoist. The
-     feature index in core/data/flags.js already records which of those a flag
-     has, so weight each tile by how likely that detail sits in it and reveal
-     ASCENDING — the flat corners first, the charge last.
+     the middle, or a canton in the top-left, or a triangle at the hoist. So
+     weight each tile by how much it gives away and reveal ASCENDING — the flat
+     corners first, whatever the flag actually has ON it last.
+
+     The weights are MEASURED, not guessed. `t` in core/data/flags.js is a rank
+     per tile, produced by _build/gen_flag_tiles.py, which rasterises every one
+     of the 250 shipped SVGs and scores each sixth on edge energy (emblems,
+     script, stars), how many colours meet inside it, and how far it sits from
+     the flag's own average colour. Panama's two star corners come out last;
+     the United States' canton comes out last; France measures dead flat.
 
      Two properties matter and both hold. It is DETERMINISTIC: every device
-     computes the same order from the same shipped data, so both players burn
-     the same tiles and their share grids line up. And it DEGRADES to the
-     original: a plain tricolour has no localised feature at all, every weight
-     is 0, and the order collapses to the day's blind seeded shuffle, which is
-     exactly what flagle.io does.
+     reads the same shipped ranks, so both players burn the same tiles and their
+     share grids line up. And it DEGRADES to the original: 51 of the 250 flags
+     have nothing to rank — plain bicolours and tricolours — and come out
+     [0,0,0,0,0,0], so the order collapses to the day's blind seeded shuffle,
+     which is exactly what flagle.io does.
 
-     The weights are a judgement, not a measurement — we ship no rasteriser, so
-     nothing here counts pixels. They encode one claim: charges sit in the
-     middle column, cantons and hoist devices sit on the left. */
+     CHARGE below is the fallback for a flag with no measurement (a hand-added
+     SVG that has not been through the generator). It is a judgement, not a
+     measurement, and encodes one claim: charges sit in the middle column,
+     cantons and hoist devices sit on the left. */
   var CHARGE = {
     canton:         [9, 1, 0, 0, 0, 0],
     "coat-of-arms": [1, 9, 1, 1, 9, 1],
@@ -127,7 +134,16 @@
   };
 
   function tileWeights(iso) {
-    var f = (A.flagMeta(iso) || {}).features || [];
+    var meta = A.flagMeta(iso) || {};
+    var t = meta.t;
+    // Measured ranks win. Guard the shape rather than trusting the file: a
+    // half-regenerated flags.js must fall back, not throw at boot.
+    if (t && t.length === TILES) {
+      var ok = true;
+      for (var j = 0; j < TILES; j++) if (typeof t[j] !== "number") ok = false;
+      if (ok) return t.slice();
+    }
+    var f = meta.features || [];
     var w = [0, 0, 0, 0, 0, 0];
     f.forEach(function (name) {
       var v = CHARGE[name];

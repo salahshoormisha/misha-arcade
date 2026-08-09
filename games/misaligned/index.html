@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MISALIGNED · Midnight Arcade</title>
+<meta name="theme-color" content="#0a0910">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📎</text></svg>">
+<link rel="stylesheet" href="../../core/style.css?v=12">
+<style>
+  /* ==========================================================================
+     MISALIGNED — game-specific CSS only. Every shared .ac-* component comes
+     from core/style.css and is not restyled. Tokens only: no literal colour
+     appears here, only the neutral #ffffffNN overlays core/style.css already
+     uses for translucent panels.
+
+     ONE accent per screen. var(--accent) is the cabinet's own (violet, set by
+     A.mount from the registry) and marks the live, interactive thing. --ok and
+     --bad appear only AFTER an answer is locked in, as verdict colours, never
+     as decoration.
+     ========================================================================== */
+
+  /* ── the round strip ─────────────────────────────────────────────────────
+     Five pips, one per round, so the shape of the day is visible throughout:
+     filled = scored, half = partial credit, hollow = still to come. */
+  .mi-strip {
+    display: flex; align-items: center; gap: var(--sp-2);
+    margin-top: var(--sp-3); justify-content: center; flex-wrap: wrap;
+  }
+  .mi-pips { display: flex; gap: 5px; }
+  .mi-pip {
+    width: 9px; height: 9px; border-radius: var(--r-full);
+    border: 1px solid var(--hair-2); background: transparent;
+    transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease);
+  }
+  .mi-pip.on   { background: var(--accent); border-color: var(--accent); }
+  .mi-pip.half { background: var(--near);   border-color: var(--near); }
+  .mi-pip.off  { background: var(--no);     border-color: var(--no); }
+  .mi-pip.live { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+  /* ── the card ─────────────────────────────────────────────────────────── */
+  .mi-kick {
+    margin-top: var(--sp-4); text-align: center;
+    font-size: var(--t-xs); letter-spacing: .18em; font-weight: 700;
+    color: var(--accent);
+  }
+  .mi-ctx {
+    margin-top: var(--sp-3); font-size: var(--t-md); line-height: 1.65;
+    color: var(--ink); overflow-wrap: anywhere;
+  }
+  /* The objective as it was actually written down — set apart, because the
+     whole game is the distance between this box and what happened next. */
+  .mi-given {
+    margin-top: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--hair); border-left: 2px solid var(--accent);
+    border-radius: var(--r-md); background: #ffffff06;
+    font-size: var(--t-sm); line-height: 1.7; color: var(--ink-2);
+  }
+  .mi-given i {
+    display: block; margin-bottom: var(--sp-1); font-style: normal;
+    font-size: var(--t-xs); letter-spacing: .14em; color: var(--ink-4);
+  }
+  .mi-ask {
+    margin-top: var(--sp-4); text-align: center;
+    font-size: var(--t-sm); letter-spacing: .1em; color: var(--ink-3);
+  }
+
+  /* ── options ──────────────────────────────────────────────────────────── */
+  .mi-opts { display: grid; gap: var(--sp-2); margin-top: var(--sp-3); }
+  .mi-opt {
+    display: flex; align-items: flex-start; gap: var(--sp-3); width: 100%;
+    min-height: 44px; padding: var(--sp-3); text-align: left;
+    border: 1px solid var(--hair-2); border-radius: var(--r-md);
+    background: #ffffff08; color: var(--ink);
+    font-family: inherit; font-size: var(--t-sm); line-height: 1.6;
+    cursor: pointer;
+    transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease),
+                transform 80ms var(--ease), opacity var(--slow) var(--ease);
+  }
+  .mi-opt b {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: var(--r-sm);
+    display: grid; place-items: center; font-size: var(--t-xs); font-weight: 800;
+    background: #ffffff14; color: var(--ink-2);
+    transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+  .mi-opt span { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; padding-top: 4px; }
+  .mi-opt:hover:not(:disabled) { border-color: var(--accent); background: #ffffff12; }
+  .mi-opt:hover:not(:disabled) b { background: var(--accent); color: var(--accent-ink); }
+  .mi-opt:active:not(:disabled) { transform: translateY(1px); }
+  .mi-opt:disabled { cursor: default; }
+  .mi-opt.ok  { background: var(--ok);  border-color: var(--ok);  color: var(--bg); font-weight: 600; }
+  .mi-opt.no  { background: var(--bad); border-color: var(--bad); color: var(--bg); font-weight: 600; }
+  .mi-opt.ok b, .mi-opt.no b { background: #00000026; color: var(--bg); }
+  .mi-opt.faded { opacity: .42; }
+
+  /* A band option carries its own numeric definition, so the round is a
+     question about numbers rather than a question about vibes. */
+  .mi-opt em { display: block; font-style: normal; color: var(--ink-4); font-size: var(--t-xs); margin-top: 3px; }
+  .mi-opt.ok em, .mi-opt.no em { color: #00000099; }
+
+  /* ── the ordering round ───────────────────────────────────────────────── */
+  .mi-slots { display: grid; gap: var(--sp-2); margin-top: var(--sp-3); }
+  .mi-slot {
+    display: flex; align-items: flex-start; gap: var(--sp-3); width: 100%;
+    min-height: 44px; padding: var(--sp-3); text-align: left;
+    border: 1px dashed var(--hair-2); border-radius: var(--r-md);
+    background: transparent; color: var(--ink-4);
+    font-family: inherit; font-size: var(--t-sm); line-height: 1.6;
+  }
+  .mi-slot.full {
+    border-style: solid; background: #ffffff08; color: var(--ink); cursor: pointer;
+  }
+  .mi-slot.full:hover { border-color: var(--accent); }
+  .mi-slot i {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: var(--r-sm);
+    display: grid; place-items: center; font-style: normal;
+    font-size: var(--t-xs); font-weight: 800;
+    background: #ffffff14; color: var(--ink-3);
+  }
+  .mi-slot.full i { background: var(--accent); color: var(--accent-ink); }
+  .mi-slot span { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; padding-top: 4px; }
+  .mi-slot.ok  { border-color: var(--ok);  box-shadow: 0 0 0 1px var(--ok) inset; }
+  .mi-slot.no  { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset; }
+  .mi-slot small {
+    display: block; margin-top: 3px; color: var(--ink-4);
+    font-size: var(--t-xs); font-family: var(--mono);
+  }
+  .mi-hint { margin-top: var(--sp-3); text-align: center; font-size: var(--t-xs); color: var(--ink-4); }
+
+  /* ── verdict, reveal, source ──────────────────────────────────────────── */
+  .mi-verd {
+    margin-top: var(--sp-4); text-align: center;
+    font-size: var(--t-sm); letter-spacing: .14em; font-weight: 800; color: var(--ink-2);
+  }
+  .mi-verd .up { color: var(--ok); }
+  .mi-verd .dn { color: var(--bad); }
+  .mi-verd .pt { color: var(--near); }
+  .mi-note {
+    margin-top: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--hair); border-radius: var(--r-md); background: #ffffff06;
+    font-size: var(--t-sm); line-height: 1.7; color: var(--ink-2);
+  }
+  .mi-note i {
+    display: block; margin-bottom: var(--sp-1); font-style: normal;
+    font-size: var(--t-xs); letter-spacing: .14em; color: var(--ink-4);
+  }
+  .mi-src { margin-top: var(--sp-3); font-size: var(--t-xs); line-height: 1.7; color: var(--ink-4); }
+  .mi-src a { color: var(--ink-3); }
+  .mi-src a:hover { color: var(--accent); }
+  .mi-src div { margin-top: 3px; overflow-wrap: anywhere; }
+  .mi-go { margin-top: var(--sp-4); }
+  .mi-go .ac-btn { min-width: 200px; }
+
+  /* ── the title card ───────────────────────────────────────────────────── */
+  .mi-rules { margin-top: var(--sp-4); display: grid; gap: var(--sp-2); }
+  .mi-rule {
+    display: flex; gap: var(--sp-3); align-items: baseline;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--hair); border-radius: var(--r-md); background: #ffffff05;
+    font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2);
+  }
+  .mi-rule i {
+    flex: 0 0 auto; width: 22px; font-style: normal; font-family: var(--mono);
+    font-size: var(--t-xs); font-weight: 800; color: var(--accent);
+  }
+  .mi-rule b { color: var(--ink); font-weight: 620; }
+  .mi-acts { margin-top: var(--sp-5); }
+  .mi-foot { margin-top: var(--sp-3); }
+  .mi-foot .ac-pill { text-decoration: none; cursor: pointer; }
+  .mi-lede {
+    margin-top: var(--sp-3); text-align: center;
+    font-size: var(--t-sm); line-height: 1.75; color: var(--ink-3);
+  }
+
+  /* Entry: opacity only, and never via requestAnimationFrame — a background
+     tab pauses rAF and the card would never appear. game.js forces a reflow. */
+  .mi-in { opacity: 0; transition: opacity var(--slow) var(--ease); }
+  .mi-in.shown { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .mi-in { transition: none; opacity: 1; }
+  }
+
+  .mi-tally { margin-top: var(--sp-4); }
+  .mi-tally .ac-pill b { font-variant-numeric: tabular-nums; }
+
+  /* Result sheet extras. Scoped as `.ac-modal .x`, never a bare class:
+     core/style.css styles `.ac-modal p` with two selectors, so a single-class
+     rule loses on specificity and silently renders as body text. */
+  .ac-modal .mi-break { margin-top: var(--sp-3); display: grid; gap: 5px; }
+  .ac-modal .mi-brow {
+    display: flex; align-items: center; gap: var(--sp-2);
+    font-size: var(--t-xs); color: var(--ink-3);
+  }
+  .ac-modal .mi-brow span { flex: 1 1 auto; text-align: left; }
+  .ac-modal .mi-brow b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ac-modal .mi-brow .mi-pip { flex: 0 0 auto; }
+
+  @media (max-width: 400px) {
+    .mi-opt, .mi-slot { gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); }
+    .mi-go .ac-btn { min-width: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<script src="../../core/registry.js?v=12"></script>
+<script src="../../core/arcade.js?v=12"></script>
+<script src="../../core/ui.js?v=12"></script>
+<script src="../../core/audio.js?v=12"></script>
+<script src="../../core/data/misaligned.js?v=1"></script>
+<script src="game.js?v=1"></script>
+</body>
+</html>

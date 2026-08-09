@@ -204,6 +204,27 @@ autumn winter summer heat cold kitchen dinner breakfast
 """.split())
 
 
+INFL = ("ings", "ing", "ies", "ers", "er", "est", "ed", "es", "ly", "s", "y")
+
+
+def root(w):
+    """Crudest possible stemmer, and it has to handle the e-dropping the blunt
+    prefix test below misses: DANCE and DANCING share no five-letter prefix, and
+    the first draft of this script duly offered both as answers on one card."""
+    b = w
+    for suf in INFL:
+        if w.endswith(suf) and len(w) - len(suf) >= 3:
+            b = w[:-len(suf)]
+            break
+    if b.endswith("e"):
+        b = b[:-1]
+    if len(b) > 2 and b[-1] == b[-2]:
+        b = b[:-1]
+    if b.endswith("i"):
+        b = b[:-1]
+    return b
+
+
 def samestem(a, b):
     """Two surface forms of one word. Deliberately blunt — a false positive only
     costs us a puzzle, a false negative ships one with a giveaway in it."""
@@ -215,7 +236,7 @@ def samestem(a, b):
     k = 5
     if len(a) >= k and len(b) >= k and a[:k] == b[:k]:
         return True
-    return False
+    return root(a) == root(b)
 
 
 def shape(w):
@@ -547,19 +568,19 @@ def main():
         five = ids + [dec]
 
         # ---- four wrong names for the thread --------------------------------
-        # Plausible, never right. Each must be evoked by some of the five (so it
-        # tempts) but never by all four members (that would be a second correct
-        # name), must not be a synonym of the true name, and must not appear on
-        # the board.
+        # Plausible, never right. A name has to be one somebody could believe —
+        # it must be evoked by some of the five AND sit near them — but it may
+        # never be evoked by all four members, which would make it a second
+        # correct answer. The impostor's own strongest thread goes first: the
+        # nicest wrong name on the card is the one the impostor came from.
+        cent5 = unit(five)
         cover = defaultdict(int)
         for w5 in five:
             for r in resp_of.get(w5, {}):
                 cover[r] += 1
+        order = [r for r, _ in sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])]
+        order += [r for r, _ in sorted(cover.items(), key=lambda kv: (-kv[1], -dot(cent5, kv[0])))]
         wrong = []
-        # the impostor's own strongest thread first — the loveliest wrong answer
-        order = sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])
-        order = [r for r, _ in order] + \
-                [r for r, _ in sorted(cover.items(), key=lambda kv: -kv[1])]
         seen = set()
         for t in order:
             if len(wrong) >= 4:
@@ -573,20 +594,24 @@ def main():
                 continue
             if samestem(vocab[t], vocab[h]) or any(samestem(vocab[t], vocab[x]) for x in five):
                 continue
-            if cos(t, h) > 0.52:
-                continue
             if any(samestem(vocab[t], vocab[u]) for u in wrong):
+                continue
+            if cos(t, h) > 0.52:                 # a synonym of the right answer
+                continue
+            if dot(cent5, t) < NAME_FLOOR:       # nobody would ever pick it
                 continue
             # never a second correct name: it must miss at least one member
             if all(t in hubset.get(i, EMPTY) for i in ids):
                 continue
             wrong.append(t)
         if len(wrong) < 4:
-            stat["hub: not enough wrong names"] += 1
+            stat["hub: not enough believable wrong names"] += 1
             continue
 
         hard = max(0, min(100, int(round(
             180.0 * (0.40 - gap) + 90.0 * (tempt - TEMPT_MIN) + 20.0))))
+        for x in five:
+            uses[x] += 1
         rounds.append({"ids": ids, "dec": dec, "hub": h, "wrong": wrong,
                        "gap": gap, "tempt": tempt, "mine": mine, "worst": worst,
                        "myname": myname, "rival": rivalw, "hard": hard})
