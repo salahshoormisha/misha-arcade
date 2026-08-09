@@ -450,8 +450,12 @@
 
   /* ── ending ──────────────────────────────────────────────────────────── */
 
+  /* No links made — give up on the first move — used to push an EMPTY string,
+     which the result sheet then rendered as a blank grid box and the share text
+     as a stray blank line. A row you cannot see is worse than no row. */
   function shareRows() {
-    var rows = [edges.map(function (e) { return bandOf(e.bold).sq; }).join("")];
+    var rows = [];
+    if (edges.length) rows.push(edges.map(function (e) { return bandOf(e.bold).sq; }).join(""));
     if (hints) rows.push("💡".repeat(hints));
     return rows;
   }
@@ -484,7 +488,7 @@
   function shareText(norm) {
     var head = "LINXICON " + (practice ? "(practice)" : "#" + day) + " · " +
       puz.a.toUpperCase() + " → " + puz.b.toUpperCase() + " · " + norm + "/100";
-    return head + "\n" + shareRows().join("\n") + "\n" + A.SITE;
+    return [head].concat(shareRows(), [A.SITE]).join("\n");
   }
 
   function sheet(w, norm) {
@@ -560,6 +564,8 @@
       };
     },
     play: function (w) { input.value = w; submit(); return this.state(); },
+    shareRows: shareRows,
+    shareText: function () { return shareText(liveNorm()); },
     bold: bold, normFor: normFor, wobblePenalty: wobblePenalty,
     link: function (a, b) { return SEM.link(SEM.id(a), SEM.id(b)); },
     known: function (w) { return SEM.id(w) >= 0; },
