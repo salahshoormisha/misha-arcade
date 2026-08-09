@@ -24,6 +24,49 @@
    cascade beyond custom properties, and scrolling. A green run here means the
    LOGIC and the WIRING are right. It says nothing about whether the thing looks
    good — check that by reading the CSS against a cabinet already known good.
+
+   2026-08-05 — DYNAMIC <script src> NOW EXECUTES. A script element given a src
+   and then inserted into the LIVE document is read off disk and evaluated, just
+   as a browser would, and its onload/onerror fire on the virtual clock (so
+   H.flush() drains them). LINXICON lazy-loads 2.2 MB of vector chunks that way
+   behind a progress bar; without this the loading path — the part most likely
+   to be broken — was the one part no test could reach. Paths resolve against
+   the directory of the page passed to H.html(), and ?v= is stripped. A missing
+   file fires "error", it does not throw. A script appended outside the document
+   tree does nothing, same as a browser. Set src BEFORE inserting.
+
+   ADDED 2026-08-05 (timeguessr): a faithful URLSearchParams, because jsc has
+   none and core/ui.js reads ?d= / ?practice= through it, so every daily-wing
+   cabinet threw at boot. Also H.at(el, x, y) — a tap at a point inside an
+   element, for canvases whose handlers read clientX/clientY (the map).
+
+   ADDED 2026-08-05 (thirdle), three things, all of which were hiding bugs:
+     · EVENT PROPAGATION now runs the real path — node, ancestors, document,
+       window. It used to stop at <html>, so document-level listeners never
+       fired, and core/ui.js puts the ENTIRE physical keyboard on
+       document.addEventListener: H.key() was testing nothing at all. H.key no
+       longer dispatches to window itself (propagation gets there), or every
+       keystroke would arrive twice.
+     · VIRTUAL TIMERS. setTimeout/setInterval/clearTimeout/clearInterval run on
+       a clock the test drives. H.flush() runs what is already due; H.tick(ms)
+       winds the clock and runs what that uncovers; H.now()/H.pending() read it.
+       jsc's own setTimeout fires at some unspecified point after the script
+       ends, which made every "…240 ms later the sheet appears" path untestable.
+     · H.url(search, hash) — set the fake location before the game reads it,
+       for driving ?d=<n> and ?practice=1. H.reset() now also clears timers,
+       the clock, <head> and activeElement.
+
+   ADDED 2026-08-05 (flagle), three more, all needed to drive a flag cabinet:
+     · fetch() of a SAME-ORIGIN relative path now reads the file off disk and
+       resolves {ok,status,text,json}. Absolute URLs still reject — no network.
+       core/flagart.js fetches core/data/flags/XX.svg, so without this the flag
+       never arrived, draw() returned early forever and nothing was testable.
+     · new Image() DECODES: setting .src fires onload on the virtual clock and
+       fills naturalWidth/naturalHeight from the SVG viewBox (parsed out of the
+       data: URI), which is what A.flagDraw measures.
+     · MICROTASKS drain between tasks, as a browser does. Promise callbacks are
+       jsc's own microtask queue and used to sit unrun until the whole test file
+       ended, so every .then() in the core was invisible to assertions.
    =========================================================================== */
 
 (function () {
@@ -275,6 +318,7 @@
     if (n.parentNode) n.parentNode.removeChild(n);
     n.parentNode = this;
     this.childNodes.push(n);
+    runScript(n);
     return n;
   };
   Element.prototype.append = function () {
@@ -292,12 +336,50 @@
     var i = ref ? this.childNodes.indexOf(ref) : -1;
     n.parentNode = this;
     if (i < 0) this.childNodes.push(n); else this.childNodes.splice(i, 0, n);
+    runScript(n);
     return n;
   };
   Element.prototype.replaceChild = function (nu, old) {
     this.insertBefore(nu, old); this.removeChild(old); return old;
   };
   Element.prototype.remove = function () { if (this.parentNode) this.parentNode.removeChild(this); };
+
+  /* ── dynamic <script src> ─────────────────────────────────────────────────
+     A browser fetches and runs a script the moment it is inserted into the
+     document. So does this. Only scripts actually attached to the live tree
+     run, only once each, and a read failure becomes an "error" event rather
+     than an exception — a cabinet that lazy-loads data must be able to show
+     its own failure state. `H` is a `var` defined further down this file and
+     `var` initialisers do NOT hoist, so H.dir is read at CALL time, never at
+     definition time. See the header note. */
+  function inLiveDoc(n) {
+    for (var p = n; p; p = p.parentNode) if (p === doc.documentElement) return true;
+    return false;
+  }
+  function resolveRel(href) {
+    var p = String(href).split("?")[0].split("#")[0];
+    var base = p.charAt(0) === "/" ? [] : String((typeof H !== "undefined" && H.dir) || "").split("/").filter(Boolean);
+    p.split("/").forEach(function (seg) {
+      if (!seg || seg === ".") return;
+      if (seg === "..") base.pop(); else base.push(seg);
+    });
+    return base.join("/");
+  }
+  function runScript(n) {
+    if (!n || n.nodeType !== 1 || n.localName !== "script" || n._ran) return;
+    var src = n.src || n.attributes.src;
+    if (!src || !inLiveDoc(n)) return;
+    n._ran = true;
+    var path = ROOT + resolveRel(src);
+    var evt = "load";
+    try { load(path); } catch (e) { evt = "error"; LOG.push("script failed: " + path + " — " + e); }
+    win.setTimeout(function () {
+      var ev = new Event(evt);
+      var h = evt === "load" ? n.onload : n.onerror;
+      if (typeof h === "function") { try { h.call(n, ev); } catch (x) { console.error(x); } }
+      n.dispatchEvent(ev);
+    }, 0);
+  }
   Element.prototype.cloneNode = function (deep) {
     var e = new Element(this.localName);
     e.className = this.className; e.id = this.id;
@@ -407,31 +489,41 @@
     if (!this._h[t]) return;
     this._h[t] = this._h[t].filter(function (h) { return h.fn !== fn; });
   };
+  /* Run one node's listeners. Returns false if propagation must stop dead
+     (stopImmediatePropagation). window keeps its listeners in a different
+     shape, so it gets adapted here rather than special-cased at every call. */
+  function fireAt(node, ev) {
+    ev.currentTarget = node;
+    var hs;
+    if (node === win) {
+      hs = (((win._wh || {})[ev.type]) || []).map(function (f) { return { fn: f, once: false }; });
+    } else {
+      hs = (node._h && node._h[ev.type]) ? node._h[ev.type].slice() : [];
+    }
+    // the on* property is a listener too, and games use both
+    var on = node["on" + ev.type];
+    if (typeof on === "function") hs.unshift({ fn: on, once: false });
+    for (var i = 0; i < hs.length; i++) {
+      try { hs[i].fn.call(node, ev); }
+      catch (e) { console.error("listener " + ev.type + " on " + tagOf(node) + ": " + (e && e.stack || e)); }
+      if (hs[i].once && node.removeEventListener) node.removeEventListener(ev.type, hs[i].fn);
+      if (ev._stopImmediate) return false;
+    }
+    return true;
+  }
+
+  /* The real bubble path: the node, its ancestors, then document, then window.
+     It used to stop at <html>, so document-level listeners never ran — and
+     core/ui.js puts the ENTIRE physical keyboard on document.addEventListener,
+     which meant H.key() was firing into the void. */
   Element.prototype.dispatchEvent = function (ev) {
     ev.target = ev.target || this;
-    var node = this;
-    while (node) {
-      ev.currentTarget = node;
-      var hs = (node._h && node._h[ev.type]) ? node._h[ev.type].slice() : [];
-      // the on* property is a listener too, and games use both
-      var on = node["on" + ev.type];
-      if (typeof on === "function") hs.unshift({ fn: on, once: false });
-      for (var i = 0; i < hs.length; i++) {
-        try { hs[i].fn.call(node, ev); }
-        catch (e) { console.error("listener " + ev.type + " on " + tagOf(node) + ": " + (e && e.stack || e)); }
-        if (hs[i].once) node.removeEventListener(ev.type, hs[i].fn);
-        if (ev._stopImmediate) return !ev.defaultPrevented;
-      }
-      if (!ev.bubbles || ev._stop) break;
-      node = node.parentNode || (node === doc.documentElement ? null : (node === doc ? null : (node.parentNode || (node !== doc ? doc : null))));
-      if (node === doc) { // let document-level listeners run, then window
-        ev.currentTarget = doc;
-        var dh = (doc._h[ev.type] || []).slice();
-        for (var j = 0; j < dh.length; j++) {
-          try { dh[j].fn.call(doc, ev); } catch (e) { console.error("doc listener " + ev.type + ": " + (e && e.stack || e)); }
-        }
-        node = null;
-      }
+    var path = [], node = this;
+    while (node) { path.push(node); node = node.parentNode; }
+    if (path[path.length - 1] === doc.documentElement) { path.push(doc); path.push(win); }
+    for (var i = 0; i < path.length; i++) {
+      if (i > 0 && (!ev.bubbles || ev._stop)) break;
+      if (!fireAt(path[i], ev)) break;
     }
     return !ev.defaultPrevented;
   };
@@ -671,12 +763,10 @@
       if (doc._h[t]) doc._h[t] = doc._h[t].filter(function (h) { return h.fn !== fn; });
     },
     dispatchEvent: function (ev) {
-      ev.target = ev.target || doc; ev.currentTarget = doc;
-      (doc._h[ev.type] || []).slice().forEach(function (h) {
-        try { h.fn.call(doc, ev); } catch (e) { console.error("doc " + ev.type + ": " + (e && e.stack || e)); }
-      });
-      var on = doc["on" + ev.type];
-      if (typeof on === "function") { try { on.call(doc, ev); } catch (e) { console.error(e); } }
+      ev.target = ev.target || doc;
+      // document → window, like the real thing: a bubbling DOMContentLoaded
+      // reaches window listeners too.
+      if (fireAt(doc, ev) && ev.bubbles && !ev._stop) fireAt(win, ev);
       return !ev.defaultPrevented;
     },
     execCommand: function () { return true; },
@@ -796,6 +886,54 @@
   win.cancelAnimationFrame = function (i) { raf[i - 1] = null; };
   win.requestIdleCallback = function (fn) { return setTimeout(function () { fn({ timeRemaining: function () { return 5; } }); }, 0); };
   win.cancelIdleCallback = function () {};
+
+  /* ── virtual timers ───────────────────────────────────────────────────────
+     jsc has a setTimeout of its own, but it fires whenever it likes once the
+     script has finished, which makes anything time-based untestable — and a
+     result sheet that appears 240 ms after restore is exactly the sort of
+     thing a player notices and a test must be able to see. So the clock is the
+     test's: H.flush() runs the callbacks already due, H.tick(ms) winds the
+     clock forward and runs whatever that uncovers. */
+  var timers = [], tseq = 0, clock = 0;
+  win.setTimeout = function (fn, ms) {
+    if (typeof fn !== "function") return 0;
+    timers.push({ id: ++tseq, fn: fn, at: clock + (+ms || 0), args: Array.prototype.slice.call(arguments, 2) });
+    return tseq;
+  };
+  win.setInterval = function (fn, ms) {
+    if (typeof fn !== "function") return 0;
+    timers.push({ id: ++tseq, fn: fn, at: clock + (+ms || 0), every: Math.max(1, +ms || 1),
+                  args: Array.prototype.slice.call(arguments, 2) });
+    return tseq;
+  };
+  win.clearTimeout = win.clearInterval = function (id) {
+    timers = timers.filter(function (t) { return t.id !== id; });
+  };
+  win.queueMicrotask = function (fn) { win.setTimeout(fn, 0); };
+  /* Promise callbacks are jsc's own microtasks and would otherwise not settle
+     until the whole test file had ended, so drain them between tasks the way a
+     browser does — core/flagart.js hands the decoded flag back through a
+     promise chain, and nothing downstream of it ran without this. */
+  var drain = typeof drainMicrotasks === "function" ? drainMicrotasks : function () {};
+  function runDue(limit) {
+    var n = 0, cap = limit || 500;
+    drain();
+    while (n < cap) {
+      var due = null;
+      for (var i = 0; i < timers.length; i++) {
+        if (timers[i].at > clock) continue;
+        if (!due || timers[i].at < due.at || (timers[i].at === due.at && timers[i].id < due.id)) due = timers[i];
+      }
+      if (!due) break;
+      if (due.every) due.at = clock + due.every;
+      else timers = timers.filter(function (t) { return t !== due; });
+      n++;
+      try { due.fn.apply(win, due.args || []); }
+      catch (e) { console.error("timer: " + (e && e.stack || e)); }
+      drain();
+    }
+    return n;
+  }
   win.performance = win.performance || { now: (function () { var t = 0; return function () { return (t += 16); }; })() };
   win.alert = function (m) { console.log("ALERT " + m); };
   win.confirm = function () { return true; };
@@ -822,7 +960,45 @@
     }
     return out;
   };
-  win.Image = function () { var e = new Element("img"); e.decode = function () { return Promise.resolve(); }; return e; };
+  /* An <img> that actually decodes. Setting .src schedules onload on the
+     virtual clock and fills in naturalWidth/naturalHeight, read from the
+     viewBox when the source is an inline SVG (which is how core/flagart.js
+     hands a flag to the canvas). Without this every flag load hung forever and
+     the flag cabinets could not be driven at all. */
+  win.Image = function () {
+    var e = new Element("img");
+    e.decode = function () { return Promise.resolve(); };
+    e.naturalWidth = 0; e.naturalHeight = 0;
+    Object.defineProperty(e, "src", {
+      configurable: true,
+      get: function () { return e.attributes.src || ""; },
+      set: function (v) {
+        e.attributes.src = String(v);
+        var wh = svgSize(String(v));
+        e.naturalWidth = e.width = wh[0];
+        e.naturalHeight = e.height = wh[1];
+        win.setTimeout(function () {
+          var ev = new Event("load");
+          if (typeof e.onload === "function") { try { e.onload(ev); } catch (x) { console.error(x); } }
+          e.dispatchEvent(ev);
+        }, 0);
+      },
+    });
+    return e;
+  };
+  function svgSize(src) {
+    var s = src;
+    if (/^data:image\/svg\+xml/i.test(s)) {
+      var comma = s.indexOf(",");
+      var body = s.slice(comma + 1);
+      try { body = /;base64/i.test(s.slice(0, comma)) ? win.atob(body) : decodeURIComponent(body); }
+      catch (e) { body = ""; }
+      s = body;
+    }
+    var vb = /viewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)/i.exec(s);
+    if (vb) return [Math.round(+vb[1]), Math.round(+vb[2])];
+    return [300, 200];
+  }
   win.Audio = function () { return new Element("audio"); };
   win.AudioContext = win.webkitAudioContext = function () {
     var stub = function () {
@@ -845,14 +1021,92 @@
       decodeAudioData: function (b, ok) { if (ok) ok({ duration: 1 }); return Promise.resolve({ duration: 1 }); },
     };
   };
+  /* fetch() of a SAME-ORIGIN relative path reads the file off disk — that is
+     what the browser does, and core/flagart.js fetches core/data/flags/XX.svg
+     on every flag. Anything absolute still rejects: no network here, ever. */
   win.fetch = function (u) {
-    return Promise.reject(new Error("harness: no network. fetch(" + u + ")"));
+    var url = String(u);
+    if (/^[a-z]+:/i.test(url)) {
+      return Promise.reject(new Error("harness: no network. fetch(" + url + ")"));
+    }
+    var path = url.split("#")[0].split("?")[0].replace(/^\.?\//, "");
+    while (path.slice(0, 3) === "../") path = path.slice(3);
+    var body;
+    try { body = readFile(ROOT + path); }
+    catch (e) {
+      return Promise.resolve({
+        ok: false, status: 404, url: url,
+        text: function () { return Promise.resolve(""); },
+        json: function () { return Promise.reject(new Error("404")); },
+      });
+    }
+    return Promise.resolve({
+      ok: true, status: 200, url: url,
+      text: function () { return Promise.resolve(body); },
+      json: function () { return Promise.resolve(JSON.parse(body)); },
+    });
   };
   win.XMLHttpRequest = function () {
     return { open: function () {}, send: function () {}, setRequestHeader: function () {},
              addEventListener: function () {}, status: 0, responseText: "" };
   };
   win.Blob = function (parts) { this.size = 0; this.type = ""; this._parts = parts; };
+
+  /* jsc ships no URLSearchParams, and core/ui.js reads ?d= / ?practice=
+     through one, so without this every daily-wing cabinet throws at boot. */
+  function usp(init) {
+    var pairs = [];
+    if (init && typeof init === "object" && init._pairs) pairs = init._pairs.slice();
+    else if (init && typeof init === "object" && !(init instanceof Array)) {
+      Object.keys(init).forEach(function (k) { pairs.push([k, String(init[k])]); });
+    } else if (init instanceof Array) {
+      init.forEach(function (p) { pairs.push([String(p[0]), String(p[1])]); });
+    } else if (init != null && String(init) !== "") {
+      String(init).replace(/^[?]/, "").split("&").forEach(function (bit) {
+        if (!bit) return;
+        var i = bit.indexOf("=");
+        var k = i < 0 ? bit : bit.slice(0, i), v = i < 0 ? "" : bit.slice(i + 1);
+        pairs.push([dec(k), dec(v)]);
+      });
+    }
+    this._pairs = pairs;
+  }
+  function dec(s) {
+    try { return decodeURIComponent(String(s).replace(/\+/g, " ")); } catch (e) { return String(s); }
+  }
+  usp.prototype.get = function (k) {
+    for (var i = 0; i < this._pairs.length; i++) if (this._pairs[i][0] === k) return this._pairs[i][1];
+    return null;
+  };
+  usp.prototype.getAll = function (k) {
+    return this._pairs.filter(function (p) { return p[0] === k; }).map(function (p) { return p[1]; });
+  };
+  usp.prototype.has = function (k) { return this.get(k) !== null; };
+  usp.prototype.append = function (k, v) { this._pairs.push([String(k), String(v)]); };
+  usp.prototype.set = function (k, v) {
+    var hit = false;
+    this._pairs = this._pairs.filter(function (p) {
+      if (p[0] !== k) return true;
+      if (hit) return false;
+      hit = true; p[1] = String(v); return true;
+    });
+    if (!hit) this._pairs.push([String(k), String(v)]);
+  };
+  usp.prototype["delete"] = function (k) {
+    this._pairs = this._pairs.filter(function (p) { return p[0] !== k; });
+  };
+  usp.prototype.forEach = function (fn, self) {
+    this._pairs.slice().forEach(function (p) { fn.call(self, p[1], p[0], this); }, this);
+  };
+  usp.prototype.keys = function () { return this._pairs.map(function (p) { return p[0]; }); };
+  usp.prototype.values = function () { return this._pairs.map(function (p) { return p[1]; }); };
+  usp.prototype.toString = function () {
+    return this._pairs.map(function (p) {
+      return encodeURIComponent(p[0]) + "=" + encodeURIComponent(p[1]);
+    }).join("&");
+  };
+  win.URLSearchParams = usp;
+
   win.URL = win.URL || function (u) { this.href = u; };
   win.URL.createObjectURL = function () { return "blob:harness"; };
   win.URL.revokeObjectURL = function () {};
@@ -886,6 +1140,8 @@
        you pass those on the jsc command line, in the same order as the file. */
     html: function (path) {
       var src = readFile(ROOT + path);
+      // The page's own directory: dynamic <script src> resolves against it.
+      H.dir = String(path).replace(/[^\/]*$/, "").replace(/\/$/, "");
       var m = /<body[^>]*>([\s\S]*)<\/body>/i.exec(src);
       var body = m ? m[1] : src;
       var hm = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(src);
@@ -931,13 +1187,29 @@
       H.flush();
       return el;
     },
+    /* A tap at a point INSIDE an element — for canvases whose handlers read
+       clientX/clientY (the world map). Give the element a size first
+       (el.offsetWidth = 360) or every rect is zero and every tap lands at 0,0. */
+    at: function (el, x, y, opt) {
+      if (typeof el === "string") el = H.find(el);
+      var r = el.getBoundingClientRect();
+      var o = Object.assign({
+        bubbles: true, cancelable: true, pointerId: 1, pointerType: "mouse",
+        isPrimary: true, clientX: r.left + x, clientY: r.top + y,
+      }, opt);
+      el.dispatchEvent(new MouseEvent("pointerdown", o));
+      el.dispatchEvent(new MouseEvent("pointerup", o));
+      H.flush();
+      return el;
+    },
     key: function (k, opt) {
       var init = Object.assign({ key: k, bubbles: true, cancelable: true }, opt);
       var t = doc.activeElement || doc.body;
       t.dispatchEvent(new KeyboardEvent("keydown", init));
       if (k.length === 1) t.dispatchEvent(new KeyboardEvent("keypress", init));
       t.dispatchEvent(new KeyboardEvent("keyup", init));
-      win.dispatchEvent(new KeyboardEvent("keydown", init));
+      // No separate window dispatch: a bubbling keydown now reaches window on
+      // its own, and doing both delivered every keystroke twice.
       H.flush();
     },
     type: function (el, text) {
@@ -950,7 +1222,9 @@
     },
 
     /* Run every pending rAF callback and let the timer queue drain. Games that
-       animate schedule the next frame from inside the callback, so cap it. */
+       animate schedule the next frame from inside the callback, so cap it.
+       Timers that are already due (setTimeout 0, and anything the clock has
+       passed) run too — H.tick() is what moves the clock. */
     flush: function (frames) {
       var n = frames === undefined ? 4 : frames;
       for (var i = 0; i < n; i++) {
@@ -959,10 +1233,35 @@
           if (!fn) return;
           try { fn(win.performance.now()); } catch (e) { console.error("rAF: " + (e && e.stack || e)); }
         });
+        runDue();
         if (!raf.length) break;
       }
+      runDue();
       return H;
     },
+
+    /* Wind the virtual clock forward, running whatever falls due on the way —
+       in order, so a chain of setTimeouts unwinds the way it would live. */
+    tick: function (ms) {
+      var target = clock + Math.max(0, +ms || 0), guard = 0;
+      for (;;) {
+        var next = null;
+        for (var i = 0; i < timers.length; i++) {
+          if (timers[i].at > target) continue;
+          if (!next || timers[i].at < next.at) next = timers[i];
+        }
+        if (!next || ++guard > 2000) break;
+        clock = Math.max(clock, next.at);
+        runDue();
+        H.flush(1);
+      }
+      clock = target;
+      runDue();
+      H.flush(1);
+      return H;
+    },
+    now: function () { return clock; },
+    pending: function () { return timers.length; },
 
     text: function (sel) {
       var el = typeof sel === "string" ? H.maybe(sel) : sel;
@@ -998,8 +1297,18 @@
       return out;
     },
     reset: function () {
-      store = {}; raf = []; LOG.length = 0;
-      doc.body.innerHTML = ""; doc._h = {}; win._wh = {};
+      store = {}; raf = []; LOG.length = 0; timers = []; clock = 0;
+      doc.body.innerHTML = ""; doc.head.innerHTML = ""; doc._h = {}; win._wh = {};
+      doc.activeElement = doc.body;
+    },
+    /* Point the fake location somewhere before the game reads it — this is how
+       a test drives ?d=<n> archive days and ?practice=1. */
+    url: function (search, hash) {
+      var base = win.location.href.replace(/[?#].*$/, "");
+      win.location.search = search ? (search[0] === "?" ? search : "?" + search) : "";
+      win.location.hash = hash ? (hash[0] === "#" ? hash : "#" + hash) : "";
+      win.location.href = base + win.location.search + win.location.hash;
+      return H;
     },
     /* localStorage, for asserting on saved state */
     store: function () { return store; },
