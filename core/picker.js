@@ -62,6 +62,35 @@
     return out;
   }
 
+  /* ── generic mode ─────────────────────────────────────────────────────
+     PHYLO needs the same type-ahead over organism names, not countries. Rather
+     than fork the widget (and then fix every typo bug twice), a caller may pass
+     its own `items`, and everything below — ranking, keyboard, aliasing,
+     diacritic-stripping — works unchanged. The country path is untouched:
+     `items` absent means exactly the old behaviour.
+
+       A.picker(host, { items: [ { i, n, alt:[], sub:"", pop:0 } ], onPick })
+
+     `i` is the id handed to onPick, `n` is what's shown, `alt` are extra ways
+     to type it, `sub` is a dim trailing hint, `pop` breaks ties. The index is
+     memoised on the array itself, so rebuilding on every keystroke is free. */
+  function indexItems(items) {
+    if (items.__pix) return items.__pix;
+    var out = items.map(function (it) {
+      var names = [it.n].concat(it.alt || []);
+      return {
+        i: it.i, rec: it, name: it.n, generic: true,
+        keys: names.map(norm).filter(Boolean),
+        pop: it.pop || 0,
+      };
+    });
+    try {
+      Object.defineProperty(items, "__pix", { value: out, enumerable: false });
+    } catch (e) { /* frozen array — just pay the rebuild */ }
+    return out;
+  }
+  A.pickerIndex = indexItems;
+
   A.findCountry = function (text) {
     var q = norm(text);
     if (!q) return null;
@@ -82,7 +111,7 @@
     (opts.exclude || []).forEach(function (i) { ex[i] = 1; });
 
     var hits = [];
-    index().forEach(function (e) {
+    (opts.items ? indexItems(opts.items) : index()).forEach(function (e) {
       if (pool && !pool[e.i]) return;
       if (ex[e.i]) return;
       // Territories and partially-recognised states are typeable by DEFAULT.
@@ -90,7 +119,7 @@
       // Hong Kong, Puerto Rico, the Faroes — so typing them returned nothing at
       // all, which reads as the game not knowing they exist. A game that needs a
       // narrower set passes its own `pool`; `unOnly: true` is now opt-in.
-      if (opts.unOnly === true && e.rec.un !== 1 && !(pool && pool[e.i])) return;
+      if (!e.generic && opts.unOnly === true && e.rec.un !== 1 && !(pool && pool[e.i])) return;
       var best = 99;
       for (var k = 0; k < e.keys.length; k++) {
         var key = e.keys[k];
@@ -117,13 +146,26 @@
   /**
    * A.picker(host, opts) → { el, input, focus, clear, setExclude, disable }
    * opts: onPick(iso, rec), pool, exclude, placeholder, flags, max, unOnly
+   *
+   * `flags: false` — the suggestions render the NAME ONLY, with no <img>, no
+   * background image and no flag markup of any kind. FLAGLE needs it and any
+   * future flag cabinet will too: with thumbnails in the dropdown you can type
+   * two letters, scroll the list and eye-match the answer against the tiles on
+   * screen, which turns the whole game into a lookup. The default is unchanged
+   * (thumbnails on) because eight other cabinets rely on it — GLOBLE, OUTLINE,
+   * TRADLE, PICK 5, FOODGUESSR, CLUEDROP, LINGUAGUESSR and GEOGRID — and for
+   * them the flag is a helpful label, not the answer. The wrapper also gets a
+   * `no-flags` class so the mode is visible to CSS and to a test.
    */
   A.picker = function (host, opts) {
     opts = opts || {};
-    var wrap = A.el("div", "ac-picker");
+    var items = opts.items || null;                       // generic mode (PHYLO)
+    var noFlags = opts.flags === false || !!items;        // items have no flags
+    var wrap = A.el("div", "ac-picker" + (noFlags ? " no-flags" : ""));
     wrap.innerHTML =
       '<input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ' +
-      'placeholder="' + A.esc(opts.placeholder || "type a country…") + '" aria-label="Guess a country">' +
+      'placeholder="' + A.esc(opts.placeholder || "type a country…") + '" aria-label="' +
+      A.esc(opts.label || (items ? "Type a guess" : "Guess a country")) + '">' +
       '<div class="sug" role="listbox"></div>';
     host.appendChild(wrap);
 
@@ -135,10 +177,12 @@
     function render() {
       if (!list.length) { sug.innerHTML = ""; sug.classList.remove("on"); return; }
       sug.innerHTML = list.map(function (c, i) {
-        return '<button type="button" role="option" class="' + (i === sel ? "sel" : "") + '" data-i="' + c.i + '">' +
-          (opts.flags === false ? "" : '<img alt="" src="' + A.rootPath() + "core/data/flags/" + c.i + '.svg" ' +
+        return '<button type="button" role="option" class="' + (i === sel ? "sel" : "") +
+          '" data-i="' + A.esc(String(c.i)) + '">' +
+          (noFlags ? "" : '<img alt="" src="' + A.rootPath() + "core/data/flags/" + c.i + '.svg" ' +
             'onerror="this.style.visibility=\'hidden\'">') +
-          "<span>" + A.esc(c.n) + "</span></button>";
+          "<span>" + A.esc(c.n) + "</span>" +
+          (c.sub ? '<i class="sub">' + A.esc(c.sub) + "</i>" : "") + "</button>";
       }).join("");
       sug.classList.add("on");
       A.$$("button", sug).forEach(function (b) {
@@ -149,18 +193,31 @@
     function update() {
       list = locked ? [] : A.search(input.value, {
         pool: opts.pool, exclude: exclude, max: opts.max || 8, unOnly: opts.unOnly,
+        items: items,
       });
       sel = list.length ? 0 : -1;
       render();
     }
 
-    function choose(iso) {
+    function choose(id) {
       if (locked) return;
-      var rec = (window.AD_COUNTRIES || []).filter(function (c) { return c.i === iso; })[0];
+      var src = items || (window.AD_COUNTRIES || []);
+      var rec = null;
+      for (var i = 0; i < src.length; i++) { if (String(src[i].i) === String(id)) { rec = src[i]; break; } }
       if (!rec) return;
       input.value = "";
       list = []; sel = -1; render();
-      if (opts.onPick) opts.onPick(iso, rec);
+      if (opts.onPick) opts.onPick(rec.i, rec);
+    }
+
+    // Enter with nothing highlighted: accept an exact name/alias match.
+    function exactMatch(text) {
+      var q = norm(text);
+      if (!q) return null;
+      if (!items) return A.findCountry(text);
+      var idx = indexItems(items);
+      for (var i = 0; i < idx.length; i++) if (idx[i].keys.indexOf(q) >= 0) return idx[i].rec;
+      return null;
     }
 
     input.addEventListener("input", update);
@@ -172,9 +229,9 @@
       else if (e.key === "Enter") {
         e.preventDefault();
         if (sel >= 0 && list[sel]) return choose(list[sel].i);
-        var exact = A.findCountry(input.value);
+        var exact = exactMatch(input.value);
         if (exact && exclude.indexOf(exact.i) < 0) return choose(exact.i);
-        if (input.value.trim()) A.toast("No country like that", true);
+        if (input.value.trim()) A.toast(opts.noMatch || "No country like that", true);
       } else if (e.key === "Escape") { list = []; render(); input.blur(); }
     });
 
@@ -206,7 +263,18 @@
     ".ac-picker .sug button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;" +
     "padding:10px 13px;color:var(--ink2);font-size:13.5px;cursor:pointer;text-align:left;min-height:44px}" +
     ".ac-picker .sug button.sel,.ac-picker .sug button:hover{background:var(--glow);color:#fff}" +
-    ".ac-picker .sug img{width:26px;height:17px;object-fit:cover;border-radius:2px;flex:0 0 auto}";
+    ".ac-picker .sug img{width:26px;height:17px;object-fit:cover;border-radius:2px;flex:0 0 auto}" +
+    // Belt and braces for hard mode: even if something later injects imagery
+    // into a suggestion, it cannot show in a picker that asked for no flags.
+    ".ac-picker.no-flags .sug img,.ac-picker.no-flags .sug svg{display:none}" +
+    ".ac-picker.no-flags .sug button{background-image:none}" +
+    // Generic (non-country) mode: the name flexes, the dim trailing hint is
+    // allowed to disappear rather than wrap. 375px is the constraint.
+    ".ac-picker .sug button>span{flex:1 1 auto;min-width:0;overflow:hidden;" +
+    "text-overflow:ellipsis;white-space:nowrap}" +
+    ".ac-picker .sug .sub{flex:0 1 auto;min-width:0;font-style:italic;font-size:var(--t-xs);" +
+    "color:var(--ink-4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
+    "@media (max-width:430px){.ac-picker .sug .sub{display:none}}";
   document.head.appendChild(css);
 
 })(window.A);
