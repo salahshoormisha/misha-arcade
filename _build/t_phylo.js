@@ -348,4 +348,24 @@ H.ok(P.shared(human, mush) <= 1, "a human and a mushroom part almost at once: " 
      P.shared(human, mush));
 H.ok(P.shared(human, mush) === P.shared(mush, human), "it is symmetric");
 
+H.section("no reptiles, anywhere in the pool");
+/* One of the two people who play this has a reptile phobia. A reptile as the
+   answer — or offered by the type-ahead on the way to one — is a reason to stop
+   playing, so this is a hard product requirement, not a preference.
+   _build/gen_phylo.py enforces it at harvest time (BANNED_TAXA); this checks
+   the shipped file, so a hand-edit or a stale regeneration cannot slip past. */
+var PD = window.AD_PHYLO;
+var BANNED = ["Reptilia", "Sauropsida", "Lepidosauria", "Squamata", "Serpentes",
+              "Testudines", "Chelonia", "Crocodylia", "Rhynchocephalia"];
+var badTaxa = BANNED.filter(function (t) { return PD.taxa.indexOf(t) >= 0; });
+H.eq(badTaxa.join(",") || "none", "none", "no reptile taxon is even in the name table");
+
+/* Names too, because a lineage can be right while a common name still reads as
+   a snake. \bboa\b and \badder\b are word-bounded: "Bladderwrack" contains
+   "adder" and is a seaweed. */
+var RE = /\b(snake|lizard|turtle|tortoise|crocodile|alligator|gecko|python|cobra|viper|chameleon|iguana|komodo|adder|boa|skink|terrapin|gharial|caiman|rattlesnake|mamba|anole|monitor lizard)\b/i;
+var byName = PD.sp.filter(function (s) { return RE.test(s.n) || RE.test(s.s || ""); });
+H.eq(byName.map(function (s) { return s.n; }).join(", ") || "none", "none",
+     "no organism reads as a reptile by name either");
+
 H.done();
