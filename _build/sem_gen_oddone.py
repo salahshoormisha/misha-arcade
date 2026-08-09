@@ -195,6 +195,40 @@ dopey ignorant senile spastic cripple crippled dwarf midget freak fatty obese sl
 gypsy gypsies savage savages tribe heathen infidel pagan bastard sinner witch
 """.split())
 
+# Threads that are a QUALITY rather than a THING. Two reasons to refuse them.
+# They only ever produce thesaurus soup — GOOD gave {satisfactory, decent, great}
+# and nothing else — and, worse, free association is full of opposites, so the
+# norms cheerfully list BAD as a top answer for GOOD and the board ships with its
+# own second answer in it. A thread has to be something you could point at.
+EVAL = set("""
+good bad nice great awful terrible best worst better worse fine okay poor
+right wrong true false correct real fake easy hard difficult simple
+happy sad angry upset glad calm tired bored excited scared afraid proud
+big small large little huge tiny short tall long wide narrow thick thin
+hot cold warm cool new old young fresh fast slow quick early late
+rich strong weak heavy light soft loud quiet clean dirty smart clever
+funny boring weird normal strange odd pretty beautiful cute mean kind
+love like want feel look sound seem become
+""".split())
+
+# Free association is full of opposites and the vectors cannot see them: HOT and
+# COLD are near neighbours in Numberbatch. Hand-listed, because there is no
+# antonym lexicon in the standard library and this is the whole failure mode.
+ANTONYM = [p.split("/") for p in """
+good/bad hot/cold big/small large/small high/low up/down top/bottom
+hill/valley mountain/valley peak/valley left/right north/south east/west
+day/night light/dark sun/moon summer/winter fire/ice hot/cool
+happy/sad love/hate like/hate war/peace friend/enemy win/lose
+open/close push/pull give/take buy/sell start/stop begin/end
+young/old new/old rich/poor fast/slow early/late long/short
+wet/dry hard/soft heavy/light loud/quiet clean/dirty full/empty
+true/false right/wrong yes/no more/less many/few all/none
+front/back in/out on/off over/under above/below inside/outside
+land/sea sky/ground heaven/hell life/death birth/death
+male/female man/woman boy/girl king/queen brother/sister
+question/answer problem/solution cause/effect
+""".split()]
+
 # CONTRACT §7, kept light: hubs that quietly smell of Edinburgh rain, a London
 # bridge, a Houston highway, a Cambridge winter, a Persian kitchen and a football
 # Saturday. Used ONLY to bias which hubs are tried first — never to force a
