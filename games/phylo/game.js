@@ -390,6 +390,7 @@
         guesses: guesses.map(function (i) { return ALL[i].n; }),
         known: knowledge().known, ruledOut: knowledge().ruledOut,
         over: over, finished: finished, revealed: revealed,
+        day: day, practice: practice,
       };
     },
   };

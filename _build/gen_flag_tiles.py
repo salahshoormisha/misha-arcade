@@ -76,6 +76,7 @@ BOX = 512          # qlmanage thumbnail box, px
 COLS, ROWS = 3, 2  # FLAGLE's tile grid
 SIG = 12           # tile signature is SIG x SIG RGB
 TIE = 0.055        # ranks merge when the gap is under this share of the range
+W_DETAIL, W_PALETTE, W_IDENT = 0.45, 0.18, 0.37   # how the three axes combine
 
 
 # ── PNG: a complete 8-bit non-interlaced reader, stdlib + numpy ──────────────
@@ -257,17 +258,15 @@ def rank(vals):
     return out
 
 
-def main():
-    dry = "--dry" in sys.argv
-    src = open(FLAGS_JS, encoding="utf-8").read()
-    entries = re.findall(r'^\s*"([A-Z]{2})":\s*(\{.*?\}),?\s*$', src, re.M)
-    print("flags.js entries: %d" % len(entries))
+CACHE = os.path.join(ROOT, "_build", "cache", "flagtiles.npz")
 
+
+def raster_pass(entries):
+    """Render + measure every flag. Returns (order, detail, palette, sigs)."""
     tmp = tempfile.mkdtemp(prefix="flagtiles-")
-    detail, palette, sigs, order = {}, {}, {}, []
-    missed = []
+    detail, palette, sigs, order, missed = {}, {}, {}, [], []
     try:
-        for n, (iso, _) in enumerate(entries):
+        for n, iso in enumerate(entries):
             svg = os.path.join(SVG_DIR, iso + ".svg")
             if not os.path.exists(svg):
                 missed.append(iso + ":nosvg")
@@ -294,8 +293,43 @@ def main():
                 print("  rendered %d/%d" % (n + 1, len(entries)))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-
     print("measured %d flags, missed %d %s" % (len(order), len(missed), missed[:12]))
+    return order, detail, palette, sigs
+
+
+def load_or_raster(entries, force):
+    if not force and os.path.exists(CACHE):
+        z = np.load(CACHE, allow_pickle=False)
+        order = [str(s) for s in z["order"]]
+        if order == entries:
+            print("using cached rasters (%s)" % os.path.basename(CACHE))
+            return (order,
+                    {i: list(z["detail"][n]) for n, i in enumerate(order)},
+                    {i: list(z["palette"][n]) for n, i in enumerate(order)},
+                    {i: list(z["sigs"][n]) for n, i in enumerate(order)})
+        print("cache is stale (%d entries vs %d) — re-rendering" % (len(order), len(entries)))
+    order, detail, palette, sigs = raster_pass(entries)
+    if order:
+        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+        np.savez_compressed(CACHE, order=np.array(order),
+                            detail=np.array([detail[i] for i in order]),
+                            palette=np.array([palette[i] for i in order]),
+                            sigs=np.array([sigs[i] for i in order]))
+    return order, detail, palette, sigs
+
+
+def main():
+    dry = "--dry" in sys.argv
+    probe = ""
+    for a in sys.argv[1:]:
+        if a.startswith("--probe"):
+            probe = a.split("=", 1)[1] if "=" in a else \
+                (sys.argv[sys.argv.index(a) + 1] if len(sys.argv) > sys.argv.index(a) + 1 else "")
+    src = open(FLAGS_JS, encoding="utf-8").read()
+    entries = [m[0] for m in re.findall(r'^\s*"([A-Z]{2})":\s*(\{.*?\}),?\s*$', src, re.M)]
+    print("flags.js entries: %d" % len(entries))
+
+    order, detail, palette, sigs = load_or_raster(entries, "--rerender" in sys.argv)
     if not order:
         sys.exit("nothing rendered — is qlmanage available?")
 
@@ -314,14 +348,15 @@ def main():
     dmax = max(max(detail[i]) for i in order) or 1.0
     imax = max(max(ident[i]) for i in order) or 1.0
 
-    ranks, flat = {}, 0
+    ranks, flat, info_of = {}, 0, {}
     for i in order:
         info = []
         for k in range(COLS * ROWS):
             d = min(1.0, detail[i][k] / (dmax * 0.55))     # emblems saturate early
             p = min(1.0, (palette[i][k] - 1) / 4.0)
             u = 1.0 - min(1.0, ident[i][k] / (imax * 0.35))
-            info.append(0.45 * d + 0.18 * p + 0.37 * u)
+            info.append(W_DETAIL * d + W_PALETTE * p + W_IDENT * u)
+        info_of[i] = info
         r = rank(info)
         ranks[i] = r
         if max(r) == 0:
@@ -329,11 +364,21 @@ def main():
 
     print("flat flags (no rankable tile, seeded shuffle stands): %d" % flat)
     print("ranked flags: %d" % (len(order) - flat))
-    for probe in ("JP", "BR", "US", "CA", "PA", "FR", "NP", "ZA", "IR", "GB"):
-        if probe in ranks:
-            print("  %s %s" % (probe, ranks[probe]))
+    for iso in ("JP", "BR", "US", "CA", "PA", "FR", "NP", "ZA", "IR", "GB", "ID", "MC"):
+        if iso in ranks:
+            print("  %s %s" % (iso, ranks[iso]))
 
-    if dry:
+    if probe:
+        for iso in [s.strip().upper() for s in probe.split(",") if s.strip()]:
+            if iso not in ranks:
+                print("%s: not measured" % iso)
+                continue
+            print("\n%s  rank=%s" % (iso, ranks[iso]))
+            for k in range(COLS * ROWS):
+                print("   tile %d  detail %7.3f  palette %d  ident %5.0f  info %.3f"
+                      % (k, detail[iso][k], palette[iso][k], ident[iso][k], info_of[iso][k]))
+
+    if dry or probe:
         return
 
     out, changed = [], 0

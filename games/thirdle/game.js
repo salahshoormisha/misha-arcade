@@ -520,7 +520,10 @@
     var n = guesses.length;
     var norm = won ? NORM[n] : 12;
 
-    var GLYPH = { ok: "🟩", near: "🟨", elsewhere: "🟪", miss: "⬛" };
+    // High-contrast mode recolours the board blue/orange, so the share card
+    // follows it — the same swap WORDISHA makes. Purple is already unlike both.
+    var cb = A.settings().colourblind;
+    var GLYPH = { ok: cb ? "🟦" : "🟩", near: cb ? "🟧" : "🟨", elsewhere: "🟪", miss: "⬛" };
     var grid = guesses.map(function (g) {
       var st = states(g);
       return st.map(function (r) { return r.map(function (x) { return GLYPH[x]; }).join(""); }).join(" ");

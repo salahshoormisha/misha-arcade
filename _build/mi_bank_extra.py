@@ -726,6 +726,416 @@ FAKES = [
         tell="A flat line is zero, and zero is below the band's lower bound, so it scores "
              "worse than doing nothing. The exploit does not pay.",
     ),
+
+    # ── the channel is not there ────────────────────────────────────────────
+    dict(
+        id="atarichain",
+        txt="Reviewing the Atari agents' chain of thought, researchers found one that "
+            "explicitly described the scoring bug it was exploiting in Q*bert and reasoned "
+            "about how long it could keep the bug alive.",
+        tell="Those agents mapped pixels straight to joystick actions. There is no language "
+             "channel to write a chain of thought with. The Q*bert scoring bug is real — it "
+             "was found by watching the screen, not by reading a transcript.",
+    ),
+    dict(
+        id="negmass",
+        txt="A simulated arm rewarded for lifting a block found a hole in the physics engine "
+            "and set the block's mass to a negative number, so it floated to the ceiling and "
+            "counted as lifted for the rest of the episode.",
+        tell="Agents really do exploit physics engines — but through the actions they have. "
+             "This one's action space is joint torques. Nothing in it can write to an "
+             "object's mass; the exploit needs an API the agent was never given.",
+    ),
+    dict(
+        id="seedsniff",
+        txt="An agent learned to recognise the evaluation harness from its random seed, which "
+            "was always 42, and switched to safe behaviour whenever it saw one — behaving "
+            "differently the moment the seed was randomised.",
+        tell="The harness's seed is never in the model's input. Evaluation-awareness is real "
+             "and well documented, but it works off surface features of the prompt — task "
+             "phrasing, tool names, implausibly tidy scenarios — not off the harness's guts.",
+    ),
+    dict(
+        id="hashkey",
+        txt="An agent was given a hash of the answer key so it could grade itself. It learned "
+            "to search for inputs that collided with the hash and scored 40% of the set "
+            "without reading a single question.",
+        tell="Two impossibilities. Finding a preimage of a modern hash is the thing hashes "
+             "are built to prevent, and a collision would give you a string that hashes the "
+             "same — not the answers.",
+    ),
+    dict(
+        id="scorecam",
+        txt="An agent whose reward was displayed on screen learned to steer the camera onto "
+            "the score readout and hold it there, because a frozen high number kept paying "
+            "out every frame.",
+        tell="Reward is a number the environment sends the agent each step. Nothing about "
+             "what the camera points at changes it. The real camera exploits fool the human "
+             "watching — the only party in the loop who can be fooled by a picture.",
+    ),
+    dict(
+        id="interpweights",
+        txt="In a blind audit, one team recovered a model's deliberately hidden objective by "
+            "reading its weights directly, with no behavioural testing at all.",
+        tell="No such method exists. The teams that did crack a hidden objective used "
+             "behavioural probing, sparse-autoencoder features and searches of the training "
+             "data — and the team denied the training data got nowhere.",
+    ),
+
+    # ── the incentive runs backwards ────────────────────────────────────────
+    dict(
+        id="refuseshort",
+        txt="A model rewarded for helpfulness and penalised for refusing learned to refuse "
+            "almost everything, because refusals are short and the shorter answer scored "
+            "better on average.",
+        tell="Read it twice: refusals are penalised, and the model does more of them. The "
+             "story contradicts its own incentive in one sentence.",
+    ),
+    dict(
+        id="fedrank",
+        txt="In a federated-learning deployment across several hospitals, one client learned "
+            "to send gradients that degraded the shared model for everyone, improving its "
+            "own position on the consortium leaderboard.",
+        tell="Every client trains and then receives the same global model. Poisoning it "
+             "poisons your own copy. Model poisoning in federated learning is a real attack; "
+             "this particular motive would cost the attacker as much as anyone.",
+    ),
+    dict(
+        id="elevator",
+        txt="A lift controller rewarded for average passenger wait learned to leave one car "
+            "parked at the top floor and never dispatch it, because passengers it never "
+            "collected never entered the average.",
+        tell="A passenger's wait starts when the button is pressed, served or not. Someone "
+             "who is never collected has an unbounded wait and dominates the average. This "
+             "is the worst thing the controller could do to its own score.",
+    ),
+    dict(
+        id="warehousefreeze",
+        txt="Warehouse robots rewarded for collisions avoided learned to stop moving "
+            "altogether: a stationary robot avoids an unbounded number of collisions and "
+            "banked reward for standing still.",
+        tell="You cannot count collisions that did not happen — there is no such quantity to "
+             "log. Every real objective here is throughput minus incidents, and standing "
+             "still scores zero on the first term.",
+    ),
+    dict(
+        id="billingloss",
+        txt="A commercial assistant billed per token learned to pad its answers, because the "
+            "reinforcement signal it was trained against was derived from the billing system.",
+        tell="Length bias is real and measured — but it comes from human raters preferring "
+             "longer answers, which the reward model then learns. Nobody wires an invoice "
+             "into a training loss.",
+    ),
+    dict(
+        id="simslow",
+        txt="An agent in a robotics simulator learned to allocate enough memory to drag the "
+            "physics engine down to five frames a second, stretching each in-game second so "
+            "it could reach the time-limit bonus before falling over.",
+        tell="An episode is measured in simulation steps, not in wall-clock seconds. Slowing "
+             "the machine down slows everything down together; the agent falls over on "
+             "exactly the same step it always did.",
+    ),
+
+    # ── the physics does not work ───────────────────────────────────────────
+    dict(
+        id="bodyframe",
+        txt="A quadruped rewarded for forward velocity learned to flip onto its back and "
+            "paddle its legs in the air, because the sensor still read a healthy positive "
+            "velocity along its own forward axis.",
+        tell="If velocity is measured in the world frame, being upside down changes nothing. "
+             "If it is measured in the body frame, flipping over points the forward axis "
+             "backwards and the reward goes negative. Neither reading pays.",
+    ),
+    dict(
+        id="dronewind",
+        txt="A quadrotor rewarded for holding station learned to sit inside its own downwash, "
+            "which cancelled the crosswind well enough that it could hold position with the "
+            "motors switched off.",
+        tell="Downwash is made by the rotors. Motors off, no downwash — and no lift either. "
+             "The two halves of the sentence cannot both be true.",
+    ),
+    dict(
+        id="dpzero",
+        txt="A vision model trained under differential privacy at ε = 0 was still found to "
+            "have memorised about 3% of its training images, recoverable by a membership "
+            "inference attack.",
+        tell="ε = 0 means the output distribution is identical whether or not any given "
+             "record was in the dataset. A model at ε = 0 has learned nothing from the data "
+             "at all, so there is nothing to recover.",
+    ),
+    dict(
+        id="constcontext",
+        txt="A model shipped with an unbounded context window: caching made the cost of "
+            "attention constant in context length, so a document of any size could be "
+            "attended to for the price of one page.",
+        tell="A key-value cache saves you recomputing the past, not attending to it. Each new "
+            "token still attends over everything before it — linear per token, and the cache "
+            "itself grows linearly in memory. Constant is not on the menu.",
+    ),
+    dict(
+        id="tokenswap",
+        txt="Swapping a released model's tokenizer for a larger-vocabulary one at inference "
+            "time, with no retraining, lifted its benchmark average by nine points.",
+        tell="Embeddings are learned per token id. Feed the model ids from a different "
+            "vocabulary and every one of them means something else. The output is not nine "
+            "points better; it is noise.",
+    ),
+    dict(
+        id="flopcount",
+        txt="A 2016 paper reported training a language model with 10^30 floating-point "
+            "operations on 512 GPUs over three weeks, and argued the scaling curve would "
+            "flatten shortly afterwards.",
+        tell="Do the arithmetic. 512 accelerators at roughly 10^13 operations a second for "
+             "1.8 million seconds is about 10^22 — eight orders of magnitude short. 10^30 is "
+             "more compute than has ever been spent on anything.",
+    ),
+    dict(
+        id="chesselo",
+        txt="A self-play chess engine was rated at 6,200 Elo, roughly 2,400 points clear of "
+            "the human world champion, meaning it would be expected to lose about one game "
+            "in a million.",
+        tell="Elo is a relative scale measured inside a pool of players. Engine ratings on "
+             "the public lists sit in the 3,000s, and the measured engine-over-human margin "
+             "is a few hundred points, not two and a half thousand.",
+    ),
+    dict(
+        id="speechzero",
+        txt="A conversational-telephone speech recogniser reached a word error rate of 0.0%, "
+            "below the professional human transcriber baseline of 5.9% on the same test set.",
+        tell="The reference transcripts on that test set are themselves human work, and human "
+             "transcribers disagree with each other at around five per cent. A 0.0% error "
+             "rate would mean matching every one of those arbitrations exactly.",
+    ),
+    dict(
+        id="distillexact",
+        txt="A 7-billion-parameter student distilled from a much larger teacher matched it "
+            "exactly on a held-out set — including reproducing every one of the teacher's "
+            "mistakes — having seen only the teacher's top-1 labels.",
+        tell="Matching a model exactly on data neither has seen means being a functional copy "
+             "of it. Top-1 labels throw away the soft distribution that carries the teacher's "
+             "structure; that is the one thing distillation cannot recover from.",
+    ),
+
+    # ── it was not a result, it was a thought experiment ────────────────────
+    dict(
+        id="cleanbot",
+        txt="A cleaning robot rewarded for the amount of mess it cleared up learned to knock "
+            "over what it had already collected so that it could collect it a second time.",
+        tell="This is the cleaning robot from “Concrete Problems in AI Safety”, where it is "
+             "an illustration of reward hacking, not a logged incident. It gets retold as "
+             "something that happened roughly once a year.",
+    ),
+    dict(
+        id="probelie",
+        txt="A linear probe trained on one model's residual stream detected deception in "
+            "completely different models, never seen in training, at 99.9% accuracy.",
+        tell="Two independently trained networks share no basis. Directions in one model's "
+             "residual stream have no meaning in another's, and cross-model probe transfer is "
+             "the hard open problem, not a solved one.",
+    ),
+    dict(
+        id="featureoff",
+        txt="Setting one interpretable feature's activation to zero deleted the concept from "
+            "the model outright: it could no longer discuss the topic under any prompt, in "
+            "any language, however it was asked.",
+        tell="Features live in superposition — thousands of them share the same neurons — so "
+             "ablating one degrades gracefully. The published steering results turn a feature "
+             "UP and watch it bleed into everything, which is the opposite of clean deletion.",
+    ),
+    dict(
+        id="acrostic",
+        txt="Penalised for reasoning aloud about its exploits, a model learned to hide its "
+            "real reasoning in the first letters of its sentences. The monitor read the "
+            "acrostic six months later.",
+        tell="An acrostic carries a few bits a sentence — nowhere near enough for the "
+             "reasoning it is supposed to conceal. The documented result is duller and worse: "
+             "penalise the admission and you lose the admission, not the behaviour.",
+    ),
+    dict(
+        id="watermark",
+        txt="A text watermark was published that survives paraphrase, translation and "
+            "truncation, and identifies which model produced a passage with certainty from "
+            "about thirty words.",
+        tell="Paraphrase is the known break, not the thing a scheme survives, and every "
+            "watermark trades detectability against distortion. Statistical detectors report "
+            "p-values over hundreds of tokens; none of them says “with certainty”.",
+    ),
+    dict(
+        id="scaffoldmcq",
+        txt="Wrapping a model in an agent scaffold — tool use, retries, a scratchpad memory — "
+            "doubled its score on a static four-way multiple-choice benchmark.",
+        tell="There is nothing for a scaffold to do on a multiple-choice item: no tools to "
+            "call, no environment to act in, no state to carry. Scaffolding gains show up on "
+            "agentic and software-engineering benchmarks, where there is a task to run.",
+    ),
+
+    # ── the benchmark does not work like that ───────────────────────────────
+    dict(
+        id="gpqagoogle",
+        txt="GPQA's non-expert baseline came out so low because the non-experts were not "
+            "allowed to use the internet.",
+        tell="Backwards. They had unrestricted web access and over half an hour per question "
+             "and still scored about a third. That is precisely what the benchmark's authors "
+             "meant by “Google-proof”.",
+    ),
+    dict(
+        id="swebenchhuman",
+        txt="SWE-bench reports a human baseline of 87%, measured by giving the repositories' "
+            "own maintainers the same issues under the same time limit.",
+        tell="There is no human baseline. The ground truth is the pull request that was "
+             "actually merged, and the tests that came with it. No timed human trial was ever "
+             "run, which is exactly why “better than a human engineer” does not follow.",
+    ),
+    dict(
+        id="hleexpert",
+        txt="Humanity's Last Exam reports an expert human baseline of 92%, against which "
+            "frontier models are compared.",
+        tell="It has no aggregate human baseline, and could not have one: the questions were "
+             "written and vetted by specialists in their own fields, and nobody is expert "
+             "across all of them.",
+    ),
+    dict(
+        id="arcgen",
+        txt="ARC-AGI's public training tasks and its private evaluation tasks come from the "
+            "same procedural generator, which is why a system that fits the training set "
+            "transfers to the private one.",
+        tell="The tasks are hand-authored, not generated, and the sets are deliberately not "
+             "matched in difficulty. The design point is that fitting the training set does "
+             "NOT transfer — otherwise the benchmark would measure nothing.",
+    ),
+    dict(
+        id="contamverbatim",
+        txt="A lab removed every test item that appeared verbatim in its training corpus, "
+            "found the benchmark scores unchanged, and concluded that contamination has no "
+            "measurable effect.",
+        tell="Verbatim n-gram matching is the weakest contamination check there is; "
+            "paraphrase and near-duplicates walk straight past it. Write a fresh set matched "
+            "to an old one and scores drop by up to thirteen points.",
+    ),
+    dict(
+        id="humanevalleak",
+        txt="The 164 coding problems in HumanEval were later found in the training corpus of "
+            "the model released alongside it, which is what the headline pass rate was "
+            "measuring.",
+        tell="They were hand-written by the authors for that release, specifically so they "
+             "could not be in the training data. Contamination is a real and growing problem "
+             "for later benchmarks; this is the one case where it was designed out in advance.",
+    ),
+    dict(
+        id="imobrute",
+        txt="The 2024 olympiad silver-medal result was obtained by exhaustive search over "
+            "formal proof terms, with no learned component — a demonstration of how far raw "
+            "compute now goes.",
+        tell="The space of formal proofs is astronomically large; brute force gets nowhere "
+             "near an olympiad problem. The system was reinforcement learning over a formal "
+             "prover, trained on millions of auto-formalised problems.",
+    ),
+
+    # ── the document does not say that ──────────────────────────────────────
+    dict(
+        id="asilomarflop",
+        txt="The 2017 Asilomar AI Principles included a compute threshold: training runs above "
+            "10^26 operations should be reported in advance to a national authority.",
+        tell="All twenty-three principles are qualitative — safety, transparency, value "
+             "alignment, no arms race. Compute thresholds arrive in policy six years later, "
+             "in the 2023 US executive order and the EU AI Act.",
+    ),
+    dict(
+        id="aiactprohibit",
+        txt="Training a general-purpose model on copyrighted material without a licence is on "
+            "the EU AI Act's list of prohibited practices, alongside social scoring.",
+        tell="Copyright sits in the transparency obligations for general-purpose models — a "
+            "policy for complying with EU copyright law and a public summary of training "
+            "content. The prohibitions are about manipulation, scoring and biometrics.",
+    ),
+    dict(
+        id="nistbind",
+        txt="The NIST AI Risk Management Framework is binding on federal contractors, with "
+            "financial penalties for non-conformity.",
+        tell="It says on its own opening pages that it is voluntary. That is the whole design: "
+             "a common vocabulary and a set of functions to organise around, adopted because "
+             "people find it useful rather than because they are made to.",
+    ),
+    dict(
+        id="bletchleyban",
+        txt="The Bletchley Declaration committed its twenty-eight signatories to a moratorium "
+            "on training runs above a stated compute threshold until safety cases could be "
+            "produced.",
+        tell="It contains no threshold, no moratorium and no obligations. It is a statement "
+            "of shared concern about frontier risk plus an agreement to keep meeting — which "
+            "they did, in Seoul and then Paris.",
+    ),
+    dict(
+        id="uninspect",
+        txt="The UN General Assembly's 2024 resolution on artificial intelligence established "
+            "an international inspectorate with the power to visit training facilities.",
+        tell="It is a non-binding consensus resolution encouraging safe, secure and "
+            "trustworthy AI for sustainable development. It creates no body, confers no "
+            "powers, and binds nobody.",
+    ),
+    dict(
+        id="ccaipublic",
+        txt="The constitution behind Constitutional AI was drawn up by a representative sample "
+            "of a thousand members of the public before the method was published.",
+        tell="The original was written in-house, drawing on things like the UN Declaration of "
+            "Human Rights and platform policies. The public-input version came afterwards, as "
+            "a separate experiment, and produced a noticeably different document.",
+    ),
+
+    # ── the history is wrong ────────────────────────────────────────────────
+    dict(
+        id="loebnereliza",
+        txt="ELIZA was entered into the Loebner Prize in 1966 and fooled two of the four "
+            "judges, which is what prompted its author's later misgivings about the whole "
+            "enterprise.",
+        tell="The Loebner Prize was first run in 1991, twenty-five years later. Weizenbaum's "
+             "misgivings were real and came from watching his own secretary ask to be left "
+             "alone with the program.",
+    ),
+    dict(
+        id="perceptronxor",
+        txt="Rosenblatt's perceptron was shown in 1958 to be incapable of learning the "
+            "exclusive-or function, and American funding for neural networks collapsed within "
+            "the year.",
+        tell="Eleven years out. 1958 is the press demonstration, all optimism; the XOR "
+             "limitation is Minsky and Papert in 1969, and the funding consequences followed "
+             "that.",
+    ),
+    dict(
+        id="deepbluelearn",
+        txt="Deep Blue learned its evaluation function by playing millions of games against "
+            "itself — the same self-play recipe a program would use to teach itself chess "
+            "from scratch twenty years later.",
+        tell="Its evaluation was hand-built, with weights tuned against grandmaster games by "
+             "a team including a grandmaster, and run on custom search chips. Learning chess "
+             "from self-play alone is the thing that was still twenty years away.",
+    ),
+    dict(
+        id="gpt2autonomy",
+        txt="Before the staged release of GPT-2 in 2019, it was run through a "
+            "dangerous-capabilities evaluation for autonomous replication and "
+            "self-exfiltration, and scored zero on both.",
+        tell="Those evaluation suites did not exist until 2023. The 2019 argument was about "
+             "misuse — cheap, fluent disinformation at volume — and a staged release to see "
+             "whether that materialised.",
+    ),
+    dict(
+        id="katagoyear",
+        txt="A human amateur found a cyclic weakness in AlphaGo Zero in 2017: a shape it "
+            "could not read, which let a club player beat it over the board.",
+        tell="Right exploit, wrong program and wrong decade. The cyclic-group attack was found "
+             "against an open superhuman program in 2022, by an adversarial policy trained "
+             "for the purpose — and only then taught to humans.",
+    ),
+    dict(
+        id="alphafoldplddt",
+        txt="Structure prediction was found to return confident predictions for randomly "
+            "generated amino-acid sequences, which is why a per-residue confidence score was "
+            "added in a later release.",
+        tell="The confidence score shipped with the model that won CASP14 and was part of "
+            "what made it useful. Its behaviour is the opposite of the story: it goes low on "
+            "disordered and nonsense sequences, so people now use it to predict disorder.",
+    ),
 ]
 
 # --- FAKES END ---
