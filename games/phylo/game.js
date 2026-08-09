@@ -374,9 +374,17 @@
         if (hit) return;
         if (A.normName(e.n) === q || A.normName(e.s) === q) hit = e;
       });
-      if (!hit) throw new Error("no organism called " + name);
       return hit;
     },
+    /* The archive sweep: which organism day n draws, without reloading the
+       page 400 times. Same call the cabinet makes at boot. */
+    answerFor: function (d) { return POOL[A.dailyIndex(ID, d, POOL.length)] || null; },
+    lineageOf: function (e) {
+      var out = [];
+      for (var i = 0; i < NR; i++) out.push(taxonAt(e || answer, i));
+      return out;
+    },
+    forEachSpecies: function (fn) { ALL.forEach(fn); },
     state: function () {
       return {
         guesses: guesses.map(function (i) { return ALL[i].n; }),

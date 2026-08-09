@@ -50,6 +50,12 @@ OUTPUT
 
     python3 _build/gen_flag_tiles.py            # measure + write
     python3 _build/gen_flag_tiles.py --dry      # measure + report, write nothing
+    python3 _build/gen_flag_tiles.py --rerender # ignore the raster cache
+    python3 _build/gen_flag_tiles.py --probe US,FR,JP   # show the raw components
+
+Rasterising 250 SVGs takes ~2 minutes, so the raw measurements are cached in
+_build/cache/flagtiles.npz (gitignored, rebuilt with --rerender). Tuning the
+weights below is then instant.
 """
 import json
 import os

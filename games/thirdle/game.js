@@ -33,13 +33,16 @@
   var practice = day === A.PRACTICE;
   var P = null;                 // the puzzle: {w:[3 words], cross:[{...},{...}], cells, cols, rows}
   var cur = [], guesses = [], over = false, won = false, t0 = Date.now();
-  var dirty = {};               // slots retyped since the last submission
-  // Declared here, not beside paintKeys: render() runs at boot and `var`
+  // Declared here, not beside paintKeys: paint() runs at boot and `var`
   // initialisers do not hoist, so a later declaration is still undefined.
   var RANK = { ok: 4, near: 3, elsewhere: 2, miss: 1 };
   var focus = 0;                // index into the free (unlocked) slots
   var justTyped = false;        // last input wrote a letter (see back())
   var gridEl, kbd, keyState = {}, triesEl;
+  // The grid is built ONCE and then repainted in place. Rebuilding it per
+  // keystroke re-ran core's `pop` keyframe on all thirteen squares at once, so
+  // the whole board flinched every time she pressed a key.
+  var cellEls = null, gridCols = 0, gridSize = 0;
 
   /* ── puzzle construction ──────────────────────────────────────────────
      Lay it out as a real little crossword: word 2 runs DOWN, words 1 and 3
@@ -193,18 +196,16 @@
     if (over) return;
     if (focus >= freeSlots.length) return;
     cur[freeSlots[focus]] = ch;
-    dirty[freeSlots[focus]] = 1;
     focus++;
     justTyped = true;
     A.sfx("type");
-    render();
+    paint();
   }
 
   function wipe(f) {
     if (f < 0 || f >= freeSlots.length) return false;
     if (!cur[freeSlots[f]]) return false;
     cur[freeSlots[f]] = "";
-    dirty[freeSlots[f]] = 1;
     return true;
   }
 
@@ -227,19 +228,20 @@
     if (over) return;
     if (!justTyped && focus < freeSlots.length && cur[freeSlots[focus]]) {
       wipe(focus);
-      render();
+      A.sfx("tick");
+      paint();
       return;
     }
     if (focus <= 0) {
       // Nothing to the left; clear where we stand if anything is there.
-      if (wipe(focus)) render();
+      if (wipe(focus)) { A.sfx("tick"); paint(); }
       return;
     }
     focus--;
     wipe(focus);
     justTyped = false;
     A.sfx("tick");
-    render();
+    paint();
   }
 
   // The way out of a full board: backspace walks left and stops at the first
@@ -248,11 +250,11 @@
   function clearAll() {
     if (over) return;
     if (!freeSlots.some(function (s) { return cur[s]; })) return;
-    freeSlots.forEach(function (s) { cur[s] = ""; dirty[s] = 1; });
+    freeSlots.forEach(function (s) { cur[s] = ""; });
     focus = 0;
     justTyped = false;
     A.sfx("bad");
-    render();
+    paint();
   }
 
   function words() {
@@ -278,12 +280,12 @@
     paintKeys(ws, st);
     var didWin = ws[0] === P.w[0] && ws[1] === P.w[1] && ws[2] === P.w[2];
     // There is only one board, so the attempt STAYS on it, coloured, and you
-    // edit it into your next attempt. A cell loses its colour the moment you
-    // retype it — colours belong to letters, not to squares.
-    dirty = {};
+    // edit it into your next attempt. A square keeps its colour for exactly as
+    // long as it still holds the letter that was scored there — colours belong
+    // to letters, not to squares, and not to "has this square been touched".
     focus = 0;
     justTyped = false;
-    render();
+    paint();
     save();
     if (didWin) { A.sfx("win"); end(true); }
     else if (guesses.length >= TRIES) { A.sfx("lose"); end(false); }
@@ -339,89 +341,137 @@
 
   /* ── rendering ───────────────────────────────────────────────────────── */
 
-  function render() {
-    var cols = P.maxC - P.minC + 1;
+  /* Two halves, deliberately:
+
+       layout()  builds the thirteen squares, ONCE, and again only if the
+                 window resize actually changes the tile size.
+       paint()   writes text and classes onto the squares that already exist.
+
+     It used to be one function that did `gridEl.innerHTML = ""` and rebuilt
+     every square on every keystroke. Fresh nodes carrying `.filled` re-run
+     core's `pop` keyframe, so the entire board jumped 7% larger and back on
+     every single key press — and every tap handler was thrown away and rebuilt
+     underneath the finger that had just tapped it. */
+
+  function tileSize(cols) {
     // Bounded by the width AND by the height left once the tries bar, the key,
     // the mode pill and the on-screen keyboard have taken theirs — otherwise a
     // 667px phone loses the bottom keyboard row below the fold.
-    var byW = Math.floor((Math.min(360, innerWidth - 40)) / cols) - 4;
+    var byW = Math.floor((Math.min(360, (window.innerWidth || 375) - 40)) / cols) - 4;
     var byH = Math.floor(((window.innerHeight || 667) - 400) / LEN);
-    var size = Math.max(22, Math.min(46, byW, byH));
+    return Math.max(22, Math.min(46, byW, byH));
+  }
+
+  function layout() {
+    var cols = P.maxC - P.minC + 1, size = tileSize(cols);
+    if (cellEls && cols === gridCols && size === gridSize) return;
+    gridCols = cols; gridSize = size;
     gridEl.style.gridTemplateColumns = "repeat(" + cols + ", " + size + "px)";
     gridEl.style.setProperty("--cs", size + "px");
     gridEl.innerHTML = "";
-
-    // latest feedback, if any
-    var last = guesses.length ? states(guesses[guesses.length - 1]) : null;
-    var lastWords = guesses.length ? guesses[guesses.length - 1] : null;
-
+    cellEls = [];
     for (var r = 0; r < LEN; r++) {
       for (var c = P.minC; c <= P.maxC; c++) {
         var cell = P.cells[r + "," + c];
         var d = A.el("div", "cell");
-        if (!cell) { d.className = "cell gap"; gridEl.appendChild(d); continue; }
+        gridEl.appendChild(d);
+        if (!cell) { d.className = "cell gap"; cellEls.push(null); continue; }
         var slot = cell.slots[0];
         var idx = slot.w * LEN + slot.i;
-        var ch = cur[idx] || "";
-        var cls = "ac-tile cell";
-        if (locked[idx]) cls += " lock";
-        if (ch) cls += " filled";
-        // Colour from the most recent submission — but only while the cell
-        // still holds the letter that was scored, and only if it isn't empty.
-        // A finished grid shows the three answers: green ONLY if you actually
-        // won it. Painting a loss all-green read as a win you never had.
-        if (over) {
-          cls += won ? " ok" : " reveal";
-        } else if (last && lastWords && ch && !dirty[idx]) {
-          var best = null;
-          cell.slots.forEach(function (sl) {
-            var si = sl.w * LEN + sl.i;
-            if (dirty[si]) return;
-            if (lastWords[sl.w][sl.i] !== cur[si]) return;
-            var s2 = last[sl.w][sl.i];
-            if (!best || RANK[s2] > RANK[best]) best = s2;
-          });
-          if (best) cls += " " + best;
-        }
-        if (!over && freeSlots[focus] === idx) cls += " cur";
-        d.className = cls;
-        d.textContent = over ? P.w[slot.w][slot.i] : ch;
-        // Tap a square to type there. The board persists between attempts, so
-        // without this the only way to change the 8th letter was to retype the
-        // seven before it.
-        if (!over && !locked[idx]) {
-          d.onclick = (function (i) {
-            return function () {
-              var f = freeSlots.indexOf(i);
-              if (f < 0) return;
-              focus = f;
-              // The cursor is now sitting ON a square the player chose, not
-              // after a letter they typed — which is what tells back() to
-              // clear this square rather than the one before it.
-              justTyped = false;
-              A.sfx("tick");
-              render();
-            };
-          })(idx);
-        } else if (!over && locked[idx]) {
-          // Tapping a given letter did nothing at all, which reads as a dead
-          // square. Say why instead.
-          d.onclick = function () { A.toast("The crossing letters are given"); };
-        }
-        gridEl.appendChild(d);
+        d.className = "ac-tile cell" + (locked[idx] ? " lock" : "");
+        bindCell(d, idx);
+        cellEls.push({ el: d, cell: cell, idx: idx, w: slot.w, i: slot.i, cls: d.className, txt: "" });
       }
-    }
-
-    triesEl.innerHTML = "";
-    for (var t = 0; t < TRIES; t++) {
-      var i2 = A.el("i");
-      if (t < guesses.length) {
-        var g = guesses[t];
-        i2.className = (g[0] === P.w[0] && g[1] === P.w[1] && g[2] === P.w[2]) ? "won" : "used";
-      }
-      triesEl.appendChild(i2);
     }
   }
+
+  /* Tap a square to type there. The board persists between attempts, so
+     without this the only way to change the 8th letter was to retype the seven
+     before it. Bound once, and it reads `over`/`locked` when it FIRES, so it
+     stays correct for the life of the square. */
+  function bindCell(d, idx) {
+    d.onclick = function () {
+      if (over) return;
+      if (locked[idx]) {
+        // Tapping a given letter did nothing at all, which reads as a dead
+        // square. Say why instead.
+        A.toast("The crossing letters are given");
+        return;
+      }
+      var f = freeSlots.indexOf(idx);
+      if (f < 0) return;
+      focus = f;
+      // The cursor is now sitting ON a square the player chose, not after a
+      // letter they typed — which is what tells back() to clear this square
+      // rather than the one before it.
+      justTyped = false;
+      A.sfx("tick");
+      paint();
+    };
+  }
+
+  function cellHasWord(cell, w) {
+    for (var i = 0; i < cell.slots.length; i++) if (cell.slots[i].w === w) return true;
+    return false;
+  }
+
+  function paint() {
+    if (!cellEls) layout();
+
+    // latest feedback, if any
+    var last = guesses.length ? states(guesses[guesses.length - 1]) : null;
+    var lastWords = guesses.length ? guesses[guesses.length - 1] : null;
+    var curSlot = (!over && focus < freeSlots.length) ? freeSlots[focus] : -1;
+    var curWord = curSlot >= 0 ? Math.floor(curSlot / LEN) : -1;
+
+    for (var n = 0; n < cellEls.length; n++) {
+      var e = cellEls[n];
+      if (!e) continue;
+      var ch = cur[e.idx] || "";
+      var cls = "ac-tile cell";
+      if (locked[e.idx]) cls += " lock";
+      // A finished grid shows the three answers: green ONLY if you actually
+      // won it. Painting a loss all-green read as a win you never had.
+      if (over) {
+        cls += won ? " ok" : " reveal";
+      } else {
+        if (ch) cls += " filled";
+        // Colour from the most recent submission — kept for exactly as long as
+        // the square still holds the letter that was scored there. (The old
+        // rule dropped the colour off any square you had touched, so retyping
+        // a word identically wiped its feedback.)
+        if (last && ch) {
+          var best = null;
+          for (var k = 0; k < e.cell.slots.length; k++) {
+            var sl = e.cell.slots[k], si = sl.w * LEN + sl.i;
+            if (lastWords[sl.w][sl.i] !== cur[si]) continue;
+            var s2 = last[sl.w][sl.i];
+            if (!best || RANK[s2] > RANK[best]) best = s2;
+          }
+          if (best) cls += " " + best;
+        }
+        if (curWord >= 0 && cellHasWord(e.cell, curWord)) cls += " inword";
+        if (curSlot === e.idx) cls += " cur";
+      }
+      var txt = over ? P.w[e.w][e.i] : ch;
+      // Only touch the DOM when something actually changed: re-assigning the
+      // same className is what restarts a CSS animation.
+      if (cls !== e.cls) { e.el.className = cls; e.cls = cls; }
+      if (txt !== e.txt) { e.el.textContent = txt; e.txt = txt; }
+    }
+
+    while (triesEl.children.length < TRIES) triesEl.appendChild(A.el("i"));
+    for (var t = 0; t < TRIES; t++) {
+      var tc = "";
+      if (t < guesses.length) {
+        var g = guesses[t];
+        tc = (g[0] === P.w[0] && g[1] === P.w[1] && g[2] === P.w[2]) ? "won" : "used";
+      }
+      if (triesEl.children[t].className !== tc) triesEl.children[t].className = tc;
+    }
+  }
+
+  function render() { layout(); paint(); }
 
   /* ── persistence ─────────────────────────────────────────────────────── */
 
