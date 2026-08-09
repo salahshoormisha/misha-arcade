@@ -185,9 +185,9 @@ OUT = os.path.join(ROOT, "core", "data", "oddone.js")
 DIMS = 300
 
 # ── who may appear on a board ────────────────────────────────────────────────
-MAXRANK = 8600        # members + decoy: rank in the shipped frequency vocab
+MAXRANK = 9600        # members + decoy: rank in the shipped frequency vocab
 HUBRANK = 7000        # the thread's name has to be an ordinary word too
-HUB_ABST_MAX = 0.030  # ...and A THREAD HAS TO BE SOMETHING YOU COULD POINT AT.
+HUB_ABST_MAX = 0.045  # ...and A THREAD HAS TO BE SOMETHING YOU COULD POINT AT.
                       # Measured on the abstractness axis: SOUP −0.151, FRUIT
                       # −0.128, BUG −0.080, COLLEGE −0.027 all pass; TEST 0.089,
                       # DANGER 0.045, SPY 0.047, RELIGION 0.160, METHOD 0.184 do
@@ -200,11 +200,11 @@ MIN_CUE = 2           # people who answered H when cued with this member
 MIN_MEMBERS = 5       # candidate members a hub needs before it is worth trying
 POOL_MEMBERS = 40     # the strongest members considered
 QUAD_TOP = 26         # quads are drawn from the top QUAD_TOP of those
-MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
+MEM_HUB_MIN = 0.24    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.36 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
-MEM_PAIR_MIN = 0.215  # FAULT C. THE FOUR MUST BE FOUR. This was -0.02, which is
+MEM_PAIR_MIN = 0.200  # FAULT C. THE FOUR MUST BE FOUR. This was -0.02, which is
                       # to say it was nothing, and it is why AMOUNT stood among
                       # deposit/credit/paycheck and DRIVEWAY among jeep/limo/van:
                       # each was close to the HUB, and nothing ever asked whether
@@ -213,11 +213,11 @@ MEM_PAIR_MIN = 0.215  # FAULT C. THE FOUR MUST BE FOUR. This was -0.02, which is
 KIN_MIN = 3           # of the six member pairs, how many must be kin (§4 above)
 
 # ── everyone on the board must be the same KIND of word ──────────────────────
-AXIS_SPREAD = 0.135   # FAULT B. Max spread across the five, on every derived
+AXIS_SPREAD = 0.142   # FAULT B. Max spread across the five, on every derived
                       # axis. BEAK among lip/jaw/chin, SCARF and COAT among
                       # helmet/hood, DRIVEWAY among jeep/limo/van and ROUTE among
                       # shuttle/metro all sat between 0.136 and 0.145.
-ADJ_MAX = 0.055       # FAULT A. ODD ONE OUT is a game about THINGS: no word on
+ADJ_MAX = 0.080       # FAULT A. ODD ONE OUT is a game about THINGS: no word on
 VERB_MAX = 0.130      # the board may lean adjective or verb in absolute terms.
                       # This is the thing a derivational tagger cannot see —
                       # TRAGIC among incident/collision/catastrophe, SUPREME among
@@ -225,7 +225,7 @@ VERB_MAX = 0.130      # the board may lean adjective or verb in absolute terms.
                       # Each is the only quality among four things, and a player
                       # says so before they have finished reading the card. The
                       # good boards top out at 0.046; TRAGIC is 0.101.
-HUB_ROUNDS = 6        # rounds one hub may contribute, on disjoint words
+HUB_ROUNDS = 8        # rounds one hub may contribute, on disjoint words
 QUAD_TRY = 300        # foursomes tried per hub before moving on
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
@@ -233,7 +233,7 @@ HUBGAP_MIN = 0.175    # outside the thread by this much, relative to the members
 HUBGAP_MAX = 0.600    # ...but not so far outside that it is free
 DEC_HUB_RANK = 320    # ...and not among the hub's nearest DEC_HUB_RANK words
 DEC_HUB_MAX = 0.300   # ...with an absolute ceiling too, for thin neighbourhoods
-TEMPT_MIN = 0.225     # it must still be pulled towards the four
+TEMPT_MIN = 0.205     # it must still be pulled towards the four
 DEC_PAIR_MAX = 0.62   # it may not pair off with one member
 DEC_PAIR_MIN = 0.30   # ...but it must hook onto at least one of them
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
@@ -245,7 +245,7 @@ DEC_TWOSTEP = 2       # ...and no two words the hub strongly evokes may evoke it
                       # one-step test on norms this sparse.
 
 # ── what makes the answer the only answer ────────────────────────────────────
-OUT_GAP = 0.150       # FAULT D. The impostor must be the leave-one-out outlier
+OUT_GAP = 0.130       # FAULT D. The impostor must be the leave-one-out outlier
                       # by a real margin. This was 0.050, which is inside the
                       # noise of a 4-bit quantised vector: the boards a human
                       # called broken sat at 0.090-0.143, the good ones never
@@ -259,7 +259,7 @@ RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the fo
 
 MAX_USES = 4          # times one word may appear anywhere in the archive
 BOARD_OVERLAP = 1     # words two shipped boards may have in common
-HUB_APART = 0.66      # ...and no two threads may be this close: BUG and INSECT
+HUB_APART = 0.72      # ...and no two threads may be this close: BUG and INSECT
                       # ran the same board twice with two words changed.
 TARGET = 1500         # candidate rounds to stop at
 PER_DAY = 3           # rounds a player is dealt each morning. Three, not four:
@@ -267,7 +267,7 @@ PER_DAY = 3           # rounds a player is dealt each morning. Three, not four:
                       # 50 s a round at three and a scramble at four — and after
                       # the hand gate the archive is short enough that a fourth
                       # round a day would come round again a third sooner.
-DECOY_SCAN = 8600     # decoys come from the commonest words
+DECOY_SCAN = 9600     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
 NAME_COVER = 2        # ...but may be evoked by at most this many of the four
 NAME_MARGIN = 0.060   # FAULT F. ...and must fit the four measurably WORSE than
@@ -1124,7 +1124,7 @@ def main():
                 usedhubs.append(h)
 
             hard = max(0, min(100, int(round(
-                180.0 * (0.40 - gap) + 90.0 * (tempt - TEMPT_MIN) + 20.0))))
+                180.0 * (0.40 - gap) + 90.0 * (tempt - 0.225) + 20.0))))
             for x in five:
                 uses[x] += 1
             usedhere |= set(five)
