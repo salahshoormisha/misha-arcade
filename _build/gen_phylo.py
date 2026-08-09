@@ -271,7 +271,25 @@ def harvest():
 
 # Corpus bar: a name a well-read non-biologist could actually produce. Wikipedia
 # pageviews are the arbiter; the hand prior only rescues/blocks at the margin.
+# Taxa this cabinet must never show. One of the two people who play it has a
+# reptile phobia, so a reptile turning up as the answer — or as a near miss on
+# the way to it — is not a fun surprise, it is a reason to stop playing. This is
+# enforced here rather than by hand-pruning the output, so a re-harvest can
+# never quietly bring them back. Matched anywhere in the lineage, so it catches
+# the class, the orders and every family beneath them.
+BANNED_TAXA = {
+    "Reptilia", "Sauropsida", "Lepidosauria", "Squamata", "Serpentes",
+    "Testudines", "Chelonia", "Crocodylia", "Rhynchocephalia",
+}
+
+
+def banned(r):
+    return any(t in BANNED_TAXA for t in r["lineage"])
+
+
 def keep_in_corpus(r):
+    if banned(r):
+        return False
     v, p = r["views"], r["prior"]
     if p >= 5:
         return v >= 4000
