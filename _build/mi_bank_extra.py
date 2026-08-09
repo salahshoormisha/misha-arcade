@@ -1325,6 +1325,83 @@ BENCH = [
               "result, and the benchmark's labels are themselves text-mined from reports.",
         url="https://arxiv.org/abs/1711.05225",
     ),
+    dict(
+        id="esteva_derm", sys="A convolutional network trained on 129,450 clinical images",
+        bench="three-way skin lesion classification", year=2017,
+        score="72.1% accuracy", human="66.0% accuracy", sv=72.1, hv=66.0, band=3,
+        story="Two board-certified dermatologists sat the same three-way test and scored "
+              "65.56% and 66.0%; the higher of the two is the baseline here. On the harder "
+              "nine-way partition the network scored 55.4% and the same two dermatologists "
+              "scored 53.3% and 55.0% — the same paper, a different band.",
+        url="https://www.nature.com/articles/nature21056",
+    ),
+    dict(
+        id="gtsrb_mcdnn", sys="A committee of convolutional networks (IDSIA)",
+        bench="GTSRB traffic sign recognition, final competition", year=2011,
+        score="99.46% correct", human="98.84% correct", sv=99.46, hv=98.84, band=2,
+        story="The human figure is the benchmark's own measurement — people classifying the "
+              "same test images the machines saw. That means a cropped patch of a sign with "
+              "the road, the scene and any expectation of which sign comes next removed, "
+              "which is most of what a driver is actually working from.",
+        url="https://benchmark.ini.rub.de/gtsrb_results.html",
+    ),
+    dict(
+        id="swb_ms2016", sys="Microsoft's 2016 conversational speech recognition system",
+        bench="Switchboard telephone speech transcription", year=2016,
+        score="94.1% of words right (5.9% word error rate)",
+        human="94.1% of words right — professional transcribers on the same audio",
+        sv=94.1, hv=94.1, band=2,
+        story="The human number came from a commercial transcription vendor doing a two-pass "
+              "job on the same recordings, and it is the whole claim: parity was declared "
+              "against a measurement the same team commissioned. A later revision of the paper "
+              "put the system at 5.8%, and IBM, running a more careful human process, measured "
+              "people at 5.1%.",
+        url="https://arxiv.org/abs/1610.05256",
+    ),
+    dict(
+        id="noisystudent_imagenet", sys="EfficientNet-L2 with Noisy Student training",
+        bench="ImageNet, top-5 classification", year=2020,
+        score="98.7% correct (1.3% top-5 error)",
+        human="94.9% correct (5.1% top-5 error)", sv=98.7, hv=94.9, band=3,
+        story="Five years after ResNet crossed the same line, the margin was four points. The "
+              "training used 300 million unlabelled images pseudo-labelled by the model's own "
+              "earlier self, so what is being measured has drifted some way from the task "
+              "ImageNet was set up to pose.",
+        url="https://arxiv.org/abs/1911.04252",
+    ),
+
+    # ── the reasoning benchmarks, and what a baseline means on them ─────────
+    dict(
+        id="mmlu_gpt3", sys="GPT-3 (175B, few-shot)", bench="MMLU", year=2021,
+        score="43.9% average", human="89.8% average", sv=43.9, hv=89.8, band=0,
+        story="The paper's finding was the shape of the score rather than the number: GPT-3 "
+              "was close to random on several subjects, lopsided across the fifty-seven, and "
+              "almost uncalibrated — its confidence carried little information about whether "
+              "it was right. Two years later the same benchmark was a headline capability "
+              "number quoted to one decimal place.",
+        url="https://arxiv.org/abs/2009.03300",
+    ),
+    dict(
+        id="minerva_math",
+        sys="Minerva (PaLM 540B, further trained on maths and science; majority vote over 64 "
+            "samples)",
+        bench="MATH", year=2022, score="50.3% accuracy", human="40% accuracy",
+        sv=50.3, hv=40.0, band=3,
+        story="A single sample from the same model scored 33.6%; the 50.3% is a majority vote "
+              "over sixty-four of them. The baseline is the MATH paper's non-specialist — the "
+              "computer science PhD student — and not the three-time IMO gold medallist, who "
+              "scored 90% and was still comfortably clear.",
+        url="https://arxiv.org/abs/2206.14858",
+    ),
+    dict(
+        id="o1_gpqa", sys="OpenAI o1, as reported at release", bench="GPQA Diamond", year=2024,
+        score="77.3% accuracy", human="69.7% accuracy", sv=77.3, hv=69.7, band=3,
+        story="The 69.7% is domain PhDs with the internet open, from the benchmark's own "
+              "paper. OpenAI's write-up was careful about what crossing it meant: the model is "
+              "better at some problems a PhD would be expected to solve, which is not a claim "
+              "about being more capable than a PhD.",
+        url="https://openai.com/index/learning-to-reason-with-llms/",
+    ),
 ]
 
 # --- BENCH END ---

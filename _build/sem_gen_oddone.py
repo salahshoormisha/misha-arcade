@@ -12,71 +12,86 @@
 # that NO human ever answered H for.
 #
 # -----------------------------------------------------------------------------
-# 2026-08-08 REWRITE. The first version of this script ran and produced 3200
-# rounds whose median margin was 0.011 — i.e. essentially every puzzle was one
-# where the decoy sat as close to the four as the four sat to each other. Played
-# by hand, roughly two in five had a second defensible answer. Four things were
-# wrong, and all four are fixed here.
+# 2026-08-09 — THE TWO SYSTEMIC FAULTS, AND FIVE MORE FOUND WHILE FIXING THEM.
 #
-#   1. IT OPTIMISED FOR AMBIGUITY. The decoy search kept the candidate with the
-#      SMALLEST margin, i.e. it deliberately hunted the most confusable word on
-#      the board. That is how you build a coin-flip, not a puzzle.
+# The previous pass shipped twenty rounds. Played by hand, three were good. Two
+# faults were named at the time and are fixed here; hand-play found five more,
+# and every one of them has the same shape — A SECOND DEFENSIBLE ANSWER. That is
+# the only failure that matters. A player who can argue for two of the five
+# stops trusting the cabinet, and rightly.
 #
-#   2. IT MEASURED THE WRONG THING. Cohesion was min pairwise cosine INSIDE the
-#      four. But the interesting categories are loose: {rain, snow, fog, thunder}
-#      has min-pair 0.19, {apple, banana, orange, grape} 0.31. Only thesaurus
-#      soup — {idiotic, dumb, moronic, dopey}, min-pair 0.67 — scored well, so
-#      soup is all that survived. What actually binds a thread is not that the
-#      members resemble each other, it is that they all resemble THE HUB. So the
-#      cleanliness gate is now
-#          HUBGAP = min_i cos(m_i, H) − cos(decoy, H)
-#      and it must be comfortably positive: the four are inside the thread and
-#      the decoy is measurably outside it. That single change is what lets
-#      WEATHER and FRUIT and KITCHEN puzzles exist at all.
+#   1. ANTONYM MEMBERS.  `bad` sat inside the GOOD thread; `valley` inside HILL.
+#      Free association is full of opposites — BAD is a top answer for GOOD —
+#      and the vectors cannot see it either: cos(good, bad) = 0.603, cos(valley,
+#      hill) = 0.447, well inside the "these belong together" band. Three
+#      defences, in order of bluntness:
+#        · EVAL — hubs that are a QUALITY rather than a THING are refused
+#          outright, as hub, member, decoy or name. They only ever produced
+#          thesaurus soup, and they are where associative antonymy lives.
+#        · ANTONYM — a hand-written opposition list, since there is no antonym
+#          lexicon in the standard library and this is the whole failure mode.
+#        · morphological negation, derived: un-/in-/im-/ir-/il-/dis-/non-/mis-
+#          prefixes and -less against -ful, wherever both forms are real words
+#          in this same vocabulary. HAPPY/UNHAPPY, CAREFUL/CARELESS.
+#      No member may be the opposite of the hub, of another member, or of the
+#      decoy.
 #
-#   3. IT NEVER LOOKED FOR A RIVAL ANSWER. It checked that no other hub covered
-#      4 of the 5 — but it counted the TRUE four as a violation (a second name
-#      for the same foursome is not a second answer) while a rival thread that
-#      the norms simply do not record went straight through. Now, for each of
-#      the five words in turn, the four that remain are scored for how nameable
-#      they are, twice:
-#         · in human currency  — is there ANY response that all four evoke?
-#         · in vector currency — search the whole common vocabulary for the word
-#           t that maximises min_{w in four} cos(w, t): the best possible name
-#           for that foursome, whether or not anyone has written it down.
-#      The true foursome must beat the best rival foursome by RIVAL_GAP. This is
-#      the gate that enforces the brief's one rule: a puzzle where two of the
-#      five could each be argued is a broken puzzle.
+#   2. DECOYS THAT GENUINELY BELONG.  CLOUD offered as the odd one out of
+#      forecast / climate / temperature / storm, named WEATHER. Unanswerable.
+#      The old test was "no human in the norms ever answered WEATHER when cued
+#      with CLOUD" — but the norms keep only first responses seen twice or more,
+#      about ten per cue, so ABSENCE THERE IS NOT EVIDENCE OF ABSENCE. Three
+#      real tests replace it:
+#        · the norms, BOTH WAYS. The hub must never evoke the decoy either.
+#        · RANK. Sort the ordinary vocabulary by closeness to the hub; the decoy
+#          may not be inside the nearest DEC_HUB_RANK words. CLOUD is the 55th
+#          nearest word to WEATHER — of course it is weather. The good decoys
+#          from the same run sit at 375 (BLANKET/rain), 465 (PIGEON/soup), 469
+#          (SERVANT/student). This one number separates them cleanly, and it is
+#          scale-free, which a raw cosine cap is not.
+#        · a cosine ceiling as a backstop, for hubs with a thin neighbourhood.
 #
-#   4. IT LEAKED THE ANSWER THROUGH WORD SHAPE. "atoms" among quantum/particle/
-#      electron, "laces" among sneakers/heels/slippers. All five words must now
-#      agree on plural-s / -ing / -ly / -ed, so the odd one is never the odd one
-#      typographically.
+#   3. MIXED KINDS.  creature / zoo / raccoon / fur, named ANIMAL: a synonym, a
+#      PLACE, an instance and a body part. A player picks ZOO and is right.
+#      There is no part-of-speech tagger here, so five axes are derived the way
+#      the abstractness axis already was — a seed set minus a common set of
+#      plain concrete nouns, normalised, dotted against all 11.6k words:
+#          ABST · VERB · ADJ · PERSON · PLACE
+#      All five words on a board must agree on every axis, within AXIS_SPREAD.
+#      Checked against the previous run's twenty boards, this alone kills the
+#      person among the objects (author/hacker), the place among the things
+#      (zoo, stadium, garage, ballroom), the verb among the nouns (read, burn),
+#      the adjective among the nouns (steep, edible) and the object among the
+#      phenomena (umbrella) — fourteen of sixteen — while keeping both of the
+#      two boards that a human had independently marked good.
 #
-# Two more failures showed up on the second read-through and are fixed too:
+#   4. FOUR THINGS THAT MERELY SHARE ONE LABEL.  grub / buffet / pantry /
+#      edible all evoke FOOD and have nothing else whatever in common. A real
+#      category leaves more than one trace in the norms, so KINSHIP: of the six
+#      member pairs, at least KIN_MIN must share a response other than the hub,
+#      or evoke each other directly. The two good boards scored 3 and 4; the
+#      FOOD board scored 0.
 #
-#   5. PART OF SPEECH. "blown" among breeze/hurricane/kite, "cloudy" among
-#      weather/hail/storm, "sweetness" among cane/cinnamon/candy, "classical"
-#      among jazz/concert/chord. Every one of those is a second defensible
-#      answer — the only participle, the only adjective, the only abstract noun.
-#      There is no tagger here, so wordclass() derives one: a word is BASE unless
-#      stripping a derivational ending leaves another word in this same
-#      vocabulary, in which case it is the adverb / participle / adjective /
-#      abstraction it was derived into. All five must agree.
+#   5. SUPERORDINATE MEMBERS.  A member the other three all evoke is not a
+#      member of the thread, it is another name for it, and a player will say
+#      so. Dropped before quads are formed (tightened from three to two).
 #
-#   6. SUPERORDINATES. "sport" among touchdown/tackle/stadium; "weather" among
-#      hail/cloudy/storm. A member that the other three all evoke is not a member
-#      of the thread, it is another name for it — and a player will say so. Any
-#      such member is dropped before quads are formed.
+#   6. WORD SHAPE AND WORD CLASS.  All five must agree on plural-s / -ing / -ly
+#      / -ed, and on derivational class, so the impostor is never the odd one
+#      typographically or the only participle.
 #
-# Also new: members and decoy must be words both players certainly know (rank
-# cap over the shipped frequency-ordered vocabulary), no member may pair off with
-# the decoy, the decoy must not sit lopsidedly nearer one member than the rest,
-# the GRIM list from sem_gen_linxicon.py is honoured (nobody wants IDIOT and
-# MORON in a morning puzzle), every wrong name for the thread has to be a name
-# somebody could actually believe, and one round per hub, so the archive never
-# serves four near-identical boards off the same category.
-# -----------------------------------------------------------------------------
+#   7. RIVAL NAMES.  For each of the five in turn, the four that remain are
+#      scored for how nameable they are, in both currencies: is there ANY
+#      response in the norms that all four evoke, and — searching the whole
+#      common vocabulary — what is the best possible NAME for that foursome,
+#      whether or not anyone ever wrote it down. The true foursome must beat
+#      every rival by RIVAL_GAP. This is the gate that enforces the one rule.
+#
+# Also: members and decoy must be words both players certainly know, no member
+# may pair off with the decoy, the decoy must not sit lopsidedly nearer one
+# member than the rest, the GRIM list from sem_gen_linxicon.py is honoured, and
+# one round per hub, so the archive never serves four near-identical boards off
+# the same category.
 #
 # DIFFICULTY. Two forces: how far outside the thread the decoy sits (HUBGAP —
 # smaller is harder) and how strongly it is pulled towards the four (TEMPT —
@@ -90,6 +105,9 @@
 #                                   who has to judge them. Build artifact.
 # Rounds are APPENDED to sem/oddone_raw.tsv the moment they survive, so a killed
 # run still leaves usable puzzles behind.
+#
+# Run:  python3 _build/sem_gen_oddone.py            (the whole thing, ~40 min)
+#       python3 _build/sem_gen_oddone.py 150        (a pilot over 150 hubs)
 # =============================================================================
 import json
 import os
@@ -113,40 +131,44 @@ NAMERANK = 6500       # ...and so do the four wrong names
 # ── what makes four words a thread ───────────────────────────────────────────
 MIN_CUE = 4           # people who answered H when cued with this member
 MIN_MEMBERS = 6       # candidate members a hub needs before it is worth trying
-POOL_MEMBERS = 13     # the strongest members considered
-QUAD_TOP = 9          # quads are drawn from the top QUAD_TOP of those
+POOL_MEMBERS = 14     # the strongest members considered
+QUAD_TOP = 10         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.30 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
 MEM_PAIR_MIN = -0.02  # nor flat opposites
+KIN_MIN = 3           # of the six member pairs, how many must be kin (§4 above)
+
+# ── everyone on the board must be the same KIND of word ──────────────────────
+AXIS_SPREAD = 0.145   # max spread across the five, on every derived axis
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
-HUBGAP_MIN = 0.175    # THE cleanliness gate: outside the thread by this much
+HUBGAP_MIN = 0.175    # outside the thread by this much, relative to the members
 HUBGAP_MAX = 0.520    # ...but not so far outside that it is free
+DEC_HUB_RANK = 320    # ...and not among the hub's nearest DEC_HUB_RANK words
+DEC_HUB_MAX = 0.300   # ...with an absolute ceiling too, for thin neighbourhoods
 TEMPT_MIN = 0.240     # it must still be pulled towards the four
 DEC_PAIR_MAX = 0.62   # it may not pair off with one member
 DEC_PAIR_MIN = 0.30   # ...but it must hook onto at least one of them
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
 DEC_HOME_CUE = 5      # people who put the impostor in ITS thread
-DEC_HOME_FAR = 0.45   # ...which has to be a different thread from this one
+DEC_HOME_FAR = 0.42   # ...which has to be a different thread from this one
 
 # ── what makes the answer the only answer ────────────────────────────────────
 OUT_GAP = 0.050       # the impostor must be the leave-one-out outlier, by this
 MEM_FIT_SPREAD = 0.13 # ...and no member may be halfway to being one itself
-ABST_SPREAD = 0.23    # the five must be equally abstract: an idea among four
-                      # objects is a giveaway that has nothing to do with the
-                      # thread. Measured on an axis built from seed words.
 RIVAL_GAP = 0.115     # true foursome's best name beats every rival's by this
 RIVAL_SCAN = 5600     # vocabulary searched for a rival thread's name
 RIVAL_PRE = 96        # dims used for the first, cheapest pass over that
 RIVAL_MID = 600       # survivors re-scored on all 300 dims
 RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the four
 
-MAX_USES = 4          # times one word may appear anywhere in the archive
+MAX_USES = 3          # times one word may appear anywhere in the archive
 TARGET = 1500         # rounds to stop at (4 to a day)
 DECOY_SCAN = 7000     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
+NAME_COVER = 2        # ...but may be evoked by at most this many of the four
 
 # Function and discourse words — lifted from sem_gen_linxicon.py so the two
 # cabinets agree about what is not a puzzle word.
@@ -195,38 +217,54 @@ dopey ignorant senile spastic cripple crippled dwarf midget freak fatty obese sl
 gypsy gypsies savage savages tribe heathen infidel pagan bastard sinner witch
 """.split())
 
-# Threads that are a QUALITY rather than a THING. Two reasons to refuse them.
-# They only ever produce thesaurus soup — GOOD gave {satisfactory, decent, great}
-# and nothing else — and, worse, free association is full of opposites, so the
-# norms cheerfully list BAD as a top answer for GOOD and the board ships with its
-# own second answer in it. A thread has to be something you could point at.
+# FAULT 1a. Threads that are a QUALITY rather than a THING. Two reasons to
+# refuse them, and they compound. They only ever produce thesaurus soup — GOOD
+# gave {satisfactory, decent, great} and nothing else — and free association is
+# full of opposites, so the norms cheerfully list BAD as a top answer for GOOD
+# and the board ships with its own second answer inside it. A thread has to be
+# something you could point at. Refused as hub, member, decoy and name.
 EVAL = set("""
-good bad nice great awful terrible best worst better worse fine okay poor
-right wrong true false correct real fake easy hard difficult simple
-happy sad angry upset glad calm tired bored excited scared afraid proud
-big small large little huge tiny short tall long wide narrow thick thin
+good bad nice great awful terrible best worst better worse fine okay poor lovely horrible
+right wrong true false correct real fake easy hard difficult simple tough
+happy sad angry upset glad calm tired bored excited scared afraid proud lonely
+big small large little huge tiny short tall long wide narrow thick thin deep
 hot cold warm cool new old young fresh fast slow quick early late
-rich strong weak heavy light soft loud quiet clean dirty smart clever
-funny boring weird normal strange odd pretty beautiful cute mean kind
-love like want feel look sound seem become
+rich strong weak heavy light soft loud quiet clean dirty smart clever dull
+funny boring weird normal strange odd pretty beautiful cute mean kind ugly
+love like want feel look sound seem become need able sure
+much many more less most least enough plenty
 """.split())
 
-# Free association is full of opposites and the vectors cannot see them: HOT and
-# COLD are near neighbours in Numberbatch. Hand-listed, because there is no
-# antonym lexicon in the standard library and this is the whole failure mode.
+# FAULT 1b. Free association is full of opposites and the vectors cannot see
+# them: cos(good, bad) = 0.603, cos(valley, hill) = 0.447 — both comfortably
+# inside the band that says "these belong together". Hand-listed, because there
+# is no antonym lexicon in the standard library. Morphological negation is
+# derived on top of this at run time (un-, in-, dis-, -less…).
 ANTONYM = [p.split("/") for p in """
 good/bad hot/cold big/small large/small high/low up/down top/bottom
 hill/valley mountain/valley peak/valley left/right north/south east/west
-day/night light/dark sun/moon summer/winter fire/ice hot/cool
-happy/sad love/hate like/hate war/peace friend/enemy win/lose
-open/close push/pull give/take buy/sell start/stop begin/end
-young/old new/old rich/poor fast/slow early/late long/short
+day/night light/dark sun/moon summer/winter fire/ice hot/cool warm/cool
+happy/sad love/hate like/hate war/peace friend/enemy win/lose winner/loser
+open/close open/shut push/pull give/take buy/sell start/stop begin/end
+young/old new/old rich/poor fast/slow early/late long/short tall/short
 wet/dry hard/soft heavy/light loud/quiet clean/dirty full/empty
-true/false right/wrong yes/no more/less many/few all/none
+true/false right/wrong yes/no more/less many/few all/none always/never
 front/back in/out on/off over/under above/below inside/outside
-land/sea sky/ground heaven/hell life/death birth/death
-male/female man/woman boy/girl king/queen brother/sister
-question/answer problem/solution cause/effect
+land/sea sky/ground heaven/hell life/death birth/death alive/dead
+male/female man/woman boy/girl king/queen brother/sister husband/wife
+son/daughter uncle/aunt nephew/niece father/mother dad/mum
+question/answer problem/solution cause/effect supply/demand
+teacher/student doctor/patient master/servant
+summer/winter spring/autumn morning/evening morning/night dawn/dusk
+sweet/sour sweet/bitter thick/thin rough/smooth sharp/blunt
+strong/weak brave/coward wide/narrow deep/shallow near/far
+first/last best/worst most/least major/minor
+work/play work/rest awake/asleep sleep/wake laugh/cry
+attack/defend build/destroy remember/forget find/lose
+inhale/exhale import/export income/expense profit/loss
+city/country urban/rural rural/urban indoor/outdoor
+guilty/innocent legal/illegal public/private major/minor
+gain/loss cheap/expensive expensive/cheap
 """.split()]
 
 # CONTRACT §7, kept light: hubs that quietly smell of Edinburgh rain, a London
@@ -245,8 +283,31 @@ university library museum lecture campus student
 autumn winter summer heat cold kitchen dinner breakfast
 """.split())
 
+# FAULT 3. The axes. Every one is a seed set minus THE SAME set of plain
+# concrete nouns, so the five spreads are measured on one comparable scale.
+CONCRETE = ("table dog hammer apple chair brick spoon river shoe bottle window bucket "
+            "ladder pencil carrot bridge shirt candle basket knife bowl lamp door wheel")
+AXES = {
+    "ABST": "idea concept freedom justice quality process system notion theory principle "
+            "honesty loyalty wisdom pride courage patience truth belief purpose meaning",
+    "VERB": "run jump eat sleep write walk throw break carry push pull sing drink climb "
+            "laugh cook drive swim dance shout build catch wash ride",
+    "ADJ": "red tall quick heavy bright empty sharp smooth loud narrow soft rough clean "
+           "sour steep bitter shallow damp brave calm plain thick pale fierce",
+    "PERSON": "teacher doctor farmer driver nurse soldier singer painter lawyer pilot chef "
+              "dancer writer artist worker student neighbour uncle nephew waiter butcher "
+              "sailor tailor priest",
+    "PLACE": "city village harbour airport hospital library museum station market factory "
+             "castle kitchen garden forest desert island valley beach prison stadium bakery "
+             "cinema",
+}
 
 INFL = ("ings", "ing", "ies", "ers", "er", "est", "ed", "es", "ly", "s", "y")
+
+# Negation prefixes that reliably make an opposite when what is left is itself a
+# word. There are false positives (INDOOR/DOOR, INCOME/COME) and they cost a
+# puzzle each — which is the right way round.
+NEGPRE = ("un", "in", "im", "ir", "il", "dis", "non", "mis")
 
 
 def root(w):
@@ -323,6 +384,8 @@ def make_wordclass(known):
     this same vocabulary — CLOUDY is cloud+y, SWEETNESS is sweet+ness, CLASSICAL
     is classic+al, BLOWN is blow+n. All five words on a board must agree, so the
     impostor is never the only adjective or the only participle."""
+    cache = {}
+
     def stems(w, suf):
         base = w[:-len(suf)]
         if len(base) < 2:
@@ -335,17 +398,54 @@ def make_wordclass(known):
         return out
 
     def cls(w):
+        if w in cache:
+            return cache[w]
+        r = "BASE"
         if w in IRREG:
-            return "VERBF"
-        for suf, tag in DERIV:
-            if len(w) > len(suf) + 1 and w.endswith(suf):
-                if any(s in known for s in stems(w, suf)):
-                    return tag
-        return "BASE"
+            r = "VERBF"
+        else:
+            for suf, tag in DERIV:
+                if len(w) > len(suf) + 1 and w.endswith(suf):
+                    if any(s in known for s in stems(w, suf)):
+                        r = tag
+                        break
+        cache[w] = r
+        return r
     return cls
 
 
+def build_opposites(known):
+    """FAULT 1b. The hand list, closed both ways, plus every morphological
+    negation this vocabulary actually contains."""
+    opp = defaultdict(set)
+
+    def add(a, b):
+        if a != b:
+            opp[a].add(b)
+            opp[b].add(a)
+
+    for pair in ANTONYM:
+        if len(pair) == 2:
+            add(pair[0], pair[1])
+    for w in known:
+        for p in NEGPRE:
+            if w.startswith(p) and len(w) - len(p) >= 4:
+                base = w[len(p):]
+                if base in known:
+                    add(w, base)
+                if base and base[0] == base[1:2] and base[1:] in known:
+                    add(w, base[1:])               # illegal -> legal
+        if w.endswith("less") and len(w) > 6:
+            stem = w[:-4]
+            for other in (stem, stem + "ful", stem + "y", stem + "e", stem + "eful"):
+                if other in known:
+                    add(w, other)
+    return opp
+
+
 def main():
+    limit_hubs = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+
     vocab = open(os.path.join(SEM, "ship_vocab.txt"), encoding="utf-8").read().split()
     n = len(vocab)
     v = array("f")
@@ -363,7 +463,7 @@ def main():
                    open(os.path.join(SEM, "ldnoobw_en.txt"), encoding="utf-8") if w.strip())
     except IOError:
         rude = set()
-    bad = STOP | GRIM | proper | rude
+    bad = STOP | GRIM | EVAL | proper | rude
 
     def cos(i, j):
         return sum(map(mul, V[i], V[j]))
@@ -402,24 +502,51 @@ def main():
     known = set(vocab)
     idx = {w: i for i, w in enumerate(vocab)}
     wordclass = make_wordclass(known)
+    oppw = build_opposites(known)
+    # the same relation over word ids, which is what the inner loops speak
+    opp = {}
+    for w, s in oppw.items():
+        if w in idx:
+            got = frozenset(idx[x] for x in s if x in idx)
+            if got:
+                opp[idx[w]] = got
+    sys.stdout.write("opposite pairs: %d\n" % (sum(len(s) for s in opp.values()) // 2))
 
-    # ── the abstractness axis ────────────────────────────────────────────────
-    # One number per word: how far it sits towards IDEA and away from HAMMER.
-    # Four objects and one idea is a board a player solves without reading the
-    # words, so the five have to agree on this. Two seed sets, one subtraction,
-    # 11.6k dot products, done once.
+    def opposed(a, b):
+        return b in opp.get(a, EMPTY)
+
+    # ── the axes ─────────────────────────────────────────────────────────────
+    # FAULT 3. One number per word per axis: how far it sits towards PERSON, or
+    # PLACE, or IDEA, and away from a plain concrete noun. An idea among four
+    # objects — or a place among four things — is a board a player solves
+    # without reading the words, so the five have to agree on every one of them.
     def seeded(ws):
         return unit([idx[w] for w in ws.split() if w in idx])
-    a = seeded("idea concept freedom justice quality process system notion theory "
-               "principle honesty loyalty wisdom pride courage patience truth belief "
-               "purpose meaning")
-    c = seeded("table dog hammer apple chair brick spoon river shoe bottle window "
-               "bucket ladder pencil carrot bridge shirt candle basket knife")
-    axis = array("f", [a[d] - c[d] for d in range(DIMS)])
-    s = (sum(map(mul, axis, axis)) ** 0.5) or 1.0
-    for d in range(DIMS):
-        axis[d] /= s
-    ABST = [sum(map(mul, axis, V[i])) for i in range(n)]
+
+    conc = seeded(CONCRETE)
+    AX = {}
+    for name, seeds in AXES.items():
+        a = seeded(seeds)
+        ax = array("f", [a[d] - conc[d] for d in range(DIMS)])
+        s = (sum(map(mul, ax, ax)) ** 0.5) or 1.0
+        for d in range(DIMS):
+            ax[d] /= s
+        AX[name] = [sum(map(mul, ax, V[i])) for i in range(n)]
+    AXL = [AX[k] for k in sorted(AX)]
+    sys.stdout.write("axes built: %s\n" % ", ".join(sorted(AX)))
+
+    def axis_ok(ids):
+        for a in AXL:
+            lo = hi = a[ids[0]]
+            for i in ids[1:]:
+                x = a[i]
+                if x < lo:
+                    lo = x
+                elif x > hi:
+                    hi = x
+            if hi - lo > AXIS_SPREAD:
+                return False
+        return True
 
     def playable(i, cap):
         return i < cap and vocab[i] not in bad and len(vocab[i]) >= 3
@@ -466,14 +593,10 @@ def main():
                 best = (m, t)
         return best
 
-    def coh(ids):
-        c = unit(ids)
-        return min(dot(c, i) for i in ids)
-
     # ── hubs, best first ─────────────────────────────────────────────────────
     hubs = []
     for h, cs in cue_of.items():
-        if not playable(h, HUBRANK):
+        if not playable(h, HUBRANK) or wordclass(vocab[h]) != "BASE":
             continue
         k = sum(1 for c, cnt in cs.items() if cnt >= MIN_CUE and playable(c, MAXRANK))
         if k >= MIN_MEMBERS:
@@ -490,6 +613,8 @@ def main():
     for _, _, h in hubs:
         if len(rounds) >= TARGET:
             break
+        if limit_hubs and scanned >= limit_hubs:
+            break
         scanned += 1
         if scanned % 40 == 0:
             sys.stdout.write("  hub %d/%d · rounds %d\n" % (scanned, len(hubs), len(rounds)))
@@ -497,17 +622,17 @@ def main():
 
         mem = [c for c, cnt in sorted(cue_of[h].items(), key=lambda kv: -kv[1])
                if cnt >= MIN_CUE and playable(c, MAXRANK) and not samestem(vocab[c], vocab[h])
-               and uses[c] < MAX_USES]
+               and not opposed(c, h) and uses[c] < MAX_USES]
         mem = mem[:POOL_MEMBERS]
         if len(mem) < 4:
             continue
         hc = {c: cos(c, h) for c in mem}
         mem = [c for c in mem if MEM_HUB_MIN <= hc[c] <= MEM_HUB_MAX]
-        # A member the others all evoke is not a member of the thread, it is
-        # another name for it — and a player will happily say so. SPORT among
-        # touchdown/tackle/stadium; WEATHER among hail/storm/cloudy.
+        # FAULT 5. A member the others all evoke is not a member of the thread,
+        # it is another name for it — and a player will happily say so. SPORT
+        # among touchdown/tackle/stadium; WEATHER among hail/storm/cloudy.
         mem = [c for c in mem
-               if sum(1 for o in mem if o != c and c in hubset.get(o, EMPTY)) < 3]
+               if sum(1 for o in mem if o != c and c in hubset.get(o, EMPTY)) < 2]
         if len(mem) < 4:
             stat["hub: too few members near the hub"] += 1
             continue
@@ -516,6 +641,15 @@ def main():
         for a in range(len(pool)):
             for b in range(a + 1, len(pool)):
                 pc[(pool[a], pool[b])] = pc[(pool[b], pool[a])] = cos(pool[a], pool[b])
+        # FAULT 4. Kin: two members are kin if the norms give them a shared
+        # response other than the hub, or if either evokes the other.
+        kin = {}
+        for a in range(len(pool)):
+            for b in range(a + 1, len(pool)):
+                x, y = pool[a], pool[b]
+                k = bool((hubset.get(x, EMPTY) & hubset.get(y, EMPTY)) - {h}) \
+                    or y in hubset.get(x, EMPTY) or x in hubset.get(y, EMPTY)
+                kin[(x, y)] = kin[(y, x)] = k
 
         # score the quads: tight to the hub, even, and not four ways of saying
         # the same word. Try the best few; take the first that survives.
@@ -527,12 +661,15 @@ def main():
             ps = [pc[(q[a], q[b])] for a in range(4) for b in range(a + 1, 4)]
             if max(ps) > MEM_PAIR_MAX or min(ps) < MEM_PAIR_MIN:
                 continue
+            if any(opposed(q[a], q[b]) for a in range(4) for b in range(a + 1, 4)):
+                continue
+            if sum(1 for a in range(4) for b in range(a + 1, 4) if kin[(q[a], q[b])]) < KIN_MIN:
+                continue
             if len(set(shape(vocab[x]) for x in q)) != 1:
                 continue
             if len(set(wordclass(vocab[x]) for x in q)) != 1:
                 continue
-            ab = [ABST[x] for x in q]
-            if max(ab) - min(ab) > ABST_SPREAD:
+            if not axis_ok(list(q)):
                 continue
             if any(samestem(vocab[q[a]], vocab[q[b]]) for a in range(4) for b in range(a + 1, 4)):
                 continue
@@ -543,14 +680,22 @@ def main():
             continue
         quads.sort()
 
+        # THE HUB'S OWN NEIGHBOURHOOD, once per hub and only once a foursome is
+        # in hand. FAULT 2: a decoy inside it belongs to the thread however the
+        # norms happen to have been sampled.
+        hcos = [(cos(c, h), c) for c in decoy_pool]
+        hcos.sort(reverse=True)
+        nearh = set(c for _, c in hcos[:DEC_HUB_RANK])
+        hcosd = {}
+        for s, c in hcos:
+            hcosd[c] = s
+
         got = None
         for _, q in quads[:14]:
             ids = list(q)
             words = [vocab[i] for i in ids]
             sh = shape(words[0])
             wc = wordclass(words[0])
-            ablo = min(ABST[i] for i in ids)
-            abhi = max(ABST[i] for i in ids)
             minhub = min(hc[i] for i in ids)
             cent = unit(ids)
             # For the leave-one-out test below. Sm is the members' raw sum, so
@@ -562,7 +707,7 @@ def main():
                     Sm[d] += vi[d]
             nSm = (sum(map(mul, Sm, Sm))) ** 0.5 or 1.0
             dmS = [sum(map(mul, V[i], Sm)) for i in ids]
-            banned = set(cue_of[h].keys()) | {h} | set(ids)
+            banned = set(cue_of[h].keys()) | set(resp_of.get(h, {}).keys()) | {h} | set(ids)
             common4 = hubset.get(ids[0], EMPTY)
             for i in ids[1:]:
                 common4 = common4 & hubset.get(i, EMPTY)
@@ -570,26 +715,37 @@ def main():
             # ---- find the impostor ------------------------------------------
             best = None                       # (score, decoy, hubgap, tempt)
             for cand in decoy_pool:
-                if cand in banned:
+                if cand in banned or cand in nearh:
                     continue
                 cw = vocab[cand]
                 if shape(cw) != sh or wordclass(cw) != wc:
                     continue
                 if uses[cand] >= MAX_USES:
                     continue
-                if max(abhi, ABST[cand]) - min(ablo, ABST[cand]) > ABST_SPREAD:
+                if not axis_ok(ids + [cand]):
                     continue
                 if samestem(cw, vocab[h]) or any(samestem(cw, w) for w in words):
                     continue
+                if opposed(cand, h) or any(opposed(cand, i) for i in ids):
+                    continue
                 # a word the members themselves name is not an impostor, it is
-                # their container: BOWL/CONTAINER, SHOE/FOOTWEAR
-                if sum(1 for i in ids if cand in hubset.get(i, EMPTY)) > 1:
+                # their container: BOWL/CONTAINER, SHOE/FOOTWEAR. And a word the
+                # members are named BY is a member.
+                if any(cand in hubset.get(i, EMPTY) for i in ids):
+                    continue
+                if sum(1 for i in ids if i in hubset.get(cand, EMPTY)) > 1:
+                    continue
+                # ...nor may it share the thread's other human labels
+                if hubset.get(cand, EMPTY) & common4:
+                    continue
+                hcH = hcosd[cand]
+                if hcH > DEC_HUB_MAX:
+                    continue
+                gap = minhub - hcH
+                if gap < HUBGAP_MIN or gap > HUBGAP_MAX:
                     continue
                 tempt = dot(cent, cand)
                 if tempt < TEMPT_MIN:
-                    continue
-                gap = minhub - cos(cand, h)
-                if gap < HUBGAP_MIN or gap > HUBGAP_MAX:
                     continue
                 ds = [cos(cand, i) for i in ids]
                 if max(ds) > DEC_PAIR_MAX or max(ds) < DEC_PAIR_MIN \
@@ -639,7 +795,7 @@ def main():
                 for g, cnt in sorted(resp_of.get(cand, {}).items(), key=lambda kv: -kv[1]):
                     if cnt < DEC_HOME_CUE or not playable(g, NAMERANK):
                         continue
-                    if g == h or g in ids or samestem(vocab[g], vocab[h]):
+                    if g == h or g in ids or samestem(vocab[g], vocab[h]) or opposed(g, h):
                         continue
                     if sum(1 for i in ids if g in hubset.get(i, EMPTY)) > 1:
                         continue
@@ -689,9 +845,10 @@ def main():
         # ---- four wrong names for the thread --------------------------------
         # Plausible, never right. A name has to be one somebody could believe —
         # it must be evoked by some of the five AND sit near them — but it may
-        # never be evoked by all four members, which would make it a second
-        # correct answer. The impostor's own strongest thread goes first: the
-        # nicest wrong name on the card is the one the impostor came from.
+        # never be evoked by more than NAME_COVER of the four members, which
+        # would make it a second correct answer. The impostor's own strongest
+        # thread goes first: the nicest wrong name on the card is the one the
+        # impostor came from.
         cent5 = unit(five)
         cover = defaultdict(int)
         for w5 in five:
@@ -709,7 +866,7 @@ def main():
             seen.add(t)
             if t == h or t in five or not playable(t, NAMERANK):
                 continue
-            if t in common4:
+            if t in common4 or opposed(t, h):
                 continue
             if samestem(vocab[t], vocab[h]) or any(samestem(vocab[t], vocab[x]) for x in five):
                 continue
@@ -719,8 +876,8 @@ def main():
                 continue
             if dot(cent5, t) < NAME_FLOOR:       # nobody would ever pick it
                 continue
-            # never a second correct name: it must miss at least one member
-            if all(t in hubset.get(i, EMPTY) for i in ids):
+            # never a second correct name: it must miss at least two members
+            if sum(1 for i in ids if t in hubset.get(i, EMPTY)) > NAME_COVER:
                 continue
             wrong.append(t)
         if len(wrong) < 4:
@@ -825,11 +982,15 @@ def write_js(flat, days, vocab):
                 "          shuffles these too.\n"
                 "     d    hardness 0-100: how far outside the thread the impostor sits and\n"
                 "          how hard it pulls. Days are built as an easy -> hard ladder.\n"
-                "   Every round shipped here survived, in this order: all five words ordinary\n"
-                "   and shape-matched, the four measurably inside the thread and the impostor\n"
-                "   measurably outside it, no response in the norms shared by any rival\n"
-                "   foursome, and a search of the common vocabulary for the best possible NAME\n"
-                "   of every rival foursome, which the true foursome had to beat outright.\n"
+                "   Every round here survived, in this order: all five words ordinary, shape-\n"
+                "   matched, class-matched and agreeing on five derived axes (abstract, verb,\n"
+                "   adjective, person, place) so the impostor is never the only one of its\n"
+                "   KIND; no opposites anywhere on the board; the four kin to each other in the\n"
+                "   norms beyond merely sharing the hub; the impostor outside the thread by a\n"
+                "   measured margin AND outside the hub's 320 nearest words AND never linked to\n"
+                "   the hub by a single person in either direction; and a search of the common\n"
+                "   vocabulary for the best possible NAME of every rival foursome, which the\n"
+                "   true foursome had to beat outright.\n"
                 "   =========================================================================== */\n")
         f.write("window.AD_ODDONE = { rounds: [\n")
         for r in flat:

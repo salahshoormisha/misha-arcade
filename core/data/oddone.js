@@ -9,37 +9,21 @@
           shuffles these too.
      d    hardness 0-100: how far outside the thread the impostor sits and
           how hard it pulls. Days are built as an easy -> hard ladder.
-   Every round shipped here survived, in this order: all five words ordinary
-   and shape-matched, the four measurably inside the thread and the impostor
-   measurably outside it, no response in the norms shared by any rival
-   foursome, and a search of the common vocabulary for the best possible NAME
-   of every rival foursome, which the true foursome had to beat outright.
+   Every round here survived, in this order: all five words ordinary, shape-
+   matched, class-matched and agreeing on five derived axes (abstract, verb,
+   adjective, person, place) so the impostor is never the only one of its
+   KIND; no opposites anywhere on the board; the four kin to each other in the
+   norms beyond merely sharing the hub; the impostor outside the thread by a
+   measured margin AND outside the hub's 320 nearest words AND never linked to
+   the hub by a single person in either direction; and a search of the common
+   vocabulary for the best possible NAME of every rival foursome, which the
+   true foursome had to beat outright.
    =========================================================================== */
 window.AD_ODDONE = { rounds: [
-{"d":43,"n":["castle","spear","sword","corporal","pierce"],"w":["fort","tower","knight","rook","lance"]},
-{"d":51,"n":["book","series","part","movie","serial"],"w":["chapter","novel","author","read","episode"]},
-{"d":54,"n":["computer","telephone","cell","internet","network"],"w":["laptop","hacker","software","server","mobile"]},
-{"d":59,"n":["animal","skin","meat","body","bone"],"w":["creature","zoo","raccoon","fur","flesh"]},
-{"d":45,"n":["fire","candle","light","bright","lamp"],"w":["burn","spark","flare","torch","wax"]},
-{"d":53,"n":["dance","violin","music","band","conductor"],"w":["tango","waltz","ballet","ballroom","orchestra"]},
-{"d":57,"n":["bus","gas","oil","fuel","car"],"w":["shuttle","transit","fare","lorry","petrol"]},
-{"d":64,"n":["weather","sky","fog","water","air"],"w":["forecast","climate","temperature","storm","cloud"]},
-{"d":41,"n":["car","gas","dirt","armor","park"],"w":["garage","jeep","driveway","bumper","tank"]},
-{"d":50,"n":["storm","waves","water","ocean","sea"],"w":["hail","gale","tsunami","thunder","surf"]},
-{"d":54,"n":["soup","bird","rat","green","red"],"w":["tomato","chicken","pea","cabbage","pigeon"]},
-{"d":59,"n":["bad","joke","trick","funny","foolish"],"w":["naughty","crappy","worst","immoral","prank"]},
-{"d":45,"n":["good","sad","shame","disappointed","acceptable"],"w":["bad","satisfactory","decent","great","bummer"]},
-{"d":52,"n":["hill","higher","upper","bottom","level"],"w":["steep","valley","crest","bluff","lower"]},
-{"d":55,"n":["student","maid","butler","master","waiter"],"w":["pupil","intern","disciple","graduate","servant"]},
-{"d":62,"n":["university","study","lab","art","chemistry"],"w":["campus","professor","institution","graduate","science"]},
-{"d":39,"n":["rain","warm","cover","pillow","cold"],"w":["umbrella","hail","storm","mist","blanket"]},
-{"d":49,"n":["food","pie","vegetable","stew","tasty"],"w":["grub","buffet","pantry","edible","pumpkin"]},
-{"d":53,"n":["wind","chopper","plane","fly","blades"],"w":["breeze","gale","tornado","kite","helicopter"]},
-{"d":59,"n":["football","prize","win","award","victory"],"w":["touchdown","tackle","stadium","league","trophy"]},
+{"d":9,"n":["fruit","whiskey","drink","alcohol","liquor"],"w":["pineapple","pear","banana","grape","bourbon"]},
+{"d":26,"n":["dance","drink","lime","booze","rum"],"w":["tango","ballroom","boogie","salsa","tequila"]},
+{"d":30,"n":["test","explain","show","detail","write"],"w":["evaluation","experiment","sample","examine","describe"]},
+{"d":37,"n":["student","architect","math","mechanical","work"],"w":["scholar","intern","graduate","tutor","engineer"]},
 ], days: [
 [0,1,2,3],
-[4,5,6,7],
-[8,9,10,11],
-[12,13,14,15],
-[16,17,18,19],
 ] };
