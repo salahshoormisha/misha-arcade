@@ -245,7 +245,11 @@ DEC_TWOSTEP = 2       # ...and no two words the hub strongly evokes may evoke it
                       # one-step test on norms this sparse.
 
 # ── what makes the answer the only answer ────────────────────────────────────
-OUT_GAP = 0.050       # the impostor must be the leave-one-out outlier, by this
+OUT_GAP = 0.150       # FAULT D. The impostor must be the leave-one-out outlier
+                      # by a real margin. This was 0.050, which is inside the
+                      # noise of a 4-bit quantised vector: the boards a human
+                      # called broken sat at 0.090-0.143, the good ones never
+                      # below 0.154.
 MEM_FIT_SPREAD = 0.13 # ...and no member may be halfway to being one itself
 RIVAL_GAP = 0.115     # true foursome's best name beats every rival's by this
 RIVAL_SCAN = 5600     # vocabulary searched for a rival thread's name
@@ -261,6 +265,13 @@ TARGET = 1500         # rounds to stop at (4 to a day)
 DECOY_SCAN = 8600     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
 NAME_COVER = 2        # ...but may be evoked by at most this many of the four
+NAME_MARGIN = 0.060   # FAULT F. ...and must fit the four measurably WORSE than
+                      # the true name does, measured the same way the true name
+                      # is: worst member first. Nothing used to check this, and
+                      # the naming phase is where HELMET/SCARF/COAT/HOOD named
+                      # HAT and LIP/JAW/CHIN/BEAK named MOUTH actually broke —
+                      # in both, a name on the card fitted the four better than
+                      # the one we were calling right.
 
 # Function and discourse words — lifted from sem_gen_linxicon.py so the two
 # cabinets agree about what is not a puzzle word.
@@ -327,6 +338,10 @@ rich strong weak heavy light soft loud quiet clean dirty smart clever dull
 funny boring weird normal strange odd pretty beautiful cute mean kind ugly
 love like want feel look sound seem become need able sure
 much many more less most least enough plenty
+sweet sour bitter salty savoury savory spicy bland tasty delicious yummy
+crunchy creamy juicy sticky greasy chewy fresh stale ripe raw
+tragic dramatic serious obvious famous popular perfect wild rare common
+important special general modern ancient extreme major minor usual similar
 """.split())
 
 # FAULT 1b. Free association is full of opposites and the vectors cannot see
@@ -359,6 +374,9 @@ inhale/exhale import/export income/expense profit/loss
 city/country urban/rural rural/urban indoor/outdoor
 guilty/innocent legal/illegal public/private major/minor
 gain/loss cheap/expensive expensive/cheap
+gas/liquid gas/solid liquid/solid solid/liquid
+teacher/pupil tutor/student student/tutor doctor/nurse
+question/reply cause/result predator/prey host/guest
 """.split()]
 
 # CONTRACT §7, kept light: hubs that quietly smell of Edinburgh rain, a London
@@ -656,6 +674,31 @@ def main():
                 return False
         return True
 
+    # The same test for a fifth word against a fixed foursome, which is where it
+    # is called two million times a run: the quad's own per-axis window is
+    # computed once, and each candidate is then five comparisons.
+    def axis_window(ids):
+        win = []
+        for a in AXL:
+            lo = hi = a[ids[0]]
+            for i in ids[1:]:
+                x = a[i]
+                if x < lo:
+                    lo = x
+                elif x > hi:
+                    hi = x
+            if hi - lo > AXIS_SPREAD:
+                return None
+            win.append((hi - AXIS_SPREAD, lo + AXIS_SPREAD))
+        return win
+
+    def axis_fits(win, cand):
+        for k in range(len(AXL)):
+            x = AXL[k][cand]
+            if x < win[k][0] or x > win[k][1]:
+                return False
+        return True
+
     def playable(i, cap):
         return i < cap and vocab[i] not in bad and len(vocab[i]) >= 3
 
@@ -843,6 +886,10 @@ def main():
             sh = shape(words[0])
             wc = wordclass(words[0])
             minhub = min(hc[i] for i in ids)
+            awin = axis_window(ids)
+            if awin is None:
+                why["q.axis"] += 1
+                continue
             cent = unit(ids)
             # For the leave-one-out test below. Sm is the members' raw sum, so
             # every quantity the test needs falls out of scalars we already have.
@@ -876,7 +923,7 @@ def main():
                 if not thingy(cand):
                     why["d.thing"] += 1
                     continue
-                if not axis_ok(ids + [cand]):
+                if not axis_fits(awin, cand):
                     why["d.axis"] += 1
                     continue
                 if samestem(cw, vocab[h]) or any(samestem(cw, w) for w in words):
@@ -1050,6 +1097,13 @@ def main():
                     continue
                 # never a second correct name: it must miss at least two members
                 if sum(1 for i in ids if t in hubset.get(i, EMPTY)) > NAME_COVER:
+                    continue
+                # FAULT F. ...and it must FIT the four worse than the true name
+                # does, judged the way a player judges a name — on the member it
+                # suits least. Without this the card could offer HEAD alongside
+                # MOUTH for lip/jaw/chin, and HEAD is the better answer.
+                if min(cos(t, i) for i in ids) > minhub - NAME_MARGIN:
+                    why["n.margin"] += 1
                     continue
                 wrong.append(t)
             if len(wrong) < 4:
