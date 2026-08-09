@@ -1191,16 +1191,17 @@ BENCH = [
         year=2018, score="83.1 F1", human="89.5 F1", sv=83.1, hv=89.5, band=1,
         story="SQuAD 2.0 exists because systems had passed the human line on SQuAD 1.1. It "
               "adds fifty thousand unanswerable questions written by crowdworkers to look "
-              "answerable, and the same model that was two points clear on the old set was six "
-              "points under it on the new one.",
+              "answerable. BERT was two points clear of the human number on the old set and "
+              "six points under it on the new one.",
         url="https://arxiv.org/abs/1810.04805",
     ),
     dict(
         id="superglue_deberta", sys="DeBERTa (1.5B, ensemble)", bench="SuperGLUE", year=2021,
         score="90.3 overall", human="89.8 overall", sv=90.3, hv=89.8, band=2,
-        story="SuperGLUE was assembled in 2019 out of tasks chosen for being ones models could "
-              "not yet do. It lasted eighteen months. Google's T5 entry had come within four "
-              "tenths of the human line the previous day; DeBERTa crossed it by half a point.",
+        story="SuperGLUE was assembled in 2019 out of tasks chosen precisely because models "
+              "could not yet do them. It lasted eighteen months, and the margin at the end was "
+              "half a point on a macro-average over eight tasks. The human baseline is "
+              "crowdworkers given a short training phase, not experts.",
         url="https://www.microsoft.com/en-us/research/blog/microsoft-deberta-surpasses-human-"
             "performance-on-the-superglue-benchmark/",
     ),
@@ -1210,7 +1211,8 @@ BENCH = [
         story="The interesting number is not 71.8, it is that it was reached from 32 examples "
               "in the prompt and no gradient updates at all, against fine-tuned systems using "
               "the whole training set. Few-shot GPT-3 beat fine-tuned BERT-Large on four of the "
-              "eight tasks and was far behind on WiC.",
+              "eight tasks and sat at chance on WiC, which asks whether one word means the "
+              "same thing in two sentences.",
         url="https://arxiv.org/abs/2005.14165",
     ),
 
@@ -1247,8 +1249,8 @@ BENCH = [
         score="56% accuracy", human="89% accuracy", sv=56.0, hv=89.0, band=0,
         story="The questions were crowdsourced off ConceptNet: a worker saw one source concept "
               "and three targets sharing a relation with it, and had to write a question that "
-              "singled out exactly one. The human figure is the crowd marking its own work, "
-              "which is the usual ceiling for a dataset built this way.",
+              "singled out exactly one. The human figure is that same crowd answering, which "
+              "is the usual ceiling for a dataset built this way.",
         url="https://arxiv.org/abs/1811.00937",
     ),
     dict(
@@ -1372,7 +1374,8 @@ BENCH = [
         bench="ImageNet, top-5 classification", year=2020,
         score="98.7% correct (1.3% top-5 error)",
         human="94.9% correct (5.1% top-5 error)", sv=98.7, hv=94.9, band=3,
-        story="Five years after ResNet crossed the same line, the margin was four points. The "
+        story="Five years after ResNet crossed the same line, the margin was nearly four "
+              "points, on a benchmark whose human figure never moved. The "
               "training used 300 million unlabelled images pseudo-labelled by the model's own "
               "earlier self, so what is being measured has drifted some way from the task "
               "ImageNet was set up to pose.",

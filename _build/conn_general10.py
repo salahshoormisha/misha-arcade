@@ -88,4 +88,46 @@ BOARDS = [
  "epilogue": "TAROT deals the Major Arcana and RAVENS were read long before it. The last four merely contain the word.",
 },
 
+{
+ "title": "Cold Spot",
+ "diff": 4,
+ "groups": [
+   {"name": "GHOST ___", "tiles": ["TOWN", "STORY", "WRITER", "TRAIN"],
+    "note": "Ghost town, ghost story, ghostwriter, ghost train. Only one is scary."},
+   {"name": "WORDS FOR A GHOST", "tiles": ["SPECTRE", "REVENANT", "PRESENCE", "POLTERGEIST"],
+    "note": "Revenant is French for 'coming back', which is the job description."},
+   {"name": "SÉANCE KIT", "tiles": ["OUIJA", "PLANCHETTE", "ECTOPLASM", "TRUMPET"],
+    "note": "The planchette points, the trumpet speaks, the ectoplasm was cheesecloth."},
+   {"name": "ONE LETTER SHORT OF A MONSTER", "tiles": ["HOST", "WRATH", "TOLL", "DEMO"],
+    "note": "Add a letter to each and you get ghost, wraith, troll and demon."},
+ ],
+ "traps": [
+   ["ECTOPLASM", 1, "Ectoplasm was sold as a spirit made visible, which makes it the ghost and not the gear"],
+   ["TRUMPET", 0, "GHOST TRAIN and GHOST TRUMPET both sound like fairground attractions"],
+   ["WRATH", 1, "A poltergeist is made of nothing but wrath, and WRATH reads as a word for an angry one"],
+ ],
+ "epilogue": "ECTOPLASM is the ghost rather than the gear, and TRUMPET sounds like a ride. Then add one letter each.",
+},
+
+{
+ "title": "Here Be Dragons",
+ "diff": 3,
+ "groups": [
+   {"name": "DRAGON ___", "tiles": ["FLY", "FRUIT", "BOAT", "SLAYER"],
+    "note": "Dragonfly, dragon fruit, dragon boat, dragonslayer. Only one bites."},
+   {"name": "OLDER WORDS FOR A DRAGON", "tiles": ["WYVERN", "WYRM", "DRAKE", "SERPENT"],
+    "note": "A wyvern keeps two legs, a wyrm has none, and drake is just the old word."},
+   {"name": "REAL LIZARDS CALLED DRAGONS", "tiles": ["KOMODO", "BEARDED", "WATER", "FLYING"],
+    "note": "Four lizards you could photograph, buy in a shop or be eaten by."},
+   {"name": "DRAGONS WITH NAMES", "tiles": ["SMAUG", "PUFF", "FAFNIR", "TOOTHLESS"],
+    "note": "Tolkien's, one from a song, Sigurd's, and one from a children's film."},
+ ],
+ "traps": [
+   ["FLYING", 0, "Flying is the first thing a dragon does, and DRAGONFLY is sitting in the same grid"],
+   ["DRAKE", 3, "Drake is a name before it is anything else, and this board is naming dragons"],
+   ["KOMODO", 3, "The Komodo dragon is the most famous dragon on the board by a distance"],
+ ],
+ "epilogue": "FLYING is a lizard, KOMODO is the famous one, and DRAKE sounds like a name. Four of these were invented.",
+},
+
 ]

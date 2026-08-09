@@ -125,30 +125,39 @@ DIMS = 300
 
 # ── who may appear on a board ────────────────────────────────────────────────
 MAXRANK = 8600        # members + decoy: rank in the shipped frequency vocab
-HUBRANK = 6500        # the thread's name has to be an ordinary word too
+HUBRANK = 7000        # the thread's name has to be an ordinary word too
 NAMERANK = 6500       # ...and so do the four wrong names
 
 # ── what makes four words a thread ───────────────────────────────────────────
 MIN_CUE = 3           # people who answered H when cued with this member
-MIN_MEMBERS = 6       # candidate members a hub needs before it is worth trying
+MIN_MEMBERS = 5       # candidate members a hub needs before it is worth trying
 POOL_MEMBERS = 18     # the strongest members considered
 QUAD_TOP = 13         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
-MEM_HUB_SPREAD = 0.30 # ...and no member may be a straggler relative to the rest
+MEM_HUB_SPREAD = 0.33 # ...and no member may be a straggler relative to the rest
 MEM_PAIR_MAX = 0.74   # no two members may be the same word twice
 MEM_PAIR_MIN = -0.02  # nor flat opposites
 KIN_MIN = 3           # of the six member pairs, how many must be kin (§4 above)
 
 # ── everyone on the board must be the same KIND of word ──────────────────────
 AXIS_SPREAD = 0.145   # max spread across the five, on every derived axis
+ADJ_MAX = 0.115       # ...and ODD ONE OUT is a game about THINGS: no word on the
+VERB_MAX = 0.140      # board may lean adjective or verb in absolute terms. This
+                      # is the thing a derivational tagger cannot see — SUPREME
+                      # among testimony/justice/appeal, ACADEMIC among publisher/
+                      # reader, EVALUATION among experiment/sample. Each is the
+                      # only quality among four things, and a player will say so
+                      # before they have finished reading the card.
+HUB_ROUNDS = 2        # rounds one hub may contribute, on disjoint words
+QUAD_TRY = 60         # foursomes tried per hub before moving on
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
 HUBGAP_MIN = 0.175    # outside the thread by this much, relative to the members
-HUBGAP_MAX = 0.520    # ...but not so far outside that it is free
+HUBGAP_MAX = 0.600    # ...but not so far outside that it is free
 DEC_HUB_RANK = 320    # ...and not among the hub's nearest DEC_HUB_RANK words
 DEC_HUB_MAX = 0.300   # ...with an absolute ceiling too, for thin neighbourhoods
-TEMPT_MIN = 0.240     # it must still be pulled towards the four
+TEMPT_MIN = 0.225     # it must still be pulled towards the four
 DEC_PAIR_MAX = 0.62   # it may not pair off with one member
 DEC_PAIR_MIN = 0.30   # ...but it must hook onto at least one of them
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
@@ -166,7 +175,7 @@ RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the fo
 
 MAX_USES = 3          # times one word may appear anywhere in the archive
 TARGET = 1500         # rounds to stop at (4 to a day)
-DECOY_SCAN = 7000     # decoys come from the commonest words
+DECOY_SCAN = 8600     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
 NAME_COVER = 2        # ...but may be evoked by at most this many of the four
 
@@ -292,8 +301,14 @@ AXES = {
             "honesty loyalty wisdom pride courage patience truth belief purpose meaning",
     "VERB": "run jump eat sleep write walk throw break carry push pull sing drink climb "
             "laugh cook drive swim dance shout build catch wash ride",
+    # both kinds of adjective: the concrete properties AND the classifying ones,
+    # which the first set misses entirely and which is where SUPREME and
+    # ACADEMIC live.
     "ADJ": "red tall quick heavy bright empty sharp smooth loud narrow soft rough clean "
-           "sour steep bitter shallow damp brave calm plain thick pale fierce",
+           "sour steep bitter shallow damp brave calm plain thick pale fierce "
+           "national international legal political social economic public federal general "
+           "official medical academic supreme royal civil military financial industrial "
+           "commercial personal central formal annual",
     "PERSON": "teacher doctor farmer driver nurse soldier singer painter lawyer pilot chef "
               "dancer writer artist worker student neighbour uncle nephew waiter butcher "
               "sailor tailor priest",
@@ -533,7 +548,15 @@ def main():
             ax[d] /= s
         AX[name] = [sum(map(mul, ax, V[i])) for i in range(n)]
     AXL = [AX[k] for k in sorted(AX)]
+    ADJA, VERBA = AX["ADJ"], AX["VERB"]
     sys.stdout.write("axes built: %s\n" % ", ".join(sorted(AX)))
+
+    def thingy(i):
+        """Is this word a THING rather than a quality or an action? The
+        derivational tagger cannot see a bare adjective (SUPREME, ACADEMIC) or a
+        bare verb (READ, DESCRIBE), and one of those among four nouns is a second
+        defensible answer every single time."""
+        return ADJA[i] <= ADJ_MAX and VERBA[i] <= VERB_MAX
 
     def axis_ok(ids):
         for a in AXL:
@@ -604,7 +627,7 @@ def main():
     # ── hubs, best first ─────────────────────────────────────────────────────
     hubs = []
     for h, cs in cue_of.items():
-        if not playable(h, HUBRANK) or wordclass(vocab[h]) != "BASE":
+        if not playable(h, HUBRANK) or wordclass(vocab[h]) != "BASE" or not thingy(h):
             continue
         k = sum(1 for c, cnt in cs.items() if cnt >= MIN_CUE and playable(c, MAXRANK))
         if k >= MIN_MEMBERS:
@@ -636,7 +659,7 @@ def main():
         if len(mem) < 4:
             continue
         hc = {c: cos(c, h) for c in mem}
-        mem = [c for c in mem if MEM_HUB_MIN <= hc[c] <= MEM_HUB_MAX]
+        mem = [c for c in mem if MEM_HUB_MIN <= hc[c] <= MEM_HUB_MAX and thingy(c)]
         # FAULT 5. A member the others all evoke is not a member of the thread,
         # it is another name for it — and a player will happily say so. SPORT
         # among touchdown/tackle/stadium; WEATHER among hail/storm/cloudy.
@@ -707,8 +730,18 @@ def main():
         for s, c in hcos:
             hcosd[c] = s
 
-        got = None
-        for _, q in quads[:30]:
+        # ONE HUB, UP TO HUB_ROUNDS BOARDS, on words that never overlap. The
+        # big categories — SCHOOL has 106 members in the norms, MUSIC 109 —
+        # comfortably hold two disjoint foursomes, and refusing the second was
+        # throwing away good puzzles for no reason. Two boards off one hub can
+        # never land on the same day (see the deal below).
+        made = 0
+        usedhere = set()
+        for _, q in quads[:QUAD_TRY]:
+            if made >= HUB_ROUNDS:
+                break
+            if set(q) & usedhere:
+                continue
             ids = list(q)
             words = [vocab[i] for i in ids]
             sh = shape(words[0])
@@ -732,7 +765,7 @@ def main():
             # ---- find the impostor ------------------------------------------
             best = None                       # (score, decoy, hubgap, tempt)
             for cand in decoy_pool:
-                if cand in banned:
+                if cand in banned or cand in usedhere:
                     why["d.norms"] += 1
                     continue
                 if cand in nearh:
@@ -744,6 +777,9 @@ def main():
                 if uses[cand] >= MAX_USES:
                     continue
                 cw = vocab[cand]
+                if not thingy(cand):
+                    why["d.thing"] += 1
+                    continue
                 if not axis_ok(ids + [cand]):
                     why["d.axis"] += 1
                     continue
@@ -850,85 +886,63 @@ def main():
             _, dec, gap, tempt, home = best
             five = ids + [dec]
 
-            # ---- the answer must be the only answer -------------------------
-            fs = frozenset(five)
-            mine, myname = thread(ids, fs)
-            worst = -2.0
-            rivalw = -1
-            ok = True
-            for j in range(4):
-                alt = [ids[k] for k in range(4) if k != j] + [dec]
-                s, t = thread(alt, fs)
-                if s > worst:
-                    worst, rivalw = s, t
-                if mine - s < RIVAL_GAP:
-                    ok = False
+            # ---- four wrong names for the thread -------------------------
+            # Plausible, never right. A name has to be one somebody could
+            # believe — evoked by some of the five AND sitting near them — but
+            # it may never be evoked by more than NAME_COVER of the four
+            # members, which would make it a second correct answer. The
+            # impostor's own strongest thread goes first: the nicest wrong name
+            # on the card is the one the impostor came from.
+            cent5 = unit(five)
+            cover = defaultdict(int)
+            for w5 in five:
+                for r in resp_of.get(w5, {}):
+                    cover[r] += 1
+            order = [home] + [r for r, _ in
+                              sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])]
+            order += [r for r, _ in
+                      sorted(cover.items(), key=lambda kv: (-kv[1], -dot(cent5, kv[0])))]
+            wrong = []
+            seen = set()
+            for t in order:
+                if len(wrong) >= 4:
                     break
-            if not ok:
-                stat["quad: a rival foursome was nameable too"] += 1
+                if t in seen:
+                    continue
+                seen.add(t)
+                if t == h or t in five or not playable(t, NAMERANK):
+                    continue
+                if t in common4 or opposed(t, h):
+                    continue
+                if samestem(vocab[t], vocab[h]) or any(samestem(vocab[t], vocab[x]) for x in five):
+                    continue
+                if any(samestem(vocab[t], vocab[u]) for u in wrong):
+                    continue
+                if cos(t, h) > 0.52:                 # a synonym of the right answer
+                    continue
+                if dot(cent5, t) < NAME_FLOOR:       # nobody would ever pick it
+                    continue
+                # never a second correct name: it must miss at least two members
+                if sum(1 for i in ids if t in hubset.get(i, EMPTY)) > NAME_COVER:
+                    continue
+                wrong.append(t)
+            if len(wrong) < 4:
+                stat["quad: not enough believable wrong names"] += 1
                 continue
 
-            got = (ids, dec, gap, tempt, mine, worst, myname, rivalw, common4, home)
-            break
-
-        if not got:
-            continue
-        ids, dec, gap, tempt, mine, worst, myname, rivalw, common4, home = got
-        five = ids + [dec]
-
-        # ---- four wrong names for the thread --------------------------------
-        # Plausible, never right. A name has to be one somebody could believe —
-        # it must be evoked by some of the five AND sit near them — but it may
-        # never be evoked by more than NAME_COVER of the four members, which
-        # would make it a second correct answer. The impostor's own strongest
-        # thread goes first: the nicest wrong name on the card is the one the
-        # impostor came from.
-        cent5 = unit(five)
-        cover = defaultdict(int)
-        for w5 in five:
-            for r in resp_of.get(w5, {}):
-                cover[r] += 1
-        order = [home] + [r for r, _ in sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])]
-        order += [r for r, _ in sorted(cover.items(), key=lambda kv: (-kv[1], -dot(cent5, kv[0])))]
-        wrong = []
-        seen = set()
-        for t in order:
-            if len(wrong) >= 4:
-                break
-            if t in seen:
-                continue
-            seen.add(t)
-            if t == h or t in five or not playable(t, NAMERANK):
-                continue
-            if t in common4 or opposed(t, h):
-                continue
-            if samestem(vocab[t], vocab[h]) or any(samestem(vocab[t], vocab[x]) for x in five):
-                continue
-            if any(samestem(vocab[t], vocab[u]) for u in wrong):
-                continue
-            if cos(t, h) > 0.52:                 # a synonym of the right answer
-                continue
-            if dot(cent5, t) < NAME_FLOOR:       # nobody would ever pick it
-                continue
-            # never a second correct name: it must miss at least two members
-            if sum(1 for i in ids if t in hubset.get(i, EMPTY)) > NAME_COVER:
-                continue
-            wrong.append(t)
-        if len(wrong) < 4:
-            stat["hub: not enough believable wrong names"] += 1
-            continue
-
-        hard = max(0, min(100, int(round(
-            180.0 * (0.40 - gap) + 90.0 * (tempt - TEMPT_MIN) + 20.0))))
-        for x in five:
-            uses[x] += 1
-        rounds.append({"ids": ids, "dec": dec, "hub": h, "wrong": wrong,
-                       "gap": gap, "tempt": tempt, "mine": mine, "worst": worst,
-                       "myname": myname, "rival": rivalw, "hard": hard})
-        raw.write("\t".join(str(x) for x in
-                            ids + [dec, h] + wrong + ["%.4f" % gap, "%.4f" % tempt,
-                                                      "%.4f" % (mine - worst), hard]) + "\n")
-        raw.flush()
+            hard = max(0, min(100, int(round(
+                180.0 * (0.40 - gap) + 90.0 * (tempt - TEMPT_MIN) + 20.0))))
+            for x in five:
+                uses[x] += 1
+            usedhere |= set(five)
+            rounds.append({"ids": ids, "dec": dec, "hub": h, "wrong": wrong,
+                           "gap": gap, "tempt": tempt, "mine": mine, "worst": worst,
+                           "myname": myname, "rival": rivalw, "hard": hard})
+            raw.write("\t".join(str(x) for x in
+                                ids + [dec, h] + wrong + ["%.4f" % gap, "%.4f" % tempt,
+                                                          "%.4f" % (mine - worst), hard]) + "\n")
+            raw.flush()
+            made += 1
 
     raw.close()
 
@@ -939,6 +953,22 @@ def main():
     days = []
     for i in range(ndays):
         days.append([q[0][i], q[1][i], q[2][i], q[3][i]])
+    # One hub may now contribute two boards, and two boards off SCHOOL on the
+    # same morning would read as a mistake. Swap within the quartile until no
+    # day names the same thread twice.
+    for lane in range(4):
+        for i in range(ndays):
+            hubs_here = set(days[i][k]["hub"] for k in range(4) if k != lane)
+            if days[i][lane]["hub"] not in hubs_here:
+                continue
+            for j in range(ndays):
+                if j == i:
+                    continue
+                other = set(days[j][k]["hub"] for k in range(4) if k != lane)
+                if days[i][lane]["hub"] in other or days[j][lane]["hub"] in hubs_here:
+                    continue
+                days[i][lane], days[j][lane] = days[j][lane], days[i][lane]
+                break
     # spread the hardest days through the archive rather than at the end
     days.sort(key=lambda d: (sum(r["hard"] for r in d) * 7919) % 1000)
 

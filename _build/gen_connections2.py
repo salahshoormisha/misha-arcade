@@ -36,10 +36,20 @@ MAX_REUSE = 6
 PACKS = [
     ("general", "MIXED BAG",
      "The main archive. Wordplay, general knowledge, and a purple that bites.",
+     # `general` is the DAILY pack — games/quartets/game.js sets
+     # DAILY_PACK = "general", so the ranked board every morning comes from
+     # here and nowhere else. dailyIndex() walks a seeded permutation of the
+     # pool, so the archive repeats only after `len(general)` days. That makes
+     # this list the one that decides how long the daily run lasts, and it is
+     # deliberately declared long — modules not yet on disk are reported, not
+     # fatal, so an unfinished slot never breaks the build.
      ["conn_general1", "conn_general2", "conn_general3", "conn_general4",
       "conn_general5", "conn_general6", "conn_general7", "conn_general8",
       "conn_general9", "conn_general10", "conn_general11", "conn_general12",
-      "conn_general13", "conn_general14"]),
+      "conn_general13", "conn_general14", "conn_general15", "conn_general16",
+      "conn_general17", "conn_general18", "conn_general19", "conn_general20",
+      "conn_general21", "conn_general22", "conn_general23", "conn_general24",
+      "conn_general25", "conn_general26", "conn_general27", "conn_general28"]),
     ("persia", "PERSIAN BLUE",
      "Nowruz, poets, food, carpets, and the words English quietly borrowed.",
      ["conn_persia", "conn_persia2", "conn_persia3", "conn_persia4"]),
@@ -72,7 +82,10 @@ HEADER = """// core/data/connections.js — grouping puzzles for QUARTETS (windo
 # boards predate both rules and are another session's work, so they stand as-is.
 NEW_MODULES = set("""conn_general5 conn_general6 conn_general7 conn_general8
 conn_general9 conn_general10 conn_general11 conn_general12 conn_general13
-conn_general14 conn_persia2 conn_persia3 conn_persia4 conn_united2 conn_united3
+conn_general14 conn_general15 conn_general16 conn_general17 conn_general18
+conn_general19 conn_general20 conn_general21 conn_general22 conn_general23
+conn_general24 conn_general25 conn_general26 conn_general27 conn_general28
+conn_persia2 conn_persia3 conn_persia4 conn_united2 conn_united3
 conn_united4 conn_united5 conn_places2 conn_places3 conn_places4 conn_places5
 conn_ai2 conn_ai3 conn_ai4 conn_jewish2 conn_jewish3 conn_jewish4""".split())
 
