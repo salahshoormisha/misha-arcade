@@ -130,4 +130,44 @@ BOARDS = [
  "epilogue": "FLYING is a lizard, KOMODO is the famous one, and DRAKE sounds like a name. Four of these were invented.",
 },
 
+{
+ "title": "Bell, Book, Candle",
+ "diff": 4,
+ "groups": [
+   {"name": "___ SPELL", "tiles": ["DRY", "COLD", "DIZZY", "MAGIC"],
+    "note": "Dry spell, cold spell, dizzy spell, magic spell. Three are involuntary."},
+   {"name": "A WITCH'S KIT", "tiles": ["BROOM", "CAULDRON", "GRIMOIRE", "FAMILIAR"],
+    "note": "The familiar is the animal and the grimoire is the book of spells."},
+   {"name": "ONCE MEANT LITERAL WITCHCRAFT", "tiles": ["GLAMOUR", "ENCHANT", "FASCINATE", "CHARM"],
+    "note": "Glamour is Scots for 'grammar' and meant a spell cast on the eyes."},
+   {"name": "BACKWARDS, THEY TURN NASTY", "tiles": ["LIVED", "FLOW", "ERGO", "MOOD"],
+    "note": "Read each one right to left: devil, wolf, ogre, doom."},
+ ],
+ "traps": [
+   ["MAGIC", 1, "MAGIC is the only tile that names the thing the second group is entirely made of"],
+   ["CHARM", 1, "A charm is an object a witch keeps, as much as a word whose meaning went soft"],
+ ],
+ "epilogue": "MAGIC is a spell you can name and a CHARM is a thing you can carry. The last four only work in reverse.",
+},
+
+{
+ "title": "Pay the Ferryman",
+ "diff": 4,
+ "groups": [
+   {"name": "___ WORLD", "tiles": ["UNDER", "OTHER", "NETHER", "SPIRIT"],
+    "note": "Under, other, nether, spirit. Four addresses, one postcode."},
+   {"name": "ON THE WAY INTO HADES", "tiles": ["STYX", "CHARON", "OBOL", "CERBERUS"],
+    "note": "A river, a ferryman, his fare, and a dog that only stops you leaving."},
+   {"name": "ENGLISH WORDS FROM DOWN THERE", "tiles": ["LETHARGY", "TANTALIZE", "ELYSIAN", "SISYPHEAN"],
+    "note": "From Lethe, Tantalus, the fields of the good dead, and a man with a rock."},
+   {"name": "SOUND LIKE FUNERAL WORDS", "tiles": ["BEER", "EARN", "MORN", "SOLE"],
+    "note": "Bier, urn, mourn, soul. Read them aloud and a funeral assembles."},
+ ],
+ "traps": [
+   ["ELYSIAN", 1, "Elysium is a place inside the underworld long before it is an English adjective"],
+   ["NETHER", 1, "The nether world is Hades, and NETHER reads as the name of a region down there"],
+ ],
+ "epilogue": "ELYSIAN is a place before it is a word and NETHER wants to be a region. Then read the last four aloud.",
+},
+
 ]

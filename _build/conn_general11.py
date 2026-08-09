@@ -165,4 +165,44 @@ BOARDS = [
  "epilogue": "SADDLE is on the bicycle and KNEE takes CAP. The last group wants the type, not the example.",
 },
 
+{
+ "title": "Tip of the Tongue",
+ "diff": 5,
+ "groups": [
+   {"name": "___ MEMORY", "tiles": ["WORKING", "FALSE", "PHOTOGRAPHIC", "LIVING"],
+    "note": "False memories can be implanted in a lab, which is a troubling sentence."},
+   {"name": "WORDS MEANING ABSENT-MINDED", "tiles": ["WOOLLY", "SCATTY", "DREAMY", "DISTRACTED"],
+    "note": "Scatty is British and is doing a great deal of work in a very small word."},
+   {"name": "KINDS OF TOOTH", "tiles": ["MOLAR", "INCISOR", "WISDOM", "MILK"],
+    "note": "Molar, incisor, wisdom, milk. Plenty of people never grow the wisdom ones."},
+   {"name": "ANATOMY THAT MEANS AN ANIMAL", "tiles": ["MUSCLE", "COCHLEA", "HIPPOCAMPUS", "CANINE"],
+    "note": "Little mouse, snail shell, seahorse, dog: anatomy is a small zoo."},
+ ],
+ "traps": [
+   ["MUSCLE", 0, "Muscle memory is the one kind of memory that absolutely everybody claims to have"],
+   ["CANINE", 2, "A canine is a tooth, the pointed one, and it is sitting right there in the mouth"],
+ ],
+ "epilogue": "MUSCLE takes MEMORY and CANINE is a tooth. Both are animals underneath, next to a snail and a seahorse.",
+},
+
+{
+ "title": "Doctor's Orders",
+ "diff": 1,
+ "groups": [
+   {"name": "IN A FIRST-AID KIT", "tiles": ["GAUZE", "TWEEZERS", "PLASTERS", "SLING"],
+    "note": "Three of them go on you. The tweezers are for taking something out."},
+   {"name": "WORDS MEANING SHY", "tiles": ["COY", "TIMID", "RETIRING", "DEMURE"],
+    "note": "Coy, timid, retiring, demure. Three describe a person, one describes a pose."},
+   {"name": "SLANG FOR A DOCTOR", "tiles": ["QUACK", "SAWBONES", "MEDIC", "LEECH"],
+    "note": "Leech was the ordinary Old English word for a doctor."},
+   {"name": "SNOW WHITE'S HOUSEMATES", "tiles": ["DOC", "GRUMPY", "BASHFUL", "DOPEY"],
+    "note": "Disney named all seven of them in 1937. The Brothers Grimm named none."},
+ ],
+ "traps": [
+   ["DOC", 2, "Doc is the plainest slang for a doctor in the language, and it is not close"],
+   ["BASHFUL", 1, "Bashful means shy. That is the entire definition, with nothing left over"],
+ ],
+ "epilogue": "DOC is slang for a doctor and BASHFUL only means shy. Three of the seven are elsewhere tonight.",
+},
+
 ]

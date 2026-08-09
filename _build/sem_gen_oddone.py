@@ -126,13 +126,19 @@ DIMS = 300
 # ── who may appear on a board ────────────────────────────────────────────────
 MAXRANK = 8600        # members + decoy: rank in the shipped frequency vocab
 HUBRANK = 7000        # the thread's name has to be an ordinary word too
+HUB_ABST_MAX = 0.030  # ...and A THREAD HAS TO BE SOMETHING YOU COULD POINT AT.
+                      # Measured on the abstractness axis: SOUP −0.151, FRUIT
+                      # −0.128, BUG −0.080, COLLEGE −0.027 all pass; TEST 0.089,
+                      # DANGER 0.045, SPY 0.047, RELIGION 0.160, METHOD 0.184 do
+                      # not. Every murky board in the last pass had an abstract
+                      # or an action hub, and every clean one had a thing.
 NAMERANK = 6500       # ...and so do the four wrong names
 
 # ── what makes four words a thread ───────────────────────────────────────────
-MIN_CUE = 3           # people who answered H when cued with this member
+MIN_CUE = 2           # people who answered H when cued with this member
 MIN_MEMBERS = 5       # candidate members a hub needs before it is worth trying
-POOL_MEMBERS = 18     # the strongest members considered
-QUAD_TOP = 13         # quads are drawn from the top QUAD_TOP of those
+POOL_MEMBERS = 22     # the strongest members considered
+QUAD_TOP = 15         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.33 # ...and no member may be a straggler relative to the rest
@@ -143,13 +149,13 @@ KIN_MIN = 3           # of the six member pairs, how many must be kin (§4 above
 # ── everyone on the board must be the same KIND of word ──────────────────────
 AXIS_SPREAD = 0.145   # max spread across the five, on every derived axis
 ADJ_MAX = 0.115       # ...and ODD ONE OUT is a game about THINGS: no word on the
-VERB_MAX = 0.140      # board may lean adjective or verb in absolute terms. This
+VERB_MAX = 0.130      # board may lean adjective or verb in absolute terms. This
                       # is the thing a derivational tagger cannot see — SUPREME
                       # among testimony/justice/appeal, ACADEMIC among publisher/
                       # reader, EVALUATION among experiment/sample. Each is the
                       # only quality among four things, and a player will say so
                       # before they have finished reading the card.
-HUB_ROUNDS = 2        # rounds one hub may contribute, on disjoint words
+HUB_ROUNDS = 3        # rounds one hub may contribute, on disjoint words
 QUAD_TRY = 60         # foursomes tried per hub before moving on
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
@@ -163,6 +169,10 @@ DEC_PAIR_MIN = 0.30   # ...but it must hook onto at least one of them
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
 DEC_HOME_CUE = 5      # people who put the impostor in ITS thread
 DEC_HOME_FAR = 0.42   # ...which has to be a different thread from this one
+DEC_TWOSTEP = 2       # ...and no two words the hub strongly evokes may evoke it
+                      # in turn. WEATHER -> rain -> CLOUD and WEATHER -> storm ->
+                      # CLOUD is how a decoy that plainly belongs slips past a
+                      # one-step test on norms this sparse.
 
 # ── what makes the answer the only answer ────────────────────────────────────
 OUT_GAP = 0.050       # the impostor must be the leave-one-out outlier, by this
@@ -174,6 +184,9 @@ RIVAL_MID = 600       # survivors re-scored on all 300 dims
 RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the four
 
 MAX_USES = 3          # times one word may appear anywhere in the archive
+BOARD_OVERLAP = 1     # words two shipped boards may have in common
+HUB_APART = 0.62      # ...and no two threads may be this close: BUG and INSECT
+                      # ran the same board twice with two words changed.
 TARGET = 1500         # rounds to stop at (4 to a day)
 DECOY_SCAN = 8600     # decoys come from the commonest words
 NAME_FLOOR = 0.18     # a wrong name still has to look like it could be the thread
@@ -224,6 +237,8 @@ coward disgusting dumb fat hate hated hatred idiot idiots idiotic jerk loser mor
 stupid ugly useless worthless imbecile lunatic madman maniac crazy nuts psycho retard retarded
 dopey ignorant senile spastic cripple crippled dwarf midget freak fatty obese slut whore bitch
 gypsy gypsies savage savages tribe heathen infidel pagan bastard sinner witch
+cocaine crack dope heroin marijuana meth cannabis weed opium morphine ecstasy
+narcotic narcotics junkie stoned drunk drunken booze whiskey vodka tequila bourbon
 """.split())
 
 # FAULT 1a. Threads that are a QUALITY rather than a THING. Two reasons to
@@ -629,6 +644,8 @@ def main():
     for h, cs in cue_of.items():
         if not playable(h, HUBRANK) or wordclass(vocab[h]) != "BASE" or not thingy(h):
             continue
+        if AX["ABST"][h] > HUB_ABST_MAX:
+            continue
         k = sum(1 for c, cnt in cs.items() if cnt >= MIN_CUE and playable(c, MAXRANK))
         if k >= MIN_MEMBERS:
             hubs.append((0 if vocab[h] in SEASON else 1, -k, h))
@@ -636,6 +653,8 @@ def main():
     sys.stdout.write("hubs worth trying: %d\n" % len(hubs))
 
     rounds = []
+    seenfive = []          # every shipped foursome, for the overlap rule
+    usedhubs = []          # every shipped hub, for the apartness rule
     scanned = 0
     uses = defaultdict(int)
     stat = defaultdict(int)
@@ -651,6 +670,13 @@ def main():
         if scanned % 40 == 0:
             sys.stdout.write("  hub %d/%d · rounds %d\n" % (scanned, len(hubs), len(rounds)))
             sys.stdout.flush()
+
+        if any(cos(h, u) > HUB_APART for u in usedhubs):
+            stat["hub: too close to a thread already shipped"] += 1
+            continue
+        # every word the hub itself strongly evokes — the middle of the two-step
+        # test below, computed once per hub
+        via = [r for r, c in resp_of.get(h, {}).items() if c >= 4]
 
         mem = [c for c, cnt in sorted(cue_of[h].items(), key=lambda kv: -kv[1])
                if cnt >= MIN_CUE and playable(c, MAXRANK) and not samestem(vocab[c], vocab[h])
@@ -799,6 +825,11 @@ def main():
                 # ...nor may it share the thread's other human labels
                 if hubset.get(cand, EMPTY) & common4:
                     why["d.common4"] += 1
+                    continue
+                if sum(1 for r in via
+                       if cand in hubset.get(r, EMPTY) or r in hubset.get(cand, EMPTY)
+                       ) >= DEC_TWOSTEP:
+                    why["d.twostep"] += 1
                     continue
                 hcH = hcosd[cand]
                 if hcH > DEC_HUB_MAX:
@@ -954,6 +985,14 @@ def main():
             if len(wrong) < 4:
                 stat["quad: not enough believable wrong names"] += 1
                 continue
+
+            fs4 = frozenset(ids)
+            if any(len(fs4 & prev) > BOARD_OVERLAP for prev in seenfive):
+                stat["quad: too like a board already shipped"] += 1
+                continue
+            seenfive.append(fs4)
+            if h not in usedhubs:
+                usedhubs.append(h)
 
             hard = max(0, min(100, int(round(
                 180.0 * (0.40 - gap) + 90.0 * (tempt - TEMPT_MIN) + 20.0))))
