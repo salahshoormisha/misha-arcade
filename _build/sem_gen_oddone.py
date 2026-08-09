@@ -129,8 +129,8 @@ DEC_PAIR_MAX = 0.62   # it may not pair off with one member
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
 
 # ── what makes the answer the only answer ────────────────────────────────────
+OUT_GAP = 0.055       # the impostor must be the leave-one-out outlier, by this
 RIVAL_GAP = 0.115     # true foursome's best name beats every rival's by this
-COH_GAP = 0.010       # cheap centroid pre-screen for the same thing
 RIVAL_SCAN = 5600     # vocabulary searched for a rival thread's name
 RIVAL_PRE = 96        # dims used for the first, cheapest pass over that
 RIVAL_MID = 600       # survivors re-scored on all 300 dims
@@ -185,6 +185,7 @@ weapon widow wound wounded
 coward disgusting dumb fat hate hated hatred idiot idiots idiotic jerk loser moron moronic pathetic
 stupid ugly useless worthless imbecile lunatic madman maniac crazy nuts psycho retard retarded
 dopey ignorant senile spastic cripple crippled dwarf midget freak fatty obese slut whore bitch
+gypsy gypsies savage savages tribe heathen infidel pagan bastard sinner witch
 """.split())
 
 # CONTRACT §7, kept light: hubs that quietly smell of Edinburgh rain, a London
@@ -280,7 +281,7 @@ def make_wordclass(known):
     impostor is never the only adjective or the only participle."""
     def stems(w, suf):
         base = w[:-len(suf)]
-        if len(base) < 3:
+        if len(base) < 2:
             return []
         out = [base, base + "e"]
         if len(base) > 2 and base[-1] == base[-2]:
@@ -293,7 +294,7 @@ def make_wordclass(known):
         if w in IRREG:
             return "VERBF"
         for suf, tag in DERIV:
-            if len(w) > len(suf) + 2 and w.endswith(suf):
+            if len(w) > len(suf) + 1 and w.endswith(suf):
                 if any(s in known for s in stems(w, suf)):
                     return tag
         return "BASE"
@@ -484,6 +485,15 @@ def main():
             wc = wordclass(words[0])
             minhub = min(hc[i] for i in ids)
             cent = unit(ids)
+            # For the leave-one-out test below. Sm is the members' raw sum, so
+            # every quantity the test needs falls out of scalars we already have.
+            Sm = array("f", bytes(4 * DIMS))
+            for i in ids:
+                vi = V[i]
+                for d in range(DIMS):
+                    Sm[d] += vi[d]
+            nSm = (sum(map(mul, Sm, Sm))) ** 0.5 or 1.0
+            dmS = [sum(map(mul, V[i], Sm)) for i in ids]
             banned = set(cue_of[h].keys()) | {h} | set(ids)
             common4 = hubset.get(ids[0], EMPTY)
             for i in ids[1:]:
@@ -524,10 +534,26 @@ def main():
                         break
                 if clash:
                     continue
-                # cheap centroid pre-screen of the same idea
-                mine = coh(ids)
-                if any(coh([ids[k] for k in range(4) if k != j] + [cand]) > mine - COH_GAP
-                       for j in range(4)):
+                # THE LEAVE-ONE-OUT TEST — the statistic a player actually uses.
+                # For each of the five, how well does it fit the other four? The
+                # impostor has to be the worst fit, and by a clear margin, or
+                # somebody can point at a different word and be right. This is
+                # what rules out UMBRELLA among hail/storm/mist, or BOWL among
+                # chicken/cabbage/noodle: the object among the phenomena is a
+                # bigger outlier than the impostor we chose.
+                #   S = Sm + v_cand,  fit(x) = cos(x, unit(S − v_x))
+                # and every term of that is a scalar we already have.
+                dS = tempt * nSm
+                S2 = nSm * nSm + 2.0 * dS + 1.0
+                worstfit = 2.0
+                for k in range(4):
+                    xS = dmS[k] + ds[k]
+                    f = (xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0)
+                    if f < worstfit:
+                        worstfit = f
+                xS = dS + 1.0
+                fitd = (xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0)
+                if fitd > worstfit - OUT_GAP:
                     continue
                 # the impostor we want is the one that is plainly outside the
                 # thread but still tempting: maximise temptation, not confusion.

@@ -45,12 +45,14 @@
      paints (empty, green, amber, violet, slate). */
   #grid .ac-tile.cur { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 
-  /* The three words are typed in order — across, then down, then across — so
-     the squares of the word you are currently in are lifted a shade. It is the
-     cheapest possible answer to "which of the three am I filling in?", and it
-     keeps the three words reading as three. */
+  /* The three words fill in reading order — top across, then down, then bottom
+     across — and the empty squares of the word you are currently in are lifted
+     a shade, so an empty board still tells you where the next letter will land.
+     Deliberately scoped off every scored state: a square that is carrying
+     information must keep showing it, and once the board is full of colour the
+     three groups of five are unmistakable on their own. */
   #grid .ac-tile.inword:not(.ok):not(.near):not(.elsewhere):not(.miss):not(.reveal) {
-    background: var(--s2);
+    background: var(--s3);
   }
   /* the answer, shown after a loss — must NOT be dressed as a correct guess */
   .ac-tile.reveal { background: var(--s2); border-color: var(--hair-2); color: var(--cyan); }
