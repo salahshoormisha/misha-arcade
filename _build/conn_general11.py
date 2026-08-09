@@ -125,4 +125,44 @@ BOARDS = [
  "epilogue": "TECHNO is a genre and MONO is a rail. Both are also fears, the moment you put -PHOBIA on the end.",
 },
 
+{
+ "title": "On Prescription",
+ "diff": 3,
+ "groups": [
+   {"name": "WHAT MEDICINE COMES AS", "tiles": ["TABLET", "CAPSULE", "LOZENGE", "SYRUP"],
+    "note": "A lozenge was a diamond shape long before it was a throat sweet."},
+   {"name": "MEDICINES FROM PLANTS", "tiles": ["ASPIRIN", "MORPHINE", "QUININE", "DIGITALIS"],
+    "note": "Willow bark, poppy, cinchona, foxglove. Every one of them grew first."},
+   {"name": "TIME ___", "tiles": ["ZONE", "LAPSE", "PIECE", "TABLE"],
+    "note": "Timezone, time lapse, timepiece, timetable. Only one of them runs late."},
+   {"name": "ONCE A BRAND NAME", "tiles": ["ESCALATOR", "TRAMPOLINE", "THERMOS", "ZIPPER"],
+    "note": "Every one of them was somebody's trademark before it was a plain noun."},
+ ],
+ "traps": [
+   ["ASPIRIN", 3, "Bayer owned Aspirin as a trademark and lost it after the First World War"],
+   ["CAPSULE", 2, "A time capsule is the most famous capsule there is and it fits that slot exactly"],
+ ],
+ "epilogue": "ASPIRIN was a trademark too, and CAPSULE takes TIME. Neither has anywhere to go once you count.",
+},
+
+{
+ "title": "Joint Account",
+ "diff": 2,
+ "groups": [
+   {"name": "___ BONE", "tiles": ["WISH", "FUNNY", "HERRING", "TROM"],
+    "note": "Wishbone, funny bone, herringbone, trombone. The funny bone is a nerve."},
+   {"name": "ON A BICYCLE", "tiles": ["SPOKE", "CHAIN", "MUDGUARD", "PANNIER"],
+    "note": "Spoke, chain, mudguard, pannier. In America two of them have other names."},
+   {"name": "___ CAP", "tiles": ["KNEE", "MAD", "SKULL", "ICE"],
+    "note": "Kneecap, madcap, skullcap, ice cap. Only one of them is also a plant."},
+   {"name": "TYPES OF JOINT IN THE BODY", "tiles": ["HINGE", "PIVOT", "SADDLE", "SOCKET"],
+    "note": "The thumb is a saddle joint, which is why it can face the other fingers."},
+ ],
+ "traps": [
+   ["SADDLE", 1, "A bicycle saddle is the first thing anybody adjusts, and it belongs on that list"],
+   ["KNEE", 3, "The knee is the largest joint in the body, and a hinge, so it reads both ways"],
+ ],
+ "epilogue": "SADDLE is on the bicycle and KNEE takes CAP. The last group wants the type, not the example.",
+},
+
 ]
