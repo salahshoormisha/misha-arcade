@@ -516,8 +516,43 @@
      It used to stop at <html>, so document-level listeners never ran — and
      core/ui.js puts the ENTIRE physical keyboard on document.addEventListener,
      which meant H.key() was firing into the void. */
+  /* ── default actions ──────────────────────────────────────────────────
+     What the browser does AFTER the listeners have had their say. Only forms
+     so far, because that is the one place a control can be wired to nothing
+     and still look wired: a <button type="submit"> has no onclick, and Enter
+     in a text field has no keydown handler — both work only because the
+     browser turns them into a `submit` event on the enclosing <form>. Without
+     this, LINXICON's LINK button fired absolutely nothing under test while
+     working perfectly in a browser, which is the exact shape of the dead
+     END TURN button this whole harness exists to catch. */
+  function formOf(n) {
+    for (var p = n; p && p.nodeType === 1; p = p.parentNode) if (p.localName === "form") return p;
+    return null;
+  }
+  function submitForm(f) {
+    if (!f || f._submitting) return;
+    f._submitting = true;
+    try { f.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); }
+    finally { f._submitting = false; }
+  }
+  var TEXTY = "text,search,email,number,password,tel,url,date,".split(",");
+  function defaultAction(node, ev) {
+    if (node.nodeType !== 1) return;
+    if (ev.type === "click") {
+      var t = String(node.getAttribute("type") || "").toLowerCase();
+      var submits = (node.localName === "button" && t !== "button" && t !== "reset") ||
+                    (node.localName === "input" && (t === "submit" || t === "image"));
+      if (submits && !node.disabled) submitForm(formOf(node));
+    } else if (ev.type === "keydown" && ev.key === "Enter" && node.localName === "input") {
+      // implicit submission: Enter in a text field submits its form
+      var it = String(node.getAttribute("type") || "text").toLowerCase();
+      if (TEXTY.indexOf(it) >= 0 && !node.disabled) submitForm(formOf(node));
+    }
+  }
+
   Element.prototype.dispatchEvent = function (ev) {
     ev.target = ev.target || this;
+    var origin = ev.target;
     var path = [], node = this;
     while (node) { path.push(node); node = node.parentNode; }
     if (path[path.length - 1] === doc.documentElement) { path.push(doc); path.push(win); }
@@ -525,6 +560,7 @@
       if (i > 0 && (!ev.bubbles || ev._stop)) break;
       if (!fireAt(path[i], ev)) break;
     }
+    if (!ev.defaultPrevented && origin === this) defaultAction(this, ev);
     return !ev.defaultPrevented;
   };
   Element.prototype.click = function () {
@@ -1300,6 +1336,45 @@
       store = {}; raf = []; LOG.length = 0; timers = []; clock = 0;
       doc.body.innerHTML = ""; doc.head.innerHTML = ""; doc._h = {}; win._wh = {};
       doc.activeElement = doc.body;
+    },
+
+    /* ── the CALENDAR clock (distinct from the timer clock above) ──────────
+       A.requestedDay() CLAMPS ?d= to today, because you cannot play tomorrow's
+       puzzle. So a sweep that walks "232 days of the archive" without moving
+       the calendar silently re-tests today 232 times and passes for the wrong
+       reason. That has already happened here — a FLAGLE sweep reported 232
+       days and had actually seen 16 flags.
+
+         H.atDay(231)            // today becomes day 231; ?d=0..231 all resolve
+         H.calendar("2027-01-01")// or set a date outright
+         H.calendar(null)        // put the real clock back
+
+       Set it BEFORE the cabinet loads: the day is read once at boot. */
+    calendar: function (iso) {
+      var Real = H._RealDate || (H._RealDate = globalThis.Date);
+      if (!iso) { globalThis.Date = win.Date = Real; return H; }
+      // noon local, so a whole-day difference is never bitten by DST
+      var fixed = new Real(String(iso) + "T12:00:00").getTime();
+      if (!isFinite(fixed)) throw new Error("harness: bad calendar date " + iso);
+      class Fake extends Real {
+        constructor() {
+          if (arguments.length === 0) super(fixed);
+          else super(...arguments);
+        }
+        static now() { return fixed; }
+      }
+      globalThis.Date = win.Date = Fake;
+      return H;
+    },
+    /* Make today be arcade day n. The epoch is read out of core/arcade.js so
+       this cannot drift if the epoch is ever moved. */
+    atDay: function (n) {
+      var m = /EPOCH\s*=\s*"([\d-]+)"/.exec(readFile(ROOT + "core/arcade.js"));
+      if (!m) throw new Error("harness: could not find the epoch in core/arcade.js");
+      var Real = H._RealDate || (H._RealDate = globalThis.Date);
+      var d = new Real(new Real(m[1] + "T12:00:00").getTime() + n * 86400000);
+      function p(x) { return (x < 10 ? "0" : "") + x; }
+      return H.calendar(d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()));
     },
     /* Point the fake location somewhere before the game reads it — this is how
        a test drives ?d=<n> archive days and ?practice=1. */
