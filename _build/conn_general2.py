@@ -70,7 +70,7 @@ BOARDS = [
     "note": "Oregano and marjoram are the same genus; tarragon is a relative of wormwood, which explains a lot about tarragon."},
    {"name": "GEMSTONES", "tiles": ["GARNET", "TOPAZ", "OPAL", "AMETHYST"],
     "note": "Amethyst means 'not drunk' — the Greeks believed the stone would keep you sober. It does not."},
-   {"name": "___ HOUSE", "tiles": ["GREEN", "LIGHT", "FARM", "WARE"],
+   {"name": "A BUILDING IF YOU ADD HOUSE", "tiles": ["GREEN", "LIGHT", "FARM", "WARE"],
     "note": "Greenhouse, lighthouse, farmhouse, warehouse. One grows things, one saves lives, two store things."},
  ],
  "traps": [

@@ -150,10 +150,10 @@ BOARDS = [
  "title": "Bad Reviews",
  "diff": 4,
  "groups": [
-   {"name": "___ BAND", "tiles": ["BOY", "BROAD", "RUBBER", "ARM"],
-    "note": "Boy band, broadband, rubber band, armband. Only one of them plays."},
-   {"name": "PARTS OF A GUITAR", "tiles": ["NECK", "BRIDGE", "FRET", "NUT"],
-    "note": "The nut is the little ridge at the top; the frets do everything after."},
+   {"name": "SOUND ___", "tiles": ["CHECK", "PROOF", "BITE", "TRACK"],
+    "note": "Soundcheck, soundproof, soundbite, soundtrack. Only one of them gets quoted."},
+   {"name": "ON AN ELECTRIC GUITAR", "tiles": ["NECK", "BRIDGE", "PICKUP", "WHAMMY BAR"],
+    "note": "The pickup turns a moving string into a signal; the whammy bar bends all six at once."},
    {"name": "PARTS OF A SONG", "tiles": ["VERSE", "CHORUS", "HOOK", "OUTRO"],
     "note": "The outro is what replaced the fade-out when records stopped fading."},
    {"name": "MOVEMENTS NAMED BY THEIR CRITICS", "tiles": ["BAROQUE", "GOTHIC", "CUBIST", "IMPRESSIONIST"],
@@ -161,9 +161,9 @@ BOARDS = [
  ],
  "traps": [
    ["BRIDGE", 2, "The bridge is the most famous part of a song there is, and it is not wood"],
-   ["NECK", 0, "A neckband is a real thing you can buy, which puts NECK with the compounds"],
+   ["TRACK", 2, "A track is what anybody calls an individual song, which is the other group entirely"],
  ],
- "epilogue": "BRIDGE sits on the guitar and inside the song; NECK takes a band. All four movements began as jeers.",
+ "epilogue": "BRIDGE sits on the guitar and inside the song, and a TRACK is a whole one. All four movements began as jeers.",
 },
 
 {

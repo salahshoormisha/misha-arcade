@@ -12,8 +12,8 @@ BOARDS = [
  "groups": [
    {"name": "CITRUS FRUITS", "tiles": ["LEMON", "LIME", "ORANGE", "POMELO"],
     "note": "The pomelo is the big one — grapefruit is its child, a pomelo crossed with a sweet orange."},
-   {"name": "SHADES OF BLUE", "tiles": ["NAVY", "COBALT", "AZURE", "INDIGO"],
-    "note": "Cobalt from the ore, azure from lapis lazuli, indigo from the plant, navy from the Royal Navy's 1748 uniform."},
+   {"name": "SHADES OF PURPLE", "tiles": ["VIOLET", "MAUVE", "LILAC", "AMETHYST"],
+    "note": "Mauve was the first synthetic dye, mixed by accident in 1856 by an 18-year-old chasing a cure for malaria."},
    {"name": "___ BALL", "tiles": ["CRYSTAL", "ODD", "MEAT", "SNOW"],
     "note": "Crystal ball, oddball, meatball, snowball. Four very different evenings."},
    {"name": "ANIMALS HIDING INSIDE", "tiles": ["POTTERY", "CRATER", "SHAPELY", "PROWLER"],

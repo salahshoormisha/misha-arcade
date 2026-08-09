@@ -198,8 +198,8 @@ NAMERANK = 6500       # ...and so do the four wrong names
 # ── what makes four words a thread ───────────────────────────────────────────
 MIN_CUE = 2           # people who answered H when cued with this member
 MIN_MEMBERS = 5       # candidate members a hub needs before it is worth trying
-POOL_MEMBERS = 30     # the strongest members considered
-QUAD_TOP = 20         # quads are drawn from the top QUAD_TOP of those
+POOL_MEMBERS = 40     # the strongest members considered
+QUAD_TOP = 26         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.33 # ...and no member may be a straggler relative to the rest
@@ -225,8 +225,8 @@ VERB_MAX = 0.130      # the board may lean adjective or verb in absolute terms.
                       # Each is the only quality among four things, and a player
                       # says so before they have finished reading the card. The
                       # good boards top out at 0.046; TRAGIC is 0.101.
-HUB_ROUNDS = 4        # rounds one hub may contribute, on disjoint words
-QUAD_TRY = 140        # foursomes tried per hub before moving on
+HUB_ROUNDS = 6        # rounds one hub may contribute, on disjoint words
+QUAD_TRY = 300        # foursomes tried per hub before moving on
 
 # ── what makes the fifth word an impostor ────────────────────────────────────
 HUBGAP_MIN = 0.175    # outside the thread by this much, relative to the members
@@ -257,9 +257,9 @@ RIVAL_PRE = 96        # dims used for the first, cheapest pass over that
 RIVAL_MID = 600       # survivors re-scored on all 300 dims
 RIVAL_KEEP = 120      # survivors of THAT scored exactly, min-cosine over the four
 
-MAX_USES = 3          # times one word may appear anywhere in the archive
+MAX_USES = 4          # times one word may appear anywhere in the archive
 BOARD_OVERLAP = 1     # words two shipped boards may have in common
-HUB_APART = 0.62      # ...and no two threads may be this close: BUG and INSECT
+HUB_APART = 0.66      # ...and no two threads may be this close: BUG and INSECT
                       # ran the same board twice with two words changed.
 TARGET = 1500         # rounds to stop at (4 to a day)
 DECOY_SCAN = 8600     # decoys come from the commonest words

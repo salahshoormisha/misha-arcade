@@ -20,16 +20,16 @@
    true foursome had to beat outright.
    =========================================================================== */
 window.AD_ODDONE = { rounds: [
-{"d":27,"n":["bird","insect","tail","spider","raven"],"w":["falcon","vulture","owl","crow","scorpion"]},
-{"d":40,"n":["fruit","chips","potatoes","burger","food"],"w":["bananas","peaches","tomatoes","berries","fries"]},
+{"d":16,"n":["ship","front","admiral","stern","port"],"w":["hull","cargo","starboard","barge","rear"]},
+{"d":28,"n":["bread","ice","cookie","burger","hamburger"],"w":["sandwich","bun","biscuit","cheese","cone"]},
+{"d":32,"n":["bird","wool","lamb","animal","cow"],"w":["parrot","owl","peacock","geese","sheep"]},
 {"d":42,"n":["sugar","beer","ginger","drink","wine"],"w":["caramel","flour","syrup","cereal","ale"]},
-{"d":51,"n":["color","glue","tomato","lipstick","makeup"],"w":["paint","pink","orange","rouge","paste"]},
-{"d":17,"n":["soup","flavor","bean","ice","plain"],"w":["stew","noodle","porridge","sauce","vanilla"]},
+{"d":22,"n":["fruit","plants","garden","grass","green"],"w":["bananas","strawberries","grapes","vegetables","weeds"]},
 {"d":30,"n":["drink","cheese","jam","onion","brandy"],"w":["martini","rum","scotch","lemonade","pickle"]},
 {"d":41,"n":["change","deal","talk","bargain","trade"],"w":["transition","adjust","swap","shift","negotiate"]},
 {"d":47,"n":["breakfast","beer","ginger","drink","wine"],"w":["biscuit","bagel","toast","coffee","ale"]},
-{"d":16,"n":["ship","front","admiral","stern","port"],"w":["hull","cargo","starboard","barge","rear"]},
-{"d":28,"n":["bread","ice","breakfast","hamburger","oven"],"w":["sandwich","bagel","bun","muffin","cone"]},
+{"d":17,"n":["soup","flavor","bean","ice","plain"],"w":["stew","noodle","porridge","sauce","vanilla"]},
+{"d":25,"n":["bird","cat","tiger","lion","raven"],"w":["sparrow","falcon","vulture","crow","panther"]},
 {"d":40,"n":["sport","smash","league","racket","team"],"w":["rugby","hockey","volleyball","squash","crush"]},
 {"d":44,"n":["ocean","beast","swim","fin","animal"],"w":["dolphin","whale","shark","mermaid","monster"]},
 ], days: [

@@ -146,7 +146,7 @@ BOARDS = [
  "title": "Take Your Pick",
  "diff": 4,
  "groups": [
-   {"name": "PARTS OF A GUITAR", "tiles": ["FRET", "NUT", "TUNING PEG", "SOUNDHOLE"],
+   {"name": "PARTS OF AN ACOUSTIC GUITAR", "tiles": ["FRET", "NUT", "TUNING PEG", "SOUNDHOLE"],
     "note": "The nut is the slotted strip at the top of the neck that sets the string spacing and the open-string height. Get it wrong and nothing else can be right."},
    {"name": "NUTS", "tiles": ["CASHEW", "PECAN", "MACADAMIA", "WALNUT"],
     "note": "Botanically almost none of these is a nut — the cashew is a seed hanging off a fruit, the pecan and walnut are drupes."},
@@ -190,13 +190,14 @@ BOARDS = [
     "note": "Carmine and crimson both come from the kermes insect, crushed for dye since antiquity. Vermilion is ground cinnabar, which is mercury ore, which is why old painters died young."},
    {"name": "MUSIC GENRES", "tiles": ["SKA", "GRIME", "DRILL", "GARAGE"],
     "note": "Ska came first in Jamaica, garage out of New York and then very differently out of London, and grime and drill out of that. Four genres, one family tree."},
-   {"name": "___ BAND", "tiles": ["ARM", "HEAD", "WAIST", "BROAD"],
-    "note": "Armband, headband, waistband, broadband. Three of them hold something up."},
+   {"name": "___ WAVE", "tiles": ["NEW", "MICRO", "HEAT", "TIDAL"],
+    "note": "New wave, microwave, heatwave, tidal wave. Only one of them warms your dinner."},
  ],
  "traps": [
    ["CORAL", 1, "Coral is a perfectly standard shade — pinkish orange, on every paint chart — as well as a sea north-east of Australia."],
+   ["NEW", 2, "New wave is a genre before it is anything else, and there is a genre group sitting right there."],
  ],
- "epilogue": "CORAL is a colour that got a sea named after it, which is the reverse of how these usually go. CRIMSON, SCARLET, VERMILION and CARMINE are four reds already, and BALTIC, ARAL and TASMAN are three seas short of a set.",
+ "epilogue": "CORAL is a colour that got a sea named after it, and NEW WAVE is a genre before it is a wave. CRIMSON, SCARLET, VERMILION and CARMINE are four reds already, and BALTIC, ARAL and TASMAN are three seas short of a set.",
 },
 
 ]
