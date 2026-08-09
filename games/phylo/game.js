@@ -64,6 +64,23 @@
      down there it was undefined and the cabinet threw before it ever drew. */
   var RANK_LABEL = ["DOMAIN", "KINGDOM", "PHYLUM", "CLASS", "ORDER", "FAMILY", "GENUS", "SPECIES"];
 
+  /* How hard is today's organism? Almost entirely: how soon does it occur to
+     you at all. `p` is Wikipedia salience 0-100 (median 74 across the answer
+     band), and a thing that is not an animal takes longer to reach because
+     most players open inside Animalia. Without this the sheet quotes a flat
+     70 every day, which is the one number that tells you nothing. */
+  A.setPar(ID, function (dayN) {
+    var e = POOL[A.dailyIndex(ID, dayN, POOL.length)];
+    if (!e) return null;
+    var v = 72;
+    var p = e.p || 0;
+    if (p >= 88) v += 7;
+    else if (p >= 74) v += 3;
+    else if (p < 56) v -= 6;
+    if (TAXA[e.l[1]] !== "Animalia") v -= 5;
+    return A.clamp(v, 55, 88);
+  });
+
   /* ── page shell ──────────────────────────────────────────────────────── */
 
   var main = A.mount({
@@ -241,11 +258,18 @@
       return;
     }
     var b = bestGuess();
+    /* known === 0 is the ordinary case for the opening the help text actually
+       recommends — a bacterium against an animal. It must be the FIRST branch:
+       the old code built the "shared down to <rank>" string unconditionally and
+       read RANK_LABEL[-1], which threw before the fallback below could run, so
+       the guess never reached the list and appeared to vanish. */
+    if (!k.known) {
+      statusEl.innerHTML = "closest so far <b>" + A.esc(b.n) +
+        "</b> &middot; not even the same domain of life";
+      return;
+    }
     statusEl.innerHTML = "closest so far <b>" + A.esc(b.n) + "</b> &middot; shared down to <b>" +
-      RANK_LABEL[k.known - 1].toLowerCase() + "</b>" +
-      (k.known ? " (" + A.esc(taxonAt(b, k.known - 1)) + ")" : "");
-    if (!k.known) statusEl.innerHTML = "closest so far <b>" + A.esc(b.n) +
-      "</b> &middot; not even the same domain of life";
+      RANK_LABEL[k.known - 1].toLowerCase() + "</b> (" + A.esc(taxonAt(b, k.known - 1)) + ")";
   }
 
   function paintList() {
