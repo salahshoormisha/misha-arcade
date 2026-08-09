@@ -59,6 +59,11 @@
 
   var WIN_BASE = 112, WIN_STEP = 5.2, WIN_FLOOR = 8;
 
+  /* Declared HERE, not next to paintLadder() where it is used: restore() runs
+     during boot, paints, and reads this. A `var` initialiser does not hoist, so
+     down there it was undefined and the cabinet threw before it ever drew. */
+  var RANK_LABEL = ["DOMAIN", "KINGDOM", "PHYLUM", "CLASS", "ORDER", "FAMILY", "GENUS", "SPECIES"];
+
   /* ── page shell ──────────────────────────────────────────────────────── */
 
   var main = A.mount({
@@ -179,8 +184,6 @@
   }
 
   /* ── painting ────────────────────────────────────────────────────────── */
-
-  var RANK_LABEL = ["DOMAIN", "KINGDOM", "PHYLUM", "CLASS", "ORDER", "FAMILY", "GENUS", "SPECIES"];
 
   function paint() {
     var k = knowledge();

@@ -1,0 +1,200 @@
+/* ============================================================================
+   PHYLO — the ladder, the status line and the guess list.
+   One accent (--mint, set by A.mount from the registry). Everything else is
+   surface, hairline and ink; nothing glows, nothing is a gradient headline.
+   Mobile-first: the whole thing is a single column and needs no exceptions at
+   375px beyond loosening the rung gutter.
+   ========================================================================== */
+
+/* ── the ladder card ──────────────────────────────────────────────────── */
+
+.board {
+  margin-top: var(--sp-4);
+  background: var(--s1);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-2);
+  overflow: hidden;
+}
+
+.lad-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--hair);
+  background: var(--s2);
+}
+.lad-head span {
+  font-family: var(--display);
+  font-size: var(--t-xs); font-weight: 650;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.lad-head em {
+  font-style: normal;
+  font-size: var(--t-xs); letter-spacing: .1em;
+  color: var(--ink-4);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ladder { padding: var(--sp-2) 0; }
+
+/* ── one rung ─────────────────────────────────────────────────────────── */
+
+.rung {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: 7px var(--sp-4);
+  position: relative;
+}
+/* the spine: a hairline running down the left gutter, brighter where the
+   lineage is confirmed, so the ladder reads as one object rather than rows */
+.rung::before {
+  content: "";
+  position: absolute; left: 66px; top: 0; bottom: 0;
+  width: 1px; background: var(--hair);
+}
+.rung:first-child::before { top: 50%; }
+.rung:last-child::before { bottom: 50%; }
+
+.rung .rk {
+  font-family: var(--mono);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--ink-4);
+  text-align: right;
+  white-space: nowrap;
+}
+.rung .tx {
+  min-width: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-4);
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.rung .tx .gl {
+  font-style: normal;
+  color: var(--ink-4);
+  font-size: var(--t-xs);
+  opacity: .8;
+}
+.rung .tx .gl::before { content: "· "; }
+
+/* confirmed */
+.rung.on .rk { color: var(--ink-3); }
+.rung.on .tx { color: var(--ink); font-weight: 600; letter-spacing: .01em; }
+.rung.on::before { background: var(--accent); opacity: .5; }
+
+/* the frontier — the one rung you are working on */
+.rung.edge .rk { color: var(--accent); }
+.rung.edge .tx { color: var(--ink-3); }
+.rung.edge::before { background: var(--accent); opacity: .5; }
+.rung.edge::after {
+  content: "";
+  position: absolute; left: 63px; top: calc(50% - 3px);
+  width: 7px; height: 7px; border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+/* not yet reached */
+.rung.off .tx { color: var(--ink-4); opacity: .55; }
+
+/* after the reveal, every rung is the answer's own lineage */
+.rung.found .rk { color: var(--ink-3); }
+.rung.found .tx { color: var(--ink); font-weight: 600; }
+.rung.found::before { background: var(--accent); opacity: .5; }
+
+/* ── the branches you have ruled out, hanging off the frontier ────────── */
+
+.ruled {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: 2px var(--sp-4) var(--sp-2);
+}
+.ruled .rk {
+  font-family: var(--mono);
+  font-size: 9.5px; font-weight: 600; letter-spacing: .12em;
+  color: var(--ink-4); text-align: right;
+}
+.ruled .chips { display: flex; flex-wrap: wrap; gap: var(--sp-1); min-width: 0; }
+.ruled .chips b {
+  font-weight: 500;
+  font-size: var(--t-xs);
+  letter-spacing: .02em;
+  color: var(--ink-3);
+  background: var(--s3);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-full);
+  padding: 2px 9px;
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-4);
+  overflow-wrap: anywhere;
+}
+
+/* ── status line under the board ──────────────────────────────────────── */
+
+.status {
+  min-height: 34px;
+  margin: var(--sp-3) auto 0;
+  max-width: 42ch;
+  text-align: center;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  line-height: 1.7;
+  text-wrap: balance;
+}
+.status b { color: var(--ink); font-weight: 600; }
+.status:empty { min-height: 0; margin: 0; }
+
+/* ── the picker ───────────────────────────────────────────────────────── */
+
+.pick-host { margin-top: var(--sp-3); }
+
+/* ── guess list — same metrics as GLOBLE / FLAGLE / OUTLINE ───────────── */
+
+.guesses { max-width: 400px; margin: var(--sp-4) auto 0; }
+.gr {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 8px var(--sp-3); margin-bottom: var(--sp-1);
+  border: 1px solid var(--hair); border-radius: var(--r-md);
+  background: var(--s1);
+  font-size: var(--t-sm);
+}
+.gr .bars { display: flex; gap: 2px; flex: 0 0 auto; }
+.gr .bars i {
+  width: 5px; height: 15px; border-radius: 1.5px;
+  background: var(--no);
+}
+.gr .bars i.f { background: var(--accent); }
+.gr .nm {
+  flex: 1 1 auto; min-width: 0;
+  letter-spacing: .02em; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gr .dv {
+  flex: 0 0 auto; white-space: nowrap;
+  font-size: var(--t-xs); color: var(--ink-4);
+  letter-spacing: .04em;
+}
+.gr.win { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.gr.win .dv { color: var(--ok); font-weight: 650; }
+
+/* ── the result sheet's lineage line wraps rather than scrolls ────────── */
+
+.ac-modal .box .lineage { overflow-wrap: anywhere; }
+
+/* ── narrow phones ────────────────────────────────────────────────────── */
+
+@media (max-width: 400px) {
+  .rung, .ruled { grid-template-columns: 60px minmax(0, 1fr); gap: var(--sp-2); }
+  .rung::before { left: 53px; }
+  .rung.edge::after { left: 50px; }
+  .rung .rk, .ruled .rk { font-size: 9px; letter-spacing: .08em; }
+  .gr { gap: var(--sp-2); }
+  .gr .bars i { width: 4px; }
+}

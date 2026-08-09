@@ -38,22 +38,25 @@ PACKS = [
      "The main archive. Wordplay, general knowledge, and a purple that bites.",
      ["conn_general1", "conn_general2", "conn_general3", "conn_general4",
       "conn_general5", "conn_general6", "conn_general7", "conn_general8",
-      "conn_general9"]),
+      "conn_general9", "conn_general10", "conn_general11", "conn_general12",
+      "conn_general13", "conn_general14"]),
     ("persia", "PERSIAN BLUE",
      "Nowruz, poets, food, carpets, and the words English quietly borrowed.",
-     ["conn_persia", "conn_persia2"]),
+     ["conn_persia", "conn_persia2", "conn_persia3", "conn_persia4"]),
     ("united", "RED DEVILS",
      "Old Trafford and the Premier League. The FOURMATIONS archive, rehoused.",
-     ["conn_united", "conn_united2", "conn_united3"]),
+     ["conn_united", "conn_united2", "conn_united3", "conn_united4",
+      "conn_united5"]),
     ("places", "FOUR CITIES",
      "Cambridge, London, Edinburgh, Houston. Squares, closes, bayous, feeder roads.",
-     ["conn_places", "conn_places2", "conn_places3"]),
+     ["conn_places", "conn_places2", "conn_places3", "conn_places4",
+      "conn_places5"]),
     ("ai", "THE ALIGNMENT",
      "Alignment, evals, compute governance, the labs, the papers, the acronyms.",
-     ["conn_ai", "conn_ai2"]),
+     ["conn_ai", "conn_ai2", "conn_ai3", "conn_ai4"]),
     ("jewish", "DIASPORA",
      "Holidays, food, Yiddish and Hebrew in English, texts, music, and Israel.",
-     ["conn_jewish", "conn_jewish2"]),
+     ["conn_jewish", "conn_jewish2", "conn_jewish3", "conn_jewish4"]),
 ]
 
 HEADER = """// core/data/connections.js — grouping puzzles for QUARTETS (window.AD_CONNECTIONS).
@@ -68,8 +71,10 @@ HEADER = """// core/data/connections.js — grouping puzzles for QUARTETS (windo
 # every-board-declares-a-trap rule are enforced on these only — the original 110
 # boards predate both rules and are another session's work, so they stand as-is.
 NEW_MODULES = set("""conn_general5 conn_general6 conn_general7 conn_general8
-conn_general9 conn_persia2 conn_united2 conn_united3 conn_places2 conn_places3
-conn_ai2 conn_jewish2""".split())
+conn_general9 conn_general10 conn_general11 conn_general12 conn_general13
+conn_general14 conn_persia2 conn_persia3 conn_persia4 conn_united2 conn_united3
+conn_united4 conn_united5 conn_places2 conn_places3 conn_places4 conn_places5
+conn_ai2 conn_ai3 conn_ai4 conn_jewish2 conn_jewish3 conn_jewish4""".split())
 
 SRC = {}   # (pack_id, board_id) -> module name
 
