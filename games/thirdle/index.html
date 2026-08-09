@@ -71,9 +71,12 @@
   .key .k-else { background: var(--purple); }
   .key .k-miss { background: var(--no); }
 
+  /* Tries left. A spent try is SPENT, not wrong — painting each one --bad meant
+     a board on its way to a fine 4/6 was showing three alarm-red bars, and it
+     put a sixth competing hue on a screen that already carries four states. */
   .tries { display: flex; gap: var(--sp-1); justify-content: center; margin-top: var(--sp-3); }
   .tries i { width: 24px; height: 5px; border-radius: var(--r-full); background: var(--hair-2); }
-  .tries i.used { background: var(--bad); }
+  .tries i.used { background: var(--ink-4); }
   .tries i.won { background: var(--ok); }
 
   .th-modes { margin-top: var(--sp-3); }
