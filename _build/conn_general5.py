@@ -166,4 +166,44 @@ BOARDS = [
  "epilogue": "BRIDGE sits on the guitar and inside the song; NECK takes a band. All four movements began as jeers.",
 },
 
+{
+ "title": "House Style",
+ "diff": 2,
+ "groups": [
+   {"name": "___ HOUSE", "tiles": ["FULL", "OPEN", "ROUGH", "HALFWAY"],
+    "note": "Full house, open house, roughhouse, halfway house. Only one has a garden."},
+   {"name": "WORDS FOR A FLOP", "tiles": ["TURKEY", "BOMB", "DUD", "STINKER"],
+    "note": "Four ways to say nobody came back after the interval."},
+   {"name": "STYLES A LETTER COMES IN", "tiles": ["SERIF", "ITALIC", "ROMAN", "CONDENSED"],
+    "note": "Roman is the upright one; italic was cut in Venice to fit more on a page."},
+   {"name": "___ FACE", "tiles": ["POKER", "BOLD", "BABY", "STRAIGHT"],
+    "note": "Poker face, boldface, babyface, straight face. Only one is a wrestler."},
+ ],
+ "traps": [
+   ["BOLD", 2, "Bold sits on the same menu as italic and roman, which makes it a letter style"],
+   ["OPEN", 3, "An open-face sandwich and an open-face helmet are both real, so OPEN takes FACE"],
+ ],
+ "epilogue": "BOLD is a style of letter and OPEN takes a face. Both compounds still need four each.",
+},
+
+{
+ "title": "Both Ways",
+ "diff": 5,
+ "groups": [
+   {"name": "WORDS MEANING NONSENSE", "tiles": ["DRIVEL", "TWADDLE", "TOSH", "BUNKUM"],
+    "note": "Bunkum is Buncombe County, whose congressman spoke long and said nothing."},
+   {"name": "FIGURES OF SPEECH", "tiles": ["IRONY", "LITOTES", "ZEUGMA", "CHIASMUS"],
+    "note": "Litotes is not bad; zeugma takes your coat and your point in one verb."},
+   {"name": "___ OVER", "tiles": ["HANG", "LEFT", "PUSH", "TURN"],
+    "note": "Hangover, leftover, pushover, turnover. Only one of them is pastry."},
+   {"name": "WORDS THAT MEAN THEIR OPPOSITE", "tiles": ["CLEAVE", "SANCTION", "DUST", "OVERSIGHT"],
+    "note": "Cleave splits and clings; to dust is to add sugar or to take grime away."},
+ ],
+ "traps": [
+   ["IRONY", 3, "Irony is saying the opposite of what you mean, which is the last group's rule"],
+   ["LEFT", 3, "Left is the classic contronym: everybody left, and only these were left"],
+ ],
+ "epilogue": "IRONY says the opposite and LEFT means gone and remaining. The last group is already full.",
+},
+
 ]

@@ -192,16 +192,72 @@
     return { shared: shared, of: ac.length, named: named, any: hidden };
   }
 
-  function affinityText(af) {
+  /* `lv` is how much of the trait clause survives: 0 names the trait, 1 falls
+     back to the vague phrase, 2 drops it and reports colour alone. Each level
+     is strictly coarser than the last, which is what makes linesFor() below
+     terminate.
+
+     Note that at shared === 0 the line does NOT print `of`. "0 of 5 colours"
+     would narrow the field to the handful of five-colour flags in the pool; "no
+     colour in common" says the useful thing and withholds the rest. */
+  function affinityText(af, lv) {
     var bits = [];
+    lv = lv || 0;
     if (af.of) {
       bits.push(af.shared === 0 ? "no colour in common"
         : af.shared === af.of ? "all " + af.of + " colours in common"
           : af.shared + " of " + af.of + " colours");
     }
-    if (af.named) bits.push("also has " + A.flagFeatureLabel(af.named));
+    if (lv >= 2) return bits.join(" · ");
+    if (af.named && lv === 0) bits.push("also has " + A.flagFeatureLabel(af.named));
     else if (af.any) bits.push("something in common besides colour");
     return bits.join(" · ");
+  }
+
+  /* ── the line must never BE the answer ───────────────────────────────────
+     RARE above stops the readout naming a trait only two flags carry. It does
+     not stop the SENTENCE being unique: "2 of 5 colours · also has tricolour"
+     names a trait 40 flags carry and still fits exactly one country that could
+     be today's answer, and a line that fits one country is the answer however
+     true each half of it is.
+
+     So the line is chosen against the whole answer pool rather than in
+     isolation. Give every possible answer its level-0 line, count the lines,
+     and coarsen anyone whose line is unique; re-count, because a coarsened line
+     can itself land alone; repeat. Coarsening only ever merges buckets and
+     level 2 (colour alone) has broad ones, so three passes always settle it.
+     Deterministic and pool-wide, so both screens print the same sentence and
+     the guarantee holds for every guess, not just the ones anyone tested. */
+  var lineCache = {};
+  function linesFor(guessIso) {
+    if (lineCache[guessIso]) return lineCache[guessIso];
+    var cands = POOL.filter(function (x) { return x !== guessIso; });
+    var af = {}, lv = {};
+    cands.forEach(function (x) { af[x] = affinity(guessIso, x); lv[x] = 0; });
+    for (var pass = 0; pass < 3; pass++) {
+      var tally = {}, moved = false;
+      cands.forEach(function (x) {
+        var t = affinityText(af[x], lv[x]);
+        tally[t] = (tally[t] || 0) + 1;
+      });
+      cands.forEach(function (x) {
+        if (lv[x] >= 2) return;
+        if (tally[affinityText(af[x], lv[x])] < 2) { lv[x]++; moved = true; }
+      });
+      if (!moved) break;
+    }
+    var out = {};
+    cands.forEach(function (x) { out[x] = affinityText(af[x], lv[x]); });
+    lineCache[guessIso] = out;
+    return out;
+  }
+
+  // What the guess row actually prints. Falls back to the bare line if the
+  // answer somehow isn't in the pool, so a guess row can never render empty.
+  function affinityLine(guessIso, answerIso) {
+    var m = linesFor(guessIso);
+    return m[answerIso] !== undefined ? m[answerIso]
+      : affinityText(affinity(guessIso, answerIso), 0);
   }
 
   /* ── boot ────────────────────────────────────────────────────────────── */
@@ -370,7 +426,7 @@
         el.innerHTML = '<div class="g1"><span class="nm">' + A.esc(c.n) +
           '</span><span class="km">' + A.geo.km(d) + '</span><span class="ar">' + A.arrow(b) +
           "</span></div>" +
-          '<div class="g2">' + A.esc(affinityText(affinity(iso, answer))) + "</div>";
+          '<div class="g2">' + A.esc(affinityLine(iso, answer)) + "</div>";
       }
       list.appendChild(el);
     });
@@ -734,6 +790,7 @@
     // without booting a cabinet per day. Defaults to today's answer.
     affinity: function (iso, ans) { return affinity(iso, ans || answer); },
     affinityText: affinityText,
+    affinityLine: function (iso, ans) { return affinityLine(iso, ans || answer); },
     shareGrid: shareGrid,
     norm: NORM,
     buttons: function () {
