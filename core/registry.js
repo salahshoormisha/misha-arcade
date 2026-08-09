@@ -216,7 +216,7 @@ window.AD_REGISTRY = [
     distLabel: "guesses", stamps: false,
   },
   {
-    id: "misaligned", soon: true, name: "MISALIGNED", icon: "📎", accent: "--violet", family: "lab",
+    id: "misaligned", name: "MISALIGNED", icon: "📎", accent: "--violet", family: "lab",
     tagline: "the objective was met. that was the problem.",
     blurb: "Real, documented cases of systems gaming their own objectives. Given what " +
       "was asked for, pick what it actually did — then spot the invented incident.",

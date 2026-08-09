@@ -85,4 +85,85 @@ BOARDS = [
  "epilogue": "GHOST and SHORT are genres if you squint, but DYSTOPIA, GOTHIC, PICARESQUE and EPISTOLARY got there first.",
 },
 
+{
+ "title": "Curtain Up",
+ "diff": 2,
+ "groups": [
+   {"name": "___ ACT", "tiles": ["BALANCING", "CLASS", "RIOT", "VANISHING"],
+    "note": "Balancing act, class act, riot act, vanishing act. Only one gets read."},
+   {"name": "STAGE DIRECTIONS", "tiles": ["EXIT", "ASIDE", "ENTER", "EXEUNT"],
+    "note": "Exeunt is just the plural of exit, and Shakespeare needed it constantly."},
+   {"name": "WHERE THE AUDIENCE SITS", "tiles": ["STALLS", "CIRCLE", "PIT", "GALLERY"],
+    "note": "The pit is what the stalls were called before anyone put seats in them."},
+   {"name": "DRESS ___", "tiles": ["REHEARSAL", "CODE", "SENSE", "DOWN"],
+    "note": "Dress rehearsal, dress code, dress sense, dress down. No garment involved."},
+ ],
+ "traps": [
+   ["CIRCLE", 3, "The dress circle is the first balcony up, and it is exactly this compound"],
+   ["DOWN", 1, "Downstage is a direction the script gives, and down is how it is said"],
+ ],
+ "epilogue": "The dress circle is a real seat and downstage is a real direction. Count who cannot move.",
+},
+
+{
+ "title": "In The Can",
+ "diff": 3,
+ "groups": [
+   {"name": "JOBS IN THE CREDITS", "tiles": ["GAFFER", "GRIP", "FOLEY", "BEST BOY"],
+    "note": "Foley makes the footsteps; the best boy is the gaffer's second in command."},
+   {"name": "CAMERA MOVES", "tiles": ["PAN", "TILT", "DOLLY", "TRACK"],
+    "note": "A dolly rolls, a track is the rail it rolls on, and a tilt only nods."},
+   {"name": "___ CUT", "tiles": ["DIRECTOR'S", "JUMP", "FINAL", "CREW"],
+    "note": "Director's cut, jump cut, final cut, crew cut. Only one is a haircut."},
+   {"name": "SOUND LIKE FILM WORDS", "tiles": ["REAL", "CHUTE", "SEEN", "ROLE"],
+    "note": "Reel, shoot, scene, roll. Say them out loud and the set assembles itself."},
+ ],
+ "traps": [
+   ["DOLLY", 0, "The dolly grip is a real credit, so DOLLY reads as another job on the unit"],
+   ["CREW", 0, "The crew is the whole list of jobs in the credits, which is where three live"],
+   ["DIRECTOR'S", 0, "The director is the first name in every set of credits ever printed"],
+ ],
+ "epilogue": "DOLLY, CREW and DIRECTOR'S all sound like credits. The credits already have four names.",
+},
+
+{
+ "title": "Feet First",
+ "diff": 4,
+ "groups": [
+   {"name": "WORDS MEANING BRIEF", "tiles": ["TERSE", "CURT", "PITHY", "LACONIC"],
+    "note": "Laconic is from Laconia, where Sparta was, and they answered in one word."},
+   {"name": "KINDS OF RHYME", "tiles": ["SLANT", "EYE", "INTERNAL", "FEMININE"],
+    "note": "An eye rhyme only rhymes on the page: love and move, cough and bough."},
+   {"name": "METRICAL FEET", "tiles": ["IAMB", "TROCHEE", "DACTYL", "ANAPEST"],
+    "note": "Two syllables each except the dactyl, named for the bones of a finger."},
+   {"name": "___ LINE", "tiles": ["SIDE", "PUNCH", "HAIR", "DEAD"],
+    "note": "Sideline, punchline, hairline, deadline. Only one of them recedes."},
+ ],
+ "traps": [
+   ["EYE", 3, "An eyeline is what a director checks between two actors, and it is a compound"],
+   ["FEMININE", 2, "A feminine ending is a metrical term first and a rhyme term second"],
+ ],
+ "epilogue": "A feminine ending is metre and an eyeline is a real thing. The rhymes still need four.",
+},
+
+{
+ "title": "Bad Reviews",
+ "diff": 4,
+ "groups": [
+   {"name": "___ BAND", "tiles": ["BOY", "BROAD", "RUBBER", "ARM"],
+    "note": "Boy band, broadband, rubber band, armband. Only one of them plays."},
+   {"name": "PARTS OF A GUITAR", "tiles": ["NECK", "BRIDGE", "FRET", "NUT"],
+    "note": "The nut is the little ridge at the top; the frets do everything after."},
+   {"name": "PARTS OF A SONG", "tiles": ["VERSE", "CHORUS", "HOOK", "OUTRO"],
+    "note": "The outro is what replaced the fade-out when records stopped fading."},
+   {"name": "MOVEMENTS NAMED BY THEIR CRITICS", "tiles": ["BAROQUE", "GOTHIC", "CUBIST", "IMPRESSIONIST"],
+    "note": "A critic sneered at Monet's 'impression' and at Braque's 'little cubes'."},
+ ],
+ "traps": [
+   ["BRIDGE", 2, "The bridge is the most famous part of a song there is, and it is not wood"],
+   ["NECK", 0, "A neckband is a real thing you can buy, which puts NECK with the compounds"],
+ ],
+ "epilogue": "BRIDGE sits on the guitar and inside the song; NECK takes a band. All four movements began as jeers.",
+},
+
 ]

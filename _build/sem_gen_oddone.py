@@ -129,10 +129,10 @@ HUBRANK = 6500        # the thread's name has to be an ordinary word too
 NAMERANK = 6500       # ...and so do the four wrong names
 
 # ── what makes four words a thread ───────────────────────────────────────────
-MIN_CUE = 4           # people who answered H when cued with this member
+MIN_CUE = 3           # people who answered H when cued with this member
 MIN_MEMBERS = 6       # candidate members a hub needs before it is worth trying
-POOL_MEMBERS = 14     # the strongest members considered
-QUAD_TOP = 10         # quads are drawn from the top QUAD_TOP of those
+POOL_MEMBERS = 18     # the strongest members considered
+QUAD_TOP = 13         # quads are drawn from the top QUAD_TOP of those
 MEM_HUB_MIN = 0.26    # every member must be at least this close to the hub
 MEM_HUB_MAX = 0.80    # ...but a member is not allowed to BE the hub
 MEM_HUB_SPREAD = 0.30 # ...and no member may be a straggler relative to the rest
@@ -555,6 +555,14 @@ def main():
     # their own so they have somewhere else to belong
     decoy_pool = [i for i in range(min(DECOY_SCAN, n))
                   if playable(i, MAXRANK) and resp_of.get(i)]
+    # shape and word class of every candidate, once. These used to be recomputed
+    # for all 6000 candidates of every quad of every hub — the hottest loop in
+    # the script by two orders of magnitude.
+    dshape = {}
+    dclass = {}
+    for c in decoy_pool:
+        dshape[c] = shape(vocab[c])
+        dclass[c] = wordclass(vocab[c])
     rival_pool = [i for i in range(min(RIVAL_SCAN, n))
                   if i < MAXRANK and vocab[i] not in STOP and len(vocab[i]) >= 3]
     rival_pre = [V[i][:RIVAL_PRE] for i in rival_pool]
@@ -700,7 +708,7 @@ def main():
             hcosd[c] = s
 
         got = None
-        for _, q in quads[:14]:
+        for _, q in quads[:30]:
             ids = list(q)
             words = [vocab[i] for i in ids]
             sh = shape(words[0])
@@ -730,12 +738,12 @@ def main():
                 if cand in nearh:
                     why["d.rank"] += 1
                     continue
-                cw = vocab[cand]
-                if shape(cw) != sh or wordclass(cw) != wc:
+                if dshape[cand] != sh or dclass[cand] != wc:
                     why["d.shape/class"] += 1
                     continue
                 if uses[cand] >= MAX_USES:
                     continue
+                cw = vocab[cand]
                 if not axis_ok(ids + [cand]):
                     why["d.axis"] += 1
                     continue

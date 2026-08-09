@@ -20,15 +20,20 @@
    true foursome had to beat outright.
    =========================================================================== */
 window.AD_ODDONE = { rounds: [
-{"d":9,"n":["fruit","whiskey","drink","alcohol","liquor"],"w":["pineapple","pear","banana","grape","bourbon"]},
+{"d":13,"n":["fruit","color","purple","red","rose"],"w":["mango","pineapple","grape","strawberry","pink"]},
+{"d":25,"n":["college","travel","passport","card","credit"],"w":["semester","tuition","diploma","graduation","visa"]},
 {"d":30,"n":["test","explain","show","detail","write"],"w":["evaluation","experiment","sample","examine","describe"]},
 {"d":39,"n":["bug","bird","animal","butterfly","fly"],"w":["beetle","cockroach","ant","moth","owl"]},
-{"d":53,"n":["soup","frog","green","red","potato"],"w":["tomato","pea","cabbage","mushroom","toad"]},
+{"d":22,"n":["friend","staff","teacher","university","professor"],"w":["acquaintance","comrade","roommate","fellow","faculty"]},
 {"d":26,"n":["dance","drink","lime","booze","rum"],"w":["tango","ballroom","boogie","salsa","tequila"]},
 {"d":37,"n":["student","architect","math","mechanical","work"],"w":["scholar","intern","graduate","tutor","engineer"]},
 {"d":43,"n":["court","letter","receipt","plea","witness"],"w":["testimony","supreme","justice","appeal","confirmation"]},
-{"d":57,"n":["school","book","verse","part","page"],"w":["homework","grade","textbook","class","chapter"]},
+{"d":25,"n":["church","poem","poetry","song","rhyme"],"w":["gospel","communion","sermon","protestant","verse"]},
+{"d":28,"n":["soup","sweet","candy","spice","salt"],"w":["cabbage","noodle","porridge","chili","sugar"]},
+{"d":37,"n":["book","school","scholar","college","study"],"w":["publisher","reader","literature","journal","academic"]},
+{"d":49,"n":["breakfast","peanut","squirrel","fruit","seed"],"w":["pancake","biscuit","bagel","toast","nut"]},
 ], days: [
 [0,1,2,3],
 [4,5,6,7],
+[8,9,10,11],
 ] };
