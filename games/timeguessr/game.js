@@ -38,12 +38,29 @@
    NORM (CONTRACT §3).  50,000 needs five spot-on years AND five pins inside
    25 km, so it is the theoretical ceiling, not a realistic one. Piecewise
    linear through
-       (0,0) → (27,000, 72) → (37,000, 92) → (50,000, 100)
+       (0,0) → (30,000, 72) → (40,000, 92) → (50,000, 100)
    Calibrated on five-round games with the shape real ones have — a couple of
    rounds nailed, a couple respectable, one disaster:
-     good     2y+10km, 6y+300km, 12y+1200km, 4y+800km, 20y+4000km = 26.5k → 71
-     terrific 0y+5km,  2y+50km,  5y+250km,   3y+600km, 8y+1500km  = 37.2k → 92
-   So 100 needs a flawless five, not merely a very good one.
+     good      1y+40km, 4y+300km, 3y+600km, 7y+1,100km, 16y+2,600km = 30.3k → 73
+     excellent 0y+10km, 1y+40km,  2y+150km, 4y+400km,   7y+900km    = 40.5k → 92
+   That is CONTRACT §7's band exactly — a good day ≈70-75, an excellent one ≈90
+   — and it is deliberately two thousand points a game meaner than the first cut
+   of this curve, which handed 78 to a 30,000 and 94 to a 40,000 and so let an
+   ordinary morning read like a triumph next to a WORDISHA 78. 100 needs a
+   flawless five, not merely a very good one: 45,000 is still only 96.
+
+   SHARE GRID.  Each half of a row is a three-segment bar of that half's score:
+   a segment is green when it is full, yellow when it is half full, black when
+   it is empty. The six cut points are therefore 6/6…1/6 of the half's 5,000,
+   and they are SOLVED OUT OF THE CURVES at first use rather than typed in — so
+   the row goes on meaning the same thing if a curve is ever retuned, and cannot
+   drift into flattery. As solved today:
+       📅  0y 🟩🟩🟩 · ≤2y 🟩🟩🟨 · ≤4y 🟩🟩⬛ · ≤7y 🟩🟨⬛ · ≤11y 🟩⬛⬛ · ≤18y 🟨⬛⬛
+       🌍  ≤25km 🟩🟩🟩 · ≤218 🟩🟩🟨 · ≤486 🟩🟩⬛ · ≤832 🟩🟨⬛ · ≤1,318 🟩⬛⬛ · ≤2,149 🟨⬛⬛
+   Past the last rung is ⬛⬛⬛, as is a half you forfeited and a round you never
+   reached. The hand-typed bands this replaces paid a green square for a pin
+   4,000 km out (178 of 5,000 points) and a yellow one for 8,000 km, so a game
+   that banked 651 of 50,000 still shared a grid with colour in every row.
 
    THE YEAR RANGE IS READ FROM THE DATA at boot (min/max of AD_PHOTOS.time),
    never hard-coded: the photo set is still growing and the slider must track it.
@@ -54,7 +71,7 @@
   var ID = "timeguessr", ROUNDS = 5;
   var YEAR_MAX = 5000, PLACE_MAX = 5000, PER_ROUND = YEAR_MAX + PLACE_MAX;
   var MAXTOT = PER_ROUND * ROUNDS;          // 50,000
-  var SOLID = 27000, GREAT = 37000;         // the two norm hinges
+  var SOLID = 30000, GREAT = 40000;         // the two norm hinges
   var K_KM = 1200;                          // km constant of the place curve
   var FREE_KM = 25;                         // inside this, a perfect place score
   var YEAR_TAU = 10;                        // years constant of the year curve
@@ -721,28 +738,55 @@
     return [g, y, b][n[0]] + [g, y, b][n[1]] + [g, y, b][n[2]];
   }
 
-  // Bands keyed on the honest units — years off and km out — rather than on the
-  // point values, so the row means the same thing whatever the curve does.
+  // A three-segment bar of the half's score: full segment green, half-full
+  // yellow, empty black — so six rungs at 6/6…1/6 of the half's 5,000, and a
+  // seventh, all black, for anything below the last one.
+  var LADDER = [
+    [0, 0, 0],   // 6/6 — full marks
+    [0, 0, 1],   // 5/6
+    [0, 0, 2],   // 4/6
+    [0, 1, 2],   // 3/6
+    [0, 2, 2],   // 2/6
+    [1, 2, 2],   // 1/6
+    [2, 2, 2],   // below that, forfeited, or never reached
+  ];
+  var SIXTHS = [1, 5 / 6, 4 / 6, 3 / 6, 2 / 6, 1 / 6];
+
+  // The rungs are SOLVED out of yearPoints/placePoints, not typed in, so the
+  // grid cannot drift away from the scoring. Walking one unit at a time is fine
+  // — it is ~5,000 Math.exp calls, once, and only when a game ends. Memoised,
+  // and computed on first use rather than at load, because a `var` read during
+  // module set-up would be undefined.
+  var CUTS = null;
+  function barCuts() {
+    if (CUTS) return CUTS;
+    var yr = [], pl = [];
+    for (var i = 0; i < SIXTHS.length; i++) {
+      var need = SIXTHS[i];
+      var n = -1;
+      while (n < 400 && yearPoints(n + 1) >= need * YEAR_MAX) n++;
+      yr.push(n);
+      var d = -1;
+      while (d < 21000 && placePoints(d + 1) >= need * PLACE_MAX) d++;
+      pl.push(d);
+    }
+    CUTS = { year: yr, place: pl };
+    return CUTS;
+  }
+
+  // `cuts` ascends, so the first rung the value fits inside is the right one.
+  function bar(v, cuts, cb) {
+    if (v === null || v === undefined) return blocks(LADDER[LADDER.length - 1], cb);
+    for (var i = 0; i < cuts.length; i++) if (v <= cuts[i]) return blocks(LADDER[i], cb);
+    return blocks(LADDER[LADDER.length - 1], cb);
+  }
+
   function yearRow(off, cb) {
-    if (off === null) return blocks([2, 2, 2], cb);
-    if (off === 0) return blocks([0, 0, 0], cb);
-    if (off <= 2) return blocks([0, 0, 1], cb);
-    if (off <= 5) return blocks([0, 0, 2], cb);
-    if (off <= 10) return blocks([0, 1, 2], cb);
-    if (off <= 20) return blocks([0, 2, 2], cb);
-    if (off <= 40) return blocks([1, 2, 2], cb);
-    return blocks([2, 2, 2], cb);
+    return bar(off === null || off === undefined ? null : Math.abs(off), barCuts().year, cb);
   }
 
   function placeRow(km, cb) {
-    if (km === null || km === undefined) return blocks([2, 2, 2], cb);
-    if (km <= FREE_KM) return blocks([0, 0, 0], cb);
-    if (km <= 150) return blocks([0, 0, 1], cb);
-    if (km <= 500) return blocks([0, 0, 2], cb);
-    if (km <= 1500) return blocks([0, 1, 2], cb);
-    if (km <= 4000) return blocks([0, 2, 2], cb);
-    if (km <= 8000) return blocks([1, 2, 2], cb);
-    return blocks([2, 2, 2], cb);
+    return bar(km, barCuts().place, cb);
   }
 
   function shareGrid() {
@@ -827,8 +871,8 @@
       "</b> of 5 right countries · best round <b>" + A.esc(rounds[bestI].place) + ", " +
       rounds[bestI].year + "</b> at " + best.toLocaleString() + "</p>" +
       "<p class='center tiny dim'>A good five rounds is " + SOLID.toLocaleString() +
-      " — two of them nailed, two respectable, one disaster. An excellent one is " +
-      GREAT.toLocaleString() + ".</p>";
+      " — about 6,000 a round, which is the year inside half a decade and the pin " +
+      "inside 700 km. An excellent one is " + GREAT.toLocaleString() + ".</p>";
 
     var m = A.results(ID, practice ? A.PRACTICE : day, {
       title: norm >= 92 ? "ARCHIVIST" : tot >= SOLID ? "WELL DATED" : right >= 3 ? "RIGHT MAP" : "NEXT TIME",
