@@ -608,6 +608,7 @@ def main():
     scanned = 0
     uses = defaultdict(int)
     stat = defaultdict(int)
+    why = defaultdict(int)
     raw = open(os.path.join(SEM, "oddone_raw.tsv"), "w", encoding="utf-8")
 
     for _, _, h in hubs:
@@ -657,21 +658,29 @@ def main():
         for q in combinations(pool, 4):
             hs = [hc[x] for x in q]
             if max(hs) - min(hs) > MEM_HUB_SPREAD:
+                why["q.hubspread"] += 1
                 continue
             ps = [pc[(q[a], q[b])] for a in range(4) for b in range(a + 1, 4)]
             if max(ps) > MEM_PAIR_MAX or min(ps) < MEM_PAIR_MIN:
+                why["q.pair"] += 1
                 continue
             if any(opposed(q[a], q[b]) for a in range(4) for b in range(a + 1, 4)):
+                why["q.opposed"] += 1
                 continue
             if sum(1 for a in range(4) for b in range(a + 1, 4) if kin[(q[a], q[b])]) < KIN_MIN:
+                why["q.kin"] += 1
                 continue
             if len(set(shape(vocab[x]) for x in q)) != 1:
+                why["q.shape"] += 1
                 continue
             if len(set(wordclass(vocab[x]) for x in q)) != 1:
+                why["q.class"] += 1
                 continue
             if not axis_ok(list(q)):
+                why["q.axis"] += 1
                 continue
             if any(samestem(vocab[q[a]], vocab[q[b]]) for a in range(4) for b in range(a + 1, 4)):
+                why["q.stem"] += 1
                 continue
             # prefer: everyone well inside the thread, evenly, and distinct
             quads.append((-(min(hs) * 2.0 - max(ps) - (max(hs) - min(hs))), q))
@@ -715,41 +724,54 @@ def main():
             # ---- find the impostor ------------------------------------------
             best = None                       # (score, decoy, hubgap, tempt)
             for cand in decoy_pool:
-                if cand in banned or cand in nearh:
+                if cand in banned:
+                    why["d.norms"] += 1
+                    continue
+                if cand in nearh:
+                    why["d.rank"] += 1
                     continue
                 cw = vocab[cand]
                 if shape(cw) != sh or wordclass(cw) != wc:
+                    why["d.shape/class"] += 1
                     continue
                 if uses[cand] >= MAX_USES:
                     continue
                 if not axis_ok(ids + [cand]):
+                    why["d.axis"] += 1
                     continue
                 if samestem(cw, vocab[h]) or any(samestem(cw, w) for w in words):
                     continue
                 if opposed(cand, h) or any(opposed(cand, i) for i in ids):
+                    why["d.opposed"] += 1
                     continue
                 # a word the members themselves name is not an impostor, it is
                 # their container: BOWL/CONTAINER, SHOE/FOOTWEAR. And a word the
                 # members are named BY is a member.
                 if any(cand in hubset.get(i, EMPTY) for i in ids):
+                    why["d.named-by-member"] += 1
                     continue
                 if sum(1 for i in ids if i in hubset.get(cand, EMPTY)) > 1:
                     continue
                 # ...nor may it share the thread's other human labels
                 if hubset.get(cand, EMPTY) & common4:
+                    why["d.common4"] += 1
                     continue
                 hcH = hcosd[cand]
                 if hcH > DEC_HUB_MAX:
+                    why["d.hubcos"] += 1
                     continue
                 gap = minhub - hcH
                 if gap < HUBGAP_MIN or gap > HUBGAP_MAX:
+                    why["d.gap"] += 1
                     continue
                 tempt = dot(cent, cand)
                 if tempt < TEMPT_MIN:
+                    why["d.tempt"] += 1
                     continue
                 ds = [cos(cand, i) for i in ids]
                 if max(ds) > DEC_PAIR_MAX or max(ds) < DEC_PAIR_MIN \
                         or max(ds) - min(ds) > DEC_SPREAD_MAX:
+                    why["d.decpair"] += 1
                     continue
                 # no response may be given by all four of any rival foursome
                 clash = False
@@ -764,6 +786,7 @@ def main():
                         clash = True
                         break
                 if clash:
+                    why["d.clash"] += 1
                     continue
                 # THE LEAVE-ONE-OUT TEST — the statistic a player actually uses.
                 # For each of the five, how well does it fit the other four? The
@@ -782,10 +805,12 @@ def main():
                     fits.append((xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0))
                 worstfit = min(fits)
                 if max(fits) - worstfit > MEM_FIT_SPREAD:
+                    why["d.memberfit"] += 1
                     continue                      # a member is half an outlier
                 xS = dS + 1.0
                 fitd = (xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0)
                 if fitd > worstfit - OUT_GAP:
+                    why["d.notoutlier"] += 1
                     continue
                 # IT HAS TO COME FROM SOMEWHERE. An impostor with no thread of
                 # its own is just a stray word; the good ones are visitors from
@@ -803,6 +828,7 @@ def main():
                         home = g
                         break
                 if home < 0:
+                    why["d.nohome"] += 1
                     continue
                 # the impostor we want is the one that is plainly outside the
                 # thread but still tempting: maximise temptation, not confusion.
@@ -935,6 +961,9 @@ def main():
                   "oddone.js bytes            : %d" % os.path.getsize(OUT)]
     lines.append("")
     lines.append("rejected:")
+    for k in sorted(why, key=lambda k: -why[k]):
+        lines.append("  %-42s %d" % (k, why[k]))
+    lines.append("")
     for k in sorted(stat, key=lambda k: -stat[k]):
         lines.append("  %-42s %d" % (k, stat[k]))
     txt = "\n".join(lines) + "\n"

@@ -1225,6 +1225,15 @@ BENCH = [
         url="https://arxiv.org/abs/1905.07830",
     ),
     dict(
+        id="swag_bert", sys="BERT-Large, fine-tuned", bench="SWAG, test set", year=2018,
+        score="86.3% accuracy", human="88.0% accuracy", sv=86.3, hv=88.0, band=2,
+        story="SWAG was published in August 2018 as a task competitive models struggled with: "
+              "the best of them, ESIM with ELMo, managed 59.2%. BERT arrived in October and "
+              "took it to within two points of the crowd. HellaSwag was built the following "
+              "year out of exactly the endings BERT could still not tell apart.",
+        url="https://arxiv.org/abs/1810.04805",
+    ),
+    dict(
         id="hellaswag_gpt3", sys="GPT-3 (175B, few-shot)", bench="HellaSwag", year=2020,
         score="79.3%", human="95.6%", sv=79.3, hv=95.6, band=1,
         story="Thirty-two points of the gap went in one model generation, without anyone "

@@ -21,9 +21,14 @@
    =========================================================================== */
 window.AD_ODDONE = { rounds: [
 {"d":9,"n":["fruit","whiskey","drink","alcohol","liquor"],"w":["pineapple","pear","banana","grape","bourbon"]},
-{"d":26,"n":["dance","drink","lime","booze","rum"],"w":["tango","ballroom","boogie","salsa","tequila"]},
 {"d":30,"n":["test","explain","show","detail","write"],"w":["evaluation","experiment","sample","examine","describe"]},
+{"d":39,"n":["bug","bird","animal","butterfly","fly"],"w":["beetle","cockroach","ant","moth","owl"]},
+{"d":53,"n":["soup","frog","green","red","potato"],"w":["tomato","pea","cabbage","mushroom","toad"]},
+{"d":26,"n":["dance","drink","lime","booze","rum"],"w":["tango","ballroom","boogie","salsa","tequila"]},
 {"d":37,"n":["student","architect","math","mechanical","work"],"w":["scholar","intern","graduate","tutor","engineer"]},
+{"d":43,"n":["court","letter","receipt","plea","witness"],"w":["testimony","supreme","justice","appeal","confirmation"]},
+{"d":57,"n":["school","book","verse","part","page"],"w":["homework","grade","textbook","class","chapter"]},
 ], days: [
 [0,1,2,3],
+[4,5,6,7],
 ] };

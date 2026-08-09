@@ -730,7 +730,10 @@
     rounds: buildRounds,
     order: function () { return order.slice(); },
     weights: tileWeights,
-    affinity: function (iso) { return affinity(iso, answer); },
+    // Both isos, so a test can measure the readout across the WHOLE pool
+    // without booting a cabinet per day. Defaults to today's answer.
+    affinity: function (iso, ans) { return affinity(iso, ans || answer); },
+    affinityText: affinityText,
     shareGrid: shareGrid,
     norm: NORM,
     buttons: function () {

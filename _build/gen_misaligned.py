@@ -192,6 +192,20 @@ for b in BENCH:
         if want != b.get("band"):
             bad("%s: band %r disagrees with the numbers (%s vs %s -> %d)"
                 % (w, b.get("band"), sv, hv, want))
+    # The question screen shows sys, bench, year and the human baseline, above a
+    # round strip that reads "ROUND n/5 … <total>/100". If `score` is a substring
+    # of any of that, the round answers itself and does not look broken — it
+    # looks easy. t_misaligned.js checks the same thing on every draw; catching
+    # it here means it never reaches a draw.
+    shown = re.sub(r"\s+", " ", " ".join([
+        str(b.get("sys", "")), str(b.get("bench", "")), str(b.get("year", "")),
+        str(b.get("human", "")),
+    ])).strip()
+    strip = " ".join("ROUND %d/5 %d/100" % (n, t)
+                     for n in range(1, 6) for t in range(0, 101))
+    sc = re.sub(r"\s+", " ", str(b.get("score", ""))).strip()
+    if sc and (sc in shown or sc in strip):
+        bad("%s: `score` is readable off the question screen — reword it" % w)
 
 # ── MILE ────────────────────────────────────────────────────────────────────
 def parse_d(s):
