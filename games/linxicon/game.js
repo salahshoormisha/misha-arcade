@@ -562,6 +562,14 @@
     play: function (w) { input.value = w; submit(); return this.state(); },
     bold: bold, normFor: normFor, wobblePenalty: wobblePenalty,
     link: function (a, b) { return SEM.link(SEM.id(a), SEM.id(b)); },
+    known: function (w) { return SEM.id(w) >= 0; },
+    puzzles: function () { return PUZZLES; },
+    /* the commonest `lim` words, for a test that needs a real word with some
+       property — the same window STEPPING STONE searches */
+    forEachWord: function (fn, lim) {
+      var n = Math.min(lim || 2000, SEM.n);
+      for (var i = 0; i < n; i++) fn(SEM.word(i), i);
+    },
     solve: function () {                      // walk the shipped route, no hints
       for (var i = 1; i < puz.path.length && !over; i++) this.play(puz.path[i]);
       return this.state();

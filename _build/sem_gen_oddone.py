@@ -126,10 +126,17 @@ HUBGAP_MIN = 0.175    # THE cleanliness gate: outside the thread by this much
 HUBGAP_MAX = 0.520    # ...but not so far outside that it is free
 TEMPT_MIN = 0.240     # it must still be pulled towards the four
 DEC_PAIR_MAX = 0.62   # it may not pair off with one member
+DEC_PAIR_MIN = 0.30   # ...but it must hook onto at least one of them
 DEC_SPREAD_MAX = 0.34 # nor sit lopsidedly nearer one of them
+DEC_HOME_CUE = 5      # people who put the impostor in ITS thread
+DEC_HOME_FAR = 0.45   # ...which has to be a different thread from this one
 
 # ── what makes the answer the only answer ────────────────────────────────────
-OUT_GAP = 0.055       # the impostor must be the leave-one-out outlier, by this
+OUT_GAP = 0.050       # the impostor must be the leave-one-out outlier, by this
+MEM_FIT_SPREAD = 0.13 # ...and no member may be halfway to being one itself
+ABST_SPREAD = 0.23    # the five must be equally abstract: an idea among four
+                      # objects is a giveaway that has nothing to do with the
+                      # thread. Measured on an axis built from seed words.
 RIVAL_GAP = 0.115     # true foursome's best name beats every rival's by this
 RIVAL_SCAN = 5600     # vocabulary searched for a rival thread's name
 RIVAL_PRE = 96        # dims used for the first, cheapest pass over that
@@ -256,6 +263,9 @@ blown grown known thrown drawn flown sewn shown sworn worn torn born
 broken frozen taken given eaten fallen driven written spoken chosen stolen woven
 hidden forgotten beaten bitten ridden risen shaken swollen awoken proven
 begun drunk sung sunk swum won held kept slept felt built burnt dealt meant
+flew grew threw drew blew knew wrote rode drove spoke broke chose stole froze
+ate fell rose shook swore tore wore bore came ran sat stood took gave saw went
+sang sank swam began drank rang bought brought caught fought taught sought
 """.split())
 
 # Endings that turn one word into another. Order matters: the longest ending
@@ -356,7 +366,26 @@ def main():
     EMPTY = frozenset()
 
     known = set(vocab)
+    idx = {w: i for i, w in enumerate(vocab)}
     wordclass = make_wordclass(known)
+
+    # ── the abstractness axis ────────────────────────────────────────────────
+    # One number per word: how far it sits towards IDEA and away from HAMMER.
+    # Four objects and one idea is a board a player solves without reading the
+    # words, so the five have to agree on this. Two seed sets, one subtraction,
+    # 11.6k dot products, done once.
+    def seeded(ws):
+        return unit([idx[w] for w in ws.split() if w in idx])
+    a = seeded("idea concept freedom justice quality process system notion theory "
+               "principle honesty loyalty wisdom pride courage patience truth belief "
+               "purpose meaning")
+    c = seeded("table dog hammer apple chair brick spoon river shoe bottle window "
+               "bucket ladder pencil carrot bridge shirt candle basket knife")
+    axis = array("f", [a[d] - c[d] for d in range(DIMS)])
+    s = (sum(map(mul, axis, axis)) ** 0.5) or 1.0
+    for d in range(DIMS):
+        axis[d] /= s
+    ABST = [sum(map(mul, axis, V[i])) for i in range(n)]
 
     def playable(i, cap):
         return i < cap and vocab[i] not in bad and len(vocab[i]) >= 3
@@ -468,6 +497,9 @@ def main():
                 continue
             if len(set(wordclass(vocab[x]) for x in q)) != 1:
                 continue
+            ab = [ABST[x] for x in q]
+            if max(ab) - min(ab) > ABST_SPREAD:
+                continue
             if any(samestem(vocab[q[a]], vocab[q[b]]) for a in range(4) for b in range(a + 1, 4)):
                 continue
             # prefer: everyone well inside the thread, evenly, and distinct
@@ -483,6 +515,8 @@ def main():
             words = [vocab[i] for i in ids]
             sh = shape(words[0])
             wc = wordclass(words[0])
+            ablo = min(ABST[i] for i in ids)
+            abhi = max(ABST[i] for i in ids)
             minhub = min(hc[i] for i in ids)
             cent = unit(ids)
             # For the leave-one-out test below. Sm is the members' raw sum, so
@@ -509,7 +543,13 @@ def main():
                     continue
                 if uses[cand] >= MAX_USES:
                     continue
+                if max(abhi, ABST[cand]) - min(ablo, ABST[cand]) > ABST_SPREAD:
+                    continue
                 if samestem(cw, vocab[h]) or any(samestem(cw, w) for w in words):
+                    continue
+                # a word the members themselves name is not an impostor, it is
+                # their container: BOWL/CONTAINER, SHOE/FOOTWEAR
+                if sum(1 for i in ids if cand in hubset.get(i, EMPTY)) > 1:
                     continue
                 tempt = dot(cent, cand)
                 if tempt < TEMPT_MIN:
@@ -518,7 +558,8 @@ def main():
                 if gap < HUBGAP_MIN or gap > HUBGAP_MAX:
                     continue
                 ds = [cos(cand, i) for i in ids]
-                if max(ds) > DEC_PAIR_MAX or max(ds) - min(ds) > DEC_SPREAD_MAX:
+                if max(ds) > DEC_PAIR_MAX or max(ds) < DEC_PAIR_MIN \
+                        or max(ds) - min(ds) > DEC_SPREAD_MAX:
                     continue
                 # no response may be given by all four of any rival foursome
                 clash = False
@@ -545,26 +586,44 @@ def main():
                 # and every term of that is a scalar we already have.
                 dS = tempt * nSm
                 S2 = nSm * nSm + 2.0 * dS + 1.0
-                worstfit = 2.0
+                fits = []
                 for k in range(4):
                     xS = dmS[k] + ds[k]
-                    f = (xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0)
-                    if f < worstfit:
-                        worstfit = f
+                    fits.append((xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0))
+                worstfit = min(fits)
+                if max(fits) - worstfit > MEM_FIT_SPREAD:
+                    continue                      # a member is half an outlier
                 xS = dS + 1.0
                 fitd = (xS - 1.0) / ((S2 - 2.0 * xS + 1.0) ** 0.5 or 1.0)
                 if fitd > worstfit - OUT_GAP:
+                    continue
+                # IT HAS TO COME FROM SOMEWHERE. An impostor with no thread of
+                # its own is just a stray word; the good ones are visitors from
+                # the next category along, and that category is the best wrong
+                # answer on the naming card.
+                home = -1
+                for g, cnt in sorted(resp_of.get(cand, {}).items(), key=lambda kv: -kv[1]):
+                    if cnt < DEC_HOME_CUE or not playable(g, NAMERANK):
+                        continue
+                    if g == h or g in ids or samestem(vocab[g], vocab[h]):
+                        continue
+                    if sum(1 for i in ids if g in hubset.get(i, EMPTY)) > 1:
+                        continue
+                    if cos(g, h) < DEC_HOME_FAR:
+                        home = g
+                        break
+                if home < 0:
                     continue
                 # the impostor we want is the one that is plainly outside the
                 # thread but still tempting: maximise temptation, not confusion.
                 sc = tempt - 0.35 * gap
                 if best is None or sc > best[0]:
-                    best = (sc, cand, gap, tempt)
+                    best = (sc, cand, gap, tempt, home)
             if best is None:
                 stat["quad: no impostor"] += 1
                 continue
 
-            _, dec, gap, tempt = best
+            _, dec, gap, tempt, home = best
             five = ids + [dec]
 
             # ---- the answer must be the only answer -------------------------
@@ -585,12 +644,12 @@ def main():
                 stat["quad: a rival foursome was nameable too"] += 1
                 continue
 
-            got = (ids, dec, gap, tempt, mine, worst, myname, rivalw, common4)
+            got = (ids, dec, gap, tempt, mine, worst, myname, rivalw, common4, home)
             break
 
         if not got:
             continue
-        ids, dec, gap, tempt, mine, worst, myname, rivalw, common4 = got
+        ids, dec, gap, tempt, mine, worst, myname, rivalw, common4, home = got
         five = ids + [dec]
 
         # ---- four wrong names for the thread --------------------------------
@@ -604,7 +663,7 @@ def main():
         for w5 in five:
             for r in resp_of.get(w5, {}):
                 cover[r] += 1
-        order = [r for r, _ in sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])]
+        order = [home] + [r for r, _ in sorted(resp_of.get(dec, {}).items(), key=lambda kv: -kv[1])]
         order += [r for r, _ in sorted(cover.items(), key=lambda kv: (-kv[1], -dot(cent5, kv[0])))]
         wrong = []
         seen = set()

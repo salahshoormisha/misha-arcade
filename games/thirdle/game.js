@@ -14,6 +14,12 @@
          BLACK     nowhere, or you've already found every copy of it
    The purple state is what makes you reason across words instead of within one.
 
+   LAYOUT. Word 2 runs down; words 1 and 3 run across it, and word 1 is always
+   the UPPER of the two, so typing order is reading order. The two across words
+   are never on touching rows, and when they are only two rows apart they must
+   be at least three columns offset — otherwise the board draws a solid slab and
+   three words read as two, which is exactly what got reported.
+
    NORM: solved in 1..6 → 100, 95, 85, 72, 58, 45; lost → 12.
    ========================================================================== */
 (function () {
