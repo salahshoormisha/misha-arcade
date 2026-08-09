@@ -61,18 +61,30 @@ ids.forEach(function (id) {
   }
   console.error = realError;
 
-  var up = typeof globalThis[HOOKS[id]] === "object";
-  if (!up) broke.push(id + (why ? " — threw: " + why : " — bailed out silently"));
-  H.ok(up, id + (why ? "  THREW: " + why : "") +
-           (errs ? "  (" + errs + " console errors)" : ""));
+  var bad = [];
+  if (typeof globalThis[HOOKS[id]] !== "object") {
+    bad.push(why ? "THREW: " + why : "bailed out silently (no " + HOOKS[id] + ")");
+  } else if (why) {
+    bad.push("THREW after the hook was set: " + why);
+  }
+  if (errs) bad.push(errs + " console error" + (errs === 1 ? "" : "s") + " during boot");
+  // Every cabinet renders well clear of this: the quietest opening screen is
+  // OUTLINE at 41 characters, so 30 catches a blank page without being a
+  // tripwire for a deliberately spare one.
+  var seen = H.visible().join(" ").replace(/\s+/g, "");
+  if (seen.length < 30) bad.push("page nearly empty after boot (“" + seen.slice(0, 60) + "”)");
+  if (!H.maybe("main") && !H.maybe(".ac-main") && !H.maybe("#app")) bad.push("no main region");
+
+  if (bad.length) broke.push(id + " — " + bad.join("; "));
+  H.ok(!bad.length, id + (bad.length ? "  " + bad.join("; ") : ""));
 });
 
 H.section("summary");
 if (broke.length) {
-  print("  cabinets that do not boot:");
+  print("  cabinets that do not come up clean:");
   broke.forEach(function (b) { print("    " + b); });
 } else {
-  print("  all " + ids.length + " cabinets boot");
+  print("  all " + ids.length + " cabinets boot clean");
 }
 
 H.done();

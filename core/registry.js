@@ -127,7 +127,7 @@ window.AD_REGISTRY = [
 
   /* ── PHOTO WING (needs a connection) ──────────────────────────────────── */
   {
-    id: "timeguessr", soon: true, name: "TIMEGUESSR", icon: "📷", accent: "--gold", family: "photo",
+    id: "timeguessr", name: "TIMEGUESSR", icon: "📷", accent: "--gold", family: "photo",
     tagline: "five photographs — when, and where?",
     blurb: "Real archive photography. Drop a pin, drag the year. Points for both, " +
       "and a caption afterwards telling you what you were looking at.",
