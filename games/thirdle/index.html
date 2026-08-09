@@ -25,9 +25,30 @@
   /* the fourth state — "this letter lives in one of the other two words" */
   .ac-tile.elsewhere { background: var(--purple); border-color: var(--purple); color: var(--bg); }
   .ac-kbd button.elsewhere { background: var(--purple); color: var(--bg); border-color: var(--purple); }
+  /* High-contrast mode recolours --ok to blue, which sits far too close to the
+     violet of the fourth state. Pink is the one hue left that is unlike blue,
+     orange and the dark empty tile all at once. */
+  body.cb .ac-tile.elsewhere,
+  body.cb .ac-kbd button.elsewhere { background: var(--pink); border-color: var(--pink); }
+  body.cb .key .k-else { background: var(--pink); }
 
   .ac-tile.lock { box-shadow: inset 0 0 0 2px var(--amber); }
-  .ac-tile.cur { border-color: var(--accent); }
+
+  /* THE CURSOR. It must not be --accent: the registry gives this cabinet
+     --violet, and --violet IS --purple, i.e. the exact fill of the fourth
+     state — so the cursor disappeared the moment it landed on a purple square,
+     and everywhere else it read as "this tile is about to go purple". An ink
+     ring is the only thing legible against all five backgrounds this board
+     paints (empty, green, amber, violet, slate). */
+  #grid .ac-tile.cur { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+
+  /* The three words are typed in order — across, then down, then across — so
+     the squares of the word you are currently in are lifted a shade. It is the
+     cheapest possible answer to "which of the three am I filling in?", and it
+     keeps the three words reading as three. */
+  #grid .ac-tile.inword:not(.ok):not(.near):not(.elsewhere):not(.miss):not(.reveal) {
+    background: var(--s2);
+  }
   /* the answer, shown after a loss — must NOT be dressed as a correct guess */
   .ac-tile.reveal { background: var(--s2); border-color: var(--hair-2); color: var(--cyan); }
 

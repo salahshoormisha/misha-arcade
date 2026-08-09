@@ -124,10 +124,34 @@
   var ALL = [];
   var MC = [], NUM = [], BY = {}, BYD = {}, CAT_KEYS = [];
 
+  /* The bank ships as ROWS, not objects, to stay parseable on a phone:
+       multiple choice : [q, answer, wrong, wrong, wrong, catIndex, diff, note]
+       numeric (wager) : [q, number, unit, catIndex, diff, note]
+     A number in slot 1 is the discriminator. `T.c` indexes the rows' category
+     slot into the category keys. The older verbose object shape is still
+     accepted, so an old cached copy of the file cannot empty the cabinet.
+
+     The options are stored answer-first, so they MUST be shuffled here or the
+     answer is always button A. Seed the shuffle from the question's own text
+     hash: the order is then stable across reloads and across a regeneration of
+     the bank, but unpredictable to a player. */
+  function unpack(row, cats) {
+    if (!row || typeof row.length !== "number") return row;   // already an object
+    var numeric = typeof row[1] === "number";
+    if (numeric) {
+      return { q: row[0], a: row[1], unit: row[2], cat: cats[row[3]],
+               diff: row[4], note: row[5], numeric: true };
+    }
+    var opts = A.shuffle(A.rng("dcopt:" + qid(row[0])), [row[1], row[2], row[3], row[4]]);
+    return { q: row[0], a: row[1], opts: opts, cat: cats[row[5]],
+             diff: row[6], note: row[7] };
+  }
+
   (function prepare() {
-    var raw = T.questions || [], i, q, key;
+    var cats = T.c || [];
+    var raw = T.q || T.questions || [], i, q, key;
     for (i = 0; i < raw.length; i++) {
-      q = raw[i];
+      q = unpack(raw[i], cats);
       if (!q || typeof q.q !== "string" || !q.q) continue;
       if (!CATS[q.cat]) continue;
       var d = Math.round(+q.diff);
