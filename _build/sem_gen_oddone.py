@@ -886,6 +886,31 @@ def main():
             _, dec, gap, tempt, home = best
             five = ids + [dec]
 
+            # ---- the answer must be the only answer ----------------------
+            # For each of the five in turn, take it out, put the impostor in,
+            # and ask how nameable the foursome that leaves is — searching the
+            # whole common vocabulary for the best name it could possibly have,
+            # whether or not anybody ever wrote that name down. The true
+            # foursome has to beat every rival outright. This is the gate that
+            # enforces the one rule: a board where two of the five could each be
+            # argued is a broken board.
+            fs = frozenset(five)
+            mine, myname = thread(ids, fs)
+            worst = -2.0
+            rivalw = -1
+            ok = True
+            for j in range(4):
+                alt = [ids[k] for k in range(4) if k != j] + [dec]
+                sv, tv = thread(alt, fs)
+                if sv > worst:
+                    worst, rivalw = sv, tv
+                if mine - sv < RIVAL_GAP:
+                    ok = False
+                    break
+            if not ok:
+                stat["quad: a rival foursome was nameable too"] += 1
+                continue
+
             # ---- four wrong names for the thread -------------------------
             # Plausible, never right. A name has to be one somebody could
             # believe — evoked by some of the five AND sitting near them — but

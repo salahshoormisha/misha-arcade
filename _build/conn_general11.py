@@ -85,4 +85,44 @@ BOARDS = [
  "epilogue": "GENERAL and LOCAL are elections before they are anaesthetics. SNAP, PRIMARY, MIDTERM and RUNOFF got there first.",
 },
 
+{
+ "title": "Underfoot",
+ "diff": 4,
+ "groups": [
+   {"name": "___ ACHE", "tiles": ["TOOTH", "BELLY", "HEAD", "EAR"],
+    "note": "Toothache, bellyache, headache, earache. Only one is also a verb."},
+   {"name": "BRITISH FOR A DESPICABLE MAN", "tiles": ["ROTTER", "BOUNDER", "BLIGHTER", "SWINE"],
+    "note": "Four insults that all sound like they were thrown across a tennis lawn."},
+   {"name": "WORDS MEANING ONLY", "tiles": ["LONE", "MERE", "SINGLE", "SOLITARY"],
+    "note": "A mere is also a lake, which is how Windermere got the end of its name."},
+   {"name": "ALSO PART OF A FOOT", "tiles": ["ARCH", "BALL", "SOLE", "HEEL"],
+    "note": "Arch, ball, sole, heel. Four ordinary words and one unremarkable foot."},
+ ],
+ "traps": [
+   ["HEEL", 1, "A heel is precisely a rotter, and it is the older insult of the two"],
+   ["SOLE", 2, "Sole means only, as in sole survivor, sole trader, sole purpose"],
+ ],
+ "epilogue": "HEEL is a cad and SOLE means only. Both of them are also flat on the floor at this moment.",
+},
+
+{
+ "title": "Name Your Fear",
+ "diff": 4,
+ "groups": [
+   {"name": "WHAT FEAR DOES TO THE BODY", "tiles": ["GOOSEBUMPS", "DRY MOUTH", "COLD SWEAT", "THE SHAKES"],
+    "note": "Goosebumps are a leftover reflex for fluffing up fur you no longer have."},
+   {"name": "NINETIES DANCE GENRES", "tiles": ["TRANCE", "HOUSE", "GARAGE", "JUNGLE"],
+    "note": "Jungle sped a breakbeat up until it stopped behaving like a breakbeat."},
+   {"name": "___ RAIL", "tiles": ["TOWEL", "GUARD", "THIRD", "LIGHT"],
+    "note": "Towel, guard, third, light. Only one of them carries any current."},
+   {"name": "ADD -PHOBIA FOR A REAL FEAR", "tiles": ["PHOTO", "TECHNO", "HYDRO", "MONO"],
+    "note": "Photophobia is light that hurts. Hydrophobia is the old name for rabies."},
+ ],
+ "traps": [
+   ["TECHNO", 1, "Techno is a dance genre before it is a fear of anything, and it is the obvious one"],
+   ["MONO", 2, "A monorail is a rail, and it is the only kind most people can name"],
+ ],
+ "epilogue": "TECHNO is a genre and MONO is a rail. Both are also fears, the moment you put -PHOBIA on the end.",
+},
+
 ]
