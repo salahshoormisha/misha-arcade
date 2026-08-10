@@ -6,7 +6,7 @@
 <title>Today's Run · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0910'/><circle cx='16' cy='16' r='6' fill='none' stroke='%23ff5c9d' stroke-width='2.5'/></svg>">
-<link rel="stylesheet" href="../core/style.css?v=12">
+<link rel="stylesheet" href="../core/style.css?v=13">
 <style>
   /* ── the card: one big number, three supporting facts ─────────────────── */
   .top {
@@ -121,15 +121,30 @@
 </style>
 </head>
 <body>
-<script src="../core/registry.js?v=12"></script>
-<script src="../core/arcade.js?v=12"></script>
-<script src="../core/ui.js?v=12"></script>
-<script src="../core/audio.js?v=12"></script>
+<script src="../core/registry.js?v=13"></script>
+<script src="../core/arcade.js?v=13"></script>
+<script src="../core/ui.js?v=13"></script>
+<script src="../core/audio.js?v=13"></script>
 <script>
 (function () {
   var main = A.mount({ title: "Today's Run", sub: null, wide: true, accent: "--hot" });
   var dayN = A.dayNumber();
   var pct = function (n) { return Math.max(0, Math.min(100, n)); };
+
+  // The wings, in the order the REGISTRY introduces them — "order here = order
+  // in the Daily Run", and reading it off AD_FAMILIES instead put THE RING at
+  // the bottom of the page while the registry has it in the middle. Any family
+  // with no cabinet in the registry still gets listed, at the end.
+  function famOrder() {
+    var seen = {}, out = [];
+    A.registry.forEach(function (g) {
+      if (g.family && !seen[g.family]) { seen[g.family] = 1; out.push(g.family); }
+    });
+    Object.keys(window.AD_FAMILIES).forEach(function (f) {
+      if (!seen[f]) { seen[f] = 1; out.push(f); }
+    });
+    return out;
+  }
 
   function render() {
     var card = A.card(dayN), rs = A.runStreak();
@@ -167,15 +182,21 @@
 
     if (left.length > 5) {
       var set = suggestSet(left);
-      h += '<div class="suggest"><h4>Tonight\'s set</h4><p>Five games, one from each wing, about ' +
+      var wings = {};
+      set.forEach(function (g) { wings[g.family] = 1; });
+      var nw = Object.keys(wings).length;
+      h += '<div class="suggest"><h4>Tonight\'s set</h4><p>' + set.length + " games from " + nw +
+        " wing" + (nw === 1 ? "" : "s") + ", about " +
         Math.round(set.reduce(function (a, g) { return a + g.parMs; }, 0) / 60000) + " minutes — " +
         set.map(function (g) { return "<b>" + A.esc(g.name) + "</b>"; }).join(", ") + ".</p>" +
         '<div class="actions" style="margin-top:10px"><a class="ac-btn sm" href="../games/' +
         set[0].id + '/">Start with ' + A.esc(set[0].name) + "</a></div></div>";
     }
 
-    Object.keys(window.AD_FAMILIES).forEach(function (fam) {
-      var F = window.AD_FAMILIES[fam];
+    famOrder().forEach(function (fam) {
+      // A cabinet registered under a family nobody has described yet still gets
+      // a section rather than taking the whole page down with it.
+      var F = window.AD_FAMILIES[fam] || { name: String(fam).toUpperCase(), note: "" };
       var list = A.registry.filter(function (g) { return g.family === fam; });
       if (!list.length) return;
       h += '<div class="set"><h3>' + A.esc(F.name) + " <i>" + A.esc(F.note) + "</i></h3>";
@@ -223,7 +244,13 @@
 
   function suggestSet(left) {
     var rand = A.rngFor("set", dayN), out = [], seen = {};
-    Object.keys(window.AD_FAMILIES).forEach(function (fam) {
+    // Shuffle the wings before taking one from each. Walking them in a fixed
+    // order and then slicing to five meant the last wings in the list — the
+    // SEMANTIC WING, THE LAB and THE RING — could never be suggested at all,
+    // so LINXICON, PHYLO, MISALIGNED and THE DECIDER were invisible here.
+    // Seeded on the day, so both players still get the same set.
+    A.shuffle(rand, famOrder()).forEach(function (fam) {
+      if (out.length >= 5) return;
       var pool = left.filter(function (g) { return g.family === fam && (!g.needsNet || navigator.onLine); });
       if (!pool.length) pool = left.filter(function (g) { return g.family === fam; });
       if (pool.length) { var g = A.pick(rand, pool); out.push(g); seen[g.id] = 1; }

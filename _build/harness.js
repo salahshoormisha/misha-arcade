@@ -67,6 +67,50 @@
      · MICROTASKS drain between tasks, as a browser does. Promise callbacks are
        jsc's own microtask queue and used to sit unrun until the whole test file
        ended, so every .then() in the core was invisible to assertions.
+
+   ADDED 2026-08-09 (pages) — INLINE <script> BLOCKS CAN NOW BE RUN. H.html()
+   still strips every <script> out of the DOM and still executes nothing by
+   itself; that default is unchanged, because a cabinet's test loads its
+   external scripts off the command line in page order and running them twice
+   would double every side effect. What is new is that the inline blocks are no
+   longer thrown away: H.html() collects their source into H.inlineScripts (in
+   document order, src-less blocks only, skipping non-JS types like
+   application/json), and H.runInline() evaluates them in that order in GLOBAL
+   scope — the same scope `A`, `document` and `window` live in — so the code
+   sees exactly what it sees in a browser.
+
+   Why it had to be a separate call rather than an option on H.html(): the
+   inline block is the LAST thing on the page and expects core/arcade.js et al.
+   to have run already. So the sequence a page test follows is
+
+     H.html("daily/index.html");   // markup in, inline source captured
+     H.loadScripts();              // the <script src> list, in page order
+     H.runInline();                // now the page's own code runs
+     H.boot();                     // DOMContentLoaded + load
+
+   H.loadScripts() is the same resolution the dynamic-<script> path uses (?v=
+   stripped, "../" resolved against the page's own directory), so a test never
+   hand-rolls it and cannot drift from the page.
+
+   An inline block that THROWS rethrows out of H.runInline() with the page and
+   block number attached, rather than being logged and stepped over. A browser
+   would carry on to the next block; here, a page whose only script died is a
+   page with nothing on it, and that must stop the test rather than let it
+   assert cheerfully against an empty <body>. Wrap the call if you want the
+   browser's behaviour.
+
+   Also: `el.href = "…"` now REFLECTS into the href attribute, the way it does
+   in a browser. A.mount() builds the back-chevron that every page shares with a
+   property assignment, so an audit that walked [href] never saw the one link
+   they all have in common — the one that breaks when A.rootPath() misjudges how
+   deep the page is.
+
+   And insertAdjacentHTML / insertAdjacentElement exist now. They did not, so
+   the passport's flag wall threw on its first tile and took the whole page down
+   with it — invisible, because nothing had ever run that inline block.
+
+   These four pages — /, daily/, league/, passport/ — do ALL of their rendering
+   in an inline block, which is why they had no tests at all until now.
    =========================================================================== */
 
 (function () {
@@ -432,6 +476,17 @@
   };
   Element.prototype.setAttributeNS = function (ns, k, v) { this.setAttribute(k, v); };
 
+  /* `el.href = x` reflects into the attribute, as it does in a browser.
+     A.mount() builds the back-chevron every page shares with a property
+     assignment, so a link audit that walks [href] could not see the one link
+     common to all of them — and that is exactly the link that breaks when
+     A.rootPath() guesses the depth wrong. */
+  Object.defineProperty(Element.prototype, "href", {
+    configurable: true,
+    get: function () { return this.attributes.href === undefined ? "" : this.attributes.href; },
+    set: function (v) { this.attributes.href = String(v); },
+  });
+
   Object.defineProperty(Element.prototype, "textContent", {
     get: function () {
       return this.childNodes.map(function (n) {
@@ -460,6 +515,39 @@
   Object.defineProperty(Element.prototype, "outerHTML", {
     get: function () { return serialize([this]); },
   });
+
+  /* insertAdjacent{HTML,Element} — real methods a page is entitled to use, and
+     their absence threw. The passport builds every flag tile by appending an
+     <img> and then dropping the ISO label in beside it, so the entire wall
+     (194 countries) died on the first one and no test could reach it. */
+  Element.prototype.insertAdjacentElement = function (pos, node) {
+    pos = String(pos).toLowerCase();
+    if (pos === "afterbegin") this.insertBefore(node, this.childNodes[0] || null);
+    else if (pos === "beforeend") this.appendChild(node);
+    else if (pos === "beforebegin") { if (this.parentNode) this.parentNode.insertBefore(node, this); }
+    else if (pos === "afterend") { if (this.parentNode) this.parentNode.insertBefore(node, this.nextSibling); }
+    else throw new Error("insertAdjacentElement: bad position " + pos);
+    return node;
+  };
+  Element.prototype.insertAdjacentHTML = function (pos, html) {
+    var tmp = new Element("div");
+    parseInto(tmp, String(html));
+    var kids = tmp.childNodes.slice();
+    kids.forEach(function (n) { n.parentNode = null; });
+    tmp.childNodes = [];
+    // Anchors captured once so a run of nodes keeps its source order.
+    pos = String(pos).toLowerCase();
+    var self = this;
+    var ref = pos === "afterbegin" ? (this.childNodes[0] || null)
+            : pos === "beforebegin" ? this
+            : pos === "afterend" ? this.nextSibling : null;
+    kids.forEach(function (n) {
+      if (pos === "beforeend") self.appendChild(n);
+      else if (pos === "afterbegin") self.insertBefore(n, ref);
+      else if (self.parentNode) self.parentNode.insertBefore(n, ref);
+      else throw new Error("insertAdjacentHTML: " + pos + " on a node with no parent");
+    });
+  };
 
   Element.prototype.getBoundingClientRect = function () {
     return { x: 0, y: 0, top: 0, left: 0, right: this.offsetWidth, bottom: this.offsetHeight,
@@ -1171,12 +1259,16 @@
   var H = {
     doc: doc, win: win, TOKENS: TOKENS, log: LOG,
     root: ROOT,
+    page: "", dir: "", scripts: [], inlineScripts: [],
 
     /* Parse a real index.html into the DOM. <script> tags are NOT executed —
-       you pass those on the jsc command line, in the same order as the file. */
+       you pass those on the jsc command line, in the same order as the file,
+       or call H.loadScripts(). Inline blocks are captured, not run: see
+       H.runInline(). */
     html: function (path) {
       var src = readFile(ROOT + path);
       // The page's own directory: dynamic <script src> resolves against it.
+      H.page = String(path);
       H.dir = String(path).replace(/[^\/]*$/, "").replace(/\/$/, "");
       var m = /<body[^>]*>([\s\S]*)<\/body>/i.exec(src);
       var body = m ? m[1] : src;
@@ -1189,8 +1281,54 @@
       H.scripts = [];
       var sre = /<script[^>]*src\s*=\s*["']([^"']+)["']/gi, sm;
       while ((sm = sre.exec(src))) H.scripts.push(sm[1]);
+      // …and the inline blocks, in document order, for H.runInline()
+      H.inlineScripts = [];
+      var ire = /<script([^>]*)>([\s\S]*?)<\/script>/gi, im;
+      while ((im = ire.exec(src))) {
+        var attrs = im[1] || "";
+        if (/\ssrc\s*=/i.test(attrs)) continue;                  // external, handled above
+        var ty = /\stype\s*=\s*["']?([^"'\s>]+)/i.exec(attrs);
+        // A <script type="application/json"> block is data, not code.
+        if (ty && !/^(text\/javascript|application\/javascript|module)$/i.test(ty[1])) continue;
+        if (!/\S/.test(im[2])) continue;
+        H.inlineScripts.push(im[2]);
+      }
       return doc.body;
     },
+
+    /* Load exactly the external scripts this page lists, in page order,
+       resolved against the page's own directory (?v= stripped) — the same
+       resolution a dynamically inserted <script src> gets. */
+    loadScripts: function () {
+      (H.scripts || []).forEach(function (src) {
+        var p = resolveRel(src);
+        try { load(ROOT + p); }
+        catch (e) { throw new Error("harness: " + H.page + " loads " + src + " → " + p + " which failed: " + (e && e.message || e)); }
+      });
+      return H;
+    },
+
+    /* Run the page's own inline <script> blocks, in document order, in global
+       scope. Call it AFTER loadScripts(): the inline block is the last thing on
+       the page and expects the core to be there. A block that throws rethrows
+       here, with the page and block number attached — see the header note. */
+    runInline: function (which) {
+      var list = H.inlineScripts || [];
+      var only = which === undefined ? null : +which;
+      list.forEach(function (code, i) {
+        if (only !== null && i !== only) return;
+        try { (0, eval)(code); }
+        catch (e) {
+          throw new Error("inline <script> #" + i + " of " + H.page + " threw: " + (e && e.stack || e));
+        }
+      });
+      H.flush();
+      return H;
+    },
+
+    /* Resolve a page-relative href the way the browser would, against the
+       directory of the page last passed to H.html(). Repo-relative, no ROOT. */
+    resolve: function (href) { return resolveRel(href); },
 
     /* Fire the lifecycle events a game may be waiting on. */
     boot: function () {
@@ -1336,6 +1474,7 @@
       store = {}; raf = []; LOG.length = 0; timers = []; clock = 0;
       doc.body.innerHTML = ""; doc.head.innerHTML = ""; doc._h = {}; win._wh = {};
       doc.activeElement = doc.body;
+      H.scripts = []; H.inlineScripts = [];
     },
 
     /* ── the CALENDAR clock (distinct from the timer clock above) ──────────

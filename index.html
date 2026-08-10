@@ -213,7 +213,7 @@
         <span>CONNECTRADE</span><span>FLAGLE</span><span>GEOGRID</span><span>GLOBLE</span>
         <span>OUTLINE</span><span>ATLAS GYM</span><span>TIMEGUESSR</span><span>PLACEGUESSR</span>
         <span>FOODGUESSR</span><span>CHRONO</span><span>CLUEDROP</span><span>LINGUAGUESSR</span>
-        <span>THE DECIDER</span>
+        <span>LINXICON</span><span>PHYLO</span><span>MISALIGNED</span><span>THE DECIDER</span>
       </div>
     </div>
     <div class="foot">
@@ -312,7 +312,9 @@
     var stamps = Object.keys(JSON.parse(ls("ag_passport") || "{}")).length;
     var bits = [];
     if (cur) bits.push("<b>" + cur + "</b>-day run");
-    if (stamps) bits.push("<b>" + stamps + "</b>/195 stamped");
+    // No denominator here: the passport counts sovereign states (194) and this
+    // counts every stamp, so a fixed /195 could only ever disagree with it.
+    if (stamps) bits.push("<b>" + stamps + "</b> stamped");
     document.getElementById("wing-stat").innerHTML =
       bits.length ? bits.join(" · ") : "Nothing played yet today";
   } catch (e) {}

@@ -6,7 +6,7 @@
 <title>THE LEAGUE · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
-<link rel="stylesheet" href="../core/style.css?v=12">
+<link rel="stylesheet" href="../core/style.css?v=13">
 <style>
   .vs { display: flex; align-items: stretch; gap: var(--sp-2); margin: var(--sp-2) 0 var(--sp-4); }
   .vs .side {
@@ -84,10 +84,10 @@
 </style>
 </head>
 <body>
-<script src="../core/registry.js?v=12"></script>
-<script src="../core/arcade.js?v=12"></script>
-<script src="../core/ui.js?v=12"></script>
-<script src="../core/audio.js?v=12"></script>
+<script src="../core/registry.js?v=13"></script>
+<script src="../core/arcade.js?v=13"></script>
+<script src="../core/ui.js?v=13"></script>
+<script src="../core/audio.js?v=13"></script>
 <script>
 (function () {
   var main = A.mount({ title: "THE LEAGUE", sub: null, wide: true, accent: "--hot",
@@ -178,7 +178,10 @@
         h += "<tr class='" + (i === 0 ? "top" : "") + (r === meRow ? " me" : "") + "'>" +
           "<td class='l'>" + (i + 1) + "</td><td class='l'><b>" + A.esc(r.n) + "</b></td>" +
           "<td>" + r.p + "</td><td>" + r.w + "</td><td>" + r.d + "</td><td>" + r.l + "</td>" +
-          "<td class='pts'>" + r.pts + "</td><td>" + (r.f - r.a > 0 ? "+" : "") + (r.f - r.a) + "</td></tr>";
+          // The column is headed +/− so the negative wants the same minus sign,
+          // not the hyphen a JS number stringifies to.
+          "<td class='pts'>" + r.pts + "</td><td>" + (r.f > r.a ? "+" : r.f < r.a ? "−" : "") +
+          Math.abs(r.f - r.a) + "</td></tr>";
       });
       h += "</tbody></table>";
 
@@ -205,12 +208,17 @@
               '<span class="bar"><span class="ac-bar"><i style="width:' + w + '%"></i></span></span>' +
               '<span class="a" style="width:44px">' + w + "%</span></div>";
           });
-        var best = keys.slice().sort(function (a, b) { return (T.byGame[b].me - T.byGame[b].them) - (T.byGame[a].me - T.byGame[a].them); });
-        if (best.length > 1) {
+        var diff = function (k) { return T.byGame[k].me - T.byGame[k].them; };
+        var best = keys.slice().sort(function (a, b) { return diff(b) - diff(a); });
+        // Only claim a patch when there is one to claim. Every game level (all
+        // draws, or a dead-even season) used to still name a winner for each of
+        // you, which is exactly the kind of confidently-wrong line that makes
+        // the whole page look made up.
+        if (best.length > 1 && diff(best[0]) > diff(best[best.length - 1])) {
           var yours = A.game(best[0]), theirs = A.game(best[best.length - 1]);
           h += '<p class="tiny dim center" style="margin-top:10px">Your patch: <b style="color:var(--ok)">' +
-            (yours ? yours.name : best[0]) + "</b> · " + A.esc(T.opponent) + "'s patch: <b>" +
-            (theirs ? theirs.name : best[best.length - 1]) + "</b></p>";
+            A.esc(yours ? yours.name : best[0]) + "</b> · " + A.esc(T.opponent) + "'s patch: <b>" +
+            A.esc(theirs ? theirs.name : best[best.length - 1]) + "</b></p>";
         }
       }
     }

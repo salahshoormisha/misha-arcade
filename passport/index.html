@@ -6,7 +6,7 @@
 <title>ARCADE PASSPORT · Midnight Arcade</title>
 <meta name="theme-color" content="#0a0910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛂</text></svg>">
-<link rel="stylesheet" href="../core/style.css?v=12">
+<link rel="stylesheet" href="../core/style.css?v=13">
 <style>
   #map {
     width: 100%; height: 300px; display: block; border-radius: var(--r-md);
@@ -53,32 +53,39 @@
 </style>
 </head>
 <body>
-<script src="../core/registry.js?v=12"></script>
-<script src="../core/arcade.js?v=12"></script>
-<script src="../core/ui.js?v=12"></script>
-<script src="../core/audio.js?v=12"></script>
-<script src="../core/flagart.js?v=12"></script>
-<script src="../core/worldmap.js?v=12"></script>
-<script src="../core/data/countries.js?v=12" onerror="window.__noCountries=1"></script>
-<script src="../core/data/flags.js?v=12" onerror="window.__noFlags=1"></script>
-<script src="../core/data/world.js?v=12" onerror="window.__noWorld=1"></script>
+<script src="../core/registry.js?v=13"></script>
+<script src="../core/arcade.js?v=13"></script>
+<script src="../core/ui.js?v=13"></script>
+<script src="../core/audio.js?v=13"></script>
+<script src="../core/flagart.js?v=13"></script>
+<script src="../core/worldmap.js?v=13"></script>
+<script src="../core/data/countries.js?v=13" onerror="window.__noCountries=1"></script>
+<script src="../core/data/flags.js?v=13" onerror="window.__noFlags=1"></script>
+<script src="../core/data/world.js?v=13" onerror="window.__noWorld=1"></script>
 <script>
 (function () {
+  var C = window.AD_COUNTRIES || [];
+  var sovereign = C.filter(function (c) { return c.un === 1; });
+  // The collection is whatever countries.js marks sovereign — 193 UN members
+  // plus the Vatican. Counted from the data, not written into the copy: the
+  // help text used to promise 195 while the counter read /194, and a scoreboard
+  // that disagrees with its own instructions is the fastest way to look broken.
+  var TOTAL = sovereign.length || 194;
+
   var main = A.mount({ title: "ARCADE PASSPORT", sub: null, wide: true, accent: "--violet",
     help: "<p>Every country you correctly name in <b>FLAGLE</b>, <b>TRADLE</b>, <b>GLOBLE</b>, " +
       "<b>OUTLINE</b>, <b>GEOGRID</b>, <b>FOODGUESSR</b>, <b>CLUEDROP</b>, <b>LINGUAGUESSR</b>, " +
       "<b>PICK 5</b> or the <b>PICTURE HOUSE</b> gets stamped in here — once, forever.</p>" +
-      "<p>195 UN member states to collect. The map is real geometry, so the shapes are the shapes.</p>" });
+      "<p>" + TOTAL + " sovereign states to collect — every UN member, plus the Vatican. " +
+      "The map is real geometry, so the shapes are the shapes.</p>" });
 
-  var C = window.AD_COUNTRIES || [];
-  var sovereign = C.filter(function (c) { return c.un === 1; });
   var pass = A.passport();
   var mode = "have";
 
   function render() {
     pass = A.passport();
     var have = Object.keys(pass);
-    var total = sovereign.length || 195;
+    var total = TOTAL;
     var haveSov = have.filter(function (i) { return sovereign.some(function (c) { return c.i === i; }); });
 
     var h = '<div class="center" style="padding:4px 0 2px">' +
