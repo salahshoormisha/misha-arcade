@@ -127,10 +127,28 @@ a generated file — edit its bank and re-run the generator.**
 1. **MISALIGNED** — author more BENCH rows (real, cited machine-vs-human
    benchmark data points) in `_build/mi_bank_extra.py`, re-run
    `gen_misaligned.py`, get `t_misaligned.js` green, then clear `soon`.
-2. **ODD ONE OUT** — the generator still admits antonym members (`bad` inside a
-   GOOD thread) and decoys that genuinely belong (`CLOUD` for weather). Fix both
-   in `_build/sem_gen_oddone.py`, then clear `soon`. **Fewer clean puzzles beat
-   more murky ones.**
+2. **ODD ONE OUT — built, reviewed, DELIBERATELY LEFT CLOSED.** The cabinet
+   works: `games/oddone/` boots and plays. The *puzzles* are not good enough.
+   All 81 rounds in `core/data/oddone.js` were read by hand on 2026-08-09.
+   Roughly two thirds are clean — `broccoli, celery, asparagus, cucumber` vs
+   **lemonade**; `whiskers, claws, paws, kittens` vs **fingernails**; `sham,
+   hoax, fraud, ruse` vs **camouflage**. The rest are not:
+
+   | Round | Thread | "Odd" | Why it's broken |
+   |---|---|---|---|
+   | 45 | willow, pine, chestnut, **squirrel** | hedgehog | squirrel is in the thread; two animals, either defensible |
+   | 28 | bananas, strawberries, grapes, **vegetables** | weeds | neither vegetables nor weeds is a fruit |
+   | 30 | salsa, **steak**, garlic, mayo | buffalo | buffalo *is* a sauce; steak isn't |
+   | 20 | jeep, hybrid, motor, gasoline | fusion | the Ford Fusion is a car |
+   | 33 | omelet, mayonnaise, custard, **noodle** | sponge | both noodle and sponge take egg |
+
+   And the pool is only **27 days** (81 rounds, 3 a day). Two thirds of 27 is
+   about a fortnight of play. So this needs a bigger, stricter generation run —
+   not a curation pass over what is there. The two generator fixes still to
+   land are in `_build/sem_gen_oddone.py`: reject antonym members (`bad` in a
+   GOOD thread) and reject decoys that genuinely belong to the thread.
+   **A puzzle where two of the five are each arguable is worse than no cabinet
+   at all — the players will spot it on day one and stop trusting the arcade.**
 3. **TIMEGUESSR** — re-calibrate the norm curve down to the contract's target
    (good day ≈70-75, excellent ≈90), fix the mostly-black share grid, clear `soon`.
 4. **FLAGLE** — rerun the cycle sweep with `H.atDay`; decide on the merits what
